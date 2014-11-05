@@ -1,3 +1,8 @@
+# Mac specific files
+.DS_Store
+.Spotlight-V100
+.Trashes
+
 # Compiled Object files
 *.slo
 *.lo
@@ -26,3 +31,16 @@
 *.exe
 *.out
 *.app
+
+# Precompiled GCC headers
+*.gch
+
+# CMake files
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+install_manifest.txt
+
+# Build directory
+build/
