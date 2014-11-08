@@ -1,5 +1,4 @@
-#include <SDL.h>
-#include <SDL_image.h>
+#include <sfz/SDL.hpp>
 #include <GL/glew.h>
 
 #include <iostream>
@@ -7,8 +6,7 @@
 
 int main(int argc, char** argv)
 {
-	SDL_Init(SDL_INIT_VIDEO);
-	IMG_Init(IMG_INIT_PNG);
+	sdl::Session sdlSession{{sdl::InitFlags::EVERYTHING}, {sdl::ImgInitFlags::PNG}};
 	
 	// OpenGL 3.2 Core
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -33,7 +31,5 @@ int main(int argc, char** argv)
 
 	SDL_GL_DeleteContext(context);
 	SDL_DestroyWindow(window);
-	IMG_Quit();
-	SDL_Quit();
 	return 0;
 }

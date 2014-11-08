@@ -50,6 +50,10 @@ add_executable(
 	snakium-cubed
 	
 	${SOURCE_DIR}/Main.cpp
+
+	${INCLUDE_DIR}/sfz/SDL.hpp
+	${INCLUDE_DIR}/sfz/sdl/Session.hpp
+	 ${SOURCE_DIR}/sfz/sdl/Session.cpp
 )
 
 # Linking libraries to main executable
