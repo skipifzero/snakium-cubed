@@ -26,6 +26,7 @@ endif ()
 
 # Directories
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src) # Same as source dir since no library.
 
 # Links SDL2, will probably only work on unix-like systems with PkgConfig.
 include(FindPkgConfig)
@@ -38,6 +39,7 @@ find_package(GLEW REQUIRED)
 
 # Include directories
 include_directories(
+	${INCLUDE_DIR}
 	${SDL2_INCLUDE_DIRS}
 	${SDL2IMAGE_INCLUDE_DIRS}
 	${GLEW_INCLUDE_DIRS}
