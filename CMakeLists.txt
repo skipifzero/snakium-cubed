@@ -54,6 +54,8 @@ add_executable(
 	${INCLUDE_DIR}/sfz/SDL.hpp
 	${INCLUDE_DIR}/sfz/sdl/Session.hpp
 	 ${SOURCE_DIR}/sfz/sdl/Session.cpp
+	${INCLUDE_DIR}/sfz/sdl/Window.hpp
+	 ${SOURCE_DIR}/sfz/sdl/Window.cpp
 )
 
 # Linking libraries to main executable

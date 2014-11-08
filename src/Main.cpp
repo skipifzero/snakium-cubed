@@ -13,11 +13,10 @@ int main(int argc, char** argv)
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
-	SDL_Window* window = SDL_CreateWindow("snakium³",
-	                                      SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-	                                      400, 400, SDL_WINDOW_SHOWN);
+	sdl::Window window{"snakium³", 400, 400,
+	     {sdl::WindowFlags::OPENGL, sdl::WindowFlags::RESIZABLE, sdl::WindowFlags::ALLOW_HIGHDPI}};
 
-	SDL_GLContext context = SDL_GL_CreateContext(window);
+	SDL_GLContext context = SDL_GL_CreateContext(window.mPtr);
 
 	// Initializes GLEW, must happen after GL context is created.
 	glewExperimental = GL_TRUE;
@@ -30,6 +29,5 @@ int main(int argc, char** argv)
 	SDL_Delay(2000);
 
 	SDL_GL_DeleteContext(context);
-	SDL_DestroyWindow(window);
 	return 0;
 }
