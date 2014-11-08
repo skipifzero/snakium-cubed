@@ -32,10 +32,15 @@ include(FindPkgConfig)
 pkg_search_module(SDL2 REQUIRED sdl2)
 pkg_search_module(SDL2IMAGE REQUIRED SDL2_image)
 
+# Links GLEW
+include(FindGLEW)
+find_package(GLEW REQUIRED)
+
 # Include directories
 include_directories(
 	${SDL2_INCLUDE_DIRS}
 	${SDL2IMAGE_INCLUDE_DIRS}
+	${GLEW_INCLUDE_DIRS}
 )
 
 # Main executable
@@ -51,6 +56,7 @@ target_link_libraries(
 
 	${SDL2_LIBRARIES}
 	${SDL2IMAGE_LIBRARIES}
+	${GLEW_LIBRARIES}
 )
 
 # Sets flag that ensures some variables are only set once.
