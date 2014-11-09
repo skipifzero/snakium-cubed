@@ -4,7 +4,7 @@ namespace sdl {
 
 namespace {
 
-Uint32 processFlags(const std::initializer_list<WindowFlags>& flags)
+Uint32 processFlags(const std::initializer_list<WindowFlags>& flags) noexcept
 {
 	Uint32 flag = 0;
 	for (WindowFlags tempFlag : flags) {
@@ -13,7 +13,7 @@ Uint32 processFlags(const std::initializer_list<WindowFlags>& flags)
 	return flag;
 }
 
-SDL_Window* createWindow(const char* title, int height, int width, Uint32 flags)
+SDL_Window* createWindow(const char* title, int height, int width, Uint32 flags) noexcept
 {
 	SDL_Window* window = NULL;
 	window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -31,14 +31,15 @@ SDL_Window* createWindow(const char* title, int height, int width, Uint32 flags)
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 
-Window::Window(const char* title, int width, int height, std::initializer_list<WindowFlags> flags)
+Window::Window(const char* title, int width, int height,
+               std::initializer_list<WindowFlags> flags) noexcept
 :
 	mPtr{createWindow(title, width, height, processFlags(flags))}
 {
 	// Initialization complete.
 }
 
-Window::~Window()
+Window::~Window() noexcept
 {
 	SDL_DestroyWindow(mPtr);
 }
@@ -46,21 +47,21 @@ Window::~Window()
 // Getters
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-int Window::width() const
+int Window::width() const noexcept
 {
 	int width, height;
 	SDL_GetWindowSize(mPtr, &width, &height);
 	return width;
 }
 
-int Window::height() const
+int Window::height() const noexcept
 {
 	int width, height;
 	SDL_GetWindowSize(mPtr, &width, &height);
 	return height;
 }
 
-SDL_Surface* Window::surfacePtr() const
+SDL_Surface* Window::surfacePtr() const noexcept
 {
 	return SDL_GetWindowSurface(mPtr);
 }
@@ -68,7 +69,7 @@ SDL_Surface* Window::surfacePtr() const
 // Setters
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void Window::setSize(int width, int height)
+void Window::setSize(int width, int height) noexcept
 {
 	if(width <= 0 || height <= 0) {
 		return;

@@ -47,11 +47,8 @@ enum class ImgInitFlags : int {
  * @see http://www.libsdl.org/projects/SDL_image/docs/SDL_image_8.html
  * @see http://www.libsdl.org/projects/SDL_image/docs/SDL_image_9.html
  */
-struct Session final {
+class Session final {
 public:
-	template<typename T>
-	using initializer_list = std::initializer_list<T>;
-
 	// No default constructor.
 	Session() = delete;
 
@@ -63,9 +60,10 @@ public:
 	 * @param initFlags the InitFlags to pass upon initialization
 	 * @param imgFlags the ImgInitFlags to pass upon initialization
 	 */
-	Session(initializer_list<InitFlags> initFlags, initializer_list<ImgInitFlags> imgFlags);
+	Session(std::initializer_list<InitFlags> initFlags,
+	        std::initializer_list<ImgInitFlags> imgFlags) noexcept;
 	
-	~Session();
+	~Session() noexcept;
 
 	// No assignment.
 	Session& operator= (const Session&) = delete;

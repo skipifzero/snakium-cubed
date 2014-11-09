@@ -39,7 +39,8 @@ enum class WindowFlags : Uint32 {
  * 
  * @author Peter Hillerström <peter@hstroem.se>
  */
-struct Window final {
+class Window final {
+public:
 	// Public members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -54,23 +55,24 @@ struct Window final {
 	// No copy constructor.
 	Window(const Window&) = delete;
 
-	Window(const char* title, int width, int height, std::initializer_list<WindowFlags> flags);
+	Window(const char* title, int width, int height,
+	       std::initializer_list<WindowFlags> flags) noexcept;
 
-	~Window();
+	~Window() noexcept;
 
 	// Getters
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	int width() const;
+	int width() const noexcept;
 
-	int height() const;
+	int height() const noexcept;
 
-	SDL_Surface* surfacePtr() const;
+	SDL_Surface* surfacePtr() const noexcept;
 
 	// Setters
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	void setSize(int width, int height);
+	void setSize(int width, int height) noexcept;
 
 	// Operators
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
