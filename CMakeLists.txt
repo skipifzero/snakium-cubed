@@ -37,12 +37,17 @@ pkg_search_module(SDL2IMAGE REQUIRED SDL2_image)
 include(FindGLEW)
 find_package(GLEW REQUIRED)
 
+# Links OpenGL
+include(FindOpenGL)
+find_package(OpenGL REQUIRED)
+
 # Include directories
 include_directories(
 	${INCLUDE_DIR}
 	${SDL2_INCLUDE_DIRS}
 	${SDL2IMAGE_INCLUDE_DIRS}
 	${GLEW_INCLUDE_DIRS}
+	${OPENGL_INCLUDE_DIR}
 )
 
 # Main executable
@@ -65,6 +70,7 @@ target_link_libraries(
 	${SDL2_LIBRARIES}
 	${SDL2IMAGE_LIBRARIES}
 	${GLEW_LIBRARIES}
+	${OPENGL_LIBRARIES}
 )
 
 # Sets flag that ensures some variables are only set once.
