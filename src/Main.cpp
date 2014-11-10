@@ -18,6 +18,16 @@
 #include <iostream>
 #include <exception> // std::terminate()
 
+void printErrorLog(GLuint thing) noexcept
+{
+	int logLength;
+	glGetShaderiv(thing, GL_INFO_LOG_LENGTH, &logLength);
+	char* log = new char[logLength+1];
+	glGetShaderInfoLog(thing, logLength, NULL, log);
+	std::cout << log << std::endl;
+	delete[] log;
+}
+
 int main()
 {
 	sdl::Session sdlSession{{sdl::InitFlags::EVERYTHING}, {sdl::ImgInitFlags::PNG}};
@@ -61,12 +71,7 @@ int main()
 		int compileSuccess;
 		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &compileSuccess);
 		if (!compileSuccess) {
-			int logLength;
-			glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &logLength);
-			char* log = new char[logLength+1];
-			glGetShaderInfoLog(vertexShader, logLength, NULL, log);
-			std::cout << log << std::endl;
-			delete[] log;
+			printErrorLog(vertexShader);
 			return 1;
 		}
 	}
@@ -91,12 +96,7 @@ int main()
 		int compileSuccess;
 		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &compileSuccess);
 		if (!compileSuccess) {
-			int logLength;
-			glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &logLength);
-			char* log = new char[logLength+1];
-			glGetShaderInfoLog(fragmentShader, logLength, NULL, log);
-			std::cout << log << std::endl;
-			delete[] log;
+			printErrorLog(fragmentShader);
 			return 1;
 		}
 	}
@@ -116,12 +116,7 @@ int main()
 		GLint linkSuccess = 0;
 		glGetProgramiv(shaderProgram, GL_LINK_STATUS, &linkSuccess);
 		if (!linkSuccess) {
-			int logLength;
-			glGetShaderiv(shaderProgram, GL_INFO_LOG_LENGTH, &logLength);
-			char* log = new char[logLength+1];
-			glGetShaderInfoLog(shaderProgram, logLength, NULL, log);
-			std::cout << log << std::endl;
-			delete[] log;
+			printErrorLog(shaderProgram);
 			return 1;
 		}
 	}
