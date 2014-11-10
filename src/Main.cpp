@@ -157,25 +157,53 @@ int main()
 	glEnableVertexAttribArray(1);
 
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	float lookAtMe = 0.0f;
+	bool running = true;
+	SDL_Event event;
+	while (running) {
 
-	glViewport(0, 0, window.width(), window.height());
+		// Event handling
+		while (SDL_PollEvent(&event) != 0) {
+			switch (event.type) {
+			case SDL_QUIT:
+				running = false;
+				break;
+			case SDL_KEYDOWN:
+				switch (event.key.keysym.sym) {
+				case SDLK_ESCAPE:
+					running = false;
+					break;
+				case SDLK_UP:
+					lookAtMe += 0.1f;
+					break;
+				case SDLK_DOWN:
+					lookAtMe -= 0.1f;
+					break;
+				}
+				break;
+			default:
+				std::cout << "Unhandled event: " << std::to_string(event.type) << "\n";
+			}
+		}
 
-	glDisable(GL_CULL_FACE);
+		// Rendering
+		glClearColor(lookAtMe, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glUseProgram(shaderProgram);
+		glViewport(0, 0, window.width(), window.height());
 
-	glBindVertexArray(vao);
+		glDisable(GL_CULL_FACE);
 
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+		glUseProgram(shaderProgram);
 
-	glUseProgram(0);
+		glBindVertexArray(vao);
 
-	SDL_GL_SwapWindow(window.mPtr);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 
+		glUseProgram(0);
 
-	SDL_Delay(2000);
+		SDL_GL_SwapWindow(window.mPtr);
+	}
 
 	SDL_GL_DeleteContext(context);
 	return 0;
