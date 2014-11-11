@@ -28,24 +28,24 @@ endif ()
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src) # Same as source dir since no library.
 
-# Links SDL2, will probably only work on unix-like systems with PkgConfig.
-include(FindPkgConfig)
-pkg_search_module(SDL2 REQUIRED sdl2)
-pkg_search_module(SDL2IMAGE REQUIRED SDL2_image)
+# Adds our cmake modules to module path.
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
-# Links GLEW
-include(FindGLEW)
-find_package(GLEW REQUIRED)
+# Finds SDL2 and SDL2_image, will apparently make use of $SDL2 environment variable on Windows.
+find_package(SDL2 REQUIRED) # ${SDL2_INCLUDE_DIR}, ${SDL2_LIBRARY}
+find_package(SDL2_image REQUIRED) # ${SDL2_IMAGE_INCLUDE_DIR}, ${SDL2_IMAGE_LIBRARY}
+
+# Finds GLEW
+find_package(GLEW REQUIRED) # ${GLEW_INCLUDE_DIRS}, ${GLEW_LIBRARIES}
 
 # Links OpenGL
-include(FindOpenGL)
-find_package(OpenGL REQUIRED)
+find_package(OpenGL REQUIRED) # ${OPENGL_INCLUDE_DIR}, ${OPENGL_LIBRARIES}
 
 # Include directories
 include_directories(
 	${INCLUDE_DIR}
-	${SDL2_INCLUDE_DIRS}
-	${SDL2IMAGE_INCLUDE_DIRS}
+	${SDL2_INCLUDE_DIR}
+	${SDL2_IMAGE_INCLUDE_DIR}
 	${GLEW_INCLUDE_DIRS}
 	${OPENGL_INCLUDE_DIR}
 )
@@ -67,8 +67,8 @@ add_executable(
 target_link_libraries(
 	snakium-cubed
 
-	${SDL2_LIBRARIES}
-	${SDL2IMAGE_LIBRARIES}
+	${SDL2_LIBRARY}
+	${SDL2_IMAGE_LIBRARY}
 	${GLEW_LIBRARIES}
 	${OPENGL_LIBRARIES}
 )
