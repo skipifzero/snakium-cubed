@@ -52,7 +52,7 @@ int main()
 
 
 	const GLchar* vertexShaderSrc = R"(
-		#version 140
+		#version 330
 
 		in vec3 position;
 		in vec3 color;
@@ -77,7 +77,7 @@ int main()
 	}
 
 	const GLchar* fragmentShaderSrc = R"(
-		#version 140
+		#version 330
 
 		precision highp float;
 
