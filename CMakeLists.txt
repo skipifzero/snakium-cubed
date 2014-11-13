@@ -23,13 +23,9 @@ if (NOT S3_CONFIGURED_ONCE)
 	    CACHE STRING "Flags used by the compiler during all build types." FORCE)
 endif ()
 
-
 # Directories
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src) # Same as source dir since no library.
-
-# Adds our cmake modules to module path.
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 # Finds SDL2 and SDL2_image, will apparently make use of $SDL2 environment variable on Windows.
 find_package(SDL2 REQUIRED) # ${SDL2_INCLUDE_DIR}, ${SDL2_LIBRARY}
@@ -72,6 +68,12 @@ target_link_libraries(
 	${GLEW_LIBRARIES}
 	${OPENGL_LIBRARIES}
 )
+
+# Specifies directory where generated binary and assets will be placed.
+# Assets copying is currently only run when CMakeLists.txt is invoked.
+message("Binary output directory: " ${CMAKE_BINARY_DIR}/bin)
+INSTALL(TARGETS snakium-cubed DESTINATION ${CMAKE_BINARY_DIR}/bin)
+file(COPY assets DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 # Sets flag that ensures some variables are only set once.
 set(S3_CONFIGURED_ONCE TRUE CACHE INTERNAL "A flag showing that CMake has configured at least once.")
