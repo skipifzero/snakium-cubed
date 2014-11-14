@@ -53,6 +53,8 @@ add_executable(
 	${SOURCE_DIR}/Main.cpp
 
 	${INCLUDE_DIR}/sfz/SDL.hpp
+	${INCLUDE_DIR}/sfz/GLTexture.hpp
+	 ${SOURCE_DIR}/sfz/GLTexture.cpp
 	${INCLUDE_DIR}/sfz/sdl/Session.hpp
 	 ${SOURCE_DIR}/sfz/sdl/Session.cpp
 	${INCLUDE_DIR}/sfz/sdl/Window.hpp
