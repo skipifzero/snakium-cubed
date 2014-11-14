@@ -8,6 +8,7 @@
 #include <string>
 #include <iostream>
 #include <exception> // std::terminate
+#include "sfz/gl/Utils.hpp"
 
 namespace sdl {
 

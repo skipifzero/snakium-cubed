@@ -4,14 +4,6 @@ namespace sdl {
 	
 namespace {
 
-void checkGLError() noexcept
-{
-	GLenum errorCode = glGetError();
-	if (errorCode != GL_NO_ERROR) {
-		std::cout << "OpenGL Error: " << gluErrorString(errorCode) << std::endl;
-	}
-}
-
 GLuint loadTexture(const std::string& path) noexcept
 {
 	// Load specified surface.
@@ -40,7 +32,7 @@ GLuint loadTexture(const std::string& path) noexcept
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, formattedSurface->w, formattedSurface->h, 0,
 	             GL_RGBA, GL_UNSIGNED_BYTE, formattedSurface->pixels);
 	SDL_FreeSurface(formattedSurface);
-	checkGLError();
+	sfz::checkAllGLErrors();
 	
 	// TODO: Mipmaps and anistropic filtering.
 	
