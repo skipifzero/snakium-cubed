@@ -40,7 +40,7 @@ int main()
 		std::terminate();
 	}
 
-	GLuint vertexShader = sfz::compileVertexShader(R"(
+	GLuint vertexShader = gl::compileVertexShader(R"(
 		#version 330
 
 		in vec3 position;
@@ -54,7 +54,7 @@ int main()
 		}
 	)");
 
-	GLuint fragmentShader = sfz::compileFragmentShader(R"(
+	GLuint fragmentShader = gl::compileFragmentShader(R"(
 		#version 330
 
 		precision highp float;
@@ -80,7 +80,7 @@ int main()
 	glBindAttribLocation(shaderProgram, 1, "color");
 	glBindFragDataLocation(shaderProgram, 0, "fragmentColor");
 
-	sfz::linkProgram(shaderProgram);
+	gl::linkProgram(shaderProgram);
 
 	const float positions[] = {
 		//x, y, z

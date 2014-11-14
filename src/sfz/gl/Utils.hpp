@@ -7,7 +7,7 @@
 #include <string>
 #include <exception> // std::terminate()
 
-namespace sfz {
+namespace gl {
 
 /**
  * @brief Checks the latest error returned by glGetError().
@@ -47,6 +47,6 @@ GLuint compileFragmentShader(const std::string& shaderSource) noexcept;
  */
 void linkProgram(GLuint program) noexcept;
 
-} // namespace sfz
+} // namespace gl
 
 #endif

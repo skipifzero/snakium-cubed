@@ -1,6 +1,6 @@
 #include "sfz/gl/Utils.hpp"
 
-namespace sfz {
+namespace gl {
 
 void checkGLError() noexcept
 {
@@ -82,4 +82,4 @@ void linkProgram(GLuint program) noexcept
 	checkAllGLErrors();
 }
 
-} // namespace sfz
+} // namespace gl

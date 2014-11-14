@@ -32,7 +32,7 @@ GLuint loadTexture(const std::string& path) noexcept
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, formattedSurface->w, formattedSurface->h, 0,
 	             GL_RGBA, GL_UNSIGNED_BYTE, formattedSurface->pixels);
 	SDL_FreeSurface(formattedSurface);
-	sfz::checkAllGLErrors();
+	gl::checkAllGLErrors();
 	
 	// TODO: Mipmaps and anistropic filtering.
 	
