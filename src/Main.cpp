@@ -18,27 +18,17 @@
 #include <iostream>
 #include <exception> // std::terminate()
 
-void printErrorLog(GLuint thing) noexcept
-{
-	int logLength;
-	glGetShaderiv(thing, GL_INFO_LOG_LENGTH, &logLength);
-	char* log = new char[logLength+1];
-	glGetShaderInfoLog(thing, logLength, NULL, log);
-	std::cout << log << std::endl;
-	delete[] log;
-}
-
 int main()
 {
 	sdl::Session sdlSession{{sdl::InitFlags::EVERYTHING}, {sdl::ImgInitFlags::PNG}};
 	
+	sdl::Window window{"snakium³", 400, 400,
+	     {sdl::WindowFlags::OPENGL, sdl::WindowFlags::RESIZABLE, sdl::WindowFlags::ALLOW_HIGHDPI}};
+
 	// OpenGL 3.3 Core
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
-	sdl::Window window{"snakium³", 400, 400,
-	     {sdl::WindowFlags::OPENGL, sdl::WindowFlags::RESIZABLE, sdl::WindowFlags::ALLOW_HIGHDPI}};
 
 	SDL_GLContext context = SDL_GL_CreateContext(window.mPtr);
 
@@ -50,8 +40,7 @@ int main()
 		std::terminate();
 	}
 
-
-	const GLchar* vertexShaderSrc = R"(
+	GLuint vertexShader = sfz::compileVertexShader(R"(
 		#version 330
 
 		in vec3 position;
@@ -63,43 +52,23 @@ int main()
 			gl_Position = vec4(position, 1);
 			outColor = color;
 		}
-	)";
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSrc, NULL);
-	glCompileShader(vertexShader);
-	{
-		int compileSuccess;
-		glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &compileSuccess);
-		if (!compileSuccess) {
-			printErrorLog(vertexShader);
-			return 1;
-		}
-	}
+	)");
 
-	const GLchar* fragmentShaderSrc = R"(
+	GLuint fragmentShader = sfz::compileFragmentShader(R"(
 		#version 330
 
 		precision highp float;
 
 		in vec3 outColor;
 		out vec4 fragmentColor;
+	
+		uniform sampler2D texture;
 
 		void main()
 		{
-			fragmentColor = vec4(outColor, 1);	
+			fragmentColor = vec4(outColor, 1);
 		}
-	)";
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSrc, NULL);
-	glCompileShader(fragmentShader);
-	{
-		int compileSuccess;
-		glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &compileSuccess);
-		if (!compileSuccess) {
-			printErrorLog(fragmentShader);
-			return 1;
-		}
-	}
+	)");
 
 	GLuint shaderProgram = glCreateProgram();
 	glAttachShader(shaderProgram, vertexShader);
@@ -111,16 +80,7 @@ int main()
 	glBindAttribLocation(shaderProgram, 1, "color");
 	glBindFragDataLocation(shaderProgram, 0, "fragmentColor");
 
-	glLinkProgram(shaderProgram);
-	{
-		GLint linkSuccess = 0;
-		glGetProgramiv(shaderProgram, GL_LINK_STATUS, &linkSuccess);
-		if (!linkSuccess) {
-			printErrorLog(shaderProgram);
-			return 1;
-		}
-	}
-
+	sfz::linkProgram(shaderProgram);
 
 	const float positions[] = {
 		//x, y, z
@@ -156,7 +116,6 @@ int main()
 	glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, 0);
 	glEnableVertexAttribArray(1);
 
-
 	float lookAtMe = 0.0f;
 	bool running = true;
 	SDL_Event event;
@@ -181,8 +140,8 @@ int main()
 					break;
 				}
 				break;
-			default:
-				std::cout << "Unhandled event: " << std::to_string(event.type) << "\n";
+			//default:
+				//std::cout << "Unhandled event: " << std::to_string(event.type) << "\n";
 			}
 		}
 
