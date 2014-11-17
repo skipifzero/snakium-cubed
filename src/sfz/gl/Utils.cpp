@@ -2,21 +2,26 @@
 
 namespace gl {
 
-void checkGLError() noexcept
+bool checkGLError() noexcept
 {
 	GLenum errorCode = glGetError();
 	if (errorCode != GL_NO_ERROR) {
 		std::cerr << "OpenGL Error: " << gluErrorString(errorCode) << std::endl;
+		return true;
 	}
+	return false;
 }
 
-void checkAllGLErrors() noexcept
+bool checkAllGLErrors() noexcept
 {
+	bool foundError = false;
 	GLenum errorCode = glGetError();
 	while (errorCode != GL_NO_ERROR) {
 		std::cerr << "OpenGL Error: " << gluErrorString(errorCode) << std::endl;
 		errorCode = glGetError();
+		foundError = true;
 	}
+	return foundError;
 }
 
 void printShaderInfoLog(GLuint program) noexcept

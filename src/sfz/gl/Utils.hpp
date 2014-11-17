@@ -11,13 +11,15 @@ namespace gl {
 
 /**
  * @brief Checks the latest error returned by glGetError().
+ * @return whether an error was found or not
  */
-void checkGLError() noexcept;
+bool checkGLError() noexcept;
 
 /**
  * @brief Checks all errors returned by glGetError() until GL_NO_ERROR is returned.
+ * @return whether any errors where found or not
  */
-void checkAllGLErrors() noexcept;
+bool checkAllGLErrors() noexcept;
 
 /**
  * @brief Prints the error log returned by glShaderInfoLog().
