@@ -6,7 +6,7 @@ void checkGLError() noexcept
 {
 	GLenum errorCode = glGetError();
 	if (errorCode != GL_NO_ERROR) {
-		std::cout << "OpenGL Error: " << gluErrorString(errorCode) << std::endl;
+		std::cerr << "OpenGL Error: " << gluErrorString(errorCode) << std::endl;
 	}
 }
 
@@ -14,7 +14,7 @@ void checkAllGLErrors() noexcept
 {
 	GLenum errorCode = glGetError();
 	while (errorCode != GL_NO_ERROR) {
-		std::cout << "OpenGL Error: " << gluErrorString(errorCode) << std::endl;
+		std::cerr << "OpenGL Error: " << gluErrorString(errorCode) << std::endl;
 		errorCode = glGetError();
 	}
 }
@@ -25,7 +25,7 @@ void printShaderInfoLog(GLuint program) noexcept
 	glGetShaderiv(program, GL_INFO_LOG_LENGTH, &logLength);
 	char* log = new char[logLength+1];
 	glGetShaderInfoLog(program, logLength, NULL, log);
-	std::cout << log << std::endl;
+	std::cerr << log << std::endl;
 	delete[] log;
 }
 
