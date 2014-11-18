@@ -71,8 +71,8 @@ int main()
 		// u,    v
 		0.0f, 0.0f,
 		0.0f, 1.0f,
-		1.0f, 1.0f,
-		1.0f, 0.0f
+		1.0f, 0.0f,
+		1.0f, 1.0f
 	};
 
 	// Buffer objects
