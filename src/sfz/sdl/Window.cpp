@@ -19,7 +19,7 @@ SDL_Window* createWindow(const char* title, int height, int width, Uint32 flags)
 	window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 	                          width, height, flags);
 	if (window == NULL) {
-		std::cout << "Could not create SDL window: " << SDL_GetError() << std::endl;
+		std::cerr << "Could not create SDL window: " << SDL_GetError() << std::endl;
 		std::terminate();
 	}
 	return window;
