@@ -11,7 +11,7 @@ Session::Session(std::initializer_list<InitFlags> initFlags,
 		initFlag = initFlag | static_cast<Uint32>(tempFlag);
 	}
 	if (SDL_Init(initFlag) < 0) {
-		std::cout << "SDL_Init failed: " << SDL_GetError() << std::endl;;
+		std::cerr << "SDL_Init failed: " << SDL_GetError() << std::endl;;
 		std::terminate();
 	}
 
@@ -22,7 +22,7 @@ Session::Session(std::initializer_list<InitFlags> initFlags,
 	}
 	int imgInitted = IMG_Init(imgFlag);
 	if ((imgInitted & imgFlag) != imgFlag) {
-		std::cout << "IMG_Init failed: " << IMG_GetError() << std::endl;
+		std::cerr << "IMG_Init failed: " << IMG_GetError() << std::endl;
 		std::terminate();
 	}
 }
