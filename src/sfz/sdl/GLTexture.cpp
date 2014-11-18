@@ -10,7 +10,7 @@ GLuint loadTexture(const std::string& path) noexcept
 	SDL_Surface* surface = NULL;
 	surface = IMG_Load(path.c_str());
 	if (surface == NULL) {
-		std::cout << "Unable to load image at: " << path << ", error: " << IMG_GetError();
+		std::cerr << "Unable to load image at: " << path << ", error: " << IMG_GetError();
 		std::terminate();
 	}
 	
@@ -18,24 +18,29 @@ GLuint loadTexture(const std::string& path) noexcept
 	SDL_Surface* formattedSurface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA8888, 0);
 	free(surface);
 	if (formattedSurface == NULL) {
-		std::cout << "Unable to convert surface format: " << SDL_GetError() << std::endl;
+		std::cerr << "Unable to convert surface format: " << SDL_GetError() << std::endl;
 		std::terminate();
 	}
-	
-	// TODO: Figure out if this is necessary.
-	glEnable(GL_TEXTURE_2D);
-	
+
 	// Creating OpenGL Texture from formatted surface.
 	GLuint texture;
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB8_ALPHA8, formattedSurface->w, formattedSurface->h, 0,
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, formattedSurface->w, formattedSurface->h, 0,
 	             GL_RGBA, GL_UNSIGNED_BYTE, formattedSurface->pixels);
 	SDL_FreeSurface(formattedSurface);
-	gl::checkAllGLErrors();
-	
-	// TODO: Mipmaps and anistropic filtering.
-	
+
+	// Generate mipmaps and enable anisotropic filtering (16x)
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // TODO: GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.0f);
+
+	if (gl::checkAllGLErrors()) {
+		std::cerr << "^^^ Above errors likely caused by loading texture." << std::endl;
+	}
+
 	return texture;
 }
 	
