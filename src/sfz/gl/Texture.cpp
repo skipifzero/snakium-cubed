@@ -1,6 +1,6 @@
-#include "sfz/sdl/GLTexture.hpp"
+#include "sfz/gl/Texture.hpp"
 
-namespace sdl {
+namespace gl {
 	
 namespace {
 
@@ -75,7 +75,7 @@ GLuint loadTexture(const std::string& path) noexcept
 	// Enable anisotropic filtering
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.0f);
 
-	if (gl::checkAllGLErrors()) {
+	if (checkAllGLErrors()) {
 		std::cerr << "^^^ Above errors likely caused by loading texture." << std::endl;
 	}
 
@@ -87,16 +87,16 @@ GLuint loadTexture(const std::string& path) noexcept
 // Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-GLTexture::GLTexture(const std::string& path) noexcept
+Texture::Texture(const std::string& path) noexcept
 :
 	mHandle(loadTexture(path))
 {
 	// Initialization complete.
 }
 	
-GLTexture::~GLTexture() noexcept
+Texture::~Texture() noexcept
 {
 	glDeleteTextures(1, &mHandle);
 }
 	
-} // namespace sdl
+} // namespace gl

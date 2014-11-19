@@ -20,6 +20,7 @@
 
 #include "sfz/gl/Utils.hpp"
 #include "sfz/gl/Context.hpp"
+#include "sfz/gl/Texture.hpp"
 
 void checkGLErrorsMessage(const std::string& msg)
 {
@@ -163,7 +164,7 @@ int main()
 
 	glActiveTexture(GL_TEXTURE0);
 
-	sdl::GLTexture texture{"assets/128pix/head_d2u_f2_128.png"};
+	gl::Texture texture{"assets/128pix/head_d2u_f2_128.png"};
 	
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture.mHandle);

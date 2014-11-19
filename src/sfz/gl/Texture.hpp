@@ -1,6 +1,6 @@
 #pragma once
-#ifndef SFZ_SDL_GLTEXTURE_HPP
-#define SFZ_SDL_GLTEXTURE_HPP
+#ifndef SFZ_GL_TEXTURE_HPP
+#define SFZ_GL_TEXTURE_HPP
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -11,9 +11,9 @@
 #include <exception> // std::terminate
 #include "sfz/gl/Utils.hpp"
 
-namespace sdl {
+namespace gl {
 
-class GLTexture final {
+class Texture final {
 public:
 	
 	// Public members
@@ -25,22 +25,22 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	
 	// No default constructor.
-	GLTexture() = delete;
+	Texture() = delete;
 	
 	// No copy constructor.
-	GLTexture(const GLTexture&) = delete;
+	Texture(const Texture&) = delete;
 	
-	GLTexture(const std::string& path) noexcept;
+	Texture(const std::string& path) noexcept;
 	
-	~GLTexture() noexcept;
+	~Texture() noexcept;
 	
 	// Operators
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	// No assignment operator.
-	GLTexture& operator= (const GLTexture&) = delete;
+	Texture& operator= (const Texture&) = delete;
 };
 
-} // namespace sdl
+} // namespace gl
 
 #endif

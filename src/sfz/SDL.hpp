@@ -5,7 +5,6 @@
 #include <SDL.h>
 #include <SDL_image.h>
 
-#include "sfz/sdl/GLTexture.hpp"
 #include "sfz/sdl/Session.hpp"
 #include "sfz/sdl/Window.hpp"
 

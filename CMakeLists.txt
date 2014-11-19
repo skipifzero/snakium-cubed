@@ -27,6 +27,9 @@ endif ()
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src) # Same as source dir since no library.
 
+# Adds our cmake modules to module path.
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
+
 # Finds SDL2 and SDL2_image, will apparently make use of $SDL2 environment variable on Windows.
 find_package(SDL2 REQUIRED) # ${SDL2_INCLUDE_DIR}, ${SDL2_LIBRARY}
 find_package(SDL2_image REQUIRED) # ${SDL2_IMAGE_INCLUDE_DIR}, ${SDL2_IMAGE_LIBRARY}
@@ -53,17 +56,17 @@ add_executable(
 	${SOURCE_DIR}/Main.cpp
 
 	${INCLUDE_DIR}/sfz/SDL.hpp
-	${INCLUDE_DIR}/sfz/GLTexture.hpp
-	 ${SOURCE_DIR}/sfz/GLTexture.cpp
 	${INCLUDE_DIR}/sfz/sdl/Session.hpp
 	 ${SOURCE_DIR}/sfz/sdl/Session.cpp
 	${INCLUDE_DIR}/sfz/sdl/Window.hpp
 	 ${SOURCE_DIR}/sfz/sdl/Window.cpp
 
-	${INCLUDE_DIR}/gl/Context.hpp
-	 ${SOURCE_DIR}/gl/Context.cpp
-	${INCLUDE_DIR}/gl/Utils.hpp
-	 ${SOURCE_DIR}/gl/Utils.cpp
+	${INCLUDE_DIR}/sfz/gl/Context.hpp
+	 ${SOURCE_DIR}/sfz/gl/Context.cpp
+	${INCLUDE_DIR}/sfz/gl/Texture.hpp
+	 ${SOURCE_DIR}/sfz/gl/Texture.cpp
+	${INCLUDE_DIR}/sfz/gl/Utils.hpp
+	 ${SOURCE_DIR}/sfz/gl/Utils.cpp
 )
 
 # Linking libraries to main executable
