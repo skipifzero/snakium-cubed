@@ -6,6 +6,7 @@
 #include <SDL_image.h>
 #include <GL/glew.h>
 #include <string>
+#include <cstring> // std::memcpy
 #include <iostream>
 #include <exception> // std::terminate
 #include "sfz/gl/Utils.hpp"
