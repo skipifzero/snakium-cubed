@@ -7,30 +7,38 @@ namespace {
 // Simple function that flips a surface by byte-level manipulation.
 void flipSurface(SDL_Surface* surface) noexcept
 {
-	// Constants & pointers
-	const size_t pixelByteCount = surface->format->BytesPerPixel;
-	const size_t w = surface->w;
-	const size_t h = surface->h;
-	const size_t imageByteCount = pixelByteCount * w * h;
-	Uint8* surfacePixels = static_cast<Uint8*>(surface->pixels);
-	Uint8* pixelBuffer = new Uint8[imageByteCount];
-
-	// Read ptr reads from surface, starting value is first pixel.
-	Uint8* readPtr = surfacePixels;
-
-	// Write ptr writes to buffer, starting value is the first pixel outside of the image.
-	Uint8* writePtr = pixelBuffer + w * h * pixelByteCount;
-
-	// Cop pixels from surface to buffer until alls pixels are copied
-	while(writePtr > surfacePixels) {
-		writePtr -= (w * pixelByteCount); // Move write ptr back one image row
-		std::memcpy(writePtr, readPtr, w * pixelByteCount); // Copy one image row to buffer
-		readPtr += (w * pixelByteCount); // Move read ptr forward one image row
+	// Locking the surface
+	if (SDL_LockSurface(surface) < 0) {
+		std::cerr << "Couldn't lock surface for image flipping: " << SDL_GetError() << std::endl;
 	}
 
-	// Copy pixels back from buffer to surface and free buffer
-	std::memcpy(surfacePixels, pixelBuffer, imageByteCount);
+	// Constants
+	const int w = surface->w;
+	const int h = surface->h;
+	const int pixelCount = w * h;
+	const int bytesPerPixel = surface->format->BytesPerPixel;
+	Uint32* const surfacePixels = static_cast<Uint32*>(surface->pixels);
+	Uint32* const pixelBuffer = new Uint32[pixelCount];
+
+	// surfPtr reads from surface, starting value is first pixel.
+	Uint32* surfPtr = surfacePixels;
+
+	// bufPtr writes to buffer, starting value is the first pixel outside the image
+	Uint32* bufPtr = pixelBuffer + pixelCount;
+
+	// Copy pixels from surface to buffer until all pixels are copied
+	while (bufPtr > surfacePixels) {
+		bufPtr -= w; // Move bufPtr back one image row
+		std::memcpy(bufPtr, surfPtr, w * bytesPerPixel); // Copy one image row to buffer
+		surfPtr += w; // Move surfPtr forward one image row
+	}
+
+	// Copy pixels back from buffer and free memory.
+	std::memcpy(surfacePixels, pixelBuffer, pixelCount * bytesPerPixel);
 	delete[] pixelBuffer;
+
+	// Unlocking the surface
+	SDL_UnlockSurface(surface);
 }
 
 GLuint loadTexture(const std::string& path) noexcept
@@ -54,7 +62,7 @@ GLuint loadTexture(const std::string& path) noexcept
 	}
 
 	// Flips surface so UV coordinates will be in a right-handed system in OpenGL.
-	flipSurface(surface);
+	//flipSurface(surface);
 
 	// Creating OpenGL Texture from surface.
 	GLuint texture;
