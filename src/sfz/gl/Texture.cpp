@@ -42,34 +42,32 @@ GLuint loadTexture(const std::string& path) noexcept
 		std::cerr << "Unable to load image at: " << path << ", error: " << IMG_GetError();
 		std::terminate();
 	}
-	
-	// Convert loaded surface to correct image format.
-	SDL_Surface* formattedSurface = SDL_ConvertSurfaceFormat(surface, SDL_PIXELFORMAT_RGBA8888, 0);
-	free(surface);
-	if (formattedSurface == NULL) {
-		std::cerr << "Unable to convert surface format: " << SDL_GetError() << std::endl;
+
+	// Some error checking.
+	if (surface->format->BytesPerPixel != 4) {
+		std::cerr << "Image doesn't have 4 bytes per pixel." << std::endl;
 		std::terminate();
 	}
-	if (formattedSurface->format->BytesPerPixel != 4) {
-		std::cerr << "Formatted surface doesn't have 4 bytes per pixel." << std::endl;
+	if (!SDL_ISPIXELFORMAT_ALPHA(surface->format->format)) {
+		std::cerr << "Image doesn't contain alpha channel." << std::endl;
 		std::terminate();
 	}
 
 	// Flips surface so UV coordinates will be in a right-handed system in OpenGL.
-	flipSurface(formattedSurface);
+	flipSurface(surface);
 
-	// Creating OpenGL Texture from formatted surface.
+	// Creating OpenGL Texture from surface.
 	GLuint texture;
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, formattedSurface->w, formattedSurface->h, 0,
-	             GL_RGBA, GL_UNSIGNED_BYTE, formattedSurface->pixels);
-	SDL_FreeSurface(formattedSurface);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surface->w, surface->h, 0,
+	             GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
+	SDL_FreeSurface(surface);
 
 	// Generate mipmaps
 	glGenerateMipmap(GL_TEXTURE_2D);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // TODO: GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	// Enable anisotropic filtering
