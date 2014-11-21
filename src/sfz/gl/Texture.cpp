@@ -55,11 +55,11 @@ GLuint loadTexture(const std::string& path) noexcept
 
 	// Some error checking.
 	if (surface->format->BytesPerPixel != 4) {
-		std::cerr << "Image doesn't have 4 bytes per pixel." << std::endl;
+		std::cerr << "Image at \"" << path << "\" doesn't have 4 bytes per pixel." << std::endl;
 		std::terminate();
 	}
 	if (!SDL_ISPIXELFORMAT_ALPHA(surface->format->format)) {
-		std::cerr << "Image doesn't contain alpha channel." << std::endl;
+		std::cerr << "Image at \"" << path << "\" doesn't contain alpha channel." << std::endl;
 		std::terminate();
 	}
 
@@ -84,7 +84,8 @@ GLuint loadTexture(const std::string& path) noexcept
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.0f);
 
 	if (checkAllGLErrors()) {
-		std::cerr << "^^^ Above errors likely caused by loading texture." << std::endl;
+		std::cerr << "^^^ Above errors likely caused by loading texture at \"" << path
+		          << "\"." << std::endl;
 	}
 
 	return texture;
