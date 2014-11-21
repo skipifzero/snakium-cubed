@@ -17,6 +17,8 @@ void flipSurface(SDL_Surface* surface) noexcept
 	const int h = surface->h;
 	const int pixelCount = w * h;
 	const int bytesPerPixel = surface->format->BytesPerPixel;
+	const int bytesPerRow = w * bytesPerPixel;
+	const int totalByteCount = pixelCount * bytesPerPixel;
 	Uint32* const surfacePixels = static_cast<Uint32*>(surface->pixels);
 	Uint32* const pixelBuffer = new Uint32[pixelCount];
 
@@ -27,14 +29,14 @@ void flipSurface(SDL_Surface* surface) noexcept
 	Uint32* bufPtr = pixelBuffer + pixelCount;
 
 	// Copy pixels from surface to buffer until all pixels are copied
-	while (bufPtr > surfacePixels) {
-		bufPtr -= w; // Move bufPtr back one image row
-		std::memcpy(bufPtr, surfPtr, w * bytesPerPixel); // Copy one image row to buffer
-		surfPtr += w; // Move surfPtr forward one image row
+	while (bufPtr > pixelBuffer) {
+		bufPtr = bufPtr - w; // Move bufPtr back one image row
+		std::memcpy(bufPtr, surfPtr, bytesPerRow); // Copy one image row to buffer
+		surfPtr = surfPtr + w; // Move surfPtr forward one image row
 	}
 
 	// Copy pixels back from buffer and free memory.
-	std::memcpy(surfacePixels, pixelBuffer, pixelCount * bytesPerPixel);
+	std::memcpy(surfacePixels, pixelBuffer, totalByteCount);
 	delete[] pixelBuffer;
 
 	// Unlocking the surface
@@ -62,7 +64,7 @@ GLuint loadTexture(const std::string& path) noexcept
 	}
 
 	// Flips surface so UV coordinates will be in a right-handed system in OpenGL.
-	//flipSurface(surface);
+	flipSurface(surface);
 
 	// Creating OpenGL Texture from surface.
 	GLuint texture;
