@@ -57,10 +57,10 @@ int main()
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	const float positions[] = {
 		// x,    y,    z
-		0.0f, 0.0f, 0.0f,
-		0.0f, 1.0f, 0.0f,
-		1.0f, 0.0f, 0.0f,
-		1.0f, 1.0f, 0.0f
+		0.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 1.0f,
+		1.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, 1.0f
 	};
 
 	const int indices[] = {
@@ -195,15 +195,20 @@ int main()
 					running = false;
 					break;
 				}
-				break;
 			//default:
 				//std::cout << "Unhandled event: " << std::to_string(event.type) << "\n";
 			}
 		}
 
 		// Rendering
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
+		// Clearing screen
+		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// Enable blending
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glViewport(0, 0, window.width(), window.height());
 
@@ -216,7 +221,7 @@ int main()
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 		int tLoc = glGetUniformLocation(shaderProgram, "tex");
 		glUniform1i(tLoc, 0);
-		glBindTexture(GL_TEXTURE_2D, texture.mHandle);
+		//glBindTexture(GL_TEXTURE_2D, texture.mHandle);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glUseProgram(0);
