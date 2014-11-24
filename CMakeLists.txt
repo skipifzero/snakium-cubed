@@ -61,6 +61,7 @@ add_executable(
 	${INCLUDE_DIR}/sfz/sdl/Window.hpp
 	 ${SOURCE_DIR}/sfz/sdl/Window.cpp
 
+	${INCLUDE_DIR}/sfz/GL.hpp
 	${INCLUDE_DIR}/sfz/gl/Context.hpp
 	 ${SOURCE_DIR}/sfz/gl/Context.cpp
 	${INCLUDE_DIR}/sfz/gl/Texture.hpp

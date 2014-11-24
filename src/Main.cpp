@@ -18,9 +18,8 @@
 #include <iostream>
 #include <exception> // std::terminate()
 
-#include "sfz/gl/Utils.hpp"
-#include "sfz/gl/Context.hpp"
-#include "sfz/gl/Texture.hpp"
+#include "sfz/SDL.hpp"
+#include "sfz/GL.hpp"
 
 void checkGLErrorsMessage(const std::string& msg)
 {
