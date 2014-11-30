@@ -37,7 +37,7 @@ T Vector<T,N>::at(const size_t index) const noexcept
 }
 
 template<typename T, size_t N>
-void Vector<T,N>::set(const size_t index, T value)
+void Vector<T,N>::set(const size_t index, T value) noexcept
 {
 	assert(index < N);
 	mElements[index] = value;
