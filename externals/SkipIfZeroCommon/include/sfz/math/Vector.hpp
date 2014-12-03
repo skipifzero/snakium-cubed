@@ -53,9 +53,9 @@ struct Vector final {
 	// Constructors and destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	
-	Vector() = default;
+	constexpr Vector() noexcept = default;
 
-	Vector(const Vector<T,N>& vector) = default;
+	constexpr Vector(const Vector<T,N>&) noexcept = default;
 
 	/**
 	 * @brief Initializer list constructor.
@@ -66,7 +66,7 @@ struct Vector final {
 	 */
 	Vector(std::initializer_list<T> list) noexcept;
 
-	~Vector() = default;
+	~Vector() noexcept = default;
 
 	// Public member functions
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -171,7 +171,7 @@ struct Vector final {
 	// Operators (arithmetic & assignment)
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	Vector<T,N>& operator= (const Vector<T,N>&) = default;
+	Vector<T,N>& operator= (const Vector<T,N>&) noexcept = default;
 
 	Vector<T,N>& operator+= (const Vector<T,N>& right) noexcept;
 

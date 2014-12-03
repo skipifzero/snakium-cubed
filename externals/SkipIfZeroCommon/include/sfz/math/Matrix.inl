@@ -200,9 +200,17 @@ Matrix<T,M,P> Matrix<T,M,N>::operator* (const Matrix<T,N,P>& other) const noexce
 template<typename T, size_t M, size_t N>
 Vector<T,M> Matrix<T,M,N>::operator* (const Vector<T,N>& vector) const noexcept
 {
-	const Matrix<T,N,1>* vecAsMatPtr = reinterpret_cast<const Matrix<T,N,1>*>(&vector);
-	Matrix<T,M,1> resMatrix = (*this) * (*vecAsMatPtr);
-	return resMatrix.mElements[0];
+	Vector<T,M> resVector;
+	for (size_t i = 0; i < M; i++) {
+		T temp = 0;
+		size_t jInnerThis = 0;
+		for (T vecElem : vector) {
+			temp += mElements[jInnerThis][i] * vecElem;
+			jInnerThis++;
+		}
+		resVector[i] = temp;
+	}
+	return resVector;
 }
 
 template<typename T, size_t M, size_t N>
