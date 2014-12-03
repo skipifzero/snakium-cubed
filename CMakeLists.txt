@@ -44,6 +44,8 @@ add_library(SkipIfZeroCommon
 	${INCLUDE_DIR}/sfz/math/MathConstants.hpp
 	${INCLUDE_DIR}/sfz/math/Matrix.hpp
 	${INCLUDE_DIR}/sfz/math/Matrix.inl
+	${INCLUDE_DIR}/sfz/math/MatrixSupport.hpp
+	${INCLUDE_DIR}/sfz/math/MatrixSupport.inl
 	${INCLUDE_DIR}/sfz/math/Vector.hpp
 	${INCLUDE_DIR}/sfz/math/Vector.inl
 	${INCLUDE_DIR}/sfz/math/VectorSupport.hpp

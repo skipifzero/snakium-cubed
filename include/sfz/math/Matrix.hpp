@@ -53,9 +53,9 @@ struct Matrix final {
 	/**
 	 * @brief Default constructor, value of elements is undefined.
 	 */
-	Matrix() = default;
+	constexpr Matrix() noexcept = default;
 
-	Matrix(const Matrix<T,M,N>&) = default;
+	constexpr Matrix(const Matrix<T,M,N>&) noexcept = default;
 
 	/**
 	 * @brief Constructs a matrix with the given elements given in ROW-MAJOR order.
@@ -67,7 +67,7 @@ struct Matrix final {
 	 */
 	Matrix(std::initializer_list<std::initializer_list<T>> list) noexcept;
 
-	~Matrix() = default;
+	~Matrix() noexcept = default;
 
 	// Member functions
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -119,7 +119,7 @@ struct Matrix final {
 	// Operators (arithmetic & assignment)
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	Matrix<T,M,N>& operator= (const Matrix<T,M,N>&) = default;
+	Matrix<T,M,N>& operator= (const Matrix<T,M,N>&) noexcept = default;
 
 	Matrix<T,M,N>& operator+= (const Matrix<T,M,N>& other) noexcept;
 
@@ -190,4 +190,5 @@ struct hash<sfz::Matrix<T,M,N>> {
 } // namespace std
 
 #include "sfz/math/Matrix.inl"
+#include "sfz/math/MatrixSupport.hpp"
 #endif
