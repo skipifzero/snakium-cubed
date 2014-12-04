@@ -1,24 +1,8 @@
-// TODO: Not sure if needed, currently compiles fine without on OS X.
-/*#ifdef _WIN32
-	#include <windows.h>
-#endif
-#ifdef __APPLE__
-	#include <OpenGL/gl.h>
-	#include <OpenGL/glu.h>
-	//#include <GLUT/glut.h>
-#else
-	#include <GL/gl.h>
-	#include <GL/glu.h>
-#endif*/
-
 #include <iostream>
 #include <exception> // std::terminate()
 
-#include "sfz/SDL.hpp"
-#include <GL/glew.h>
 #include "sfz/GL.hpp"
 #include "sfz/Math.hpp"
-
 
 void checkGLErrorsMessage(const std::string& msg)
 {
