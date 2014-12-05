@@ -11,7 +11,7 @@ Matrix<T,M,N>::Matrix(std::initializer_list<std::initializer_list<T>> list) noex
 	for (auto& rowList : list) {
 		assert(rowList.size() <= N);
 		size_t j = 0;
-		for (auto element : rowList) {
+		for (T element : rowList) {
 			mElements[j][i] = element;
 			j++;
 		}
@@ -55,8 +55,10 @@ void Matrix<T,M,N>::set(size_t i, size_t j, T value) const noexcept
 template<typename T, size_t M, size_t N>
 void Matrix<T,M,N>::fill(const T value) noexcept
 {
-	for (auto& column : mElements) {
-		column.fill(value);
+	for (size_t i = 0; i < M; i++) {
+		for (size_t j = 0; j < N; j++) {
+			mElements[j][i] = value;
+		}
 	}
 }
 
@@ -76,14 +78,10 @@ template<typename T, size_t M, size_t N>
 Matrix<T,N,M> Matrix<T,M,N>::transpose() const noexcept
 {
 	Matrix<T,N,M> resMatrix;
-	size_t iRes = 0;
-	for (auto& column : mElements) {
-		size_t jRes = 0;
-		for (T colElement : column) {
-			resMatrix.mElements[jRes][iRes] = colElement;
-			jRes++;
+	for (size_t i = 0; i < N; i++) {
+		for (size_t j = 0; j < M; j++) {
+			resMatrix.mElements[j][i] = mElements[i][j];
 		}
-		iRes++;
 	}
 	return resMatrix;
 }
@@ -91,10 +89,13 @@ Matrix<T,N,M> Matrix<T,M,N>::transpose() const noexcept
 template<typename T, size_t M, size_t N>
 size_t Matrix<T,M,N>::hash() const noexcept
 {
+	std::hash<T> hasher;
 	size_t hash = 0;
-	for (auto& column : mElements) {
-		// hash_combine algorithm from boost
-		hash ^= column.hash() + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+	for (size_t i = 0; i < M; i++) {
+		for (size_t j = 0; j < N; j++) {
+			// hash_combine algorithm from boost
+		hash ^= hasher(mElements[j][i]) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+		}
 	}
 	return hash;
 }
@@ -131,8 +132,10 @@ std::string Matrix<T,M,N>::to_string() const noexcept
 template<typename T, size_t M, size_t N>
 Matrix<T,M,N>& Matrix<T,M,N>::operator+= (const Matrix<T,M,N>& other) noexcept
 {
-	for (size_t j = 0; j < N; j++) {
-		mElements[j] += other.mElements[j];
+	for (size_t i = 0; i < M; i++) {
+		for (size_t j = 0; j < N; j++) {
+			mElements[j][i] += other.mElements[j][i];
+		}
 	}
 	return *this;
 }
@@ -140,8 +143,10 @@ Matrix<T,M,N>& Matrix<T,M,N>::operator+= (const Matrix<T,M,N>& other) noexcept
 template<typename T, size_t M, size_t N>
 Matrix<T,M,N>& Matrix<T,M,N>::operator-= (const Matrix<T,M,N>& other) noexcept
 {
-	for (size_t j = 0; j < N; j++) {
-		mElements[j] -= other.mElements[j];
+	for (size_t i = 0; i < M; i++) {
+		for (size_t j = 0; j < N; j++) {
+			mElements[j][i] -= other.mElements[j][i];
+		}
 	}
 	return *this;
 }
@@ -149,8 +154,10 @@ Matrix<T,M,N>& Matrix<T,M,N>::operator-= (const Matrix<T,M,N>& other) noexcept
 template<typename T, size_t M, size_t N>
 Matrix<T,M,N>& Matrix<T,M,N>::operator*= (const T& other) noexcept
 {
-	for (auto& column : mElements) {
-		column *= other;
+	for (size_t i = 0; i < M; i++) {
+		for (size_t j = 0; j < N; j++) {
+			mElements[j][i] *= other;
+		}
 	}
 	return *this;
 }
@@ -225,9 +232,11 @@ Matrix<T,M,N> Matrix<T,M,N>::operator* (const T& other) const noexcept
 template<typename T, size_t M, size_t N>
 bool Matrix<T,M,N>::operator== (const Matrix<T,M,N>& other) const noexcept
 {
-	for (size_t j = 0; j < N; j++) {
-		if (mElements[j] != other.mElements[j]) {
-			return false;
+	for (size_t i = 0; i < M; i++) {
+		for (size_t j = 0; j < N; j++) {
+			if (mElements[j][i] != other.mElements[j][i]) {
+				return false;
+			}
 		}
 	}
 	return true;
