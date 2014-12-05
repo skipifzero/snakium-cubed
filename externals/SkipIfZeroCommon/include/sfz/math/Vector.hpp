@@ -50,6 +50,9 @@ struct Vector final {
 	 */
 	T mElements[N];
 
+	T* glPtr() noexcept { return mElements; }
+	const T* glPtr() const noexcept { return mElements; }
+
 	// Constructors and destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	
