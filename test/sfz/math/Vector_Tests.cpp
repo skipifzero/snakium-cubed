@@ -55,6 +55,20 @@ TEST_CASE("Assignment and accessing", "[sfz::Vector]")
 	}
 }
 
+TEST_CASE("glPtr()", "[sfz::Vector]") {
+	sfz::Vector<int, 2> v1{1, 2};
+	const sfz::Vector<int, 2> v2{-1, -2};
+	
+	int* ptr1 = v1.glPtr();
+	const int* ptr2 = v2.glPtr();
+
+	REQUIRE(ptr1[0] == 1);
+	REQUIRE(ptr1[1] == 2);
+
+	REQUIRE(ptr2[0] == -1);
+	REQUIRE(ptr2[1] == -2);
+}
+
 TEST_CASE("fill", "[sfz::Vector]")
 {
 	sfz::Vector<int,4> v;
