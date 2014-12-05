@@ -12,9 +12,11 @@ GLuint compileStandardShaderProgram() noexcept
 
 		out vec2 texCoord;
 
+		uniform mat4 modelToViewProj;
+
 		void main()
 		{
-			gl_Position = vec4(position, 1);
+			gl_Position = modelToViewProj * vec4(position, 1);
 			texCoord = texCoordIn;
 		}
 	)");
@@ -32,7 +34,6 @@ GLuint compileStandardShaderProgram() noexcept
 
 		void main()
 		{
-			//fragmentColor = vec4(1);
 			fragmentColor = texture(tex, texCoord.xy);
 		}
 	)");

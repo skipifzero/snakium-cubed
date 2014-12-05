@@ -40,10 +40,10 @@ int main()
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	const float positions[] = {
 		// x,    y,    z
-		0.0f, 0.0f, 1.0f,
-		0.0f, 1.0f, 1.0f,
-		1.0f, 0.0f, 1.0f,
-		1.0f, 1.0f, 1.0f
+		0.0f, 0.0f, -2.0f,
+		0.0f, 1.0f, -2.0f,
+		1.0f, 0.0f, -200.0f,
+		1.0f, 1.0f, -200.0f
 	};
 
 	const int indices[] = {
@@ -154,6 +154,10 @@ int main()
 		glDisable(GL_DEPTH_TEST);
 
 		glUseProgram(shaderProgram);
+
+		sfz::mat4f modelToViewProj = sfz::scalingMatrix(1.0f, 1.0f, 0.0f); // Orthogonal projection matrix.
+		int mLoc = glGetUniformLocation(shaderProgram, "modelToViewProj");
+		glUniformMatrix4fv(mLoc, 1, false, modelToViewProj.glPtr());
 
 		glBindVertexArray(vao);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
