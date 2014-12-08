@@ -12,11 +12,11 @@ GLuint compileStandardShaderProgram() noexcept
 
 		out vec2 texCoord;
 
-		uniform mat4 modelToViewProj;
+		uniform mat4 modelViewProj;
 
 		void main()
 		{
-			gl_Position = modelToViewProj * vec4(position, 1);
+			gl_Position = modelViewProj * vec4(position, 1);
 			texCoord = texCoordIn;
 		}
 	)");

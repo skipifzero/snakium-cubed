@@ -1,17 +1,28 @@
 #include <iostream>
 #include <exception> // std::terminate()
+#include <string>
 
 #include "sfz/GL.hpp"
 #include "sfz/Math.hpp"
 #include "SnakiumCubedShaders.hpp"
 
-void checkGLErrorsMessage(const std::string& msg)
+void checkGLErrorsMessage(const std::string& msg) noexcept
 {
 	if (gl::checkAllGLErrors()) {
 		std::cerr << msg << std::endl;
 	}
 }
 
+void setUniform(int location, const sfz::mat4f& matrix) noexcept
+{
+	glUniformMatrix4fv(location, 1, false, matrix.glPtr());
+}
+
+void setUniform(GLuint shaderProgram, const std::string& name, const sfz::mat4f& matrix) noexcept
+{
+	int loc = glGetUniformLocation(shaderProgram, name.c_str());
+	setUniform(loc, matrix);
+}
 
 int main()
 {
@@ -40,10 +51,10 @@ int main()
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	const float positions[] = {
 		// x,    y,    z
-		0.0f, 0.0f, -2.0f,
-		0.0f, 1.0f, -2.0f,
-		1.0f, 0.0f, -200.0f,
-		1.0f, 1.0f, -200.0f
+		-1.0f, -1.0f, -2.0f,
+		-1.0f, 1.0f, -10.0f,
+		1.0f, -1.0f, -2.0f,
+		1.0f, 1.0f, -10.0f
 	};
 
 	const int indices[] = {
@@ -92,10 +103,19 @@ int main()
 	checkGLErrorsMessage("^^^ Above errors caused by Rectangle");
 
 
-	// Compile shaders and shader program
+	// Compile shaders and set up modelViewProj matrix
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	GLuint shaderProgram = s3::compileStandardShaderProgram();
+	sfz::vec3f camPos{0, 0, 0};
+	sfz::mat4f viewMatrix = sfz::lookAt(camPos, sfz::vec3f{0, 0, -5}, sfz::vec3f{0,1,0});
+	sfz::mat4f projMatrix = sfz::glPerspectiveProjectionMatrix(45.0f,
+							        window.width()/window.height(), 0.1f, 50.0f);
+	sfz::mat4f modelViewProjMatrix = projMatrix * viewMatrix;
+	glUseProgram(shaderProgram);
+	setUniform(shaderProgram, "modelViewProj", modelViewProjMatrix);
+
+	checkGLErrorsMessage("^^^ Above errors caused by compile shader.");
 
 	// Texture
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -112,7 +132,6 @@ int main()
 	glUniform1i(texLoc, 0);
 
 	checkGLErrorsMessage("^^^ Above errors caused by texture loading.");
-
 
 	// Event & rendering loop
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -148,7 +167,7 @@ int main()
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		glViewport(0, 0, window.width(), window.height());
+		glViewport(0, 0, window.width()*2, window.height()*2);
 
 		glDisable(GL_CULL_FACE);
 		glDisable(GL_DEPTH_TEST);
