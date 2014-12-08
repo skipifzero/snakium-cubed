@@ -58,7 +58,7 @@ int main()
 	};
 
 	const int indices[] = {
-		0, 1, 2, // t1
+		1, 0, 2, // t1
 		1, 2, 3 // t2
 	};
 
@@ -169,8 +169,9 @@ int main()
 
 		glViewport(0, 0, window.width()*2, window.height()*2);
 
-		glDisable(GL_CULL_FACE);
-		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+		//glDisable(GL_CULL_FACE);
+		//glDisable(GL_DEPTH_TEST);
 
 		glUseProgram(shaderProgram);
 
