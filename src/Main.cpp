@@ -103,19 +103,21 @@ int main()
 	checkGLErrorsMessage("^^^ Above errors caused by Rectangle");
 
 
-	// Compile shaders and set up modelViewProj matrix
+	// Compile shaders
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	GLuint shaderProgram = s3::compileStandardShaderProgram();
-	sfz::vec3f camPos{0, 0, 0};
-	sfz::mat4f viewMatrix = sfz::lookAt(camPos, sfz::vec3f{0, 0, -5}, sfz::vec3f{0,1,0});
+
+
+	// Camera variables
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	sfz::vec3f camPos{0, 0, 1};
+	sfz::vec3f camTarget{0, 0, 0};
+	sfz::mat4f viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
 	sfz::mat4f projMatrix = sfz::glPerspectiveProjectionMatrix(45.0f,
 							        window.width()/window.height(), 0.1f, 50.0f);
-	sfz::mat4f modelViewProjMatrix = projMatrix * viewMatrix;
-	glUseProgram(shaderProgram);
-	setUniform(shaderProgram, "modelViewProj", modelViewProjMatrix);
 
-	checkGLErrorsMessage("^^^ Above errors caused by compile shader.");
 
 	// Texture
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -151,6 +153,22 @@ int main()
 				case SDLK_ESCAPE:
 					running = false;
 					break;
+				case SDLK_UP:
+					camPos[1] += 0.1f;
+					viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
+					break;
+				case SDLK_DOWN:
+					camPos[1] -= 0.1f;
+					viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
+					break;
+				case SDLK_LEFT:
+					camPos[0] -= 0.1f;
+					viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
+					break;
+				case SDLK_RIGHT:
+					camPos[0] += 0.1f;
+					viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
+					break;
 				}
 			//default:
 				//std::cout << "Unhandled event: " << std::to_string(event.type) << "\n";
@@ -175,9 +193,7 @@ int main()
 
 		glUseProgram(shaderProgram);
 
-		sfz::mat4f modelToViewProj = sfz::scalingMatrix(1.0f, 1.0f, 0.0f); // Orthogonal projection matrix.
-		int mLoc = glGetUniformLocation(shaderProgram, "modelToViewProj");
-		glUniformMatrix4fv(mLoc, 1, false, modelToViewProj.glPtr());
+		setUniform(shaderProgram, "modelViewProj", projMatrix * viewMatrix);
 
 		glBindVertexArray(vao);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
