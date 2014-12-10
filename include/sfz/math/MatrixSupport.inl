@@ -116,8 +116,8 @@ Matrix<T,4,4> glPerspectiveProjectionMatrix(T left, T bottom, T zNear,
 	                     {0, 0, -1, 0}};
 }
 
-Matrix<float,4,4> glPerspectiveProjectionMatrix(float yFovDeg, float aspectRatio,
-                                                float zNear, float zFar) noexcept
+inline Matrix<float,4,4> glPerspectiveProjectionMatrix(float yFovDeg, float aspectRatio,
+                                                       float zNear, float zFar) noexcept
 {
 	assert(0 < zNear);
 	assert(zNear < zFar);

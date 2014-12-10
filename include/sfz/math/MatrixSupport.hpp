@@ -66,8 +66,8 @@ Matrix<T,4,4> glPerspectiveProjectionMatrix(T left, T bottom, T zNear,
  * @param zNear the near plane
  * @param zFar the far plane
  */
-Matrix<float,4,4> glPerspectiveProjectionMatrix(float yFovDeg, float aspectRatio,
-                                                float zNear, float zFar) noexcept;
+inline Matrix<float,4,4> glPerspectiveProjectionMatrix(float yFovDeg, float aspectRatio,
+                                                       float zNear, float zFar) noexcept;
 
 // View matrices
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
