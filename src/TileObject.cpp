@@ -52,6 +52,14 @@ TileObject::TileObject() noexcept
 	}
 }
 
+TileObject::~TileObject() noexcept
+{
+	glDeleteBuffers(1, &posBuffer);
+	glDeleteBuffers(1, &uvBuffer);
+	glDeleteBuffers(1, &indexBuffer);
+	glDeleteVertexArrays(1, &vertexArrayObject);
+}
+
 void TileObject::render() noexcept
 {
 	glBindVertexArray(vertexArrayObject);
