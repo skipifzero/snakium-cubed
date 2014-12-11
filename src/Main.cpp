@@ -14,28 +14,6 @@ void checkGLErrorsMessage(const std::string& msg) noexcept
 	}
 }
 
-void setUniform(int location, const sfz::mat4f& matrix) noexcept
-{
-	glUniformMatrix4fv(location, 1, false, matrix.glPtr());
-}
-
-void setUniform(GLuint shaderProgram, const std::string& name, const sfz::mat4f& matrix) noexcept
-{
-	int loc = glGetUniformLocation(shaderProgram, name.c_str());
-	setUniform(loc, matrix);
-}
-
-void setUniform(int location, int i) noexcept
-{
-	glUniform1i(location, i);
-}
-
-void setUniform(GLuint shaderProgram, const std::string& name, int i) noexcept
-{
-	int loc = glGetUniformLocation(shaderProgram, name.c_str());
-	setUniform(loc, i);
-}
-
 int main()
 {
 	// Setup
@@ -73,8 +51,8 @@ int main()
 	// Camera variables
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	sfz::vec3f camPos{0, -2, 0};
-	sfz::vec3f camTarget{0, 0, 0};
+	sfz::vec3f camPos{0, -4, 0};
+	sfz::vec3f camTarget{0, 0.01f, 0};
 	sfz::mat4f viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
 	sfz::mat4f projMatrix = sfz::glPerspectiveProjectionMatrix(60.0f,
 							        window.width()/window.height(), 0.1f, 50.0f);
@@ -154,8 +132,8 @@ int main()
 
 		glUseProgram(shaderProgram);
 
-		setUniform(shaderProgram, "modelViewProj", projMatrix * viewMatrix);
-		setUniform(shaderProgram, "tex", 0);
+		gl::setUniform(shaderProgram, "modelViewProj", projMatrix * viewMatrix);
+		gl::setUniform(shaderProgram, "tex", 0);
 
 
 		tile.render();

@@ -2,7 +2,8 @@
 #ifndef SFZ_GL_UTILS_HPP
 #define SFZ_GL_UTILS_HPP
 
-#include <gl/glew.h>
+#include <sfz/Math.hpp>
+#include "sfz/GL.hpp"
 #include <iostream>
 #include <string>
 #include <exception> // std::terminate()
@@ -48,6 +49,17 @@ GLuint compileFragmentShader(const std::string& shaderSource) noexcept;
  * @param program the program
  */
 void linkProgram(GLuint program) noexcept;
+
+// Uniform setters
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+void setUniform(int location, const sfz::mat4f& matrix) noexcept;
+
+void setUniform(GLuint shaderProgram, const std::string& name, const sfz::mat4f& matrix) noexcept;
+
+void setUniform(int location, int i) noexcept;
+
+void setUniform(GLuint shaderProgram, const std::string& name, int i) noexcept;
 
 } // namespace gl
 
