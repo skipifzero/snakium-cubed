@@ -5,6 +5,7 @@
 #include "sfz/GL.hpp"
 #include "sfz/Math.hpp"
 #include "SnakiumCubedShaders.hpp"
+#include "TileObject.hpp"
 
 void checkGLErrorsMessage(const std::string& msg) noexcept
 {
@@ -22,6 +23,17 @@ void setUniform(GLuint shaderProgram, const std::string& name, const sfz::mat4f&
 {
 	int loc = glGetUniformLocation(shaderProgram, name.c_str());
 	setUniform(loc, matrix);
+}
+
+void setUniform(int location, int i) noexcept
+{
+	glUniform1i(location, i);
+}
+
+void setUniform(GLuint shaderProgram, const std::string& name, int i) noexcept
+{
+	int loc = glGetUniformLocation(shaderProgram, name.c_str());
+	setUniform(loc, i);
 }
 
 int main()
@@ -46,62 +58,11 @@ int main()
 	}
 	checkGLErrorsMessage("^^^ Above errors caused by glewInit().");
 
-
-	// Rectangle
+	
+	// Other
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-	const float positions[] = {
-		// x,    y,    z
-		-1.0f, -1.0f, -2.0f,
-		-1.0f, 1.0f, -10.0f,
-		1.0f, -1.0f, -2.0f,
-		1.0f, 1.0f, -10.0f
-	};
 
-	const int indices[] = {
-		1, 0, 2, // t1
-		1, 2, 3 // t2
-	};
-
-	const float texcoords[] = {
-		// u,    v
-		0.0f, 0.0f,
-		0.0f, 1.0f,
-		1.0f, 0.0f,
-		1.0f, 1.0f
-	};
-
-	// Buffer objects
-	GLuint posBuffer;
-	glGenBuffers(1, &posBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, posBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
-
-	GLuint indexBuffer;
-	glGenBuffers(1, &indexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, indexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	GLuint texCoordBuffer;
-	glGenBuffers(1, &texCoordBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, texCoordBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(texcoords), texcoords, GL_STATIC_DRAW);
-
-
-	// Vertex Array Object
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	glBindBuffer(GL_ARRAY_BUFFER, posBuffer);
-	glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, texCoordBuffer);
-	glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
-	glEnableVertexAttribArray(1);
-
-	checkGLErrorsMessage("^^^ Above errors caused by Rectangle");
-
+	s3::TileObject tile;
 
 	// Compile shaders
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -112,10 +73,10 @@ int main()
 	// Camera variables
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	sfz::vec3f camPos{0, 0, 1};
+	sfz::vec3f camPos{0, -2, 0};
 	sfz::vec3f camTarget{0, 0, 0};
 	sfz::mat4f viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
-	sfz::mat4f projMatrix = sfz::glPerspectiveProjectionMatrix(45.0f,
+	sfz::mat4f projMatrix = sfz::glPerspectiveProjectionMatrix(60.0f,
 							        window.width()/window.height(), 0.1f, 50.0f);
 
 
@@ -154,11 +115,11 @@ int main()
 					running = false;
 					break;
 				case SDLK_UP:
-					camPos[1] += 0.1f;
+					camPos[2] -= 0.1f;
 					viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
 					break;
 				case SDLK_DOWN:
-					camPos[1] -= 0.1f;
+					camPos[2] += 0.1f;
 					viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
 					break;
 				case SDLK_LEFT:
@@ -194,13 +155,11 @@ int main()
 		glUseProgram(shaderProgram);
 
 		setUniform(shaderProgram, "modelViewProj", projMatrix * viewMatrix);
+		setUniform(shaderProgram, "tex", 0);
 
-		glBindVertexArray(vao);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-		int tLoc = glGetUniformLocation(shaderProgram, "tex");
-		glUniform1i(tLoc, 0);
-		//glBindTexture(GL_TEXTURE_2D, texture.mHandle);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		tile.render();
+
 
 		glUseProgram(0);
 

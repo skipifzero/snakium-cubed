@@ -58,9 +58,11 @@ include_directories(
 add_executable(
 	snakium-cubed
 	
-	${SOURCE_DIR}/Main.cpp
-	${SOURCE_DIR}/SnakiumCubedShaders.hpp
-	${SOURCE_DIR}/SnakiumCubedShaders.cpp
+	 ${SOURCE_DIR}/Main.cpp
+	${INCLUDE_DIR}/SnakiumCubedShaders.hpp
+	 ${SOURCE_DIR}/SnakiumCubedShaders.cpp
+	${INCLUDE_DIR}/TileObject.hpp
+	 ${SOURCE_DIR}/TileObject.cpp
 
 	${INCLUDE_DIR}/sfz/SDL.hpp
 	${INCLUDE_DIR}/sfz/sdl/Session.hpp
