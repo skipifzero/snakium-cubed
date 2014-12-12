@@ -5,10 +5,10 @@ namespace  s3 {
 TileObject::TileObject() noexcept
 {
 	const float positions[] = {
-		-0.5f, 0.0f, -0.5f, // bottom-left
-		0.5f, 0.0f, -0.5f, // bottom-right
-		-0.5f, 0.0f, 0.5f, // top-left
-		0.5f, 0.0f, 0.5f // top-right
+		-0.5f, 0.0f, 0.5f, // bottom-left
+		0.5f, 0.0f, 0.5f, // bottom-right
+		-0.5f, 0.0f, -0.5f, // top-left
+		0.5f, 0.0f, -0.5f // top-right
 	};
 	const float uvCoords[] = {
 		// u,    v
