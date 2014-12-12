@@ -14,6 +14,13 @@ void checkGLErrorsMessage(const std::string& msg) noexcept
 	}
 }
 
+sfz::vec3f transformPoint(const sfz::mat4f& transformation, const sfz::vec3f& point) noexcept
+{
+	sfz::vec4f point4{point[0], point[1], point[2], 1.0f};
+	point4 = transformation * point4;
+	return sfz::vec3f{point4[0], point4[1], point4[2]};
+}
+
 int main()
 {
 	// Setup
@@ -51,8 +58,8 @@ int main()
 	// Camera variables
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	sfz::vec3f camPos{0, -4, 0};
-	sfz::vec3f camTarget{0, 0.01f, 0};
+	sfz::vec3f camPos{0, 0, 3};
+	sfz::vec3f camTarget{0, 0, 0};
 	sfz::mat4f viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
 	sfz::mat4f projMatrix = sfz::glPerspectiveProjectionMatrix(60.0f,
 							        window.width()/window.height(), 0.1f, 50.0f);
@@ -93,19 +100,19 @@ int main()
 					running = false;
 					break;
 				case SDLK_UP:
-					camPos[2] -= 0.1f;
+					camPos = transformPoint(sfz::xRotationMatrix(-0.1f*sfz::g_PI_FLOAT), camPos);
 					viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
 					break;
 				case SDLK_DOWN:
-					camPos[2] += 0.1f;
-					viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
-					break;
-				case SDLK_LEFT:
-					camPos[0] -= 0.1f;
+					camPos = transformPoint(sfz::xRotationMatrix(0.1f*sfz::g_PI_FLOAT), camPos);
 					viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
 					break;
 				case SDLK_RIGHT:
-					camPos[0] += 0.1f;
+					camPos = transformPoint(sfz::yRotationMatrix(0.1f*sfz::g_PI_FLOAT), camPos);
+					viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
+					break;
+				case SDLK_LEFT:
+					camPos = transformPoint(sfz::yRotationMatrix(-0.1f*sfz::g_PI_FLOAT), camPos);
 					viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
 					break;
 				}
@@ -132,10 +139,51 @@ int main()
 
 		glUseProgram(shaderProgram);
 
-		gl::setUniform(shaderProgram, "modelViewProj", projMatrix * viewMatrix);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture.mHandle);
 		gl::setUniform(shaderProgram, "tex", 0);
 
+		sfz::mat4f viewProj = projMatrix * viewMatrix;
 
+		// Bottom
+		gl::setUniform(shaderProgram, "modelViewProj",
+		    viewProj
+		    * sfz::translationMatrix(0.0f, -0.5f, 0.0f)
+			* sfz::xRotationMatrix(sfz::g_PI_FLOAT));
+		tile.render();
+
+		// Top
+		gl::setUniform(shaderProgram, "modelViewProj",
+		    viewProj
+		    * sfz::translationMatrix(0.0f, 0.5f, 0.0f));
+		tile.render();
+
+		// Front
+		gl::setUniform(shaderProgram, "modelViewProj",
+		    viewProj
+		    * sfz::translationMatrix(0.0f, 0.0f, 0.5f)
+			* sfz::xRotationMatrix(sfz::g_PI_FLOAT/2.0f));
+		tile.render();
+
+		// Back
+		gl::setUniform(shaderProgram, "modelViewProj",
+		    viewProj
+		    * sfz::translationMatrix(0.0f, 0.0f, -0.5f)
+			* sfz::xRotationMatrix(-sfz::g_PI_FLOAT/2.0f));
+		tile.render();
+
+		// Left
+		gl::setUniform(shaderProgram, "modelViewProj",
+		    viewProj
+		    * sfz::translationMatrix(-0.5f, 0.0f, 0.0f)
+			* sfz::zRotationMatrix(sfz::g_PI_FLOAT/2.0f));
+		tile.render();
+
+		// Right
+		gl::setUniform(shaderProgram, "modelViewProj",
+		    viewProj
+		    * sfz::translationMatrix(0.5f, 0.0f, 0.0f)
+			* sfz::zRotationMatrix(-sfz::g_PI_FLOAT/2.0f));
 		tile.render();
 
 
