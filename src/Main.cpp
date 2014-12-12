@@ -70,14 +70,8 @@ int main()
 
 	glActiveTexture(GL_TEXTURE0);
 
-	gl::Texture texture{"assets/128pix/head_d2u_f2_128.png"};
-	
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture.mHandle);
-
-	glUseProgram(shaderProgram);
-	int texLoc = glGetUniformLocation(shaderProgram, "tex");
-	glUniform1i(texLoc, 0);
+	gl::Texture cubeSideTex{"assets/128pix/head_d2u_f2_128.png"};
+	gl::Texture floorTex{"assets/128pix/button_middle_touched_128.png"};
 
 	checkGLErrorsMessage("^^^ Above errors caused by texture loading.");
 
@@ -139,11 +133,22 @@ int main()
 
 		glUseProgram(shaderProgram);
 
+		sfz::mat4f viewProj = projMatrix * viewMatrix;
+
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture.mHandle);
+		glBindTexture(GL_TEXTURE_2D, floorTex.mHandle);
 		gl::setUniform(shaderProgram, "tex", 0);
 
-		sfz::mat4f viewProj = projMatrix * viewMatrix;
+		// Ground
+		gl::setUniform(shaderProgram, "modelViewProj",
+		    viewProj
+			* sfz::translationMatrix(0.0f, -4.0f, 0.0f)
+			* sfz::scalingMatrix(10.0f));
+		tile.render();
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, cubeSideTex.mHandle);
+		gl::setUniform(shaderProgram, "tex", 0);
 
 		// Bottom
 		gl::setUniform(shaderProgram, "modelViewProj",
