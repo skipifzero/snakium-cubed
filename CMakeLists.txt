@@ -62,7 +62,13 @@ add_executable(
 	${INCLUDE_DIR}/SnakiumCubedShaders.hpp
 	 ${SOURCE_DIR}/SnakiumCubedShaders.cpp
 	${INCLUDE_DIR}/TileObject.hpp
-	 ${SOURCE_DIR}/TileObject.cpp
+	 ${SOURCE_DIR}/TileObject.cpp
+	${INCLUDE_DIR}/MainLoop.hpp
+	 ${SOURCE_DIR}/MainLoop.cpp
+
+	${INCLUDE_DIR}/GameLogic.hpp
+	${INCLUDE_DIR}/gamelogic/S3Model.hpp
+	 ${SOURCE_DIR}/gamelogic/S3Model.cpp
 
 	${INCLUDE_DIR}/sfz/SDL.hpp
 	${INCLUDE_DIR}/sfz/sdl/Session.hpp
