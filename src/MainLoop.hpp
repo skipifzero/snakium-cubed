@@ -6,6 +6,8 @@
 #include <sfz/GL.hpp>
 #include <functional> // std::function
 #include <chrono> // std::chrono::high_resolution_clock
+#include <string>
+#include <iostream>
 
 namespace s3 {
 
@@ -15,13 +17,18 @@ public:
 	MainLoop(const MainLoop&) = delete;
 	MainLoop& operator= (const MainLoop&) = delete;
 
-	MainLoop(std::function<bool(float)> update, std::function<bool(float)> render) noexcept;
+	MainLoop(std::function<bool(float)> update,
+	         std::function<bool(sdl::Window&,float)> render) noexcept;
 	~MainLoop() noexcept;
 	void run();
 
 private:
+	sdl::Session sdlSession;
+	sdl::Window window;
+	gl::Context glContext;
+
 	std::function<bool(float)> updateFunc;
-	std::function<bool(float)> renderFunc;
+	std::function<bool(sdl::Window&,float)> renderFunc;
 };
 
 } // namespace s3
