@@ -6,7 +6,6 @@
 #include "sfz/Math.hpp"
 #include "SnakiumCubedShaders.hpp"
 #include "TileObject.hpp"
-#include "MainLoop.hpp"
 
 // Variables
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -17,7 +16,18 @@ sfz::vec3f camTarget{0, 0, 0};
 
 // Helper functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+namespace {
 
+float calculateDelta() noexcept
+{
+	static std::chrono::high_resolution_clock::time_point previousTime, currentTime;
+
+	previousTime = currentTime;
+	currentTime = std::chrono::high_resolution_clock::now();
+
+	using FloatSecondDuration = std::chrono::duration<float>;
+	return std::chrono::duration_cast<FloatSecondDuration>(currentTime - previousTime).count();
+}
 
 void checkGLErrorsMessage(const std::string& msg) noexcept
 {
@@ -32,6 +42,8 @@ sfz::vec3f transformPoint(const sfz::mat4f& transformation, const sfz::vec3f& po
 	point4 = transformation * point4;
 	return sfz::vec3f{point4[0], point4[1], point4[2]};
 }
+
+} // anonymous namespace
 
 // Game loop functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -174,11 +186,42 @@ bool render(sdl::Window& window, float delta) noexcept
 
 int main()
 {
-	s3::MainLoop gameLoop{update, render};
+	// Init libraries and stuff
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	sdl::Session sdlSession{{sdl::InitFlags::EVERYTHING}, {sdl::ImgInitFlags::PNG}};
+	sdl::Window window{"snakium³", 400, 400,
+	     {sdl::WindowFlags::OPENGL, sdl::WindowFlags::RESIZABLE, sdl::WindowFlags::ALLOW_HIGHDPI}};
+	gl::Context glContext{window.mPtr, 3, 3, gl::GLContextProfile::CORE};
+
+	// Initializes GLEW, must happen after GL context is created.
+	glewExperimental = GL_TRUE;
+	GLenum glewError = glewInit();
+	if (glewError != GLEW_OK) {
+		std::cerr << "GLEW initialization failure:\n" << glewGetErrorString(glewError) << std::endl;
+		std::terminate();
+	}
+	checkGLErrorsMessage("^^^ Above errors caused by glewInit().");
+
+
+	// Init variables
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	shaderProgram = s3::compileStandardShaderProgram();
 
-	gameLoop.run();
+
+	// Game loop
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	float delta = calculateDelta(); // Call calculateDelta() here to initialize counting.
+
+	while (true) {
+		delta = calculateDelta();
+
+		if (update(delta)) break;
+		if (render(window, delta)) break;
+	}
+	
 
 	return 0;
 }
