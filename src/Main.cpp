@@ -13,6 +13,9 @@ GLuint shaderProgram = -1;
 
 sfz::vec3f camPos{0, 0, 3};
 sfz::vec3f camTarget{0, 0, 0};
+sfz::vec3f camUp{0, 1, 0};
+sfz::mat4f viewMatrix = sfz::lookAt(camPos, camTarget, camUp);
+sfz::mat4f projMatrix;
 
 // Helper functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -48,32 +51,39 @@ sfz::vec3f transformPoint(const sfz::mat4f& transformation, const sfz::vec3f& po
 // Game loop functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool update(float delta) noexcept
+bool update(float) noexcept
 {
 	SDL_Event event;
 	while (SDL_PollEvent(&event) != 0) {
 		switch (event.type) {
 		case SDL_QUIT:
 			return true;
+		case SDL_WINDOWEVENT:
+			switch (event.window.event) {
+			case SDL_WINDOWEVENT_RESIZED:
+				float w = static_cast<float>(event.window.data1);
+				float h = static_cast<float>(event.window.data2);
+				projMatrix = sfz::glPerspectiveProjectionMatrix(60.0f, w/h, 0.1f, 50.0f);
+			}
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
 			case SDLK_ESCAPE:
 				return true;
 			case SDLK_UP:
 				camPos = transformPoint(sfz::xRotationMatrix(-0.1f*sfz::g_PI_FLOAT), camPos);
-				//viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
+				viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
 				break;
 			case SDLK_DOWN:
 				camPos = transformPoint(sfz::xRotationMatrix(0.1f*sfz::g_PI_FLOAT), camPos);
-				//viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
+				viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
 				break;
 			case SDLK_RIGHT:
 				camPos = transformPoint(sfz::yRotationMatrix(0.1f*sfz::g_PI_FLOAT), camPos);
-				//viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
+				viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
 				break;
 			case SDLK_LEFT:
 				camPos = transformPoint(sfz::yRotationMatrix(-0.1f*sfz::g_PI_FLOAT), camPos);
-				//viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
+				viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
 				break;
 			}
 		//default:
@@ -83,7 +93,7 @@ bool update(float delta) noexcept
 	return false;
 }
 
-bool render(sdl::Window& window, float delta) noexcept
+bool render(sdl::Window& window, float) noexcept
 {
 	glActiveTexture(GL_TEXTURE0);
 
@@ -91,10 +101,6 @@ bool render(sdl::Window& window, float delta) noexcept
 	gl::Texture floorTex{"assets/128pix/button_middle_touched_128.png"};
 
 	checkGLErrorsMessage("^^^ Above errors caused by texture loading.");
-
-	sfz::mat4f viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
-	sfz::mat4f projMatrix = sfz::glPerspectiveProjectionMatrix(60.0f,
-							        window.width()/window.height(), 0.1f, 50.0f);
 
 	s3::TileObject tile;
 
@@ -190,8 +196,10 @@ int main()
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	sdl::Session sdlSession{{sdl::InitFlags::EVERYTHING}, {sdl::ImgInitFlags::PNG}};
+
 	sdl::Window window{"snakium³", 400, 400,
 	     {sdl::WindowFlags::OPENGL, sdl::WindowFlags::RESIZABLE, sdl::WindowFlags::ALLOW_HIGHDPI}};
+
 	gl::Context glContext{window.mPtr, 3, 3, gl::GLContextProfile::CORE};
 
 	// Initializes GLEW, must happen after GL context is created.
@@ -209,6 +217,8 @@ int main()
 
 	shaderProgram = s3::compileStandardShaderProgram();
 
+	projMatrix = sfz::glPerspectiveProjectionMatrix(60.0f, window.width()/window.height(),
+	                                                0.1f, 50.0f);
 
 	// Game loop
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
