@@ -181,6 +181,52 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 	tile.render();
 
 
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, assets.TILE_BORDER.mHandle);
+	gl::setUniform(shaderProgram, "tex", 0);
+
+	// Bottom
+	gl::setUniform(shaderProgram, "modelViewProj",
+		viewProj
+		* sfz::translationMatrix(0.0f, -0.5f, 0.0f)
+		* sfz::xRotationMatrix(sfz::g_PI_FLOAT));
+	tile.render();
+
+	// Top
+	gl::setUniform(shaderProgram, "modelViewProj",
+		viewProj
+		* sfz::translationMatrix(0.0f, 0.5f, 0.0f));
+	tile.render();
+
+	// Front
+	gl::setUniform(shaderProgram, "modelViewProj",
+		viewProj
+		* sfz::translationMatrix(0.0f, 0.0f, 0.5f)
+		* sfz::xRotationMatrix(sfz::g_PI_FLOAT/2.0f));
+	tile.render();
+
+	// Back
+	gl::setUniform(shaderProgram, "modelViewProj",
+		viewProj
+		* sfz::translationMatrix(0.0f, 0.0f, -0.5f)
+		* sfz::xRotationMatrix(-sfz::g_PI_FLOAT/2.0f));
+	tile.render();
+
+	// Left
+	gl::setUniform(shaderProgram, "modelViewProj",
+		viewProj
+		* sfz::translationMatrix(-0.5f, 0.0f, 0.0f)
+		* sfz::zRotationMatrix(sfz::g_PI_FLOAT/2.0f));
+	tile.render();
+
+	// Right
+	gl::setUniform(shaderProgram, "modelViewProj",
+		viewProj
+		* sfz::translationMatrix(0.5f, 0.0f, 0.0f)
+		* sfz::zRotationMatrix(-sfz::g_PI_FLOAT/2.0f));
+	tile.render();
+
+
 	glUseProgram(0);
 }
 
