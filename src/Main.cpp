@@ -6,6 +6,7 @@
 #include "sfz/Math.hpp"
 #include "SnakiumCubedShaders.hpp"
 #include "TileObject.hpp"
+#include "Assets.hpp"
 
 // Variables
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -99,14 +100,9 @@ bool update(float)
 }
 
 // Called once every frame
-void render(sdl::Window& window, float)
+void render(sdl::Window& window, const s3::Assets& assets, float)
 {
 	glActiveTexture(GL_TEXTURE0);
-
-	gl::Texture cubeSideTex{"assets/128pix/head_d2u_f2_128.png"};
-	gl::Texture floorTex{"assets/128pix/button_middle_touched_128.png"};
-
-	checkGLErrorsMessage("^^^ Above errors caused by texture loading.");
 
 	s3::TileObject tile;
 
@@ -129,7 +125,7 @@ void render(sdl::Window& window, float)
 	sfz::mat4f viewProj = projMatrix * viewMatrix;
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, floorTex.mHandle);
+	glBindTexture(GL_TEXTURE_2D, assets.BODY_D2U.mHandle);
 	gl::setUniform(shaderProgram, "tex", 0);
 
 	// Ground
@@ -140,7 +136,7 @@ void render(sdl::Window& window, float)
 	tile.render();
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, cubeSideTex.mHandle);
+	glBindTexture(GL_TEXTURE_2D, assets.HEAD_D2U_F2.mHandle);
 	gl::setUniform(shaderProgram, "tex", 0);
 
 	// Bottom
@@ -186,8 +182,6 @@ void render(sdl::Window& window, float)
 
 
 	glUseProgram(0);
-
-	checkGLErrorsMessage("^^^ Above errors likely caused by rendering loop.");
 }
 
 // Main
@@ -223,6 +217,10 @@ int main()
 	projMatrix = sfz::glPerspectiveProjectionMatrix(60.0f, window.width()/window.height(),
 	                                                0.1f, 50.0f);
 
+	s3::Assets assets;
+
+	checkGLErrorsMessage("^^^ Above errors caused by initing variables and loading assets.");
+
 	// Game loop
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -237,9 +235,11 @@ int main()
 
 		while (SDL_PollEvent(&event) != 0) if (handleInput(event)) running = false;
 		if (update(delta)) running = false;
-		render(window, delta);
+		render(window, assets, delta);
 
 		SDL_GL_SwapWindow(window.mPtr);
+
+		checkGLErrorsMessage("^^^ Above errors likely caused by game loop.");
 	}
 	
 

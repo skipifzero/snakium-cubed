@@ -63,6 +63,8 @@ add_executable(
 	 ${SOURCE_DIR}/SnakiumCubedShaders.cpp
 	${INCLUDE_DIR}/TileObject.hpp
 	 ${SOURCE_DIR}/TileObject.cpp
+	${INCLUDE_DIR}/Assets.hpp
+	 ${SOURCE_DIR}/Assets.cpp
 	
 	${INCLUDE_DIR}/GameLogic.hpp
 	${INCLUDE_DIR}/gamelogic/S3Model.hpp
