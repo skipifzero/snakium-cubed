@@ -34,7 +34,20 @@ Assets::Assets() noexcept
 	TAIL_D2R_F1{snakeTexturePath + "tail_d2r_f1_128.png"},
 	TAIL_D2R_F2{snakeTexturePath + "tail_d2r_f2_128.png"},
 	TAIL_D2R_DIG_F1{snakeTexturePath + "tail_d2r_dig_f1_128.png"},
-	TAIL_D2R_DIG_F2{snakeTexturePath + "tail_d2r_dig_f2_128.png"}
+	TAIL_D2R_DIG_F2{snakeTexturePath + "tail_d2r_dig_f2_128.png"},
+
+	BUTTON_LEFT{snakeTexturePath + "button_left_128.png"},
+	BUTTON_LEFT_TOUCHED{snakeTexturePath + "button_left_touched_128.png"},
+	BUTTON_LEFT_DISABLED{snakeTexturePath + "button_left_disabled_128.png"},
+	BUTTON_MIDDLE_TOUCHED{snakeTexturePath + "button_middle_touched_128.png"},
+	BUTTON_RIGHT{snakeTexturePath + "button_right_128.png"},
+	BUTTON_RIGHT_TOUCHED{snakeTexturePath + "button_right_touched_128.png"},
+	BUTTON_RIGHT_DISABLED{snakeTexturePath + "button_right_disabled_128.png"},
+
+	OBJECT{snakeTexturePath + "object_128.png"},
+	BONUS_OBJECT{snakeTexturePath + "bonus_object_128.png"},
+	FILLED{snakeTexturePath + "filled_64.png"},
+	TILE_BORDER{snakeTexturePath + "tile_border_64.png"}
 {
 
 }

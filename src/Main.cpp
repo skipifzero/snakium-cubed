@@ -125,7 +125,7 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 	sfz::mat4f viewProj = projMatrix * viewMatrix;
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, assets.BODY_D2U.mHandle);
+	glBindTexture(GL_TEXTURE_2D, assets.FILLED.mHandle);
 	gl::setUniform(shaderProgram, "tex", 0);
 
 	// Ground
@@ -194,7 +194,7 @@ int main()
 
 	sdl::Session sdlSession{{sdl::InitFlags::EVERYTHING}, {sdl::ImgInitFlags::PNG}};
 
-	sdl::Window window{"snakium³", 400, 400,
+	sdl::Window window{"snakium³", 500, 500,
 	     {sdl::WindowFlags::OPENGL, sdl::WindowFlags::RESIZABLE, sdl::WindowFlags::ALLOW_HIGHDPI}};
 
 	gl::Context glContext{window.mPtr, 3, 3, gl::GLContextProfile::CORE};

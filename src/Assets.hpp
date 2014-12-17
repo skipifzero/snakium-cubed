@@ -33,7 +33,20 @@ struct Assets final {
 				TAIL_D2R_F1,
 				TAIL_D2R_F2,
 				TAIL_D2R_DIG_F1,
-				TAIL_D2R_DIG_F2;
+				TAIL_D2R_DIG_F2,
+
+				BUTTON_LEFT,
+				BUTTON_LEFT_TOUCHED,
+				BUTTON_LEFT_DISABLED,
+				BUTTON_MIDDLE_TOUCHED,
+				BUTTON_RIGHT,
+				BUTTON_RIGHT_TOUCHED,
+				BUTTON_RIGHT_DISABLED,
+
+				OBJECT,
+				BONUS_OBJECT,
+				FILLED,
+				TILE_BORDER;
 
 	Assets() noexcept;
 	~Assets() noexcept = default;
