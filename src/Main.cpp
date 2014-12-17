@@ -51,49 +51,55 @@ sfz::vec3f transformPoint(const sfz::mat4f& transformation, const sfz::vec3f& po
 // Game loop functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool update(float) noexcept
+// Called once for each event every frame.
+bool handleInput(const SDL_Event& event)
 {
-	SDL_Event event;
-	while (SDL_PollEvent(&event) != 0) {
-		switch (event.type) {
-		case SDL_QUIT:
-			return true;
-		case SDL_WINDOWEVENT:
-			switch (event.window.event) {
-			case SDL_WINDOWEVENT_RESIZED:
-				float w = static_cast<float>(event.window.data1);
-				float h = static_cast<float>(event.window.data2);
-				projMatrix = sfz::glPerspectiveProjectionMatrix(60.0f, w/h, 0.1f, 50.0f);
-			}
-		case SDL_KEYDOWN:
-			switch (event.key.keysym.sym) {
-			case SDLK_ESCAPE:
-				return true;
-			case SDLK_UP:
-				camPos = transformPoint(sfz::xRotationMatrix(-0.1f*sfz::g_PI_FLOAT), camPos);
-				viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
-				break;
-			case SDLK_DOWN:
-				camPos = transformPoint(sfz::xRotationMatrix(0.1f*sfz::g_PI_FLOAT), camPos);
-				viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
-				break;
-			case SDLK_RIGHT:
-				camPos = transformPoint(sfz::yRotationMatrix(0.1f*sfz::g_PI_FLOAT), camPos);
-				viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
-				break;
-			case SDLK_LEFT:
-				camPos = transformPoint(sfz::yRotationMatrix(-0.1f*sfz::g_PI_FLOAT), camPos);
-				viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
-				break;
-			}
-		//default:
-			//std::cout << "Unhandled event: " << std::to_string(event.type) << "\n";
+	switch (event.type) {
+	case SDL_QUIT:
+		return true;
+	case SDL_WINDOWEVENT:
+		switch (event.window.event) {
+		case SDL_WINDOWEVENT_RESIZED:
+			float w = static_cast<float>(event.window.data1);
+			float h = static_cast<float>(event.window.data2);
+			projMatrix = sfz::glPerspectiveProjectionMatrix(60.0f, w/h, 0.1f, 50.0f);
 		}
+	case SDL_KEYDOWN:
+		switch (event.key.keysym.sym) {
+		case SDLK_ESCAPE:
+			return true;
+		case SDLK_UP:
+			camPos = transformPoint(sfz::xRotationMatrix(-0.1f*sfz::g_PI_FLOAT), camPos);
+			viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
+			break;
+		case SDLK_DOWN:
+			camPos = transformPoint(sfz::xRotationMatrix(0.1f*sfz::g_PI_FLOAT), camPos);
+			viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
+			break;
+		case SDLK_RIGHT:
+			camPos = transformPoint(sfz::yRotationMatrix(0.1f*sfz::g_PI_FLOAT), camPos);
+			viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
+			break;
+		case SDLK_LEFT:
+			camPos = transformPoint(sfz::yRotationMatrix(-0.1f*sfz::g_PI_FLOAT), camPos);
+			viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
+			break;
+		}
+	//default:
+		//std::cout << "Unhandled event: " << std::to_string(event.type) << "\n";
 	}
 	return false;
 }
 
-bool render(sdl::Window& window, float) noexcept
+// Called once every frame
+bool update(float)
+{
+
+	return false;
+}
+
+// Called once every frame
+bool render(sdl::Window& window, float)
 {
 	glActiveTexture(GL_TEXTURE0);
 
@@ -181,8 +187,6 @@ bool render(sdl::Window& window, float) noexcept
 
 	glUseProgram(0);
 
-	SDL_GL_SwapWindow(window.mPtr);
-
 	checkGLErrorsMessage("^^^ Above errors likely caused by rendering loop.");
 	return false;
 }
@@ -223,13 +227,20 @@ int main()
 	// Game loop
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+	bool running = true;
 	float delta = calculateDelta(); // Call calculateDelta() here to initialize counting.
+	SDL_Event event;
 
-	while (true) {
+	while (running) {
 		delta = calculateDelta();
 
-		if (update(delta)) break;
-		if (render(window, delta)) break;
+		std::cout << "Delta = " << delta << ", fps = " << (1.0f / delta) << "\n";
+
+		while (SDL_PollEvent(&event) != 0) if (handleInput(event)) running = false;
+		if (update(delta)) running = false;
+		if (render(window, delta)) running = false;
+
+		SDL_GL_SwapWindow(window.mPtr);
 	}
 	
 
