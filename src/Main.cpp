@@ -99,7 +99,7 @@ bool update(float)
 }
 
 // Called once every frame
-bool render(sdl::Window& window, float)
+void render(sdl::Window& window, float)
 {
 	glActiveTexture(GL_TEXTURE0);
 
@@ -188,7 +188,6 @@ bool render(sdl::Window& window, float)
 	glUseProgram(0);
 
 	checkGLErrorsMessage("^^^ Above errors likely caused by rendering loop.");
-	return false;
 }
 
 // Main
@@ -238,7 +237,7 @@ int main()
 
 		while (SDL_PollEvent(&event) != 0) if (handleInput(event)) running = false;
 		if (update(delta)) running = false;
-		if (render(window, delta)) running = false;
+		render(window, delta);
 
 		SDL_GL_SwapWindow(window.mPtr);
 	}
