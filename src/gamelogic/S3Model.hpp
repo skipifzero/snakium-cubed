@@ -46,49 +46,45 @@ enum class TileDirection : uint8_t {
 };
 
 /**
- * Struct representing a Snake tile.
- * Implemented using a single byte that contains one TileType and two TileDirection.
- * mBits == [ 7 6 5 4 3 2 1 0 ]
+ * bits ==  msb [ 7 6 5 4 3 2 1 0 ] lsb
  * bits 3-0: TileType
  * bits 5-4: from TileDirection
  * bits 7-6: to TileDirection
  */
-struct SnakeTile final {
-	uint8_t mBits;
 
-	inline TileType type(void) noexcept
-	{
-		return static_cast<TileType>(mBits & 0x0F);
-	}
+inline TileType type(uint8_t bits) noexcept
+{
+	return static_cast<TileType>(bits & 0x0F);
+}
 
-	inline TileDirection from(void) noexcept
-	{
-		return static_cast<TileDirection>(((mBits >> 4) & 0x03));
-	}
+inline TileDirection from(uint8_t bits) noexcept
+{
+	return static_cast<TileDirection>(((bits >> 4) & 0x03));
+}
 
-	inline TileDirection to(void) noexcept
-	{
-		return static_cast<TileDirection>(((mBits >> 6) & 0x03));
-	}
+inline TileDirection to(uint8_t bits) noexcept
+{
+	return static_cast<TileDirection>(((bits >> 6) & 0x03));
+}
 
-	inline void type(TileType tileType) noexcept
-	{
-		mBits &= 0xF0; // Clear previous type
-		mBits |= (static_cast<uint8_t>(tileType) & 0x0F); // Set new type
-	}
+inline void setType(uint8_t& bits, TileType tileType) noexcept
+{
+	bits &= 0xF0; // Clear previous type
+	bits |= (static_cast<uint8_t>(tileType) & 0x0F); // Set new type
+}
 
-	inline void from(TileDirection fromDir) noexcept
-	{
-		mBits &= 0xCF; // Clear previous from direction
-		mBits |= ((static_cast<uint8_t>(fromDir) << 4) & 0x30); // Set new from direction
-	}
+inline void setFrom(uint8_t& bits, TileDirection fromDir) noexcept
+{
+	bits &= 0xCF; // Clear previous from direction
+	bits |= ((static_cast<uint8_t>(fromDir) << 4) & 0x30); // Set new from direction
+}
 
-	inline void to(TileDirection toDir) noexcept
-	{
-		mBits &= 0x3F; // Clear previous to direction
-		mBits |= ((static_cast<uint8_t>(toDir) << 6) & 0xC0); // Set new to direction
-	}
-};
+inline void setTo(uint8_t& bits, TileDirection toDir) noexcept
+{
+	bits &= 0x3F; // Clear previous to direction
+	bits |= ((static_cast<uint8_t>(toDir) << 6) & 0xC0); // Set new to direction
+}
+
 
 } // namespace s3
 
