@@ -2,6 +2,7 @@
 #ifndef S3_GAME_LOGIC_S3_MODEL_hpp
 #define S3_GAME_LOGIC_S3_MODEL_hpp
 
+#include <cstddef>
 #include <cstdint>
 
 namespace s3 {
@@ -14,10 +15,14 @@ namespace s3 {
  * I decided to try out.
  */
 
-using uint8_t = std::uint8_t;
+using std::uint8_t;
+using std::size_t;
+
+// Enums
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 /**
- * Enum representing the type of a SnakeTile.
+ * @brief Enum representing the type of a SnakeTile.
  * Needs 4 bits.
  */
 enum class TileType : uint8_t {
@@ -35,7 +40,7 @@ enum class TileType : uint8_t {
 };
 
 /**
- * Enum representing a direction on a SnakeTile.
+ * @brief Enum representing a direction on a SnakeTile.
  * Needs 2 bits.
  */
 enum class TileDirection : uint8_t {
@@ -44,6 +49,45 @@ enum class TileDirection : uint8_t {
 	LEFT = 2,
 	RIGHT = 3
 };
+
+/**
+ * @brief Enum representing which side of a cube a tile is one
+ * It's assumed that the coordinate system is a right-handed system with positive y being up. I.e.
+ * FRONT is in positive z-axis and TOP is in positive y-axis.
+ * Needs 3 bits.
+ */
+enum class CubeSide : uint8_t {
+	TOP = 0,
+	BOTTOM = 1,
+	FRONT = 2,
+	BACK = 3,
+	LEFT = 4,
+	RIGHT = 5
+};
+
+/**
+ * @brief Sets the four least significant bits of a byte.
+ * @param bits a reference to the byte to set
+ * @param bitsToSet the bits to set, only the 4 LSBs are used
+ */
+inline void setFourLSBs(uint8_t& bits, uint8_t bitsToSet) noexcept
+{
+	bits &= 0xF0; // Clear 4 lsb
+	bits |= (bitsToSet & 0x0F);
+}
+
+/**
+ * @brief Sets the four most significant bits of a byte.
+ * @param bits a reference to the byte to set
+ * @param bitsToSet the bits to set, only the 4 LSBs are used (first shifted)
+ */
+inline void setFourMSBs(uint8_t& bits, uint8_t bitsToSet) noexcept
+{
+	bits &= 0x0F; // Clear 4 msb
+	bits |= ((bitsToSet << 4) & 0xF0);
+}
+
+
 
 /**
  * bits ==  msb [ 7 6 5 4 3 2 1 0 ] lsb
@@ -84,6 +128,18 @@ inline void setTo(uint8_t& bits, TileDirection toDir) noexcept
 	bits &= 0x3F; // Clear previous to direction
 	bits |= ((static_cast<uint8_t>(toDir) << 6) & 0xC0); // Set new to direction
 }
+
+struct S3Model final {
+	size_t mByteCount;
+	uint8_t* const mBytes;
+
+	S3Model(size_t size) noexcept;
+	~S3Model() noexcept;
+
+	S3Model() = delete;
+	S3Model(const S3Model&) = delete;
+	S3Model& operator= (const S3Model&) = delete;
+};
 
 
 } // namespace s3
