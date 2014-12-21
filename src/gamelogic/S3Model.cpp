@@ -18,6 +18,7 @@ size_t calculateAmountOfBytes(size_t size) noexcept
 S3Model::S3Model(size_t size) noexcept
 :
 	mByteCount{calculateAmountOfBytes(size)},
+	mGridWidth{size},
 	mBytes{new uint8_t[mByteCount]}
 {
 	uint8_t* current = mBytes;

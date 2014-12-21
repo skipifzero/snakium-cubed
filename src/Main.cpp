@@ -127,7 +127,69 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 
 	sfz::mat4f viewProj = projMatrix * viewMatrix;
 
+
+	gl::setUniform(shaderProgram, "tex", 0);
 	glActiveTexture(GL_TEXTURE0);
+
+	std::uint8_t* current = model.mBytes;
+	std::uint8_t* max = model.mBytes + model.mByteCount;
+	s3::TileType tileType;
+	s3::TileDirection from, to;
+	std::uint8_t x, y, z;
+	s3::CubeSide cubeSide;
+	const size_t gridWidth = model.mGridWidth;
+	sfz::mat4f transform;
+	while (current < max) {
+		tileType = s3::tileSideType(current[0]);
+		from = s3::tileSideFrom(current[0]);
+		to = s3::tileSideTo(current[0]);
+		x = s3::getFourMSBs(current[1]);
+		y = s3::getFourLSBs(current[1]);
+		z = s3::getFourMSBs(current[2]);
+		cubeSide = static_cast<s3::CubeSide>(s3::getFourLSBs(current[2]));
+
+		transform = viewProj;
+
+		// Translation
+		// TODO: Implement
+
+		// Rotation
+		switch (cubeSide) {
+			case s3::CubeSide::TOP:
+				// Do nothing.
+				break;
+			case s3::CubeSide::BOTTOM:
+				transform = transform * sfz::xRotationMatrix(sfz::g_PI_FLOAT);
+				break;
+			case s3::CubeSide::FRONT:
+				transform = transform * sfz::xRotationMatrix(sfz::g_PI_FLOAT/2.0f);
+				break;
+			case s3::CubeSide::BACK:
+				transform = transform * sfz::xRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
+				break;
+			case s3::CubeSide::LEFT:
+				transform = transform * sfz::zRotationMatrix(sfz::g_PI_FLOAT/2.0f);
+				break;
+			case s3::CubeSide::RIGHT:
+				transform = transform * sfz::zRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
+				break;
+		}
+
+		// Resizing
+		// TODO: Implement
+
+		gl::setUniform(shaderProgram, "modelViewProj", transform);
+
+		glBindTexture(GL_TEXTURE_2D, assets.TILE_BORDER.mHandle);
+		tile.render();
+
+		glBindTexture(GL_TEXTURE_2D, assets.HEAD_D2U_F2.mHandle);
+		tile.render();
+
+		current += 3;
+	}
+
+	/*glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, assets.FILLED.mHandle);
 	gl::setUniform(shaderProgram, "tex", 0);
 
@@ -228,7 +290,7 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 		* sfz::translationMatrix(0.5f, 0.0f, 0.0f)
 		* sfz::zRotationMatrix(-sfz::g_PI_FLOAT/2.0f));
 	tile.render();
-
+	*/
 
 	glUseProgram(0);
 }

@@ -160,6 +160,7 @@ inline void tileSideSetTo(uint8_t& bits, TileDirection toDir) noexcept
  */
 struct S3Model final {
 	size_t mByteCount;
+	size_t mGridWidth;
 	uint8_t* const mBytes;
 
 	S3Model(size_t size) noexcept;
