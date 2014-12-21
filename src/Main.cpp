@@ -7,6 +7,7 @@
 #include "SnakiumCubedShaders.hpp"
 #include "TileObject.hpp"
 #include "Assets.hpp"
+#include "GameLogic.hpp"
 
 // Variables
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -17,6 +18,8 @@ sfz::vec3f camTarget{0, 0, 0};
 sfz::vec3f camUp{0, 1, 0};
 sfz::mat4f viewMatrix = sfz::lookAt(camPos, camTarget, camUp);
 sfz::mat4f projMatrix;
+
+s3::S3Model model{4};
 
 // Helper functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

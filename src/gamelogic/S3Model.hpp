@@ -4,6 +4,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <cassert>
 
 namespace s3 {
 
@@ -65,6 +66,27 @@ enum class CubeSide : uint8_t {
 	RIGHT = 5
 };
 
+// Bit manipulation functions
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+/**
+ * @brief Gets the four least significant bits of a byte.
+ * @param bits a reference to the byte
+ */
+inline uint8_t getFourLSBs(uint8_t& bits) noexcept
+{
+	return (bits & 0x0F);
+}
+
+/**
+ * @brief Gets the four most significant bits of a byte.
+ * @param bits a reference to the byte
+ */
+inline uint8_t getFourMSBs(uint8_t& bits) noexcept
+{
+	return ((bits >> 4) & 0x0F);
+}
+
 /**
  * @brief Sets the four least significant bits of a byte.
  * @param bits a reference to the byte to set
@@ -87,7 +109,8 @@ inline void setFourMSBs(uint8_t& bits, uint8_t bitsToSet) noexcept
 	bits |= ((bitsToSet << 4) & 0xF0);
 }
 
-
+// TileSide byte manipulation functions
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 /**
  * bits ==  msb [ 7 6 5 4 3 2 1 0 ] lsb
@@ -96,39 +119,45 @@ inline void setFourMSBs(uint8_t& bits, uint8_t bitsToSet) noexcept
  * bits 7-6: to TileDirection
  */
 
-inline TileType type(uint8_t bits) noexcept
+inline TileType tileSideType(uint8_t bits) noexcept
 {
-	return static_cast<TileType>(bits & 0x0F);
+	return static_cast<TileType>(getFourLSBs(bits));
 }
 
-inline TileDirection from(uint8_t bits) noexcept
+inline void tileSideSetType(uint8_t& bits, TileType tileType) noexcept
+{
+	setFourLSBs(bits, static_cast<uint8_t>(tileType));
+}
+
+inline TileDirection tileSideFrom(uint8_t bits) noexcept
 {
 	return static_cast<TileDirection>(((bits >> 4) & 0x03));
 }
 
-inline TileDirection to(uint8_t bits) noexcept
-{
-	return static_cast<TileDirection>(((bits >> 6) & 0x03));
-}
-
-inline void setType(uint8_t& bits, TileType tileType) noexcept
-{
-	bits &= 0xF0; // Clear previous type
-	bits |= (static_cast<uint8_t>(tileType) & 0x0F); // Set new type
-}
-
-inline void setFrom(uint8_t& bits, TileDirection fromDir) noexcept
+inline void tileSideSetFrom(uint8_t& bits, TileDirection fromDir) noexcept
 {
 	bits &= 0xCF; // Clear previous from direction
 	bits |= ((static_cast<uint8_t>(fromDir) << 4) & 0x30); // Set new from direction
 }
 
-inline void setTo(uint8_t& bits, TileDirection toDir) noexcept
+inline TileDirection tileSideTo(uint8_t bits) noexcept
+{
+	return static_cast<TileDirection>(((bits >> 6) & 0x03));
+}
+
+inline void tileSideSetTo(uint8_t& bits, TileDirection toDir) noexcept
 {
 	bits &= 0x3F; // Clear previous to direction
 	bits |= ((static_cast<uint8_t>(toDir) << 6) & 0xC0); // Set new to direction
 }
 
+// Snakium Cubed Model
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+/**
+ * Contains an array of bytes, every 3 bytes represent a tile.
+ * msb [ [TileType], [x, y], [z, CubeSide] ] lsb
+ */
 struct S3Model final {
 	size_t mByteCount;
 	uint8_t* const mBytes;
