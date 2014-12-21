@@ -32,7 +32,7 @@ S3Model::S3Model(size_t size) noexcept
 			tileSideSetType(current[0], TileType::EMPTY);
 			setFourMSBs(current[1], x); // x coordinate
 			setFourLSBs(current[1], y); // y coordinate
-			setFourMSBs(current[2], 0); // z coordinate
+			setFourMSBs(current[2], (size-1)); // z coordinate
 			setFourLSBs(current[2], static_cast<uint8_t>(cubeSide)); // CubeSide
 
 			current += 3;
@@ -47,7 +47,7 @@ S3Model::S3Model(size_t size) noexcept
 			tileSideSetType(current[0], TileType::EMPTY);
 			setFourMSBs(current[1], x); // x coordinate
 			setFourLSBs(current[1], y); // y coordinate
-			setFourMSBs(current[2], (size-1)); // z coordinate
+			setFourMSBs(current[2], 0); // z coordinate
 			setFourLSBs(current[2], static_cast<uint8_t>(cubeSide)); // CubeSide
 
 			current += 3;

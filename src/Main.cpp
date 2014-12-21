@@ -135,48 +135,64 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 	std::uint8_t* max = model.mBytes + model.mByteCount;
 	s3::TileType tileType;
 	s3::TileDirection from, to;
-	std::uint8_t x, y, z;
+	float x, y, z;
 	s3::CubeSide cubeSide;
-	const size_t gridWidth = model.mGridWidth;
+	const float gridWidth = static_cast<float>(model.mGridWidth);
+	const float halfGridWidth = gridWidth * 0.5f;
+	const float tileWidth = 1.0f / gridWidth;
+	const float halfTileWidth = tileWidth * 0.5f;
 	sfz::mat4f transform;
 	while (current < max) {
 		tileType = s3::tileSideType(current[0]);
 		from = s3::tileSideFrom(current[0]);
 		to = s3::tileSideTo(current[0]);
-		x = s3::getFourMSBs(current[1]);
-		y = s3::getFourLSBs(current[1]);
-		z = s3::getFourMSBs(current[2]);
+		x = static_cast<float>(s3::getFourMSBs(current[1]));
+		y = static_cast<float>(s3::getFourLSBs(current[1]));
+		z = static_cast<float>(s3::getFourMSBs(current[2]));
 		cubeSide = static_cast<s3::CubeSide>(s3::getFourLSBs(current[2]));
 
 		transform = viewProj;
 
 		// Translation
-		// TODO: Implement
+		transform = transform * sfz::translationMatrix(x*tileWidth-0.5f,
+		                                               y*tileWidth-0.5f,
+		                                               z*tileWidth-0.5f);
 
 		// Rotation
 		switch (cubeSide) {
 			case s3::CubeSide::TOP:
-				// Do nothing.
+				transform = transform
+				          * sfz::translationMatrix(halfTileWidth, tileWidth, halfTileWidth);
 				break;
 			case s3::CubeSide::BOTTOM:
-				transform = transform * sfz::xRotationMatrix(sfz::g_PI_FLOAT);
+				transform = transform
+				          * sfz::translationMatrix(halfTileWidth, 0.0f, halfTileWidth)
+				          * sfz::xRotationMatrix(sfz::g_PI_FLOAT);
 				break;
 			case s3::CubeSide::FRONT:
-				transform = transform * sfz::xRotationMatrix(sfz::g_PI_FLOAT/2.0f);
+				transform = transform
+				          * sfz::translationMatrix(halfTileWidth, halfTileWidth, tileWidth)
+				          * sfz::xRotationMatrix(sfz::g_PI_FLOAT/2.0f);
 				break;
 			case s3::CubeSide::BACK:
-				transform = transform * sfz::xRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
+				transform = transform
+				          * sfz::translationMatrix(halfTileWidth, halfTileWidth, 0.0f)
+				          * sfz::xRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
 				break;
 			case s3::CubeSide::LEFT:
-				transform = transform * sfz::zRotationMatrix(sfz::g_PI_FLOAT/2.0f);
+				transform = transform
+				          * sfz::translationMatrix(0.0f, halfTileWidth, halfTileWidth)
+				          * sfz::zRotationMatrix(sfz::g_PI_FLOAT/2.0f);
 				break;
 			case s3::CubeSide::RIGHT:
-				transform = transform * sfz::zRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
+				transform = transform
+				          * sfz::translationMatrix(tileWidth, halfTileWidth, halfTileWidth)
+				          * sfz::zRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
 				break;
 		}
 
-		// Resizing
-		// TODO: Implement
+		// Scaling
+		transform = transform * sfz::scalingMatrix(tileWidth);
 
 		gl::setUniform(shaderProgram, "modelViewProj", transform);
 
