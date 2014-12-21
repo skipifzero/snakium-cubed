@@ -9,9 +9,13 @@ namespace s3 {
 
 class TileObject final {
 public:
-	TileObject() noexcept;
+	TileObject(bool xFlipped, bool yFlipped) noexcept;
 	~TileObject() noexcept;
 	void render() noexcept;
+
+	TileObject() = delete;
+	TileObject(const TileObject&) = delete;
+	TileObject& operator= (const TileObject&) = delete;
 private:
 	GLuint vertexArrayObject;
 	GLuint posBuffer, uvBuffer, indexBuffer;

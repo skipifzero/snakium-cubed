@@ -2,7 +2,7 @@
 
 namespace  s3 {
 
-TileObject::TileObject() noexcept
+TileObject::TileObject(bool xFlipped, bool yFlipped) noexcept
 {
 	const float positions[] = {
 		-0.5f, 0.0f, 0.5f, // bottom-left
@@ -10,17 +10,67 @@ TileObject::TileObject() noexcept
 		-0.5f, 0.0f, -0.5f, // top-left
 		0.5f, 0.0f, -0.5f // top-right
 	};
-	const float uvCoords[] = {
-		// u,    v
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		0.0f, 1.0f,
-		1.0f, 1.0f
-	};
 	const unsigned int indices[] = {
 		0, 1, 2,
 		1, 3, 2
 	};
+	float uvCoords[8];
+	if (!xFlipped && !yFlipped) {
+		// bottom-left UV
+		uvCoords[0] = 0.0f;
+		uvCoords[1] = 0.0f;
+		// bottom-right UV
+		uvCoords[2] = 1.0f;
+		uvCoords[3] = 0.0f;
+		// top-left UV
+		uvCoords[4] = 0.0f;
+		uvCoords[5] = 1.0f;
+		// top-right UV
+		uvCoords[6] = 1.0f;
+		uvCoords[7] = 1.0f;
+	}
+	else if (!xFlipped && yFlipped) {
+		// bottom-left UV
+		uvCoords[0] = 0.0f;
+		uvCoords[1] = 1.0f;
+		// bottom-right UV
+		uvCoords[2] = 1.0f;
+		uvCoords[3] = 1.0f;
+		// top-left UV
+		uvCoords[4] = 0.0f;
+		uvCoords[5] = 0.0f;
+		// top-right UV
+		uvCoords[6] = 1.0f;
+		uvCoords[7] = 0.0f;
+	}
+	else if (xFlipped && !yFlipped) {
+		// bottom-left UV
+		uvCoords[0] = 1.0f;
+		uvCoords[1] = 0.0f;
+		// bottom-right UV
+		uvCoords[2] = 0.0f;
+		uvCoords[3] = 0.0f;
+		// top-left UV
+		uvCoords[4] = 1.0f;
+		uvCoords[5] = 1.0f;
+		// top-right UV
+		uvCoords[6] = 0.0f;
+		uvCoords[7] = 1.0f;
+	}
+	else if (xFlipped && yFlipped) {
+		// bottom-left UV
+		uvCoords[0] = 1.0f;
+		uvCoords[1] = 1.0f;
+		// bottom-right UV
+		uvCoords[2] = 0.0f;
+		uvCoords[3] = 1.0f;
+		// top-left UV
+		uvCoords[4] = 1.0f;
+		uvCoords[5] = 0.0f;
+		// top-right UV
+		uvCoords[6] = 0.0f;
+		uvCoords[7] = 0.0f;
+	}
 
 	// Buffer objects
 	glGenBuffers(1, &posBuffer);
