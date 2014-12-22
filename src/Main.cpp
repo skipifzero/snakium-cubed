@@ -50,6 +50,164 @@ sfz::vec3f transformPoint(const sfz::mat4f& transformation, const sfz::vec3f& po
 	return sfz::vec3f{point4[0], point4[1], point4[2]};
 }
 
+float getTileAngleRad(s3::TileDirection from) noexcept
+{
+	switch (from) {
+	case s3::TileDirection::UP: return (270.0f - 90.0f) * sfz::g_DEG_TO_RAD_FLOAT;
+	case s3::TileDirection::DOWN: return (90.0f - 90.0f) * sfz::g_DEG_TO_RAD_FLOAT;
+	case s3::TileDirection::LEFT: return (0.0f - 90.0f) * sfz::g_DEG_TO_RAD_FLOAT;
+	case s3::TileDirection::RIGHT: return (180.0f - 90.0f) * sfz::g_DEG_TO_RAD_FLOAT;
+	}
+}
+
+bool isNoTurn(s3::TileDirection from, s3::TileDirection to) noexcept
+{
+	switch (from) {
+	case s3::TileDirection::UP:
+		switch (to) {
+		case s3::TileDirection::UP: return false;
+		case s3::TileDirection::DOWN: return true;
+		case s3::TileDirection::LEFT: return false;
+		case s3::TileDirection::RIGHT: return false;
+		}
+	case s3::TileDirection::DOWN:
+		switch (to) {
+		case s3::TileDirection::UP: return true;
+		case s3::TileDirection::DOWN: return false;
+		case s3::TileDirection::LEFT: return false;
+		case s3::TileDirection::RIGHT: return false;
+		}
+	case s3::TileDirection::LEFT:
+		switch (to) {
+		case s3::TileDirection::UP: return false;
+		case s3::TileDirection::DOWN: return false;
+		case s3::TileDirection::LEFT: return false;
+		case s3::TileDirection::RIGHT: return true;
+		}
+	case s3::TileDirection::RIGHT:
+		switch (to) {
+		case s3::TileDirection::UP: return false;
+		case s3::TileDirection::DOWN: return false;
+		case s3::TileDirection::LEFT: return true;
+		case s3::TileDirection::RIGHT: return false;
+		}
+	}
+}
+
+bool isLeftTurn(s3::TileDirection from, s3::TileDirection to) noexcept
+{
+	switch (from) {
+	case s3::TileDirection::UP:
+		switch (to) {
+		case s3::TileDirection::UP: return false;
+		case s3::TileDirection::DOWN: return false;
+		case s3::TileDirection::LEFT: return false;
+		case s3::TileDirection::RIGHT: return true;
+		}
+	case s3::TileDirection::DOWN:
+		switch (to) {
+		case s3::TileDirection::UP: return false;
+		case s3::TileDirection::DOWN: return false;
+		case s3::TileDirection::LEFT: return true;
+		case s3::TileDirection::RIGHT: return false;
+		}
+	case s3::TileDirection::LEFT:
+		switch (to) {
+		case s3::TileDirection::UP: return true;
+		case s3::TileDirection::DOWN: return false;
+		case s3::TileDirection::LEFT: return false;
+		case s3::TileDirection::RIGHT: return false;
+		}
+	case s3::TileDirection::RIGHT:
+		switch (to) {
+		case s3::TileDirection::UP: return false;
+		case s3::TileDirection::DOWN: return true;
+		case s3::TileDirection::LEFT: return false;
+		case s3::TileDirection::RIGHT: return false;
+		}
+	}
+}
+
+bool isRightTurn(s3::TileDirection from, s3::TileDirection to) noexcept
+{
+	switch (from) {
+	case s3::TileDirection::UP:
+		switch (to) {
+		case s3::TileDirection::UP: return false;
+		case s3::TileDirection::DOWN: return false;
+		case s3::TileDirection::LEFT: return true;
+		case s3::TileDirection::RIGHT: return false;
+		}
+	case s3::TileDirection::DOWN:
+		switch (to) {
+		case s3::TileDirection::UP: return false;
+		case s3::TileDirection::DOWN: return false;
+		case s3::TileDirection::LEFT: return false;
+		case s3::TileDirection::RIGHT: return true;
+		}
+	case s3::TileDirection::LEFT:
+		switch (to) {
+		case s3::TileDirection::UP: return false;
+		case s3::TileDirection::DOWN: return true;
+		case s3::TileDirection::LEFT: return false;
+		case s3::TileDirection::RIGHT: return false;
+		}
+	case s3::TileDirection::RIGHT:
+		switch (to) {
+		case s3::TileDirection::UP: return true;
+		case s3::TileDirection::DOWN: return false;
+		case s3::TileDirection::LEFT: return false;
+		case s3::TileDirection::RIGHT: return false;
+		}
+	}
+}
+
+
+GLuint getTileTexture(const s3::Assets& assets, s3::TileType tileType,
+                      s3::TileDirection from, s3::TileDirection to, float progress) noexcept
+{
+	bool isTurn = !isNoTurn(from, to);
+
+	switch (tileType) {
+	case s3::TileType::EMPTY: return assets.TILE_BORDER.mHandle;
+	case s3::TileType::OBJECT: return assets.OBJECT.mHandle;
+	case s3::TileType::BONUS_OBJECT: return assets.BONUS_OBJECT.mHandle;
+
+	case s3::TileType::HEAD:
+		if (progress <= 0.5f) { // Frame 1
+			return assets.HEAD_D2U_F1.mHandle;
+		} else { // Frame 2
+			return assets.HEAD_D2U_F2.mHandle;
+		}
+	case s3::TileType::BODY:
+		if (!isTurn) return assets.BODY_D2U.mHandle;
+		else return assets.BODY_D2R.mHandle;
+	case s3::TileType::TAIL:
+		if (progress <= 0.5f) { // Frame 1
+			if (!isTurn) return assets.TAIL_D2U_F1.mHandle;
+			else return assets.TAIL_D2R_F1.mHandle;
+		} else { // Frame 2
+			if (!isTurn) return assets.TAIL_D2U_F2.mHandle;
+			else return assets.TAIL_D2R_F2.mHandle;
+		}
+
+	case s3::TileType::HEAD_DIGESTING:
+		std::cerr << "HEAD_DIGESTING should never happen.\n";
+		std::terminate();
+	case s3::TileType::BODY_DIGESTING:
+		if (!isTurn) return assets.BODY_D2U_DIG.mHandle;
+		else return assets.BODY_D2R_DIG.mHandle;
+	case s3::TileType::TAIL_DIGESTING:
+		if (progress <= 0.5f) { // Frame 1
+			if (!isTurn) return assets.TAIL_D2U_DIG_F1.mHandle;
+			else return assets.TAIL_D2R_DIG_F1.mHandle;
+		} else { // Frame 2
+			if (!isTurn) return assets.TAIL_D2U_DIG_F2.mHandle;
+			else return assets.TAIL_D2R_DIG_F2.mHandle;
+		}
+	}
+}
+
 } // anonymous namespace
 
 // Game loop functions
@@ -107,7 +265,8 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 {
 	glActiveTexture(GL_TEXTURE0);
 
-	s3::TileObject tile;
+	s3::TileObject tile{false, false};
+	s3::TileObject xFlippedTile{true, false};
 
 	// Clearing screen
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -154,41 +313,41 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 		transform = viewProj;
 
 		// Translation
-		transform = transform * sfz::translationMatrix(x*tileWidth-0.5f,
-		                                               y*tileWidth-0.5f,
-		                                               z*tileWidth-0.5f);
+		transform = transform * sfz::translationMatrix(x*tileWidth - 0.5f,
+		                                               y*tileWidth - 0.5f,
+		                                               z*tileWidth - 0.5f);
 
 		// Rotation
 		switch (cubeSide) {
-			case s3::CubeSide::TOP:
-				transform = transform
-				          * sfz::translationMatrix(halfTileWidth, tileWidth, halfTileWidth);
-				break;
-			case s3::CubeSide::BOTTOM:
-				transform = transform
-				          * sfz::translationMatrix(halfTileWidth, 0.0f, halfTileWidth)
-				          * sfz::xRotationMatrix(sfz::g_PI_FLOAT);
-				break;
-			case s3::CubeSide::FRONT:
-				transform = transform
-				          * sfz::translationMatrix(halfTileWidth, halfTileWidth, tileWidth)
-				          * sfz::xRotationMatrix(sfz::g_PI_FLOAT/2.0f);
-				break;
-			case s3::CubeSide::BACK:
-				transform = transform
-				          * sfz::translationMatrix(halfTileWidth, halfTileWidth, 0.0f)
-				          * sfz::xRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
-				break;
-			case s3::CubeSide::LEFT:
-				transform = transform
-				          * sfz::translationMatrix(0.0f, halfTileWidth, halfTileWidth)
-				          * sfz::zRotationMatrix(sfz::g_PI_FLOAT/2.0f);
-				break;
-			case s3::CubeSide::RIGHT:
-				transform = transform
-				          * sfz::translationMatrix(tileWidth, halfTileWidth, halfTileWidth)
-				          * sfz::zRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
-				break;
+		case s3::CubeSide::TOP:
+			transform = transform
+					  * sfz::translationMatrix(halfTileWidth, tileWidth, halfTileWidth);
+			break;
+		case s3::CubeSide::BOTTOM:
+			transform = transform
+					  * sfz::translationMatrix(halfTileWidth, 0.0f, halfTileWidth)
+					  * sfz::xRotationMatrix(sfz::g_PI_FLOAT);
+			break;
+		case s3::CubeSide::FRONT:
+			transform = transform
+					  * sfz::translationMatrix(halfTileWidth, halfTileWidth, tileWidth)
+					  * sfz::xRotationMatrix(sfz::g_PI_FLOAT/2.0f);
+			break;
+		case s3::CubeSide::BACK:
+			transform = transform
+					  * sfz::translationMatrix(halfTileWidth, halfTileWidth, 0.0f)
+					  * sfz::xRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
+			break;
+		case s3::CubeSide::LEFT:
+			transform = transform
+					  * sfz::translationMatrix(0.0f, halfTileWidth, halfTileWidth)
+					  * sfz::zRotationMatrix(sfz::g_PI_FLOAT/2.0f);
+			break;
+		case s3::CubeSide::RIGHT:
+			transform = transform
+					  * sfz::translationMatrix(tileWidth, halfTileWidth, halfTileWidth)
+					  * sfz::zRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
+			break;
 		}
 
 		// Scaling
@@ -199,114 +358,15 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 		glBindTexture(GL_TEXTURE_2D, assets.TILE_BORDER.mHandle);
 		tile.render();
 
-		glBindTexture(GL_TEXTURE_2D, assets.HEAD_D2U_F2.mHandle);
-		tile.render();
+		glBindTexture(GL_TEXTURE_2D, getTileTexture(assets, tileType, from, to, 0.5f));
+		if (isLeftTurn(from, to)) {
+			xFlippedTile.render();
+		} else {
+			tile.render();
+		}
 
 		current += 3;
 	}
-
-	/*glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, assets.FILLED.mHandle);
-	gl::setUniform(shaderProgram, "tex", 0);
-
-	// Ground
-	gl::setUniform(shaderProgram, "modelViewProj",
-		viewProj
-		* sfz::translationMatrix(0.0f, -4.0f, 0.0f)
-		* sfz::scalingMatrix(10.0f));
-	tile.render();
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, assets.HEAD_D2U_F2.mHandle);
-	gl::setUniform(shaderProgram, "tex", 0);
-
-	// Bottom
-	gl::setUniform(shaderProgram, "modelViewProj",
-		viewProj
-		* sfz::translationMatrix(0.0f, -0.5f, 0.0f)
-		* sfz::xRotationMatrix(sfz::g_PI_FLOAT));
-	tile.render();
-
-	// Top
-	gl::setUniform(shaderProgram, "modelViewProj",
-		viewProj
-		* sfz::translationMatrix(0.0f, 0.5f, 0.0f));
-	tile.render();
-
-	// Front
-	gl::setUniform(shaderProgram, "modelViewProj",
-		viewProj
-		* sfz::translationMatrix(0.0f, 0.0f, 0.5f)
-		* sfz::xRotationMatrix(sfz::g_PI_FLOAT/2.0f));
-	tile.render();
-
-	// Back
-	gl::setUniform(shaderProgram, "modelViewProj",
-		viewProj
-		* sfz::translationMatrix(0.0f, 0.0f, -0.5f)
-		* sfz::xRotationMatrix(-sfz::g_PI_FLOAT/2.0f));
-	tile.render();
-
-	// Left
-	gl::setUniform(shaderProgram, "modelViewProj",
-		viewProj
-		* sfz::translationMatrix(-0.5f, 0.0f, 0.0f)
-		* sfz::zRotationMatrix(sfz::g_PI_FLOAT/2.0f));
-	tile.render();
-
-	// Right
-	gl::setUniform(shaderProgram, "modelViewProj",
-		viewProj
-		* sfz::translationMatrix(0.5f, 0.0f, 0.0f)
-		* sfz::zRotationMatrix(-sfz::g_PI_FLOAT/2.0f));
-	tile.render();
-
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, assets.TILE_BORDER.mHandle);
-	gl::setUniform(shaderProgram, "tex", 0);
-
-	// Bottom
-	gl::setUniform(shaderProgram, "modelViewProj",
-		viewProj
-		* sfz::translationMatrix(0.0f, -0.5f, 0.0f)
-		* sfz::xRotationMatrix(sfz::g_PI_FLOAT));
-	tile.render();
-
-	// Top
-	gl::setUniform(shaderProgram, "modelViewProj",
-		viewProj
-		* sfz::translationMatrix(0.0f, 0.5f, 0.0f));
-	tile.render();
-
-	// Front
-	gl::setUniform(shaderProgram, "modelViewProj",
-		viewProj
-		* sfz::translationMatrix(0.0f, 0.0f, 0.5f)
-		* sfz::xRotationMatrix(sfz::g_PI_FLOAT/2.0f));
-	tile.render();
-
-	// Back
-	gl::setUniform(shaderProgram, "modelViewProj",
-		viewProj
-		* sfz::translationMatrix(0.0f, 0.0f, -0.5f)
-		* sfz::xRotationMatrix(-sfz::g_PI_FLOAT/2.0f));
-	tile.render();
-
-	// Left
-	gl::setUniform(shaderProgram, "modelViewProj",
-		viewProj
-		* sfz::translationMatrix(-0.5f, 0.0f, 0.0f)
-		* sfz::zRotationMatrix(sfz::g_PI_FLOAT/2.0f));
-	tile.render();
-
-	// Right
-	gl::setUniform(shaderProgram, "modelViewProj",
-		viewProj
-		* sfz::translationMatrix(0.5f, 0.0f, 0.0f)
-		* sfz::zRotationMatrix(-sfz::g_PI_FLOAT/2.0f));
-	tile.render();
-	*/
 
 	glUseProgram(0);
 }
