@@ -32,12 +32,14 @@ enum class TileType : uint8_t {
 	BONUS_OBJECT = 2,
 
 	HEAD = 3,
-	BODY = 4,
-	TAIL = 5,
+	PRE_HEAD = 4,
+	BODY = 5,
+	TAIL = 6,
 
-	HEAD_DIGESTING = 6,
-	BODY_DIGESTING = 7,
-	TAIL_DIGESTING = 8
+	HEAD_DIGESTING = 7,
+	PRE_HEAD_DIGESTING = 8,
+	BODY_DIGESTING = 9,
+	TAIL_DIGESTING = 10
 };
 
 /**
@@ -159,12 +161,15 @@ inline void tileSideSetTo(uint8_t& bits, TileDirection toDir) noexcept
  * msb [ [TileType], [x, y], [z, CubeSide] ] lsb
  */
 struct S3Model final {
-	size_t mByteCount;
 	size_t mGridWidth;
+	size_t mByteCount;
 	uint8_t* const mBytes;
+	float progress;
 
 	S3Model(size_t size) noexcept;
 	~S3Model() noexcept;
+
+	void update(float delta) noexcept;
 
 	S3Model() = delete;
 	S3Model(const S3Model&) = delete;

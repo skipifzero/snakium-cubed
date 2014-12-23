@@ -19,7 +19,7 @@ sfz::vec3f camUp{0, 1, 0};
 sfz::mat4f viewMatrix = sfz::lookAt(camPos, camTarget, camUp);
 sfz::mat4f projMatrix;
 
-s3::S3Model model{4};
+s3::S3Model model{3};
 
 // Helper functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -128,7 +128,7 @@ bool isLeftTurn(s3::TileDirection from, s3::TileDirection to) noexcept
 	}
 }
 
-bool isRightTurn(s3::TileDirection from, s3::TileDirection to) noexcept
+/*bool isRightTurn(s3::TileDirection from, s3::TileDirection to) noexcept
 {
 	switch (from) {
 	case s3::TileDirection::UP:
@@ -160,7 +160,7 @@ bool isRightTurn(s3::TileDirection from, s3::TileDirection to) noexcept
 		case s3::TileDirection::RIGHT: return false;
 		}
 	}
-}
+}*/
 
 
 GLuint getTileTexture(const s3::Assets& assets, s3::TileType tileType,
@@ -179,6 +179,14 @@ GLuint getTileTexture(const s3::Assets& assets, s3::TileType tileType,
 		} else { // Frame 2
 			return assets.HEAD_D2U_F2.mHandle;
 		}
+	case s3::TileType::PRE_HEAD:
+		if (progress <= 0.5f) { // Frame 1
+			if (!isTurn) return assets.PRE_HEAD_D2U_F1.mHandle;
+			else return assets.PRE_HEAD_D2R_F1.mHandle;
+		} else { // Frame 2
+			if (!isTurn) return assets.BODY_D2U.mHandle;
+			else return assets.BODY_D2R.mHandle;
+		}
 	case s3::TileType::BODY:
 		if (!isTurn) return assets.BODY_D2U.mHandle;
 		else return assets.BODY_D2R.mHandle;
@@ -194,6 +202,14 @@ GLuint getTileTexture(const s3::Assets& assets, s3::TileType tileType,
 	case s3::TileType::HEAD_DIGESTING:
 		std::cerr << "HEAD_DIGESTING should never happen.\n";
 		std::terminate();
+	case s3::TileType::PRE_HEAD_DIGESTING:
+		if (progress <= 0.5f) { // Frame 1
+			if (!isTurn) return assets.PRE_HEAD_D2U_DIG_F1.mHandle;
+			else return assets.PRE_HEAD_D2R_DIG_F1.mHandle;
+		} else { // Frame 2
+			if (!isTurn) return assets.BODY_D2U_DIG.mHandle;
+			else return assets.BODY_D2R_DIG.mHandle;
+		}
 	case s3::TileType::BODY_DIGESTING:
 		if (!isTurn) return assets.BODY_D2U_DIG.mHandle;
 		else return assets.BODY_D2R_DIG.mHandle;
@@ -254,9 +270,9 @@ bool handleInput(const SDL_Event& event)
 }
 
 // Called once every frame
-bool update(float)
+bool update(float delta)
 {
-
+	model.update(delta);
 	return false;
 }
 
