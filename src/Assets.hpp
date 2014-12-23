@@ -11,10 +11,11 @@ namespace s3 {
 struct Assets final {
 	gl::Texture HEAD_D2U_F1,
 	            HEAD_D2U_F2,
-				HEAD_D2U_F3,
-				HEAD_D2U_DIG_F3,
-				HEAD_D2R_F3,
-				HEAD_D2R_DIG_F3,
+
+				PRE_HEAD_D2U_F1,
+				PRE_HEAD_D2U_DIG_F1,
+				PRE_HEAD_D2R_F1,
+				PRE_HEAD_D2R_DIG_F1,
 
 				DEADHEAD_D2U_F3,
 				DEADHEAD_D2U_DIG_F3,

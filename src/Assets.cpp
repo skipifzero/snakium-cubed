@@ -12,10 +12,11 @@ Assets::Assets() noexcept
 :
 	HEAD_D2U_F1{snakeTexturePath + "head_d2u_f1_128.png"},
 	HEAD_D2U_F2{snakeTexturePath + "head_d2u_f2_128.png"},
-	HEAD_D2U_F3{snakeTexturePath + "head_d2u_f3_128.png"},
-	HEAD_D2U_DIG_F3{snakeTexturePath + "head_d2u_dig_f3_128.png"},
-	HEAD_D2R_F3{snakeTexturePath + "head_d2r_f3_128.png"},
-	HEAD_D2R_DIG_F3{snakeTexturePath + "head_d2r_dig_f3_128.png"},
+
+	PRE_HEAD_D2U_F1{snakeTexturePath + "pre_head_d2u_f1_128.png"},
+	PRE_HEAD_D2U_DIG_F1{snakeTexturePath + "pre_head_d2u_dig_f1_128.png"},
+	PRE_HEAD_D2R_F1{snakeTexturePath + "pre_head_d2r_f1_128.png"},
+	PRE_HEAD_D2R_DIG_F1{snakeTexturePath + "pre_head_d2r_dig_f1_128.png"},
 
 	DEADHEAD_D2U_F3{snakeTexturePath + "deadhead_d2u_f3_128.png"},
 	DEADHEAD_D2U_DIG_F3{snakeTexturePath + "deadhead_d2u_dig_f3_128.png"},
