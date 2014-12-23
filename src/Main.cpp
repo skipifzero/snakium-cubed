@@ -13,7 +13,7 @@
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 GLuint shaderProgram = -1;
 
-sfz::vec3f camPos{0, 0, 3};
+sfz::vec3f camPos{0, 0, 2};
 sfz::vec3f camTarget{0, 0, 0};
 sfz::vec3f camUp{0, 1, 0};
 sfz::mat4f viewMatrix = sfz::lookAt(camPos, camTarget, camUp);
