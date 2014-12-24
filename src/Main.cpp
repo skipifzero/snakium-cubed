@@ -11,7 +11,7 @@
 
 // Variables
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-GLuint shaderProgram = -1;
+GLuint shaderProgram;
 
 sfz::vec3f camPos{0, 0, 2};
 sfz::vec3f camTarget{0, 0, 0};
@@ -19,7 +19,7 @@ sfz::vec3f camUp{0, 1, 0};
 sfz::mat4f viewMatrix = sfz::lookAt(camPos, camTarget, camUp);
 sfz::mat4f projMatrix;
 
-s3::S3Model model{3};
+s3::S3Model model{4};
 
 // Helper functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -306,82 +306,92 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 	gl::setUniform(shaderProgram, "tex", 0);
 	glActiveTexture(GL_TEXTURE0);
 
-	std::uint8_t* current = model.mBytes;
-	std::uint8_t* max = model.mBytes + model.mByteCount;
-	s3::TileType tileType;
-	s3::TileDirection from, to;
-	float x, y, z;
-	s3::CubeSide cubeSide;
+
 	const float gridWidth = static_cast<float>(model.mGridWidth);
-	const float halfGridWidth = gridWidth * 0.5f;
 	const float tileWidth = 1.0f / gridWidth;
-	const float halfTileWidth = tileWidth * 0.5f;
 	sfz::mat4f transform;
-	while (current < max) {
-		tileType = s3::tileSideType(current[0]);
-		from = s3::tileSideFrom(current[0]);
-		to = s3::tileSideTo(current[0]);
-		x = static_cast<float>(s3::getFourMSBs(current[1]));
-		y = static_cast<float>(s3::getFourLSBs(current[1]));
-		z = static_cast<float>(s3::getFourMSBs(current[2]));
-		cubeSide = static_cast<s3::CubeSide>(s3::getFourLSBs(current[2]));
 
-		transform = viewProj;
+	s3::CubeSide cubeSide;
+	s3::SnakeTile snakeTile;
+	for (uint8_t c = 0; c < 6; c++) {
+		for (uint8_t y = 0; y < model.mGridWidth; y++) {
+			for (uint8_t x = 0; x < model.mGridWidth; x++) {
+				cubeSide = static_cast<s3::CubeSide>(c);
+				snakeTile = *reinterpret_cast<s3::SnakeTile*>(model.getBytePtr(cubeSide, x, y));
 
-		// Translation
-		transform = transform * sfz::translationMatrix(x*tileWidth - 0.5f,
-		                                               y*tileWidth - 0.5f,
-		                                               z*tileWidth - 0.5f);
+				transform = viewProj;
 
-		// Rotation
-		switch (cubeSide) {
-		case s3::CubeSide::TOP:
-			transform = transform
-					  * sfz::translationMatrix(halfTileWidth, tileWidth, halfTileWidth);
-			break;
-		case s3::CubeSide::BOTTOM:
-			transform = transform
-					  * sfz::translationMatrix(halfTileWidth, 0.0f, halfTileWidth)
+				float xf = x + 0.5f;
+				float yf = y + 0.5f;
+
+				// Translation
+				switch (cubeSide) {
+				case s3::CubeSide::TOP:
+				case s3::CubeSide::BOTTOM:
+					transform = transform * sfz::translationMatrix(xf*tileWidth - 0.5f,
+					                                               0.0f, yf*tileWidth - 0.5f);
+				break;
+				case s3::CubeSide::FRONT:
+				case s3::CubeSide::BACK:
+					transform = transform * sfz::translationMatrix(xf*tileWidth - 0.5f,
+					                                               yf*tileWidth - 0.5f, 0.0f);
+				break;
+				case s3::CubeSide::LEFT:
+				case s3::CubeSide::RIGHT:
+					transform = transform * sfz::translationMatrix(0.0f, xf*tileWidth - 0.5f,
+					                                               yf*tileWidth - 0.5f);
+				break;
+				}
+
+				// Rotation and more translation
+				switch (cubeSide) {
+				case s3::CubeSide::TOP:
+					transform = transform
+					  * sfz::translationMatrix(0.0f, 0.5f, 0.0f);
+				break;
+				case s3::CubeSide::BOTTOM:
+					transform = transform
+					  * sfz::translationMatrix(0.0f, -0.5f, 0.0f)
 					  * sfz::xRotationMatrix(sfz::g_PI_FLOAT);
-			break;
-		case s3::CubeSide::FRONT:
-			transform = transform
-					  * sfz::translationMatrix(halfTileWidth, halfTileWidth, tileWidth)
+				break;
+				case s3::CubeSide::FRONT:
+					transform = transform
+					  * sfz::translationMatrix(0.0f, 0.0f, 0.5f)
 					  * sfz::xRotationMatrix(sfz::g_PI_FLOAT/2.0f);
-			break;
-		case s3::CubeSide::BACK:
-			transform = transform
-					  * sfz::translationMatrix(halfTileWidth, halfTileWidth, 0.0f)
+				break;
+				case s3::CubeSide::BACK:
+					transform = transform
+					  * sfz::translationMatrix(0.0f, 0.0f, -0.5f)
 					  * sfz::xRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
-			break;
-		case s3::CubeSide::LEFT:
-			transform = transform
-					  * sfz::translationMatrix(0.0f, halfTileWidth, halfTileWidth)
+				break;
+				case s3::CubeSide::LEFT:
+					transform = transform
+					  * sfz::translationMatrix(-0.5f, 0.0f, 0.0f)
 					  * sfz::zRotationMatrix(sfz::g_PI_FLOAT/2.0f);
-			break;
-		case s3::CubeSide::RIGHT:
-			transform = transform
-					  * sfz::translationMatrix(tileWidth, halfTileWidth, halfTileWidth)
+				break;
+				case s3::CubeSide::RIGHT:
+					transform = transform
+					  * sfz::translationMatrix(0.5f, 0.0f, 0.0f)
 					  * sfz::zRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
-			break;
+				break;
+				}
+
+				// Scaling
+				transform = transform * sfz::scalingMatrix(tileWidth);
+
+
+				gl::setUniform(shaderProgram, "modelViewProj", transform);
+
+				glBindTexture(GL_TEXTURE_2D, assets.TILE_BORDER.mHandle);
+				tile.render();
+
+				glBindTexture(GL_TEXTURE_2D, getTileTexture(assets, snakeTile.type(),
+						      snakeTile.from(), snakeTile.to(), model.progress));
+
+				if (isLeftTurn(snakeTile.from(), snakeTile.to())) xFlippedTile.render();
+				else tile.render();
+			}
 		}
-
-		// Scaling
-		transform = transform * sfz::scalingMatrix(tileWidth);
-
-		gl::setUniform(shaderProgram, "modelViewProj", transform);
-
-		glBindTexture(GL_TEXTURE_2D, assets.TILE_BORDER.mHandle);
-		tile.render();
-
-		glBindTexture(GL_TEXTURE_2D, getTileTexture(assets, tileType, from, to, 0.5f));
-		if (isLeftTurn(from, to)) {
-			xFlippedTile.render();
-		} else {
-			tile.render();
-		}
-
-		current += 3;
 	}
 
 	glUseProgram(0);
