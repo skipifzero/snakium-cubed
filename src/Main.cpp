@@ -317,7 +317,7 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 		for (uint8_t y = 0; y < model.mGridWidth; y++) {
 			for (uint8_t x = 0; x < model.mGridWidth; x++) {
 				cubeSide = static_cast<s3::CubeSide>(c);
-				snakeTile = *reinterpret_cast<s3::SnakeTile*>(model.getBytePtr(cubeSide, x, y));
+				snakeTile = *model.getTilePtr(cubeSide, x, y);
 
 				transform = viewProj;
 
@@ -386,7 +386,7 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 				tile.render();
 
 				glBindTexture(GL_TEXTURE_2D, getTileTexture(assets, snakeTile.type(),
-						      snakeTile.from(), snakeTile.to(), model.progress));
+						      snakeTile.from(), snakeTile.to(), model.mProgress));
 
 				if (isLeftTurn(snakeTile.from(), snakeTile.to())) xFlippedTile.render();
 				else tile.render();

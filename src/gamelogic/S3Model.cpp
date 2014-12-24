@@ -16,34 +16,34 @@ size_t calculateGridWidth(size_t size) noexcept
 S3Model::S3Model(size_t size) noexcept
 :
 	mGridWidth{calculateGridWidth(size)},
-	mByteCount{mGridWidth*mGridWidth*6},
-	mBytes{new uint8_t[mByteCount]},
-	progress{0.0f}
+	mTileCount{mGridWidth*mGridWidth*6},
+	mTiles{new SnakeTile[mTileCount]},
+	mProgress{0.0f}
 {
-	static_assert(sizeof(SnakeTile) == sizeof(uint8_t), "SnakeTile is larger than 1 byte.");
+	static_assert(sizeof(SnakeTile) <= 1, "SnakeTile is larger than 1 byte.");
 
 	// Set the type of every SnakeTile to EMPTY.
-	uint8_t* current = mBytes;
-	uint8_t* const max = mBytes + mByteCount;
+	SnakeTile* current = mTiles;
+	SnakeTile* const max = mTiles + mTileCount;
 	while (current < max) {
-		reinterpret_cast<SnakeTile*>(current)->setType(TileType::EMPTY);
+		current->setType(TileType::EMPTY);
 		current++;
 	}
 
 	// Create the first Snake.
 	const size_t mid = mGridWidth/2;
 
-	SnakeTile* tile = reinterpret_cast<SnakeTile*>(getBytePtr(CubeSide::FRONT, mid, 0));
+	SnakeTile* tile = getTilePtr(CubeSide::FRONT, mid, 0);
 	tile->setType(TileType::TAIL);
 	tile->setFrom(TileDirection::DOWN);
 	tile->setTo(TileDirection::UP);
 
-	tile = reinterpret_cast<SnakeTile*>(getBytePtr(CubeSide::FRONT, mid, 1));
+	tile = getTilePtr(CubeSide::FRONT, mid, 1);
 	tile->setType(TileType::PRE_HEAD);
 	tile->setFrom(TileDirection::DOWN);
 	tile->setTo(TileDirection::UP);
 
-	tile = reinterpret_cast<SnakeTile*>(getBytePtr(CubeSide::FRONT, mid, 2));
+	tile = getTilePtr(CubeSide::FRONT, mid, 2);
 	tile->setType(TileType::HEAD);
 	tile->setFrom(TileDirection::DOWN);
 	tile->setTo(TileDirection::UP);
@@ -51,14 +51,14 @@ S3Model::S3Model(size_t size) noexcept
 
 S3Model::~S3Model() noexcept
 {
-	delete[] mBytes;
+	delete[] mTiles;
 }
 
 void S3Model::update(float delta) noexcept
 {
-	progress += delta;
-	if (progress <= 1.0f) return;
-	progress -= 1.0f;
+	mProgress += delta;
+	if (mProgress <= 1.0f) return;
+	mProgress -= 1.0f;
 
 	
 }
