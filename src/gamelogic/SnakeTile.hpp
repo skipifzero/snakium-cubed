@@ -1,0 +1,63 @@
+#pragma once
+#ifndef S3_GAMELOGIC_SNAKETILE_HPP
+#define S3_GAMELOGIC_SNAKETILE_HPP
+
+#include <cstddef> // size_t
+#include <cstdint> // uint8_t;
+
+namespace s3 {
+
+using std::uint8_t;
+
+/**
+ * @brief Enum representing the type of a SnakeTile.
+ * Needs 4 bits.
+ */
+enum class TileType : uint8_t {
+	EMPTY = 0,
+	OBJECT = 1,
+	BONUS_OBJECT = 2,
+
+	HEAD = 3,
+	PRE_HEAD = 4,
+	BODY = 5,
+	TAIL = 6,
+
+	HEAD_DIGESTING = 7,
+	PRE_HEAD_DIGESTING = 8,
+	BODY_DIGESTING = 9,
+	TAIL_DIGESTING = 10
+};
+
+/**
+ * @brief Enum representing a direction on a SnakeTile.
+ * Needs 2 bits.
+ */
+enum class TileDirection : uint8_t {
+	UP = 0,
+	DOWN = 1,
+	LEFT = 2,
+	RIGHT = 3
+};
+
+/**
+ * Struct representing a SnakeTile.
+ * Should takes up exactly one byte in memory, unless struct gets padded for some reason.
+ * mBits ==  msb [ [to][from][type] ] lsb
+ */
+struct SnakeTile final {
+	uint8_t mBits;
+
+	inline TileType type(void) noexcept;
+	inline TileDirection from(void) noexcept;
+	inline TileDirection to(void) noexcept;
+
+	inline void setType(TileType type) noexcept;
+	inline void setFrom(TileDirection from) noexcept;
+	inline void setTo(TileDirection to) noexcept;
+};
+
+} // namespace s3
+
+#include "gamelogic/SnakeTile.inl"
+#endif
