@@ -5,6 +5,7 @@
 #include <cstddef> // size_t
 #include <cstdint> // uint8_t
 #include <cassert>
+#include "gamelogic/TileDirection.hpp"
 #include "gamelogic/SnakeTile.hpp"
 
 namespace s3 {
@@ -25,6 +26,8 @@ enum class CubeSide : uint8_t {
 	LEFT = 4,
 	RIGHT = 5
 };
+
+
 
 struct S3Model final {
 

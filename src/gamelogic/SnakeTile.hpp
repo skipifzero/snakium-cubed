@@ -3,7 +3,9 @@
 #define S3_GAMELOGIC_SNAKETILE_HPP
 
 #include <cstddef> // size_t
-#include <cstdint> // uint8_t;
+#include <cstdint> // uint8_t
+
+#include "gamelogic/TileDirection.hpp"
 
 namespace s3 {
 
@@ -27,17 +29,6 @@ enum class TileType : uint8_t {
 	PRE_HEAD_DIGESTING = 8,
 	BODY_DIGESTING = 9,
 	TAIL_DIGESTING = 10
-};
-
-/**
- * @brief Enum representing a direction on a SnakeTile.
- * Needs 2 bits.
- */
-enum class TileDirection : uint8_t {
-	UP = 0,
-	DOWN = 1,
-	LEFT = 2,
-	RIGHT = 3
 };
 
 /**
