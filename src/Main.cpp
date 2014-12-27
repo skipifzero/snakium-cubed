@@ -43,12 +43,12 @@ void checkGLErrorsMessage(const std::string& msg) noexcept
 	}
 }
 
-sfz::vec3f transformPoint(const sfz::mat4f& transformation, const sfz::vec3f& point) noexcept
+/*sfz::vec3f transformPoint(const sfz::mat4f& transformation, const sfz::vec3f& point) noexcept
 {
 	sfz::vec4f point4{point[0], point[1], point[2], 1.0f};
 	point4 = transformation * point4;
 	return sfz::vec3f{point4[0], point4[1], point4[2]};
-}
+}*/
 
 float getTileAngleRad(s3::TileDirection from) noexcept
 {
@@ -121,6 +121,30 @@ GLuint getTileTexture(const s3::Assets& assets, s3::TileType tileType,
 	}
 }
 
+sfz::vec3f vectorSpace(const s3::S3Model& model, const s3::TilePosition& tilePos, float progress)
+	noexcept
+{
+	float xf = static_cast<float>(tilePos.x) + 0.5f;
+	float yf = static_cast<float>(tilePos.y) + 0.5f;
+	float gridWidth = static_cast<float>(model.mGridWidth);
+	float tileWidth = 1.0f / gridWidth;
+
+	switch (tilePos.cubeSide) {
+	case s3::CubeSide::TOP:
+		return sfz::vec3f{xf*tileWidth - 0.5f, 0.5f, (gridWidth-yf)*tileWidth - 0.5f};
+	case s3::CubeSide::BOTTOM:
+		return sfz::vec3f{xf*tileWidth - 0.5f, -0.5f, (gridWidth-yf)*tileWidth - 0.5f};
+	case s3::CubeSide::FRONT:
+		return sfz::vec3f{xf*tileWidth - 0.5f, yf*tileWidth - 0.5f, 0.5f};
+	case s3::CubeSide::BACK:
+		return sfz::vec3f{xf*tileWidth - 0.5f, yf*tileWidth - 0.5f, -0.5f};
+	case s3::CubeSide::LEFT:
+		return sfz::vec3f{-0.5f, yf*tileWidth - 0.5f, xf*tileWidth - 0.5f};
+	case s3::CubeSide::RIGHT:
+		return sfz::vec3f{0.5f, yf*tileWidth - 0.5f, xf*tileWidth - 0.5f};
+	}
+}
+
 } // anonymous namespace
 
 // Game loop functions
@@ -142,23 +166,15 @@ bool handleInput(const SDL_Event& event)
 		switch (event.key.keysym.sym) {
 		case SDLK_ESCAPE: return true;
 		case SDLK_UP:
-			//camPos = transformPoint(sfz::xRotationMatrix(-0.1f*sfz::g_PI_FLOAT), camPos);
-			//viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
 			model.changeDirection(s3::TileDirection::UP);
 			break;
 		case SDLK_DOWN:
-			//camPos = transformPoint(sfz::xRotationMatrix(0.1f*sfz::g_PI_FLOAT), camPos);
-			//viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
 			model.changeDirection(s3::TileDirection::DOWN);
 			break;
 		case SDLK_RIGHT:
-			//camPos = transformPoint(sfz::yRotationMatrix(0.1f*sfz::g_PI_FLOAT), camPos);
-			//viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
 			model.changeDirection(s3::TileDirection::RIGHT);
 			break;
 		case SDLK_LEFT:
-			//camPos = transformPoint(sfz::yRotationMatrix(-0.1f*sfz::g_PI_FLOAT), camPos);
-			//viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
 			model.changeDirection(s3::TileDirection::LEFT);
 			break;
 		}
@@ -173,36 +189,8 @@ bool update(float delta)
 {
 	model.update(delta);
 
-	auto headPos = model.getHeadPosition();
-	sfz::vec3f headPosVec;
-
-	float xf = static_cast<float>(headPos.x) + 0.5f;
-	float yf = static_cast<float>(headPos.y) + 0.5f;
-	float gridWidth = static_cast<float>(model.mGridWidth);
-	float tileWidth = 1.0f / gridWidth;
-
-	switch (headPos.cubeSide) {
-	case s3::CubeSide::TOP:
-		headPosVec = sfz::vec3f{xf*tileWidth - 0.5f, 0.5f, (gridWidth-yf)*tileWidth - 0.5f};
-		break;
-	case s3::CubeSide::BOTTOM:
-		headPosVec = sfz::vec3f{xf*tileWidth - 0.5f, -0.5f, (gridWidth-yf)*tileWidth - 0.5f};
-		break;
-	case s3::CubeSide::FRONT:
-		headPosVec = sfz::vec3f{xf*tileWidth - 0.5f, yf*tileWidth - 0.5f, 0.5f};
-		break;
-	case s3::CubeSide::BACK:
-		headPosVec = sfz::vec3f{xf*tileWidth - 0.5f, yf*tileWidth - 0.5f, -0.5f};
-		break;
-	case s3::CubeSide::LEFT:
-		headPosVec = sfz::vec3f{-0.5f, yf*tileWidth - 0.5f, xf*tileWidth - 0.5f};
-		break;
-	case s3::CubeSide::RIGHT:
-		headPosVec = sfz::vec3f{0.5f, yf*tileWidth - 0.5f, xf*tileWidth - 0.5f};
-		break;
-	}
-
-	camPos = headPosVec.normalize()*2.5f;
+	auto headPos = model.getTilePosition(model.mHeadPtr);
+	camPos = vectorSpace(model, headPos, model.mProgress).normalize()*2.5f;
 	viewMatrix = sfz::lookAt(camPos, camTarget, camUp);
 
 	return false;
@@ -244,85 +232,56 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 	sfz::mat4f transform;
 
 	s3::CubeSide cubeSide;
-	s3::SnakeTile snakeTile;
+	s3::SnakeTile* snakeTile;
 	for (uint8_t c = 0; c < 6; c++) {
 		for (uint8_t y = 0; y < model.mGridWidth; y++) {
 			for (uint8_t x = 0; x < model.mGridWidth; x++) {
 				cubeSide = static_cast<s3::CubeSide>(c);
-				snakeTile = *model.getTilePtr(cubeSide, x, y);
+				snakeTile = model.getTilePtr(cubeSide, x, y);
 
+				// Projection
 				transform = viewProj;
 
-				float xf = x + 0.5f;
-				float yf = y + 0.5f;
-
 				// Translation
-				switch (cubeSide) {
-				case s3::CubeSide::TOP:
-				case s3::CubeSide::BOTTOM:
-					transform = transform * sfz::translationMatrix(xf*tileWidth - 0.5f, 0.0f,
-																  (gridWidth-yf)*tileWidth - 0.5f);
-				break;
-				case s3::CubeSide::FRONT:
-				case s3::CubeSide::BACK:
-					transform = transform * sfz::translationMatrix(xf*tileWidth - 0.5f,
-					                                               yf*tileWidth - 0.5f, 0.0f);
-				break;
-				case s3::CubeSide::LEFT:
-				case s3::CubeSide::RIGHT:
-					transform = transform * sfz::translationMatrix(0.0f, yf*tileWidth - 0.5f,
-					                                               xf*tileWidth - 0.5f);
-				break;
-				}
+				transform = transform * sfz::translationMatrix(vectorSpace(model, model.getTilePosition(snakeTile), 0.0f));
 
-				// Rotation and more translation
+				// Rotation
 				switch (cubeSide) {
 				case s3::CubeSide::TOP:
-					transform = transform
-					  * sfz::translationMatrix(0.0f, 0.5f, 0.0f);
-				break;
+					 // Do nothing
+					break;
 				case s3::CubeSide::BOTTOM:
-					transform = transform
-					  * sfz::translationMatrix(0.0f, -0.5f, 0.0f)
-					  * sfz::xRotationMatrix(sfz::g_PI_FLOAT);
-				break;
+					transform = transform * sfz::xRotationMatrix(sfz::g_PI_FLOAT);
+					break;
 				case s3::CubeSide::FRONT:
-					transform = transform
-					  * sfz::translationMatrix(0.0f, 0.0f, 0.5f)
-					  * sfz::xRotationMatrix(sfz::g_PI_FLOAT/2.0f);
-				break;
+					transform = transform * sfz::xRotationMatrix(sfz::g_PI_FLOAT/2.0f);
+					break;
 				case s3::CubeSide::BACK:
-					transform = transform
-					  * sfz::translationMatrix(0.0f, 0.0f, -0.5f)
-					  * sfz::xRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
-				break;
+					transform = transform * sfz::xRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
+					break;
 				case s3::CubeSide::LEFT:
-					transform = transform
-					  * sfz::translationMatrix(-0.5f, 0.0f, 0.0f)
-					  * sfz::zRotationMatrix(sfz::g_PI_FLOAT/2.0f);
-				break;
+					transform = transform * sfz::zRotationMatrix(sfz::g_PI_FLOAT/2.0f);
+					break;
 				case s3::CubeSide::RIGHT:
-					transform = transform
-					  * sfz::translationMatrix(0.5f, 0.0f, 0.0f)
-					  * sfz::zRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
-				break;
+					transform = transform * sfz::zRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
+					break;
 				}
 
 				// Scaling
 				transform = transform * sfz::scalingMatrix(tileWidth);
 
 				// Sprite rotation
-				transform = transform * sfz::yRotationMatrix(getTileAngleRad(snakeTile.from()));
+				transform = transform * sfz::yRotationMatrix(getTileAngleRad(snakeTile->from()));
 
 				gl::setUniform(shaderProgram, "modelViewProj", transform);
 
 				glBindTexture(GL_TEXTURE_2D, assets.TILE_BORDER.mHandle);
 				tile.render();
 
-				glBindTexture(GL_TEXTURE_2D, getTileTexture(assets, snakeTile.type(),
-						      snakeTile.from(), snakeTile.to(), model.mProgress));
+				glBindTexture(GL_TEXTURE_2D, getTileTexture(assets, snakeTile->type(),
+						      snakeTile->from(), snakeTile->to(), model.mProgress));
 
-				if (isLeftTurn(snakeTile.from(), snakeTile.to())) xFlippedTile.render();
+				if (isLeftTurn(snakeTile->from(), snakeTile->to())) xFlippedTile.render();
 				else tile.render();
 			}
 		}

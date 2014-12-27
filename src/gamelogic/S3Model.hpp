@@ -33,14 +33,14 @@ struct TilePosition {
 	int x, y;
 };
 
-class S3Model final {
-public:
-	// Public members
+struct S3Model final {
+	// Members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	const size_t mGridWidth, mTileCount;
 	SnakeTile* const mTiles;
 	float mProgress;
+	SnakeTile *mHeadPtr, *mPreHeadPtr, *mTailPtr;
 
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -65,15 +65,7 @@ public:
 		return mTiles + static_cast<uint8_t>(cubeSide)*sideSize + y*mGridWidth + x;
 	}
 
-	TilePosition getHeadPosition(void) noexcept;
-
-private:
-	// Private members
-	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	SnakeTile* headPtr;
-	SnakeTile* preHeadPtr;
-	SnakeTile* tailPtr;
+	TilePosition getTilePosition(SnakeTile* tilePtr) noexcept;
 };
 
 } // namespace s3

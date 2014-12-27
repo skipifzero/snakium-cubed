@@ -4,23 +4,6 @@ namespace s3 {
 
 namespace {
 
-TilePosition getPosition(S3Model& model, SnakeTile* tilePtr) noexcept
-{
-	TilePosition result;
-	size_t length = tilePtr - model.mTiles;
-
-	static const size_t sideSize = model.mGridWidth * model.mGridWidth;
-	size_t sideOffset = length % sideSize;
-	result.cubeSide = static_cast<CubeSide>((length-sideOffset)/sideSize);
-
-	size_t x = sideOffset % model.mGridWidth;
-	size_t y = (sideOffset-x)/model.mGridWidth;
-	result.x = x;
-	result.y = y;
-
-	return result;
-}
-
 TilePosition adjacent(TilePosition pos, TileDirection to, const int gridWidth) noexcept
 {
 	TilePosition adjPos = pos;
@@ -214,28 +197,28 @@ S3Model::S3Model(size_t size) noexcept
 	tile->setType(TileType::TAIL);
 	tile->setFrom(TileDirection::DOWN);
 	tile->setTo(TileDirection::UP);
-	tailPtr = tile;
-	assert(getPosition(*this, tile).cubeSide == CubeSide::FRONT);
-	assert(getPosition(*this, tile).x == mid);
-	assert(getPosition(*this, tile).y == 0);
+	mTailPtr = tile;
+	assert(getTilePosition(tile).cubeSide == CubeSide::FRONT);
+	assert(getTilePosition(tile).x == mid);
+	assert(getTilePosition(tile).y == 0);
 
 	tile = getTilePtr(CubeSide::FRONT, mid, 1);
 	tile->setType(TileType::PRE_HEAD);
 	tile->setFrom(TileDirection::DOWN);
 	tile->setTo(TileDirection::UP);
-	preHeadPtr = tile;
-	assert(getPosition(*this, tile).cubeSide == CubeSide::FRONT);
-	assert(getPosition(*this, tile).x == mid);
-	assert(getPosition(*this, tile).y == 1);
+	mPreHeadPtr = tile;
+	assert(getTilePosition(tile).cubeSide == CubeSide::FRONT);
+	assert(getTilePosition(tile).x == mid);
+	assert(getTilePosition(tile).y == 1);
 
 	tile = getTilePtr(CubeSide::FRONT, mid, 2);
 	tile->setType(TileType::HEAD);
 	tile->setFrom(TileDirection::DOWN);
 	tile->setTo(TileDirection::UP);
-	headPtr = tile;
-	assert(getPosition(*this, tile).cubeSide == CubeSide::FRONT);
-	assert(getPosition(*this, tile).x == mid);
-	assert(getPosition(*this, tile).y == 2);
+	mHeadPtr = tile;
+	assert(getTilePosition(tile).cubeSide == CubeSide::FRONT);
+	assert(getTilePosition(tile).x == mid);
+	assert(getTilePosition(tile).y == 2);
 }
 
 S3Model::~S3Model() noexcept
@@ -248,8 +231,8 @@ S3Model::~S3Model() noexcept
 
 void S3Model::changeDirection(TileDirection direction) noexcept
 {
-	if (direction == headPtr->from()) return;
-	headPtr->setTo(direction);
+	if (direction == mHeadPtr->from()) return;
+	mHeadPtr->setTo(direction);
 }
 
 void S3Model::update(float delta) noexcept
@@ -259,34 +242,46 @@ void S3Model::update(float delta) noexcept
 	mProgress -= 1.0f;
 
 	// Calculate the next head position
-	TilePosition headPos = getPosition(*this, headPtr);
-	TilePosition nextPos = adjacent(headPos, headPtr->to(), mGridWidth);
+	TilePosition headPos = getTilePosition(mHeadPtr);
+	TilePosition nextPos = adjacent(headPos, mHeadPtr->to(), mGridWidth);
 
 	// Check if Game Over
 	SnakeTile* nextPtr = getTilePtr(nextPos.cubeSide, nextPos.x, nextPos.y);
 	if (nextPtr->type() != TileType::EMPTY) return;
 
 	// Move Snake
-	preHeadPtr->setType(TileType::BODY);
-	preHeadPtr = headPtr;
-	preHeadPtr->setType(TileType::PRE_HEAD);
-	headPtr = nextPtr;
+	mPreHeadPtr->setType(TileType::BODY);
+	mPreHeadPtr = mHeadPtr;
+	mPreHeadPtr->setType(TileType::PRE_HEAD);
+	mHeadPtr = nextPtr;
 
-	headPtr->setType(TileType::HEAD);
-	headPtr->setFrom(opposite(
-	              convertSideDirection(headPos.cubeSide, nextPos.cubeSide, preHeadPtr->to())));
-	headPtr->setTo(opposite(headPtr->from()));
+	mHeadPtr->setType(TileType::HEAD);
+	mHeadPtr->setFrom(opposite(
+	              convertSideDirection(headPos.cubeSide, nextPos.cubeSide, mPreHeadPtr->to())));
+	mHeadPtr->setTo(opposite(mHeadPtr->from()));
 
-	TilePosition tailNext = adjacent(getPosition(*this, tailPtr), tailPtr->to(), mGridWidth);
-	tailPtr->setType(TileType::EMPTY);
-	tailPtr = getTilePtr(tailNext.cubeSide, tailNext.x, tailNext.y);
-	tailPtr->setType(TileType::TAIL);
+	TilePosition tailNext = adjacent(getTilePosition(mTailPtr), mTailPtr->to(), mGridWidth);
+	mTailPtr->setType(TileType::EMPTY);
+	mTailPtr = getTilePtr(tailNext.cubeSide, tailNext.x, tailNext.y);
+	mTailPtr->setType(TileType::TAIL);
 
 }
 
-TilePosition S3Model::getHeadPosition(void) noexcept
+TilePosition S3Model::getTilePosition(SnakeTile* tilePtr) noexcept
 {
-	return getPosition(*this, headPtr);
+	TilePosition result;
+	size_t length = tilePtr - mTiles;
+
+	static const size_t sideSize = mGridWidth * mGridWidth;
+	size_t sideOffset = length % sideSize;
+	result.cubeSide = static_cast<CubeSide>((length-sideOffset)/sideSize);
+
+	size_t x = sideOffset % mGridWidth;
+	size_t y = (sideOffset-x)/mGridWidth;
+	result.x = x;
+	result.y = y;
+
+	return result;
 }
 
 } // namespace s3
