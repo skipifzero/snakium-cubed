@@ -225,8 +225,8 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 				switch (cubeSide) {
 				case s3::CubeSide::TOP:
 				case s3::CubeSide::BOTTOM:
-					transform = transform * sfz::translationMatrix(xf*tileWidth - 0.5f,
-					                                               0.0f, yf*tileWidth - 0.5f);
+					transform = transform * sfz::translationMatrix(xf*tileWidth - 0.5f, 0.0f,
+																  (gridWidth-yf)*tileWidth - 0.5f);
 				break;
 				case s3::CubeSide::FRONT:
 				case s3::CubeSide::BACK:

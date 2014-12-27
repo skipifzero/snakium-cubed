@@ -37,10 +37,14 @@ TilePosition adjacent(TilePosition pos, TileDirection to, const int gridWidth) n
 		if (adjPos.y < gridWidth) break;
 		switch (adjPos.cubeSide) {
 		case CubeSide::TOP:
+			adjPos.cubeSide = CubeSide::BACK;
+			adjPos.y = gridWidth-1;
 			break;
 		case CubeSide::BOTTOM:
 			break;
 		case CubeSide::FRONT:
+			adjPos.cubeSide = CubeSide::TOP;
+			adjPos.y = 0;
 			break;
 		case CubeSide::BACK:
 			break;
@@ -58,10 +62,14 @@ TilePosition adjacent(TilePosition pos, TileDirection to, const int gridWidth) n
 		case CubeSide::TOP:
 			break;
 		case CubeSide::BOTTOM:
+			adjPos.cubeSide = CubeSide::FRONT;
+			adjPos.y = 0;
 			break;
 		case CubeSide::FRONT:
 			break;
 		case CubeSide::BACK:
+			adjPos.cubeSide = CubeSide::BOTTOM;
+			adjPos.y = gridWidth-1;
 			break;
 		case CubeSide::LEFT:
 			break;
@@ -110,6 +118,69 @@ TilePosition adjacent(TilePosition pos, TileDirection to, const int gridWidth) n
 	}
 
 	return adjPos;
+}
+
+TileDirection convertSideDirection(CubeSide from, CubeSide to, TileDirection fromDir) noexcept
+{
+	if (from == to) return fromDir;
+
+	switch (from) {
+	case CubeSide::TOP:
+		switch (to) {
+		case CubeSide::BOTTOM:
+		case CubeSide::FRONT:
+		case CubeSide::BACK: return opposite(fromDir);
+		case CubeSide::LEFT:
+		case CubeSide::RIGHT:
+			break;
+		}
+	case CubeSide::BOTTOM:
+		switch (to) {
+		case CubeSide::TOP:
+		case CubeSide::FRONT: return opposite(fromDir);
+		case CubeSide::BACK:
+		case CubeSide::LEFT:
+		case CubeSide::RIGHT:
+			break;
+		}
+	case CubeSide::FRONT:
+		switch (to) {
+		case CubeSide::TOP: break;
+		case CubeSide::BOTTOM:
+		case CubeSide::BACK:
+		case CubeSide::LEFT:
+		case CubeSide::RIGHT:
+			break;
+		}
+	case CubeSide::BACK:
+		switch (to) {
+		case CubeSide::TOP:
+		case CubeSide::BOTTOM: break;
+		case CubeSide::FRONT:
+		case CubeSide::LEFT:
+		case CubeSide::RIGHT:
+			break;
+		}
+	case CubeSide::LEFT:
+		switch (to) {
+		case CubeSide::TOP:
+		case CubeSide::BOTTOM:
+		case CubeSide::FRONT:
+		case CubeSide::BACK:
+		case CubeSide::RIGHT:
+			break;
+		}
+	case CubeSide::RIGHT:
+		switch (to) {
+		case CubeSide::TOP:
+		case CubeSide::BOTTOM:
+		case CubeSide::FRONT:
+		case CubeSide::BACK:
+		case CubeSide::LEFT:
+			break;
+		}
+	}
+	return fromDir;
 }
 
 size_t calculateGridWidth(size_t size) noexcept
@@ -205,8 +276,10 @@ void S3Model::update(float delta) noexcept
 	preHeadPtr = headPtr;
 	preHeadPtr->setType(TileType::PRE_HEAD);
 	headPtr = nextPtr;
+
 	headPtr->setType(TileType::HEAD);
-	headPtr->setFrom(opposite(preHeadPtr->to())); // TODO: This will not work in cubed world. =/
+	headPtr->setFrom(opposite(
+	              convertSideDirection(headPos.cubeSide, nextPos.cubeSide, preHeadPtr->to())));
 	headPtr->setTo(opposite(headPtr->from()));
 
 	TilePosition tailNext = adjacent(getPosition(*this, tailPtr), tailPtr->to(), mGridWidth);
