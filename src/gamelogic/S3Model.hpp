@@ -7,6 +7,7 @@
 #include <cassert>
 #include "gamelogic/TileDirection.hpp"
 #include "gamelogic/SnakeTile.hpp"
+#include <iostream>
 
 namespace s3 {
 
@@ -27,10 +28,8 @@ enum class CubeSide : uint8_t {
 	RIGHT = 5
 };
 
-
-
-struct S3Model final {
-
+class S3Model final {
+public:
 	// Public members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -51,6 +50,8 @@ struct S3Model final {
 	// Member functions
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+	void changeDirection(TileDirection direction) noexcept;
+
 	void update(float delta) noexcept;
 
 	inline SnakeTile* getTilePtr(CubeSide cubeSide, size_t x, size_t y) noexcept
@@ -58,8 +59,15 @@ struct S3Model final {
 		static const size_t sideSize = mGridWidth * mGridWidth;
 		return mTiles + static_cast<uint8_t>(cubeSide)*sideSize + y*mGridWidth + x;
 	}
-};
 
+private:
+	// Private members
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	SnakeTile* headPtr;
+	SnakeTile* preHeadPtr;
+	SnakeTile* tailPtr;
+};
 
 } // namespace s3
 

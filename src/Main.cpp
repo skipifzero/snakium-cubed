@@ -235,8 +235,8 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 				break;
 				case s3::CubeSide::LEFT:
 				case s3::CubeSide::RIGHT:
-					transform = transform * sfz::translationMatrix(0.0f, xf*tileWidth - 0.5f,
-					                                               yf*tileWidth - 0.5f);
+					transform = transform * sfz::translationMatrix(0.0f, yf*tileWidth - 0.5f,
+					                                               xf*tileWidth - 0.5f);
 				break;
 				}
 
@@ -341,7 +341,7 @@ int main()
 	while (running) {
 		delta = calculateDelta();
 
-		std::cout << "Delta = " << delta << ", fps = " << (1.0f / delta) << "\n";
+		//std::cout << "Delta = " << delta << ", fps = " << (1.0f / delta) << "\n";
 
 		while (SDL_PollEvent(&event) != 0) if (handleInput(event)) running = false;
 		if (update(delta)) running = false;
