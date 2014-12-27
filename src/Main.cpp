@@ -130,8 +130,7 @@ GLuint getTileTexture(const s3::Assets& assets, s3::TileType tileType,
 bool handleInput(const SDL_Event& event)
 {
 	switch (event.type) {
-	case SDL_QUIT:
-		return true;
+	case SDL_QUIT: return true;
 	case SDL_WINDOWEVENT:
 		switch (event.window.event) {
 		case SDL_WINDOWEVENT_RESIZED:
@@ -141,23 +140,26 @@ bool handleInput(const SDL_Event& event)
 		}
 	case SDL_KEYDOWN:
 		switch (event.key.keysym.sym) {
-		case SDLK_ESCAPE:
-			return true;
+		case SDLK_ESCAPE: return true;
 		case SDLK_UP:
-			camPos = transformPoint(sfz::xRotationMatrix(-0.1f*sfz::g_PI_FLOAT), camPos);
-			viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
+			//camPos = transformPoint(sfz::xRotationMatrix(-0.1f*sfz::g_PI_FLOAT), camPos);
+			//viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
+			model.changeDirection(s3::TileDirection::UP);
 			break;
 		case SDLK_DOWN:
-			camPos = transformPoint(sfz::xRotationMatrix(0.1f*sfz::g_PI_FLOAT), camPos);
-			viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
+			//camPos = transformPoint(sfz::xRotationMatrix(0.1f*sfz::g_PI_FLOAT), camPos);
+			//viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
+			model.changeDirection(s3::TileDirection::DOWN);
 			break;
 		case SDLK_RIGHT:
-			camPos = transformPoint(sfz::yRotationMatrix(0.1f*sfz::g_PI_FLOAT), camPos);
-			viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
+			//camPos = transformPoint(sfz::yRotationMatrix(0.1f*sfz::g_PI_FLOAT), camPos);
+			//viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
+			model.changeDirection(s3::TileDirection::RIGHT);
 			break;
 		case SDLK_LEFT:
-			camPos = transformPoint(sfz::yRotationMatrix(-0.1f*sfz::g_PI_FLOAT), camPos);
-			viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
+			//camPos = transformPoint(sfz::yRotationMatrix(-0.1f*sfz::g_PI_FLOAT), camPos);
+			//viewMatrix = sfz::lookAt(camPos, camTarget, sfz::vec3f{0,1,0});
+			model.changeDirection(s3::TileDirection::LEFT);
 			break;
 		}
 	//default:
@@ -170,6 +172,39 @@ bool handleInput(const SDL_Event& event)
 bool update(float delta)
 {
 	model.update(delta);
+
+	auto headPos = model.getHeadPosition();
+	sfz::vec3f headPosVec;
+
+	float xf = static_cast<float>(headPos.x) + 0.5f;
+	float yf = static_cast<float>(headPos.y) + 0.5f;
+	float gridWidth = static_cast<float>(model.mGridWidth);
+	float tileWidth = 1.0f / gridWidth;
+
+	switch (headPos.cubeSide) {
+	case s3::CubeSide::TOP:
+		headPosVec = sfz::vec3f{xf*tileWidth - 0.5f, 0.5f, (gridWidth-yf)*tileWidth - 0.5f};
+		break;
+	case s3::CubeSide::BOTTOM:
+		headPosVec = sfz::vec3f{xf*tileWidth - 0.5f, -0.5f, (gridWidth-yf)*tileWidth - 0.5f};
+		break;
+	case s3::CubeSide::FRONT:
+		headPosVec = sfz::vec3f{xf*tileWidth - 0.5f, yf*tileWidth - 0.5f, 0.5f};
+		break;
+	case s3::CubeSide::BACK:
+		headPosVec = sfz::vec3f{xf*tileWidth - 0.5f, yf*tileWidth - 0.5f, -0.5f};
+		break;
+	case s3::CubeSide::LEFT:
+		headPosVec = sfz::vec3f{-0.5f, yf*tileWidth - 0.5f, xf*tileWidth - 0.5f};
+		break;
+	case s3::CubeSide::RIGHT:
+		headPosVec = sfz::vec3f{0.5f, yf*tileWidth - 0.5f, xf*tileWidth - 0.5f};
+		break;
+	}
+
+	camPos = headPosVec.normalize()*2.5f;
+	viewMatrix = sfz::lookAt(camPos, camTarget, camUp);
+
 	return false;
 }
 
@@ -276,6 +311,8 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 				// Scaling
 				transform = transform * sfz::scalingMatrix(tileWidth);
 
+				// Sprite rotation
+				transform = transform * sfz::yRotationMatrix(getTileAngleRad(snakeTile.from()));
 
 				gl::setUniform(shaderProgram, "modelViewProj", transform);
 

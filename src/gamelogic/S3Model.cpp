@@ -4,11 +4,6 @@ namespace s3 {
 
 namespace {
 
-struct TilePosition {
-	CubeSide cubeSide;
-	int x, y;
-};
-
 TilePosition getPosition(S3Model& model, SnakeTile* tilePtr) noexcept
 {
 	TilePosition result;
@@ -287,6 +282,11 @@ void S3Model::update(float delta) noexcept
 	tailPtr = getTilePtr(tailNext.cubeSide, tailNext.x, tailNext.y);
 	tailPtr->setType(TileType::TAIL);
 
+}
+
+TilePosition S3Model::getHeadPosition(void) noexcept
+{
+	return getPosition(*this, headPtr);
 }
 
 } // namespace s3

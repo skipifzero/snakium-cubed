@@ -28,6 +28,11 @@ enum class CubeSide : uint8_t {
 	RIGHT = 5
 };
 
+struct TilePosition {
+	CubeSide cubeSide;
+	int x, y;
+};
+
 class S3Model final {
 public:
 	// Public members
@@ -59,6 +64,8 @@ public:
 		static const size_t sideSize = mGridWidth * mGridWidth;
 		return mTiles + static_cast<uint8_t>(cubeSide)*sideSize + y*mGridWidth + x;
 	}
+
+	TilePosition getHeadPosition(void) noexcept;
 
 private:
 	// Private members
