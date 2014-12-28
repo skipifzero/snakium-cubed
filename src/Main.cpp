@@ -18,7 +18,7 @@ s3::S3Model model{4};
 sfz::vec3f camPos{0, 0, 2};
 sfz::vec3f camTarget{0, 0, 0};
 s3::Direction3D upDir = s3::Direction3D::UP;
-s3::Direction3D lastCubeSide = model.getTilePosition(model.mHeadPtr).cubeSide;
+s3::Direction3D lastCubeSide = model.getTilePosition(model.mHeadPtr).side;
 sfz::vec3f camUp = toVector(upDir);
 sfz::mat4f viewMatrix = sfz::lookAt(camPos, camTarget, camUp);
 sfz::mat4f projMatrix;
@@ -62,12 +62,11 @@ float getTileAngleRad(s3::Direction2D from) noexcept
 	}
 }
 
-GLuint getTileTexture(const s3::Assets& assets, s3::TileType tileType,
-                      s3::Direction2D from, s3::Direction2D to, float progress) noexcept
+GLuint getTileTexture(const s3::Assets& assets, s3::SnakeTile* tilePtr, float progress) noexcept
 {
-	bool isTurn = s3::isTurn(from, to);
+	bool isTurn = s3::isTurn(tilePtr->from(), tilePtr->to());
 
-	switch (tileType) {
+	switch (tilePtr->type()) {
 	case s3::TileType::EMPTY: return assets.TILE_BORDER.mHandle;
 	case s3::TileType::OBJECT: return assets.OBJECT.mHandle;
 	case s3::TileType::BONUS_OBJECT: return assets.BONUS_OBJECT.mHandle;
@@ -123,15 +122,15 @@ GLuint getTileTexture(const s3::Assets& assets, s3::TileType tileType,
 	}
 }
 
-sfz::vec3f vectorSpace(const s3::S3Model& model, const s3::TilePosition& tilePos, float progress)
+sfz::vec3f vectorSpace(const s3::S3Model& model, const s3::Position& tilePos, float progress)
 	noexcept
 {
-	float xf = static_cast<float>(tilePos.x) + 0.5f;
-	float yf = static_cast<float>(tilePos.y) + 0.5f;
+	float xf = static_cast<float>(tilePos.e1) + 0.5f;
+	float yf = static_cast<float>(tilePos.e2) + 0.5f;
 	float gridWidth = static_cast<float>(model.mGridWidth);
 	float tileWidth = 1.0f / gridWidth;
 
-	switch (tilePos.cubeSide) {
+	switch (tilePos.side) {
 	case s3::Direction3D::UP:
 		return sfz::vec3f{xf*tileWidth - 0.5f, 0.5f, (gridWidth-yf)*tileWidth - 0.5f};
 	case s3::Direction3D::DOWN:
@@ -147,9 +146,9 @@ sfz::vec3f vectorSpace(const s3::S3Model& model, const s3::TilePosition& tilePos
 	}
 }
 
-sfz::mat4f tileSpaceRotation(s3::Direction3D cubeSide) noexcept
+sfz::mat4f tileSpaceRotation(s3::Direction3D side) noexcept
 {
-	switch (cubeSide) {
+	switch (side) {
 	case s3::Direction3D::UP: return sfz::identityMatrix<float>();
 	case s3::Direction3D::DOWN: return sfz::xRotationMatrix(sfz::g_PI_FLOAT);
 	case s3::Direction3D::SOUTH: return sfz::xRotationMatrix(sfz::g_PI_FLOAT/2.0f);
@@ -205,10 +204,10 @@ bool update(float delta)
 
 	auto headPos = model.getTilePosition(model.mHeadPtr);
 
-	if (lastCubeSide != headPos.cubeSide) {
+	if (lastCubeSide != headPos.side) {
 		upDir = s3::opposite(lastCubeSide);//s3::up(lastCubeSide, headPos.cubeSide);
 		camUp = toVector(upDir);
-		lastCubeSide = headPos.cubeSide;
+		lastCubeSide = headPos.side;
 		std::cout << "upDir changed!\nNew camUp: " << camUp << "\n";
 	}
 
@@ -252,37 +251,31 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 	const float gridWidth = static_cast<float>(model.mGridWidth);
 	const float tileWidth = 1.0f / gridWidth;
 	sfz::mat4f transform;
+	s3::SnakeTile* tilePtr;
+	s3::Position tilePos;
 
-	s3::Direction3D cubeSide;
-	s3::SnakeTile* snakeTile;
-	s3::TilePosition tilePos;
-	for (uint8_t c = 0; c < 6; c++) {
-		for (uint8_t y = 0; y < model.mGridWidth; y++) {
-			for (uint8_t x = 0; x < model.mGridWidth; x++) {
-				cubeSide = static_cast<s3::Direction3D>(c);
-				snakeTile = model.getTilePtr(cubeSide, x, y);
-				tilePos = model.getTilePosition(snakeTile);
+	for (std::size_t i = 0; i < model.mTileCount; i++) {
+		tilePtr = model.mTiles + i;
+		tilePos = model.getTilePosition(tilePtr);
 
-				// Transform
-				transform =
-				    viewProj *
-					sfz::translationMatrix(vectorSpace(model, tilePos, 0.0f)) *
-					tileSpaceRotation(cubeSide) *
-					sfz::scalingMatrix(tileWidth) *
-					sfz::yRotationMatrix(getTileAngleRad(snakeTile->from()));
+		// Transform
+		transform =
+		    viewProj *
+			sfz::translationMatrix(vectorSpace(model, tilePos, 0.0f)) *
+			tileSpaceRotation(tilePos.side) *
+			sfz::scalingMatrix(tileWidth) *
+			sfz::yRotationMatrix(getTileAngleRad(tilePtr->from()));
 
-				gl::setUniform(shaderProgram, "modelViewProj", transform);
+		gl::setUniform(shaderProgram, "modelViewProj", transform);
 
-				glBindTexture(GL_TEXTURE_2D, assets.TILE_BORDER.mHandle);
-				tile.render();
+		// Render tile border
+		glBindTexture(GL_TEXTURE_2D, assets.TILE_BORDER.mHandle);
+		tile.render();
 
-				glBindTexture(GL_TEXTURE_2D, getTileTexture(assets, snakeTile->type(),
-						      snakeTile->from(), snakeTile->to(), model.mProgress));
-
-				if (isLeftTurn(snakeTile->from(), snakeTile->to())) xFlippedTile.render();
-				else tile.render();
-			}
-		}
+		// Render snake sprite
+		glBindTexture(GL_TEXTURE_2D, getTileTexture(assets, tilePtr, model.mProgress));
+		if (isLeftTurn(tilePtr->from(), tilePtr->to())) xFlippedTile.render();
+		else tile.render();
 	}
 
 	glUseProgram(0);

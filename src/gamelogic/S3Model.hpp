@@ -15,11 +15,6 @@ namespace s3 {
 using std::uint8_t;
 using std::size_t;
 
-struct TilePosition {
-	Direction3D cubeSide;
-	int x, y;
-};
-
 struct S3Model final {
 	// Members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -46,14 +41,31 @@ struct S3Model final {
 
 	void update(float delta) noexcept;
 
-	inline SnakeTile* getTilePtr(Direction3D cubeSide, size_t x, size_t y) noexcept
-	{
-		static const size_t sideSize = mGridWidth * mGridWidth;
-		return mTiles + static_cast<uint8_t>(cubeSide)*sideSize + y*mGridWidth + x;
-	}
-
-	TilePosition getTilePosition(SnakeTile* tilePtr) noexcept;
+	inline SnakeTile* getTilePtr(const Position& pos) noexcept;
+	inline Position getTilePosition(SnakeTile* tilePtr) noexcept;
 };
+
+
+inline SnakeTile* S3Model::getTilePtr(const Position& pos) noexcept
+{
+	static const size_t sideSize = mGridWidth * mGridWidth;
+	return mTiles + static_cast<uint8_t>(pos.side)*sideSize + pos.e2*mGridWidth + pos.e1;
+}
+
+inline Position S3Model::getTilePosition(SnakeTile* tilePtr) noexcept
+{
+	Position pos;
+	size_t length = tilePtr - mTiles;
+
+	static const size_t sideSize = mGridWidth * mGridWidth;
+	size_t sideOffset = length % sideSize;
+	pos.side = static_cast<Direction3D>((length-sideOffset)/sideSize);
+
+	pos.e1 = sideOffset % mGridWidth;
+	pos.e2 = (sideOffset-pos.e1)/mGridWidth;
+
+	return pos;
+}
 
 } // namespace s3
 
