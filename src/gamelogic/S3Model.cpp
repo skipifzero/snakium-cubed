@@ -4,92 +4,92 @@ namespace s3 {
 
 namespace {
 
-TilePosition adjacent(TilePosition pos, TileDirection to, const int gridWidth) noexcept
+TilePosition adjacent(TilePosition pos, Direction2D to, const int gridWidth) noexcept
 {
 	TilePosition adjPos = pos;
 
 	switch (to) {
 
-	case TileDirection::UP:
+	case Direction2D::UP:
 		adjPos.y += 1;
 		if (adjPos.y < gridWidth) break;
 		switch (adjPos.cubeSide) {
-		case CubeSide::TOP:
-			adjPos.cubeSide = CubeSide::BACK;
+		case Direction3D::UP:
+			adjPos.cubeSide = Direction3D::NORTH;
 			adjPos.y = gridWidth-1;
 			break;
-		case CubeSide::BOTTOM:
+		case Direction3D::DOWN:
 			break;
-		case CubeSide::FRONT:
-			adjPos.cubeSide = CubeSide::TOP;
+		case Direction3D::SOUTH:
+			adjPos.cubeSide = Direction3D::UP;
 			adjPos.y = 0;
 			break;
-		case CubeSide::BACK:
+		case Direction3D::NORTH:
 			break;
-		case CubeSide::LEFT:
+		case Direction3D::WEST:
 			break;
-		case CubeSide::RIGHT:
+		case Direction3D::EAST:
 			break;
 		}
 		break;
 
-	case TileDirection::DOWN:
+	case Direction2D::DOWN:
 		adjPos.y -= 1;
 		if (adjPos.y >= 0) break;
 		switch (adjPos.cubeSide) {
-		case CubeSide::TOP:
+		case Direction3D::UP:
 			break;
-		case CubeSide::BOTTOM:
-			adjPos.cubeSide = CubeSide::FRONT;
+		case Direction3D::DOWN:
+			adjPos.cubeSide = Direction3D::SOUTH;
 			adjPos.y = 0;
 			break;
-		case CubeSide::FRONT:
+		case Direction3D::SOUTH:
 			break;
-		case CubeSide::BACK:
-			adjPos.cubeSide = CubeSide::BOTTOM;
+		case Direction3D::NORTH:
+			adjPos.cubeSide = Direction3D::DOWN;
 			adjPos.y = gridWidth-1;
 			break;
-		case CubeSide::LEFT:
+		case Direction3D::WEST:
 			break;
-		case CubeSide::RIGHT:
+		case Direction3D::EAST:
 			break;
 		}
 		break;
 
-	case TileDirection::LEFT:
+	case Direction2D::LEFT:
 		adjPos.x -= 1;
 		if (adjPos.x >= 0) break;
 		switch (adjPos.cubeSide) {
-		case CubeSide::TOP:
+		case Direction3D::UP:
 			break;
-		case CubeSide::BOTTOM:
+		case Direction3D::DOWN:
 			break;
-		case CubeSide::FRONT:
+		case Direction3D::SOUTH:
 			break;
-		case CubeSide::BACK:
+		case Direction3D::NORTH:
 			break;
-		case CubeSide::LEFT:
+		case Direction3D::WEST:
 			break;
-		case CubeSide::RIGHT:
+		case Direction3D::EAST:
 			break;
 		}
 		break;
 
-	case TileDirection::RIGHT:
+	case Direction2D::RIGHT:
 		adjPos.x += 1;
 		if (adjPos.x < gridWidth) break;
 		switch (adjPos.cubeSide) {
-		case CubeSide::TOP:
+		case Direction3D::UP:
 			break;
-		case CubeSide::BOTTOM:
+		case Direction3D::DOWN:
 			break;
-		case CubeSide::FRONT:
+		case Direction3D::SOUTH:
 			break;
-		case CubeSide::BACK:
+		case Direction3D::NORTH:
 			break;
-		case CubeSide::LEFT:
+		case Direction3D::WEST:
 			break;
-		case CubeSide::RIGHT:
+		case Direction3D::EAST:
 			break;
 		}
 		break;
@@ -98,63 +98,63 @@ TilePosition adjacent(TilePosition pos, TileDirection to, const int gridWidth) n
 	return adjPos;
 }
 
-TileDirection convertSideDirection(CubeSide from, CubeSide to, TileDirection fromDir) noexcept
+Direction2D convertSideDirection(Direction3D from, Direction3D to, Direction2D fromDir) noexcept
 {
 	if (from == to) return fromDir;
 
 	switch (from) {
-	case CubeSide::TOP:
+	case Direction3D::UP:
 		switch (to) {
-		case CubeSide::BOTTOM:
-		case CubeSide::FRONT:
-		case CubeSide::BACK: return opposite(fromDir);
-		case CubeSide::LEFT:
-		case CubeSide::RIGHT:
+		case Direction3D::DOWN:
+		case Direction3D::SOUTH:
+		case Direction3D::NORTH: return opposite(fromDir);
+		case Direction3D::WEST:
+		case Direction3D::EAST:
 			break;
 		}
-	case CubeSide::BOTTOM:
+	case Direction3D::DOWN:
 		switch (to) {
-		case CubeSide::TOP:
-		case CubeSide::FRONT: return opposite(fromDir);
-		case CubeSide::BACK:
-		case CubeSide::LEFT:
-		case CubeSide::RIGHT:
+		case Direction3D::UP:
+		case Direction3D::SOUTH: return opposite(fromDir);
+		case Direction3D::NORTH:
+		case Direction3D::WEST:
+		case Direction3D::EAST:
 			break;
 		}
-	case CubeSide::FRONT:
+	case Direction3D::SOUTH:
 		switch (to) {
-		case CubeSide::TOP: break;
-		case CubeSide::BOTTOM:
-		case CubeSide::BACK:
-		case CubeSide::LEFT:
-		case CubeSide::RIGHT:
+		case Direction3D::UP: break;
+		case Direction3D::DOWN:
+		case Direction3D::NORTH:
+		case Direction3D::WEST:
+		case Direction3D::EAST:
 			break;
 		}
-	case CubeSide::BACK:
+	case Direction3D::NORTH:
 		switch (to) {
-		case CubeSide::TOP:
-		case CubeSide::BOTTOM: break;
-		case CubeSide::FRONT:
-		case CubeSide::LEFT:
-		case CubeSide::RIGHT:
+		case Direction3D::UP:
+		case Direction3D::DOWN: break;
+		case Direction3D::SOUTH:
+		case Direction3D::WEST:
+		case Direction3D::EAST:
 			break;
 		}
-	case CubeSide::LEFT:
+	case Direction3D::WEST:
 		switch (to) {
-		case CubeSide::TOP:
-		case CubeSide::BOTTOM:
-		case CubeSide::FRONT:
-		case CubeSide::BACK:
-		case CubeSide::RIGHT:
+		case Direction3D::UP:
+		case Direction3D::DOWN:
+		case Direction3D::SOUTH:
+		case Direction3D::NORTH:
+		case Direction3D::EAST:
 			break;
 		}
-	case CubeSide::RIGHT:
+	case Direction3D::EAST:
 		switch (to) {
-		case CubeSide::TOP:
-		case CubeSide::BOTTOM:
-		case CubeSide::FRONT:
-		case CubeSide::BACK:
-		case CubeSide::LEFT:
+		case Direction3D::UP:
+		case Direction3D::DOWN:
+		case Direction3D::SOUTH:
+		case Direction3D::NORTH:
+		case Direction3D::WEST:
 			break;
 		}
 	}
@@ -193,30 +193,30 @@ S3Model::S3Model(size_t size) noexcept
 	// Create the first Snake.
 	const int mid = mGridWidth/2;
 
-	SnakeTile* tile = getTilePtr(CubeSide::FRONT, mid, 0);
+	SnakeTile* tile = getTilePtr(Direction3D::SOUTH, mid, 0);
 	tile->setType(TileType::TAIL);
-	tile->setFrom(TileDirection::DOWN);
-	tile->setTo(TileDirection::UP);
+	tile->setFrom(Direction2D::DOWN);
+	tile->setTo(Direction2D::UP);
 	mTailPtr = tile;
-	assert(getTilePosition(tile).cubeSide == CubeSide::FRONT);
+	assert(getTilePosition(tile).cubeSide == Direction3D::SOUTH);
 	assert(getTilePosition(tile).x == mid);
 	assert(getTilePosition(tile).y == 0);
 
-	tile = getTilePtr(CubeSide::FRONT, mid, 1);
+	tile = getTilePtr(Direction3D::SOUTH, mid, 1);
 	tile->setType(TileType::PRE_HEAD);
-	tile->setFrom(TileDirection::DOWN);
-	tile->setTo(TileDirection::UP);
+	tile->setFrom(Direction2D::DOWN);
+	tile->setTo(Direction2D::UP);
 	mPreHeadPtr = tile;
-	assert(getTilePosition(tile).cubeSide == CubeSide::FRONT);
+	assert(getTilePosition(tile).cubeSide == Direction3D::SOUTH);
 	assert(getTilePosition(tile).x == mid);
 	assert(getTilePosition(tile).y == 1);
 
-	tile = getTilePtr(CubeSide::FRONT, mid, 2);
+	tile = getTilePtr(Direction3D::SOUTH, mid, 2);
 	tile->setType(TileType::HEAD);
-	tile->setFrom(TileDirection::DOWN);
-	tile->setTo(TileDirection::UP);
+	tile->setFrom(Direction2D::DOWN);
+	tile->setTo(Direction2D::UP);
 	mHeadPtr = tile;
-	assert(getTilePosition(tile).cubeSide == CubeSide::FRONT);
+	assert(getTilePosition(tile).cubeSide == Direction3D::SOUTH);
 	assert(getTilePosition(tile).x == mid);
 	assert(getTilePosition(tile).y == 2);
 }
@@ -229,7 +229,7 @@ S3Model::~S3Model() noexcept
 // Member functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void S3Model::changeDirection(TileDirection direction) noexcept
+void S3Model::changeDirection(Direction2D direction) noexcept
 {
 	if (direction == mHeadPtr->from()) return;
 	mHeadPtr->setTo(direction);
@@ -274,7 +274,7 @@ TilePosition S3Model::getTilePosition(SnakeTile* tilePtr) noexcept
 
 	static const size_t sideSize = mGridWidth * mGridWidth;
 	size_t sideOffset = length % sideSize;
-	result.cubeSide = static_cast<CubeSide>((length-sideOffset)/sideSize);
+	result.cubeSide = static_cast<Direction3D>((length-sideOffset)/sideSize);
 
 	size_t x = sideOffset % mGridWidth;
 	size_t y = (sideOffset-x)/mGridWidth;

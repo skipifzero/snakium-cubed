@@ -5,7 +5,7 @@
 #include <cstddef> // size_t
 #include <cstdint> // uint8_t
 
-#include "gamelogic/TileDirection.hpp"
+#include "gamelogic/Direction.hpp"
 
 namespace s3 {
 
@@ -40,12 +40,12 @@ struct SnakeTile final {
 	uint8_t mBits;
 
 	inline TileType type(void) noexcept;
-	inline TileDirection from(void) noexcept;
-	inline TileDirection to(void) noexcept;
+	inline Direction2D from(void) noexcept;
+	inline Direction2D to(void) noexcept;
 
 	inline void setType(TileType type) noexcept;
-	inline void setFrom(TileDirection from) noexcept;
-	inline void setTo(TileDirection to) noexcept;
+	inline void setFrom(Direction2D from) noexcept;
+	inline void setTo(Direction2D to) noexcept;
 };
 
 } // namespace s3

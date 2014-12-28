@@ -5,7 +5,7 @@
 #include <cstddef> // size_t
 #include <cstdint> // uint8_t
 #include <cassert>
-#include "gamelogic/TileDirection.hpp"
+#include "gamelogic/Direction.hpp"
 #include "gamelogic/SnakeTile.hpp"
 #include <iostream>
 
@@ -14,22 +14,8 @@ namespace s3 {
 using std::uint8_t;
 using std::size_t;
 
-/**
- * @brief Enum representing which side of a cube a tile is one
- * It's assumed that the coordinate system is a right-handed system with positive y being up. I.e.
- * FRONT is in positive z-axis and TOP is in positive y-axis.
- */
-enum class CubeSide : uint8_t {
-	TOP = 0,
-	BOTTOM = 1,
-	FRONT = 2,
-	BACK = 3,
-	LEFT = 4,
-	RIGHT = 5
-};
-
 struct TilePosition {
-	CubeSide cubeSide;
+	Direction3D cubeSide;
 	int x, y;
 };
 
@@ -55,11 +41,11 @@ struct S3Model final {
 	// Member functions
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	void changeDirection(TileDirection direction) noexcept;
+	void changeDirection(Direction2D direction) noexcept;
 
 	void update(float delta) noexcept;
 
-	inline SnakeTile* getTilePtr(CubeSide cubeSide, size_t x, size_t y) noexcept
+	inline SnakeTile* getTilePtr(Direction3D cubeSide, size_t x, size_t y) noexcept
 	{
 		static const size_t sideSize = mGridWidth * mGridWidth;
 		return mTiles + static_cast<uint8_t>(cubeSide)*sideSize + y*mGridWidth + x;
