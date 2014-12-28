@@ -145,6 +145,18 @@ sfz::vec3f vectorSpace(const s3::S3Model& model, const s3::TilePosition& tilePos
 	}
 }
 
+sfz::mat4f tileSpaceRotation(s3::CubeSide cubeSide) noexcept
+{
+	switch (cubeSide) {
+	case s3::CubeSide::TOP: return sfz::identityMatrix<float>();
+	case s3::CubeSide::BOTTOM: return sfz::xRotationMatrix(sfz::g_PI_FLOAT);
+	case s3::CubeSide::FRONT: return sfz::xRotationMatrix(sfz::g_PI_FLOAT/2.0f);
+	case s3::CubeSide::BACK: return sfz::xRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
+	case s3::CubeSide::LEFT: return sfz::zRotationMatrix(sfz::g_PI_FLOAT/2.0f);
+	case s3::CubeSide::RIGHT: return sfz::zRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
+	}
+}
+
 } // anonymous namespace
 
 // Game loop functions
@@ -233,45 +245,21 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 
 	s3::CubeSide cubeSide;
 	s3::SnakeTile* snakeTile;
+	s3::TilePosition tilePos;
 	for (uint8_t c = 0; c < 6; c++) {
 		for (uint8_t y = 0; y < model.mGridWidth; y++) {
 			for (uint8_t x = 0; x < model.mGridWidth; x++) {
 				cubeSide = static_cast<s3::CubeSide>(c);
 				snakeTile = model.getTilePtr(cubeSide, x, y);
+				tilePos = model.getTilePosition(snakeTile);
 
-				// Projection
-				transform = viewProj;
-
-				// Translation
-				transform = transform * sfz::translationMatrix(vectorSpace(model, model.getTilePosition(snakeTile), 0.0f));
-
-				// Rotation
-				switch (cubeSide) {
-				case s3::CubeSide::TOP:
-					 // Do nothing
-					break;
-				case s3::CubeSide::BOTTOM:
-					transform = transform * sfz::xRotationMatrix(sfz::g_PI_FLOAT);
-					break;
-				case s3::CubeSide::FRONT:
-					transform = transform * sfz::xRotationMatrix(sfz::g_PI_FLOAT/2.0f);
-					break;
-				case s3::CubeSide::BACK:
-					transform = transform * sfz::xRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
-					break;
-				case s3::CubeSide::LEFT:
-					transform = transform * sfz::zRotationMatrix(sfz::g_PI_FLOAT/2.0f);
-					break;
-				case s3::CubeSide::RIGHT:
-					transform = transform * sfz::zRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
-					break;
-				}
-
-				// Scaling
-				transform = transform * sfz::scalingMatrix(tileWidth);
-
-				// Sprite rotation
-				transform = transform * sfz::yRotationMatrix(getTileAngleRad(snakeTile->from()));
+				// Transform
+				transform =
+				    viewProj *
+					sfz::translationMatrix(vectorSpace(model, tilePos, 0.0f)) *
+					tileSpaceRotation(cubeSide) *
+					sfz::scalingMatrix(tileWidth) *
+					sfz::yRotationMatrix(getTileAngleRad(snakeTile->from()));
 
 				gl::setUniform(shaderProgram, "modelViewProj", transform);
 
