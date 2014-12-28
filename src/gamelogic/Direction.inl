@@ -186,4 +186,33 @@ inline sfz::vec3f toVector(Direction3D direction) noexcept
 	}
 }
 
+inline Direction2D unMap(Direction3D side, Direction3D sideRelativeUp, Direction3D dir) noexcept
+{
+	if (side == sideRelativeUp || side == opposite(sideRelativeUp)) {
+		std::cerr << "Invalid side relative up direction." << std::endl;
+		std::terminate();
+	}
+	
+	if (dir == sideRelativeUp) return Direction2D::UP;
+	if (dir == opposite(sideRelativeUp)) return Direction2D::DOWN;
+	Direction3D leftDir = left(side, sideRelativeUp);
+	if (dir == leftDir) return Direction2D::LEFT;
+	if (dir == opposite(leftDir)) return Direction2D::RIGHT;
+
+	std::cerr << "This should never happen." << std::endl;
+	std::terminate();
+}
+
+inline Direction2D unMapDefaultUp(Direction3D side, Direction3D dir) noexcept
+{
+	switch (side) {
+	case Direction3D::NORTH: return unMap(side, Direction3D::UP, dir);
+	case Direction3D::SOUTH: return unMap(side, Direction3D::UP, dir);
+	case Direction3D::WEST: return unMap(side, Direction3D::UP, dir);
+	case Direction3D::EAST: return unMap(side, Direction3D::UP, dir);
+	case Direction3D::UP: return unMap(side, Direction3D::NORTH, dir);
+	case Direction3D::DOWN: return unMap(side, Direction3D::NORTH, dir);
+	}
+}
+
 } // namespace s3

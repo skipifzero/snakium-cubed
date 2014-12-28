@@ -63,6 +63,8 @@ inline Direction3D left(Direction3D side, Direction3D sideRelativeUp) noexcept;
 inline Direction3D right(Direction3D side, Direction3D sideRelativeUp) noexcept;
 inline Direction3D map(Direction3D side, Direction3D sideRelativeUp, Direction2D dir) noexcept;
 inline Direction3D mapDefaultUp(Direction3D side, Direction2D dir) noexcept;
+inline Direction2D unMap(Direction3D side, Direction3D sideRelativeUp, Direction3D dir) noexcept;
+inline Direction2D unMapDefaultUp(Direction3D side, Direction3D dir) noexcept;
 inline sfz::vec3f toVector(Direction3D direction) noexcept;
 
 } // namespace s3
