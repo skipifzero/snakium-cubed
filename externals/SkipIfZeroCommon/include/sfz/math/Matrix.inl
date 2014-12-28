@@ -143,7 +143,7 @@ Matrix<T,M,N>& Matrix<T,M,N>::operator+= (const Matrix<T,M,N>& other) noexcept
 template<typename T, size_t M, size_t N>
 Matrix<T,M,N>& Matrix<T,M,N>::operator-= (const Matrix<T,M,N>& other) noexcept
 {
-	for (size_t i = 0; i < M; i++) {
+	for (size_t i = 0; i < M; i++) {
 		for (size_t j = 0; j < N; j++) {
 			mElements[j][i] -= other.mElements[j][i];
 		}
