@@ -229,10 +229,14 @@ S3Model::~S3Model() noexcept
 // Member functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void S3Model::changeDirection(Direction2D direction) noexcept
+void S3Model::changeDirection(Direction3D upDir, Direction2D direction) noexcept
 {
-	if (direction == mHeadPtr->from()) return;
-	mHeadPtr->setTo(direction);
+	Direction3D cubeSide = getTilePosition(mHeadPtr).cubeSide;
+	Direction3D realDir = map(cubeSide, upDir, direction);
+	Direction2D remappedDir = unMapDefaultUp(cubeSide, realDir);
+
+	if (remappedDir == mHeadPtr->from()) return;
+	mHeadPtr->setTo(remappedDir);
 }
 
 void S3Model::update(float delta) noexcept

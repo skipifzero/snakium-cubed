@@ -13,13 +13,15 @@
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 GLuint shaderProgram;
 
+s3::S3Model model{4};
+
 sfz::vec3f camPos{0, 0, 2};
 sfz::vec3f camTarget{0, 0, 0};
-sfz::vec3f camUp{0, 1, 0};
+s3::Direction3D upDir = s3::Direction3D::UP;
+s3::Direction3D lastCubeSide = model.getTilePosition(model.mHeadPtr).cubeSide;
+sfz::vec3f camUp = toVector(upDir);
 sfz::mat4f viewMatrix = sfz::lookAt(camPos, camTarget, camUp);
 sfz::mat4f projMatrix;
-
-s3::S3Model model{4};
 
 // Helper functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -178,16 +180,16 @@ bool handleInput(const SDL_Event& event)
 		switch (event.key.keysym.sym) {
 		case SDLK_ESCAPE: return true;
 		case SDLK_UP:
-			//model.changeDirection(s3::Direction2D::UP);
+			model.changeDirection(upDir, s3::Direction2D::UP);
 			break;
 		case SDLK_DOWN:
-			//model.changeDirection(s3::Direction2D::DOWN);
+			model.changeDirection(upDir, s3::Direction2D::DOWN);
 			break;
 		case SDLK_RIGHT:
-			//model.changeDirection(s3::Direction2D::RIGHT);
+			model.changeDirection(upDir, s3::Direction2D::RIGHT);
 			break;
 		case SDLK_LEFT:
-			//model.changeDirection(s3::Direction2D::LEFT);
+			model.changeDirection(upDir, s3::Direction2D::LEFT);
 			break;
 		}
 	//default:
@@ -202,6 +204,14 @@ bool update(float delta)
 	model.update(delta);
 
 	auto headPos = model.getTilePosition(model.mHeadPtr);
+
+	if (lastCubeSide != headPos.cubeSide) {
+		upDir = s3::opposite(lastCubeSide);//s3::up(lastCubeSide, headPos.cubeSide);
+		camUp = toVector(upDir);
+		lastCubeSide = headPos.cubeSide;
+		std::cout << "upDir changed!\nNew camUp: " << camUp << "\n";
+	}
+
 	camPos = vectorSpace(model, headPos, model.mProgress).normalize()*2.5f;
 	viewMatrix = sfz::lookAt(camPos, camTarget, camUp);
 

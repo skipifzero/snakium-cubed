@@ -41,7 +41,7 @@ struct S3Model final {
 	// Member functions
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	void changeDirection(Direction2D direction) noexcept;
+	void changeDirection(Direction3D upDir, Direction2D direction) noexcept;
 
 	void update(float delta) noexcept;
 
