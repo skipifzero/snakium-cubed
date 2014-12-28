@@ -2,13 +2,14 @@
 #ifndef S3_GAMELOGIC_DIRECTION_HPP
 #define S3_GAMELOGIC_DIRECTION_HPP
 
-#include <cstddef> // size_t
 #include <cstdint> // uint8_t
 #include <iostream>
 #include <exception> // std::terminate
-#include <sfz/Math.hpp>
+#include <sfz/math/Vector.hpp>
 
 namespace s3 {
+
+using std::uint8_t;
 
 // 2D Direction enum
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

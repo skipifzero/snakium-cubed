@@ -6,6 +6,7 @@
 #include <cstdint> // uint8_t
 #include <cassert>
 #include "gamelogic/Direction.hpp"
+#include "gamelogic/Position.hpp"
 #include "gamelogic/SnakeTile.hpp"
 #include <iostream>
 
