@@ -174,18 +174,6 @@ inline Direction3D mapDefaultUp(Direction3D side, Direction2D dir) noexcept
 	}
 }
 
-inline sfz::vec3f toVector(Direction3D direction) noexcept
-{
-	switch (direction) {
-	case Direction3D::NORTH: return sfz::vec3f{0.0f, 0.0f, -1.0f};
-	case Direction3D::SOUTH: return sfz::vec3f{0.0f, 0.0f, 1.0f};
-	case Direction3D::WEST: return sfz::vec3f{-1.0f, 0.0f, 0.0f};
-	case Direction3D::EAST: return sfz::vec3f{1.0f, 0.0f, 0.0f};
-	case Direction3D::UP: return sfz::vec3f{0.0f, 1.0f, 0.0f};
-	case Direction3D::DOWN: return sfz::vec3f{0.0f, -1.0f, 0.0f};
-	}
-}
-
 inline Direction2D unMap(Direction3D side, Direction3D sideRelativeUp, Direction3D dir) noexcept
 {
 	if (side == sideRelativeUp || side == opposite(sideRelativeUp)) {
@@ -212,6 +200,18 @@ inline Direction2D unMapDefaultUp(Direction3D side, Direction3D dir) noexcept
 	case Direction3D::EAST: return unMap(side, Direction3D::UP, dir);
 	case Direction3D::UP: return unMap(side, Direction3D::NORTH, dir);
 	case Direction3D::DOWN: return unMap(side, Direction3D::NORTH, dir);
+	}
+}
+
+inline sfz::vec3f toVector(Direction3D direction) noexcept
+{
+	switch (direction) {
+	case Direction3D::NORTH: return sfz::vec3f{0.0f, 0.0f, -1.0f};
+	case Direction3D::SOUTH: return sfz::vec3f{0.0f, 0.0f, 1.0f};
+	case Direction3D::WEST: return sfz::vec3f{-1.0f, 0.0f, 0.0f};
+	case Direction3D::EAST: return sfz::vec3f{1.0f, 0.0f, 0.0f};
+	case Direction3D::UP: return sfz::vec3f{0.0f, 1.0f, 0.0f};
+	case Direction3D::DOWN: return sfz::vec3f{0.0f, -1.0f, 0.0f};
 	}
 }
 

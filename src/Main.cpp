@@ -122,28 +122,17 @@ GLuint getTileTexture(const s3::Assets& assets, s3::SnakeTile* tilePtr, float pr
 	}
 }
 
-sfz::vec3f vectorSpace(const s3::S3Model& model, const s3::Position& tilePos, float progress)
+sfz::vec3f tilePosToVector(const s3::S3Model& model, const s3::Position& tilePos, float progress)
 	noexcept
 {
-	float xf = static_cast<float>(tilePos.e1) + 0.5f;
-	float yf = static_cast<float>(tilePos.e2) + 0.5f;
-	float gridWidth = static_cast<float>(model.mGridWidth);
-	float tileWidth = 1.0f / gridWidth;
+	// +0.5f to get the midpoint of the tile
+	const float e1f = static_cast<float>(tilePos.e1) + 0.5f;
+	const float e2f = static_cast<float>(tilePos.e2) + 0.5f; 
+	const float tileWidth = 1.0f / static_cast<float>(model.mGridWidth);
 
-	switch (tilePos.side) {
-	case s3::Direction3D::UP:
-		return sfz::vec3f{xf*tileWidth - 0.5f, 0.5f, (gridWidth-yf)*tileWidth - 0.5f};
-	case s3::Direction3D::DOWN:
-		return sfz::vec3f{xf*tileWidth - 0.5f, -0.5f, (gridWidth-yf)*tileWidth - 0.5f};
-	case s3::Direction3D::SOUTH:
-		return sfz::vec3f{xf*tileWidth - 0.5f, yf*tileWidth - 0.5f, 0.5f};
-	case s3::Direction3D::NORTH:
-		return sfz::vec3f{xf*tileWidth - 0.5f, yf*tileWidth - 0.5f, -0.5f};
-	case s3::Direction3D::WEST:
-		return sfz::vec3f{-0.5f, yf*tileWidth - 0.5f, xf*tileWidth - 0.5f};
-	case s3::Direction3D::EAST:
-		return sfz::vec3f{0.5f, yf*tileWidth - 0.5f, xf*tileWidth - 0.5f};
-	}
+	return (e1f * tileWidth - 0.5f) * s3::directionVector(tilePos.side, s3::Coordinate::e1) +
+	       (e2f * tileWidth - 0.5f) * s3::directionVector(tilePos.side, s3::Coordinate::e2) +
+	       s3::toVector(tilePos.side) * 0.5f;
 }
 
 sfz::mat4f tileSpaceRotation(s3::Direction3D side) noexcept
@@ -206,12 +195,12 @@ bool update(float delta)
 
 	if (lastCubeSide != headPos.side) {
 		upDir = s3::opposite(lastCubeSide);//s3::up(lastCubeSide, headPos.cubeSide);
-		camUp = toVector(upDir);
+		//camUp = toVector(upDir);
 		lastCubeSide = headPos.side;
 		std::cout << "upDir changed!\nNew camUp: " << camUp << "\n";
 	}
 
-	camPos = vectorSpace(model, headPos, model.mProgress).normalize()*2.5f;
+	camPos = tilePosToVector(model, headPos, model.mProgress).normalize()*2.5f;
 	viewMatrix = sfz::lookAt(camPos, camTarget, camUp);
 
 	return false;
@@ -261,7 +250,7 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 		// Transform
 		transform =
 		    viewProj *
-			sfz::translationMatrix(vectorSpace(model, tilePos, 0.0f)) *
+			sfz::translationMatrix(tilePosToVector(model, tilePos, 0.0f)) *
 			tileSpaceRotation(tilePos.side) *
 			sfz::scalingMatrix(tileWidth) *
 			sfz::yRotationMatrix(getTileAngleRad(tilePtr->from()));
