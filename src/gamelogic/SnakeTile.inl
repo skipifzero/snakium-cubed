@@ -1,16 +1,16 @@
 namespace s3 {
 
-inline TileType SnakeTile::type(void) noexcept
+inline TileType SnakeTile::type(void) const noexcept
 {
 	return static_cast<TileType>(mBits & 0x0F);
 }
 
-inline Direction2D SnakeTile::from(void) noexcept
+inline Direction2D SnakeTile::from(void) const noexcept
 {
 	return static_cast<Direction2D>(((mBits >> 4) & 0x03));
 }
 
-inline Direction2D SnakeTile::to(void) noexcept
+inline Direction2D SnakeTile::to(void) const noexcept
 {
 	return static_cast<Direction2D>(((mBits >> 6) & 0x03));
 }

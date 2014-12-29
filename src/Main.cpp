@@ -211,8 +211,8 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 {
 	glActiveTexture(GL_TEXTURE0);
 
-	s3::TileObject tile{false, false};
-	s3::TileObject xFlippedTile{true, false};
+	static s3::TileObject tile{false, false};
+	static s3::TileObject xFlippedTile{true, false};
 
 	// Clearing screen
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -222,21 +222,23 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	// TODO: Hack. Assumes screen is HI-DPI and multiplies width and height with 2 to compensate.
 	glViewport(0, 0, window.width()*2, window.height()*2);
 
+	// Enable culling
 	glEnable(GL_CULL_FACE);
 	//glDisable(GL_CULL_FACE);
 	//glDisable(GL_DEPTH_TEST);
 
 	glUseProgram(shaderProgram);
 
-	sfz::mat4f viewProj = projMatrix * viewMatrix;
+	const sfz::mat4f viewProj = projMatrix * viewMatrix;
 
-
+	// Only one texture is used when rendering SnakeTiles
 	gl::setUniform(shaderProgram, "tex", 0);
 	glActiveTexture(GL_TEXTURE0);
 
-
+	// Render all SnakeTiles
 	const float gridWidth = static_cast<float>(model.mGridWidth);
 	const float tileWidth = 1.0f / gridWidth;
 	sfz::mat4f transform;
@@ -267,6 +269,7 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 		else tile.render();
 	}
 
+	// Clean up
 	glUseProgram(0);
 }
 

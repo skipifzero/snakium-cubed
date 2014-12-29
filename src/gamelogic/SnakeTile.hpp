@@ -39,9 +39,9 @@ enum class TileType : uint8_t {
 struct SnakeTile final {
 	uint8_t mBits;
 
-	inline TileType type(void) noexcept;
-	inline Direction2D from(void) noexcept;
-	inline Direction2D to(void) noexcept;
+	inline TileType type(void) const noexcept;
+	inline Direction2D from(void) const noexcept;
+	inline Direction2D to(void) const noexcept;
 
 	inline void setType(TileType type) noexcept;
 	inline void setFrom(Direction2D from) noexcept;

@@ -41,18 +41,18 @@ struct S3Model final {
 
 	void update(float delta) noexcept;
 
-	inline SnakeTile* getTilePtr(const Position& pos) noexcept;
-	inline Position getTilePosition(SnakeTile* tilePtr) noexcept;
+	inline SnakeTile* getTilePtr(const Position& pos) const noexcept;
+	inline Position getTilePosition(SnakeTile* tilePtr) const noexcept;
 };
 
 
-inline SnakeTile* S3Model::getTilePtr(const Position& pos) noexcept
+inline SnakeTile* S3Model::getTilePtr(const Position& pos) const noexcept
 {
 	static const size_t sideSize = mGridWidth * mGridWidth;
 	return mTiles + static_cast<uint8_t>(pos.side)*sideSize + pos.e2*mGridWidth + pos.e1;
 }
 
-inline Position S3Model::getTilePosition(SnakeTile* tilePtr) noexcept
+inline Position S3Model::getTilePosition(SnakeTile* tilePtr) const noexcept
 {
 	Position pos;
 	size_t length = tilePtr - mTiles;
