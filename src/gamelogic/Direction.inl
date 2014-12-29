@@ -48,6 +48,21 @@ inline bool isRightTurn(Direction2D from, Direction2D to) noexcept
 	return toRight(from) == to;
 }
 
+inline std::string to_string(const Direction2D& direction) noexcept
+{
+	switch (direction) {
+	case Direction2D::UP: return std::move(std::string{"UP"});
+	case Direction2D::DOWN: return std::move(std::string{"DOWN"});
+	case Direction2D::LEFT: return std::move(std::string{"LEFT"});
+	case Direction2D::RIGHT: return std::move(std::string{"RIGHT"});
+	}
+}
+
+inline std::ostream& operator<< (std::ostream& ostream, const Direction2D& direction) noexcept
+{
+	return ostream << to_string(direction);
+}
+
 // 3D Direction enum
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -213,6 +228,23 @@ inline sfz::vec3f toVector(Direction3D direction) noexcept
 	case Direction3D::UP: return sfz::vec3f{0.0f, 1.0f, 0.0f};
 	case Direction3D::DOWN: return sfz::vec3f{0.0f, -1.0f, 0.0f};
 	}
+}
+
+inline std::string to_string(const Direction3D& direction) noexcept
+{
+	switch (direction) {
+	case Direction3D::NORTH: return std::move(std::string{"NORTH"});
+	case Direction3D::SOUTH: return std::move(std::string{"SOUTH"});
+	case Direction3D::WEST: return std::move(std::string{"WEST"});
+	case Direction3D::EAST: return std::move(std::string{"EAST"});
+	case Direction3D::UP: return std::move(std::string{"UP"});
+	case Direction3D::DOWN: return std::move(std::string{"DOWN"});
+	}
+}
+
+inline std::ostream& operator<< (std::ostream& ostream, const Direction3D& direction) noexcept
+{
+	return ostream << to_string(direction);
 }
 
 } // namespace s3

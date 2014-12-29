@@ -197,7 +197,8 @@ bool update(float delta)
 		upDir = s3::opposite(lastCubeSide);//s3::up(lastCubeSide, headPos.cubeSide);
 		//camUp = toVector(upDir);
 		lastCubeSide = headPos.side;
-		std::cout << "upDir changed!\nNew camUp: " << camUp << "\n";
+		std::cout << "Side change: side == " << headPos.side << ", upDir == " << upDir
+		          << ", camUp == " << camUp << std::endl;
 	}
 
 	camPos = tilePosToVector(model, headPos, model.mProgress).normalize()*2.5f;

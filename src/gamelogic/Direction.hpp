@@ -5,6 +5,8 @@
 #include <cstdint> // uint8_t
 #include <iostream>
 #include <exception> // std::terminate
+#include <string>
+#include <iostream> // std::ostream
 #include <sfz/math/Vector.hpp>
 
 namespace s3 {
@@ -31,6 +33,8 @@ inline Direction2D toRight(Direction2D from) noexcept;
 inline bool isTurn(Direction2D from, Direction2D to) noexcept;
 inline bool isLeftTurn(Direction2D from, Direction2D to) noexcept;
 inline bool isRightTurn(Direction2D form, Direction2D to) noexcept;
+inline std::string to_string(const Direction2D& direction) noexcept;
+inline std::ostream& operator<< (std::ostream& ostream, const Direction2D& direction) noexcept;
 
 // 3D Direction enum
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -67,6 +71,8 @@ inline Direction3D mapDefaultUp(Direction3D side, Direction2D dir) noexcept;
 inline Direction2D unMap(Direction3D side, Direction3D sideRelativeUp, Direction3D dir) noexcept;
 inline Direction2D unMapDefaultUp(Direction3D side, Direction3D dir) noexcept;
 inline sfz::vec3f toVector(Direction3D direction) noexcept;
+inline std::string to_string(const Direction3D& direction) noexcept;
+inline std::ostream& operator<< (std::ostream& ostream, const Direction3D& direction) noexcept;
 
 } // namespace s3
 
