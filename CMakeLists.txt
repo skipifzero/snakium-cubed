@@ -71,8 +71,8 @@ add_executable(
 	${INCLUDE_DIR}/gamelogic/Direction.inl
 	${INCLUDE_DIR}/gamelogic/Position.hpp
 	${INCLUDE_DIR}/gamelogic/Position.inl
-	${INCLUDE_DIR}/gamelogic/S3Model.hpp
-	 ${SOURCE_DIR}/gamelogic/S3Model.cpp
+	${INCLUDE_DIR}/gamelogic/Model.hpp
+	 ${SOURCE_DIR}/gamelogic/Model.cpp
 	${INCLUDE_DIR}/gamelogic/SnakeTile.hpp
 	${INCLUDE_DIR}/gamelogic/SnakeTile.inl
 

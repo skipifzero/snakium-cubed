@@ -1,4 +1,4 @@
-#include "gamelogic/S3Model.hpp"
+#include "gamelogic/Model.hpp"
 
 namespace s3 {
 
@@ -173,7 +173,7 @@ size_t calculateGridWidth(size_t size) noexcept
 // Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-S3Model::S3Model(size_t size) noexcept
+Model::Model(size_t size) noexcept
 :
 	mGridWidth{calculateGridWidth(size)},
 	mTileCount{mGridWidth*mGridWidth*6},
@@ -227,7 +227,7 @@ S3Model::S3Model(size_t size) noexcept
 	assert(getTilePosition(tile).e2 == 2);
 }
 
-S3Model::~S3Model() noexcept
+Model::~Model() noexcept
 {
 	delete[] mTiles;
 }
@@ -235,7 +235,7 @@ S3Model::~S3Model() noexcept
 // Member functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void S3Model::changeDirection(Direction3D upDir, Direction2D direction) noexcept
+void Model::changeDirection(Direction3D upDir, Direction2D direction) noexcept
 {
 	Direction3D cubeSide = getTilePosition(mHeadPtr).side;
 	Direction3D realDir = map(cubeSide, upDir, direction);
@@ -245,7 +245,7 @@ void S3Model::changeDirection(Direction3D upDir, Direction2D direction) noexcept
 	mHeadPtr->setTo(remappedDir);
 }
 
-void S3Model::update(float delta) noexcept
+void Model::update(float delta) noexcept
 {
 	mProgress += delta;
 	if (mProgress <= 1.0f) return;

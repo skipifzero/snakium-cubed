@@ -13,7 +13,7 @@
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 GLuint shaderProgram;
 
-s3::S3Model model{4};
+s3::Model model{4};
 
 sfz::vec3f camPos{0, 0, 2};
 sfz::vec3f camTarget{0, 0, 0};
@@ -122,7 +122,7 @@ GLuint getTileTexture(const s3::Assets& assets, s3::SnakeTile* tilePtr, float pr
 	}
 }
 
-sfz::vec3f tilePosToVector(const s3::S3Model& model, const s3::Position& tilePos, float progress)
+sfz::vec3f tilePosToVector(const s3::Model& model, const s3::Position& tilePos, float progress)
 	noexcept
 {
 	// +0.5f to get the midpoint of the tile

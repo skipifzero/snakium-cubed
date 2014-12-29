@@ -4,7 +4,7 @@
 
 #include "gamelogic/Direction.hpp"
 #include "gamelogic/Position.hpp"
-#include "gamelogic/S3Model.hpp"
+#include "gamelogic/Model.hpp"
 #include "gamelogic/SnakeTile.hpp"
 
 #endif

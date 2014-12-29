@@ -15,7 +15,7 @@ namespace s3 {
 using std::uint8_t;
 using std::size_t;
 
-struct S3Model final {
+struct Model final {
 	// Members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -27,12 +27,12 @@ struct S3Model final {
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	S3Model() = delete;
-	S3Model(const S3Model&) = delete;
-	S3Model& operator= (const S3Model&) = delete;
+	Model() = delete;
+	Model(const Model&) = delete;
+	Model& operator= (const Model&) = delete;
 
-	S3Model(size_t size) noexcept;
-	~S3Model() noexcept;
+	Model(size_t size) noexcept;
+	~Model() noexcept;
 
 	// Member functions
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -46,13 +46,13 @@ struct S3Model final {
 };
 
 
-inline SnakeTile* S3Model::getTilePtr(const Position& pos) const noexcept
+inline SnakeTile* Model::getTilePtr(const Position& pos) const noexcept
 {
 	static const size_t sideSize = mGridWidth * mGridWidth;
 	return mTiles + static_cast<uint8_t>(pos.side)*sideSize + pos.e2*mGridWidth + pos.e1;
 }
 
-inline Position S3Model::getTilePosition(SnakeTile* tilePtr) const noexcept
+inline Position Model::getTilePosition(SnakeTile* tilePtr) const noexcept
 {
 	Position pos;
 	size_t length = tilePtr - mTiles;
