@@ -122,8 +122,7 @@ GLuint getTileTexture(const s3::Assets& assets, s3::SnakeTile* tilePtr, float pr
 	}
 }
 
-sfz::vec3f tilePosToVector(const s3::Model& model, const s3::Position& tilePos, float progress)
-	noexcept
+sfz::vec3f tilePosToVector(const s3::Model& model, const s3::Position& tilePos) noexcept
 {
 	// +0.5f to get the midpoint of the tile
 	const float e1f = static_cast<float>(tilePos.e1) + 0.5f;
@@ -168,20 +167,30 @@ bool handleInput(const SDL_Event& event)
 		switch (event.key.keysym.sym) {
 		case SDLK_ESCAPE: return true;
 		case SDLK_UP:
+			std::cout << "Input: changeDirection(UP), real 3D dir: "
+			     << map(model.getTilePosition(model.mHeadPtr).side, upDir, s3::Direction2D::UP)
+			     << std::endl;
 			model.changeDirection(upDir, s3::Direction2D::UP);
 			break;
 		case SDLK_DOWN:
+			std::cout << "Input: changeDirection(DOWN), real 3D dir: "
+			     << map(model.getTilePosition(model.mHeadPtr).side, upDir, s3::Direction2D::DOWN)
+			     << std::endl;
 			model.changeDirection(upDir, s3::Direction2D::DOWN);
 			break;
-		case SDLK_RIGHT:
-			model.changeDirection(upDir, s3::Direction2D::RIGHT);
-			break;
 		case SDLK_LEFT:
+			std::cout << "Input: changeDirection(LEFT), real 3D dir: "
+			     << map(model.getTilePosition(model.mHeadPtr).side, upDir, s3::Direction2D::LEFT)
+			     << std::endl;
 			model.changeDirection(upDir, s3::Direction2D::LEFT);
 			break;
+		case SDLK_RIGHT:
+			std::cout << "Input: changeDirection(RIGHT), real 3D dir: "
+			     << map(model.getTilePosition(model.mHeadPtr).side, upDir, s3::Direction2D::RIGHT)
+			     << std::endl;
+			model.changeDirection(upDir, s3::Direction2D::RIGHT);
+			break;
 		}
-	//default:
-		//std::cout << "Unhandled event: " << std::to_string(event.type) << "\n";
 	}
 	return false;
 }
@@ -201,7 +210,10 @@ bool update(float delta)
 		          << ", camUp == " << camUp << std::endl;
 	}
 
-	camPos = tilePosToVector(model, headPos, model.mProgress).normalize()*2.5f;
+	const float tileWidth = 1.0f / static_cast<float>(model.mGridWidth);
+	const sfz::vec3f currentDir = toVector(mapDefaultUp(headPos.side, model.mHeadPtr->to()));
+	
+	camPos = (tilePosToVector(model, headPos) + currentDir*model.mProgress*tileWidth).normalize()*2.5f;
 	viewMatrix = sfz::lookAt(camPos, camTarget, camUp);
 
 	return false;
@@ -253,7 +265,7 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 		// Transform
 		transform =
 		    viewProj *
-			sfz::translationMatrix(tilePosToVector(model, tilePos, 0.0f)) *
+			sfz::translationMatrix(tilePosToVector(model, tilePos)) *
 			tileSpaceRotation(tilePos.side) *
 			sfz::scalingMatrix(tileWidth) *
 			sfz::yRotationMatrix(getTileAngleRad(tilePtr->from()));
