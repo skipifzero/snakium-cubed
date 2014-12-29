@@ -184,8 +184,8 @@ inline Direction3D mapDefaultUp(Direction3D side, Direction2D dir) noexcept
 	case Direction3D::SOUTH: return map(side, Direction3D::UP, dir);
 	case Direction3D::WEST: return map(side, Direction3D::UP, dir);
 	case Direction3D::EAST: return map(side, Direction3D::UP, dir);
-	case Direction3D::UP: return map(side, Direction3D::NORTH, dir);
-	case Direction3D::DOWN: return map(side, Direction3D::NORTH, dir);
+	case Direction3D::UP: return map(side, Direction3D::SOUTH, dir);
+	case Direction3D::DOWN: return map(side, Direction3D::SOUTH, dir);
 	}
 }
 
@@ -213,8 +213,8 @@ inline Direction2D unMapDefaultUp(Direction3D side, Direction3D dir) noexcept
 	case Direction3D::SOUTH: return unMap(side, Direction3D::UP, dir);
 	case Direction3D::WEST: return unMap(side, Direction3D::UP, dir);
 	case Direction3D::EAST: return unMap(side, Direction3D::UP, dir);
-	case Direction3D::UP: return unMap(side, Direction3D::NORTH, dir);
-	case Direction3D::DOWN: return unMap(side, Direction3D::NORTH, dir);
+	case Direction3D::UP: return unMap(side, Direction3D::SOUTH, dir);
+	case Direction3D::DOWN: return unMap(side, Direction3D::SOUTH, dir);
 	}
 }
 

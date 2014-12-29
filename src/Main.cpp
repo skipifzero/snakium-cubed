@@ -18,7 +18,7 @@ s3::Model model{4};
 sfz::vec3f camPos{0, 0, 2};
 sfz::vec3f camTarget{0, 0, 0};
 s3::Direction3D upDir = s3::Direction3D::UP;
-s3::Direction3D lastCubeSide = model.getTilePosition(model.mHeadPtr).side;
+s3::Direction3D lastCubeSide = s3::opposite(model.getTilePosition(model.mHeadPtr).side);
 sfz::vec3f camUp = toVector(upDir);
 sfz::mat4f viewMatrix = sfz::lookAt(camPos, camTarget, camUp);
 sfz::mat4f projMatrix;
@@ -203,15 +203,18 @@ bool update(float delta)
 	auto headPos = model.getTilePosition(model.mHeadPtr);
 
 	if (lastCubeSide != headPos.side) {
-		upDir = s3::opposite(lastCubeSide);//s3::up(lastCubeSide, headPos.cubeSide);
-		//camUp = toVector(upDir);
+		if (headPos.side == upDir) upDir = s3::opposite(lastCubeSide);
+		else if (headPos.side == opposite(upDir)) upDir = lastCubeSide;
+		camUp = toVector(upDir);
 		lastCubeSide = headPos.side;
 		std::cout << "Side change: side == " << headPos.side << ", upDir == " << upDir
-		          << ", camUp == " << camUp << std::endl;
+		          << ", camUp == " << camUp << "\n\tcurrent dir (2D): " << model.mHeadPtr->to()
+		          << ", real dir (3D): " << s3::mapDefaultUp(headPos.side, model.mHeadPtr->to())
+		          << std::endl;
 	}
 
 	const float tileWidth = 1.0f / static_cast<float>(model.mGridWidth);
-	const sfz::vec3f currentDir = toVector(mapDefaultUp(headPos.side, model.mHeadPtr->to()));
+	const sfz::vec3f currentDir = sfz::vec3f{0,0,0};//toVector(mapDefaultUp(headPos.side, model.mHeadPtr->to()));
 	
 	camPos = (tilePosToVector(model, headPos) + currentDir*model.mProgress*tileWidth).normalize()*2.5f;
 	viewMatrix = sfz::lookAt(camPos, camTarget, camUp);
@@ -235,13 +238,13 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	// TODO: Hack. Assumes screen is HI-DPI and multiplies width and height with 2 to compensate.
-	glViewport(0, 0, window.width()*2, window.height()*2);
-
 	// Enable culling
 	glEnable(GL_CULL_FACE);
 	//glDisable(GL_CULL_FACE);
 	//glDisable(GL_DEPTH_TEST);
+
+	// TODO: Hack. Assumes screen is HI-DPI and multiplies width and height with 2 to compensate.
+	glViewport(0, 0, window.width()*2, window.height()*2);
 
 	glUseProgram(shaderProgram);
 
