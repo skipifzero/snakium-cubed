@@ -6,21 +6,21 @@
 
 namespace s3 {
 
-using std::int16_t;
+using std::uint16_t;
 
 /**
  * @brief Struct used to create an s3::Model.
  */
 struct Config final {
-	int16_t gridWidth = 6;
+	uint16_t gridWidth = 6;
 	float tilesPerSecond = 2.5f;
 	bool hasSpeedIncrease = true;
 	float speedIncreasePerObject = 0.025f;
-	int16_t pointsPerObject = 8;
+	uint16_t pointsPerObject = 8;
 	bool hasBonus = true;
-	int16_t bonusFrequency = 8;
-	int16_t bonusDuration = 16;
-	int16_t pointsPerBonusObject = 32;
+	uint16_t bonusFrequency = 8;
+	uint16_t bonusDuration = 16;
+	uint16_t pointsPerBonusObject = 32;
 };
 
 } // namespace s3

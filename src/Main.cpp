@@ -170,7 +170,7 @@ sfz::vec3f tilePosToVector(const s3::Model& model, const s3::Position& tilePos) 
 	// +0.5f to get the midpoint of the tile
 	const float e1f = static_cast<float>(tilePos.e1) + 0.5f;
 	const float e2f = static_cast<float>(tilePos.e2) + 0.5f; 
-	const float tileWidth = 1.0f / static_cast<float>(model.mGridWidth);
+	const float tileWidth = 1.0f / static_cast<float>(model.mCfg.gridWidth);
 
 	return (e1f * tileWidth - 0.5f) * s3::directionVector(tilePos.side, s3::Coordinate::e1) +
 	       (e2f * tileWidth - 0.5f) * s3::directionVector(tilePos.side, s3::Coordinate::e2) +
@@ -261,10 +261,12 @@ bool update(float delta)
 		          << std::endl;
 	}
 
-	const float tileWidth = 1.0f / static_cast<float>(model.mGridWidth);
+	const float tileWidth = 1.0f / static_cast<float>(model.mCfg.gridWidth);
 	const sfz::vec3f currentDir = toVector(mapDefaultUp(headPos.side, model.mHeadPtr->to()));
 	
-	camPos = (tilePosToVector(model, headPos) + currentDir*model.mProgress*tileWidth).normalize()*2.5f;
+	sfz::vec3f tileVecPos = tilePosToVector(model, headPos) + currentDir*model.mProgress*tileWidth;
+	camPos = tileVecPos.normalize()*2.5f;
+
 	viewMatrix = sfz::lookAt(camPos, camTarget, camUp);
 
 	return false;
@@ -303,7 +305,7 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 	glActiveTexture(GL_TEXTURE0);
 
 	// Render all SnakeTiles
-	const float gridWidth = static_cast<float>(model.mGridWidth);
+	const float gridWidth = static_cast<float>(model.mCfg.gridWidth);
 	const float tileWidth = 1.0f / gridWidth;
 	sfz::mat4f transform;
 	s3::SnakeTile* tilePtr;

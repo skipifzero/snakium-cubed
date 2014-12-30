@@ -5,6 +5,8 @@
 #include <cstddef> // size_t
 #include <cstdint> // uint8_t
 #include <cassert>
+#include <vector>
+#include <random> // std::mt19937_64, std::random_device
 #include "gamelogic/Config.hpp"
 #include "gamelogic/Direction.hpp"
 #include "gamelogic/Position.hpp"
@@ -21,7 +23,7 @@ struct Model final {
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	const Config mCfg;
-	const size_t mGridWidth, mTileCount;
+	const size_t mTileCount;
 	SnakeTile* const mTiles;
 	float mProgress;
 	SnakeTile *mHeadPtr, *mPreHeadPtr, *mTailPtr;
@@ -50,8 +52,8 @@ struct Model final {
 
 inline SnakeTile* Model::getTilePtr(const Position& pos) const noexcept
 {
-	static const size_t sideSize = mGridWidth * mGridWidth;
-	return mTiles + static_cast<uint8_t>(pos.side)*sideSize + pos.e2*mGridWidth + pos.e1;
+	static const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
+	return mTiles + static_cast<uint8_t>(pos.side)*sideSize + pos.e2*mCfg.gridWidth + pos.e1;
 }
 
 inline Position Model::getTilePosition(SnakeTile* tilePtr) const noexcept
@@ -59,12 +61,12 @@ inline Position Model::getTilePosition(SnakeTile* tilePtr) const noexcept
 	Position pos;
 	size_t length = tilePtr - mTiles;
 
-	static const size_t sideSize = mGridWidth * mGridWidth;
+	static const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
 	size_t sideOffset = length % sideSize;
 	pos.side = static_cast<Direction3D>((length-sideOffset)/sideSize);
 
-	pos.e1 = sideOffset % mGridWidth;
-	pos.e2 = (sideOffset-pos.e1)/mGridWidth;
+	pos.e1 = sideOffset % mCfg.gridWidth;
+	pos.e2 = (sideOffset-pos.e1)/mCfg.gridWidth;
 
 	return pos;
 }

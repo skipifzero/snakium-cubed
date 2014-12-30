@@ -64,11 +64,24 @@ Position adjacent(Position pos, Direction2D to, const int gridWidth) noexcept
 	return newPos;
 }
 
-size_t calculateGridWidth(size_t size) noexcept
+std::mt19937_64 createRNGGenerator(void) noexcept
 {
-	if (size < 3) size = 3;
-	if (size > 16) size = 16;
-	return size;
+	static std::random_device rnd_dev;
+	return std::mt19937_64(rnd_dev());
+}
+
+SnakeTile* freeRandomTile(const Model& model) noexcept
+{
+	std::vector<SnakeTile*> freeTiles;
+	for (size_t i = 0; i < model.mTileCount; i++) {
+		if (model.mTiles[i].type() == TileType::EMPTY) freeTiles.push_back(model.mTiles + i);
+	}
+
+	if (freeTiles.size() == 0) return nullptr;
+
+	static std::mt19937_64 ms = createRNGGenerator();
+	std::uniform_int_distribution<size_t> dist{0, freeTiles.size()-1};
+	return freeTiles[dist(ms)];
 }
 
 } // anonymous namespace
@@ -79,8 +92,7 @@ size_t calculateGridWidth(size_t size) noexcept
 Model::Model(Config cfg) noexcept
 :
 	mCfg(cfg),
-	mGridWidth{calculateGridWidth(cfg.gridWidth)},
-	mTileCount{mGridWidth*mGridWidth*6},
+	mTileCount{static_cast<size_t>(mCfg.gridWidth*mCfg.gridWidth*6)},
 	mTiles{new SnakeTile[mTileCount]},
 	mProgress{0.0f}
 {
@@ -97,7 +109,7 @@ Model::Model(Config cfg) noexcept
 	// Create the first Snake.
 	Position tempPos;
 	tempPos.side = Direction3D::SOUTH;
-	const int16_t mid = static_cast<int32_t>(mGridWidth/2);
+	const int16_t mid = static_cast<int16_t>(mCfg.gridWidth/2);
 	tempPos.e1 = mid;
 
 	tempPos.e2 = 0;
@@ -129,6 +141,9 @@ Model::Model(Config cfg) noexcept
 	assert(getTilePosition(tile).side == Direction3D::SOUTH);
 	assert(getTilePosition(tile).e1 == mid);
 	assert(getTilePosition(tile).e2 == 2);
+
+	SnakeTile* objTile = freeRandomTile(*this);
+	objTile->setType(TileType::OBJECT);
 }
 
 Model::~Model() noexcept
@@ -157,7 +172,7 @@ void Model::update(float delta) noexcept
 
 	// Calculate the next head position
 	Position headPos = getTilePosition(mHeadPtr);
-	Position nextPos = adjacent(headPos, mHeadPtr->to(), mGridWidth);
+	Position nextPos = adjacent(headPos, mHeadPtr->to(), mCfg.gridWidth);
 
 	// Check if Game Over
 	SnakeTile* nextPtr = getTilePtr(nextPos);
@@ -174,7 +189,7 @@ void Model::update(float delta) noexcept
 	              convertSideDirection(headPos.side, nextPos.side, mPreHeadPtr->to())));
 	mHeadPtr->setTo(opposite(mHeadPtr->from()));
 
-	Position tailNext = adjacent(getTilePosition(mTailPtr), mTailPtr->to(), mGridWidth);
+	Position tailNext = adjacent(getTilePosition(mTailPtr), mTailPtr->to(), mCfg.gridWidth);
 	mTailPtr->setType(TileType::EMPTY);
 	mTailPtr = getTilePtr(tailNext);
 	mTailPtr->setType(TileType::TAIL);
