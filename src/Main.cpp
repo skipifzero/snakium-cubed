@@ -14,22 +14,7 @@
 s3::Config getConfig(void) noexcept
 {
 	s3::Config cfg;
-
-	cfg.cubeSizeX = 4;
-	cfg.cubeSizeY = 4;
-	cfg.cubeSizeZ = 4;
-	
-	cfg.tilesPerSecond = 2.5f;
-	cfg.hasSpeedIncrease = false;
-	cfg.speedIncreasePerObject = 0.25f;
-
-	cfg.pointsPerObject = 8;
-
-	cfg.hasBonus = false;
-	cfg.bonusFrequency = 6;
-	cfg.bonusDuration = 10;
-	cfg.pointsPerBonusObject = 32;
-
+	cfg.size = 4;
 	return cfg;
 }
 

@@ -79,7 +79,7 @@ size_t calculateGridWidth(size_t size) noexcept
 Model::Model(Config cfg) noexcept
 :
 	cfg(cfg),
-	mGridWidth{calculateGridWidth(cfg.cubeSizeX)},
+	mGridWidth{calculateGridWidth(cfg.size)},
 	mTileCount{mGridWidth*mGridWidth*6},
 	mTiles{new SnakeTile[mTileCount]},
 	mProgress{0.0f}
