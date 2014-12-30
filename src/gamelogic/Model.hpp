@@ -20,7 +20,7 @@ struct Model final {
 	// Members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	const Config cfg;
+	const Config mCfg;
 	const size_t mGridWidth, mTileCount;
 	SnakeTile* const mTiles;
 	float mProgress;

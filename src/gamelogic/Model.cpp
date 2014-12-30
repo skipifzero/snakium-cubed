@@ -78,8 +78,8 @@ size_t calculateGridWidth(size_t size) noexcept
 
 Model::Model(Config cfg) noexcept
 :
-	cfg(cfg),
-	mGridWidth{calculateGridWidth(cfg.size)},
+	mCfg(cfg),
+	mGridWidth{calculateGridWidth(cfg.gridWidth)},
 	mTileCount{mGridWidth*mGridWidth*6},
 	mTiles{new SnakeTile[mTileCount]},
 	mProgress{0.0f}
@@ -151,7 +151,7 @@ void Model::changeDirection(Direction3D upDir, Direction2D direction) noexcept
 
 void Model::update(float delta) noexcept
 {
-	mProgress += delta * cfg.tilesPerSecond;
+	mProgress += delta * mCfg.tilesPerSecond;
 	if (mProgress <= 1.0f) return;
 	mProgress -= 1.0f;
 

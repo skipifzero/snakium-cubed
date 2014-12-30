@@ -14,7 +14,7 @@
 s3::Config getConfig(void) noexcept
 {
 	s3::Config cfg;
-	cfg.size = 4;
+	cfg.gridWidth = 4;
 	return cfg;
 }
 
