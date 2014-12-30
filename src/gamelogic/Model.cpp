@@ -76,9 +76,10 @@ size_t calculateGridWidth(size_t size) noexcept
 // Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Model::Model(size_t size) noexcept
+Model::Model(Config cfg) noexcept
 :
-	mGridWidth{calculateGridWidth(size)},
+	cfg(cfg),
+	mGridWidth{calculateGridWidth(cfg.cubeSizeX)},
 	mTileCount{mGridWidth*mGridWidth*6},
 	mTiles{new SnakeTile[mTileCount]},
 	mProgress{0.0f}
@@ -150,7 +151,7 @@ void Model::changeDirection(Direction3D upDir, Direction2D direction) noexcept
 
 void Model::update(float delta) noexcept
 {
-	mProgress += delta;
+	mProgress += delta * cfg.tilesPerSecond;
 	if (mProgress <= 1.0f) return;
 	mProgress -= 1.0f;
 

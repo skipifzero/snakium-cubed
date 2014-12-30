@@ -67,6 +67,7 @@ add_executable(
 	 ${SOURCE_DIR}/Assets.cpp
 	
 	${INCLUDE_DIR}/GameLogic.hpp
+	${INCLUDE_DIR}/gamelogic/Config.hpp
 	${INCLUDE_DIR}/gamelogic/Direction.hpp
 	${INCLUDE_DIR}/gamelogic/Direction.inl
 	${INCLUDE_DIR}/gamelogic/Position.hpp

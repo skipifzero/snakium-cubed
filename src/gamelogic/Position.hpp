@@ -2,7 +2,7 @@
 #ifndef S3_GAMELOGIC_POSITION_HPP
 #define S3_GAMELOGIC_POSITION_HPP
 
-#include <cstdint> // uint8_t
+#include <cstdint> // uint8_t, int16_t
 #include <iostream>
 #include <exception> // std::terminate
 #include "sfz/math/Vector.hpp"

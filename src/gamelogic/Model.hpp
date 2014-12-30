@@ -5,6 +5,7 @@
 #include <cstddef> // size_t
 #include <cstdint> // uint8_t
 #include <cassert>
+#include "gamelogic/Config.hpp"
 #include "gamelogic/Direction.hpp"
 #include "gamelogic/Position.hpp"
 #include "gamelogic/SnakeTile.hpp"
@@ -19,6 +20,7 @@ struct Model final {
 	// Members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+	const Config cfg;
 	const size_t mGridWidth, mTileCount;
 	SnakeTile* const mTiles;
 	float mProgress;
@@ -31,7 +33,7 @@ struct Model final {
 	Model(const Model&) = delete;
 	Model& operator= (const Model&) = delete;
 
-	Model(size_t size) noexcept;
+	Model(Config cfg) noexcept;
 	~Model() noexcept;
 
 	// Member functions
