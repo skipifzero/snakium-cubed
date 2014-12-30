@@ -10,7 +10,6 @@ Direction2D convertSideDirection(Direction3D from, Direction3D to, Direction2D f
 	return unMapDefaultUp(to, opposite(from));
 }
 
-
 Position adjacent(Position pos, Direction2D to, const int gridWidth) noexcept
 {
 	Position newPos = pos;

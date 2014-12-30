@@ -23,6 +23,8 @@ sfz::vec3f camUp = toVector(upDir);
 sfz::mat4f viewMatrix = sfz::lookAt(camPos, camTarget, camUp);
 sfz::mat4f projMatrix;
 
+bool isPaused = false;
+
 // Helper functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 namespace {
@@ -52,14 +54,48 @@ void checkGLErrorsMessage(const std::string& msg) noexcept
 	return sfz::vec3f{point4[0], point4[1], point4[2]};
 }*/
 
-float getTileAngleRad(s3::Direction2D from) noexcept
+float getTileAngleRad(s3::Direction3D side, s3::Direction2D from) noexcept
 {
+	float angle;
+
 	switch (from) {
-	case s3::Direction2D::UP: return (270.0f - 90.0f) * sfz::g_DEG_TO_RAD_FLOAT;
-	case s3::Direction2D::DOWN: return (90.0f - 90.0f) * sfz::g_DEG_TO_RAD_FLOAT;
-	case s3::Direction2D::LEFT: return (0.0f - 90.0f) * sfz::g_DEG_TO_RAD_FLOAT;
-	case s3::Direction2D::RIGHT: return (180.0f - 90.0f) * sfz::g_DEG_TO_RAD_FLOAT;
+	case s3::Direction2D::UP:
+		angle = 180.0f;
+		break;
+	case s3::Direction2D::DOWN:
+		angle = 0.0f;
+		break;
+	case s3::Direction2D::LEFT:
+		angle = -90.0f;
+		break;
+	case s3::Direction2D::RIGHT:
+		angle = 90.0f;
+		break;
 	}
+
+	// Yeah, I dunno. There probably is a pattern here to make it general, but I don't see it.
+	switch (side) {
+	case s3::Direction3D::NORTH:
+		angle += 180.0f;
+		break;
+	case s3::Direction3D::SOUTH:
+		// Do nothing.
+		break;
+	case s3::Direction3D::WEST:
+		angle -= 90.0f;
+		break;
+	case s3::Direction3D::EAST:
+		angle += 90.0f;
+		break;
+	case s3::Direction3D::UP:
+		angle += 180.0f;
+		break;
+	case s3::Direction3D::DOWN:
+		// Do nothing.
+		break;
+	}
+
+	return angle * sfz::g_DEG_TO_RAD_FLOAT;
 }
 
 GLuint getTileTexture(const s3::Assets& assets, s3::SnakeTile* tilePtr, float progress) noexcept
@@ -166,6 +202,9 @@ bool handleInput(const SDL_Event& event)
 	case SDL_KEYDOWN:
 		switch (event.key.keysym.sym) {
 		case SDLK_ESCAPE: return true;
+		case SDLK_SPACE:
+			isPaused = !isPaused;
+			break;
 		case SDLK_UP:
 			std::cout << "Input: changeDirection(UP), real 3D dir: "
 			     << map(model.getTilePosition(model.mHeadPtr).side, upDir, s3::Direction2D::UP)
@@ -198,6 +237,8 @@ bool handleInput(const SDL_Event& event)
 // Called once every frame
 bool update(float delta)
 {
+	if (isPaused) return false;
+
 	model.update(delta);
 
 	auto headPos = model.getTilePosition(model.mHeadPtr);
@@ -271,7 +312,7 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 			sfz::translationMatrix(tilePosToVector(model, tilePos)) *
 			tileSpaceRotation(tilePos.side) *
 			sfz::scalingMatrix(tileWidth) *
-			sfz::yRotationMatrix(getTileAngleRad(tilePtr->from()));
+			sfz::yRotationMatrix(getTileAngleRad(tilePos.side, tilePtr->from()));
 
 		gl::setUniform(shaderProgram, "modelViewProj", transform);
 
