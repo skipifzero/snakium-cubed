@@ -167,6 +167,18 @@ inline Direction3D right(Direction3D side, Direction3D sideRelativeUp) noexcept
 	return opposite(left(side, sideRelativeUp));
 }
 
+inline Direction3D defaultUp(Direction3D side) noexcept
+{
+	switch (side) {
+	case Direction3D::NORTH: return Direction3D::UP;
+	case Direction3D::SOUTH: return Direction3D::UP;
+	case Direction3D::WEST: return Direction3D::UP;
+	case Direction3D::EAST: return Direction3D::UP;
+	case Direction3D::UP: return Direction3D::SOUTH;
+	case Direction3D::DOWN: return Direction3D::SOUTH;
+	}
+}
+
 inline Direction3D map(Direction3D side, Direction3D sideRelativeUp, Direction2D dir) noexcept
 {
 	switch (dir) {
@@ -179,14 +191,7 @@ inline Direction3D map(Direction3D side, Direction3D sideRelativeUp, Direction2D
 
 inline Direction3D mapDefaultUp(Direction3D side, Direction2D dir) noexcept
 {
-	switch (side) {
-	case Direction3D::NORTH: return map(side, Direction3D::UP, dir);
-	case Direction3D::SOUTH: return map(side, Direction3D::UP, dir);
-	case Direction3D::WEST: return map(side, Direction3D::UP, dir);
-	case Direction3D::EAST: return map(side, Direction3D::UP, dir);
-	case Direction3D::UP: return map(side, Direction3D::SOUTH, dir);
-	case Direction3D::DOWN: return map(side, Direction3D::SOUTH, dir);
-	}
+	return map(side, defaultUp(side), dir);
 }
 
 inline Direction2D unMap(Direction3D side, Direction3D sideRelativeUp, Direction3D dir) noexcept
@@ -208,14 +213,7 @@ inline Direction2D unMap(Direction3D side, Direction3D sideRelativeUp, Direction
 
 inline Direction2D unMapDefaultUp(Direction3D side, Direction3D dir) noexcept
 {
-	switch (side) {
-	case Direction3D::NORTH: return unMap(side, Direction3D::UP, dir);
-	case Direction3D::SOUTH: return unMap(side, Direction3D::UP, dir);
-	case Direction3D::WEST: return unMap(side, Direction3D::UP, dir);
-	case Direction3D::EAST: return unMap(side, Direction3D::UP, dir);
-	case Direction3D::UP: return unMap(side, Direction3D::SOUTH, dir);
-	case Direction3D::DOWN: return unMap(side, Direction3D::SOUTH, dir);
-	}
+	return unMap(side, defaultUp(side), dir);
 }
 
 inline sfz::vec3f toVector(Direction3D direction) noexcept

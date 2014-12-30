@@ -10,196 +10,59 @@ Direction2D convertSideDirection(Direction3D from, Direction3D to, Direction2D f
 	return unMapDefaultUp(to, opposite(from));
 }
 
+
 Position adjacent(Position pos, Direction2D to, const int gridWidth) noexcept
 {
-	Position adjPos = pos;
+	Position newPos = pos;
 
-	/*switch (pos.side) {
-	case Direction3D::NORTH:
-		switch (to) {
-		case Direction2D::UP:
-			adjPos.e2 += 1;
-			if (adjPos.e2 < gridWidth) break;
-			break;
-		case Direction2D::DOWN:
-			adjPos.e2 -= 1;
-			if (adjPos.e2 >= 0) break;
-		case Direction2D::LEFT:
-		case Direction2D::RIGHT:
-			break;
-		}
+	switch (to) {
+	case Direction2D::UP:
+		newPos.e2 += 1;
+		if (newPos.e2 < gridWidth) return newPos;
 		break;
-	case Direction3D::SOUTH:
-		switch (to) {
-		case Direction2D::UP:
-		case Direction2D::DOWN:
-		case Direction2D::LEFT:
-		case Direction2D::RIGHT:
-			break;
-		}
+	case Direction2D::DOWN:
+		newPos.e2 -= 1;
+		if (newPos.e2 >= 0) return newPos;
 		break;
-	case Direction3D::WEST:
-		switch (to) {
-		case Direction2D::UP:
-		case Direction2D::DOWN:
-		case Direction2D::LEFT:
-		case Direction2D::RIGHT:
-			break;
-		}
+	case Direction2D::LEFT:
+		newPos.e1 -= 1;
+		if (newPos.e1 >= 0) return newPos;
 		break;
-	case Direction3D::EAST:
-		switch (to) {
-		case Direction2D::UP:
-		case Direction2D::DOWN:
-		case Direction2D::LEFT:
-		case Direction2D::RIGHT:
-			break;
-		}
-		break;
-	case Direction3D::UP:
-		switch (to) {
-		case Direction2D::UP:
-		case Direction2D::DOWN:
-		case Direction2D::LEFT:
-		case Direction2D::RIGHT:
-			break;
-		}
-		break;
-	case Direction3D::DOWN:
-		switch (to) {
-		case Direction2D::UP:
-		case Direction2D::DOWN:
-		case Direction2D::LEFT:
-		case Direction2D::RIGHT:
-			break;
-		}
+	case Direction2D::RIGHT:
+		newPos.e1 += 1;
+		if (newPos.e1 < gridWidth) return newPos;
 		break;
 	}
 
+	Direction3D toSide = mapDefaultUp(pos.side, to);
+	Direction3D newDir = opposite(pos.side);
+	Coordinate fromDirCoord = coordinate(pos.side, to);
+	Coordinate toDirCoord = coordinate(toSide, newDir);
 
-	switch (to) {
+	// Set side
+	newPos.side = toSide;
 
-	case Direction2D::UP:
-		adjPos.e2 += 1;
-		if (adjPos.e2 < gridWidth) break;
-		switch (adjPos.side) {
-		case Direction3D::UP:
-			adjPos.side = Direction3D::
-			break;
-		case Direction3D::DOWN:
-			adjPos.side = Direction3D::SOUTH;
-			adjPos.e2 = 0;
-			break;
-		case Direction3D::SOUTH:
-			adjPos.side = Direction3D::UP;
-			adjPos.e2 = gridWidth-1;
-			break;
-		case Direction3D::NORTH:
-			break;
-		case Direction3D::WEST:
-			break;
-		case Direction3D::EAST:
-			break;
+	// Fix the primary coordinate
+	if (direction(toSide, toDirCoord) == newDir) newPos.setCoordinate(toDirCoord, 0);
+	else newPos.setCoordinate(toDirCoord, gridWidth-1);
+
+	// Fix the secondary coordinate
+	if (fromDirCoord == toDirCoord) {
+		Coordinate otherCoord = other(toDirCoord);
+		if (coordinateSign(pos.side, otherCoord) != coordinateSign(toSide, otherCoord)) {
+			newPos.setCoordinate(otherCoord, (gridWidth-1)-pos.coordinate(otherCoord));
 		}
-		break;
-
-	case Direction2D::DOWN:
-		adjPos.e2 -= 1;
-		if (adjPos.e2 >= 0) break;
-		switch (adjPos.side) {
-		case Direction3D::UP:
-			adjPos.side = Direction3D::NORTH;
-			adjPos.e2 = gridWidth-1;
-			break;
-		case Direction3D::DOWN:
-			break;
-		case Direction3D::SOUTH:
-			break;
-		case Direction3D::NORTH:
-			adjPos.side = Direction3D::DOWN;
-			adjPos.e2 = 0;
-			break;
-		case Direction3D::WEST:
-			break;
-		case Direction3D::EAST:
-			break;
+	} else {
+		Coordinate otherFromCoord = toDirCoord;
+		Coordinate otherToCoord = fromDirCoord;
+		if (coordinateSign(pos.side, otherFromCoord) != coordinateSign(toSide, otherToCoord)) {
+			newPos.setCoordinate(otherToCoord, (gridWidth-1)-pos.coordinate(otherFromCoord));
+		} else {
+			newPos.setCoordinate(otherToCoord, pos.coordinate(otherFromCoord));
 		}
-		break;
-
-	case Direction2D::LEFT:
-		adjPos.e1 -= 1;
-		if (adjPos.e1 >= 0) break;
-		switch (adjPos.side) {
-		case Direction3D::UP:
-			break;
-		case Direction3D::DOWN:
-			break;
-		case Direction3D::SOUTH:
-			break;
-		case Direction3D::NORTH:
-			break;
-		case Direction3D::WEST:
-			break;
-		case Direction3D::EAST:
-			break;
-		}
-		break;
-
-	case Direction2D::RIGHT:
-		adjPos.e1 += 1;
-		if (adjPos.e1 < gridWidth) break;
-		switch (adjPos.side) {
-		case Direction3D::UP:
-			break;
-		case Direction3D::DOWN:
-			break;
-		case Direction3D::SOUTH:
-			break;
-		case Direction3D::NORTH:
-			break;
-		case Direction3D::WEST:
-			break;
-		case Direction3D::EAST:
-			break;
-		}
-		break;
-	}*/
-
-	Direction2D newDir;
-	switch (to) {
-
-	case Direction2D::UP:
-		adjPos.e2 += 1;
-		if (adjPos.e2 < gridWidth) break;
-		adjPos.side = mapDefaultUp(pos.side, Direction2D::UP);
-		newDir = convertSideDirection(pos.side, adjPos.side, Direction2D::UP);
-		if (newDir == Direction2D::DOWN || newDir == Direction2D::LEFT) adjPos.e2 = gridWidth-1;
-		else adjPos.e2 = 0;
-		break;
-
-	case Direction2D::DOWN:
-		adjPos.e2 -= 1;
-		if (adjPos.e2 >= 0) break;
-		adjPos.side = mapDefaultUp(pos.side, Direction2D::UP);
-		newDir = convertSideDirection(pos.side, adjPos.side, Direction2D::UP);
-		if (newDir == Direction2D::DOWN || newDir == Direction2D::LEFT) adjPos.e2 = gridWidth-1;
-		else adjPos.e2 = 0;
-		break;
-
-	case Direction2D::LEFT:
-		adjPos.e1 -= 1;
-		if (adjPos.e1 >= 0) break;
-
-		break;
-
-	case Direction2D::RIGHT:
-		adjPos.e1 += 1;
-		if (adjPos.e1 < gridWidth) break;
-
-		break;
 	}
 
-	return adjPos;
+	return newPos;
 }
 
 size_t calculateGridWidth(size_t size) noexcept

@@ -18,7 +18,7 @@ s3::Model model{4};
 sfz::vec3f camPos{0, 0, 2};
 sfz::vec3f camTarget{0, 0, 0};
 s3::Direction3D upDir = s3::Direction3D::UP;
-s3::Direction3D lastCubeSide = s3::opposite(model.getTilePosition(model.mHeadPtr).side);
+s3::Direction3D lastCubeSide = model.getTilePosition(model.mHeadPtr).side;
 sfz::vec3f camUp = toVector(upDir);
 sfz::mat4f viewMatrix = sfz::lookAt(camPos, camTarget, camUp);
 sfz::mat4f projMatrix;
@@ -214,7 +214,7 @@ bool update(float delta)
 	}
 
 	const float tileWidth = 1.0f / static_cast<float>(model.mGridWidth);
-	const sfz::vec3f currentDir = sfz::vec3f{0,0,0};//toVector(mapDefaultUp(headPos.side, model.mHeadPtr->to()));
+	const sfz::vec3f currentDir = toVector(mapDefaultUp(headPos.side, model.mHeadPtr->to()));
 	
 	camPos = (tilePosToVector(model, headPos) + currentDir*model.mProgress*tileWidth).normalize()*2.5f;
 	viewMatrix = sfz::lookAt(camPos, camTarget, camUp);
