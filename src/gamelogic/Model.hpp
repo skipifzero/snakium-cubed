@@ -25,7 +25,8 @@ struct Model final {
 	const Config mCfg;
 	const size_t mTileCount;
 	SnakeTile* const mTiles;
-	float mProgress;
+	float mProgress = 0.0f;
+	long mScore = 0;
 	SnakeTile *mHeadPtr, *mPreHeadPtr, *mTailPtr;
 
 	// Constructors & destructors

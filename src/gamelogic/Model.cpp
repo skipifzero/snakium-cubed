@@ -93,8 +93,7 @@ Model::Model(Config cfg) noexcept
 :
 	mCfg(cfg),
 	mTileCount{static_cast<size_t>(mCfg.gridWidth*mCfg.gridWidth*6)},
-	mTiles{new SnakeTile[mTileCount]},
-	mProgress{0.0f}
+	mTiles{new SnakeTile[mTileCount]}
 {
 	static_assert(sizeof(SnakeTile) <= 1, "SnakeTile is larger than 1 byte.");
 
@@ -142,8 +141,7 @@ Model::Model(Config cfg) noexcept
 	assert(getTilePosition(tile).e1 == mid);
 	assert(getTilePosition(tile).e2 == 2);
 
-	SnakeTile* objTile = freeRandomTile(*this);
-	objTile->setType(TileType::OBJECT);
+	freeRandomTile(*this)->setType(TileType::OBJECT);
 }
 
 Model::~Model() noexcept
@@ -174,25 +172,53 @@ void Model::update(float delta) noexcept
 	Position headPos = getTilePosition(mHeadPtr);
 	Position nextPos = adjacent(headPos, mHeadPtr->to(), mCfg.gridWidth);
 
-	// Check if Game Over
+	
 	SnakeTile* nextPtr = getTilePtr(nextPos);
+
+	bool objectEaten = false;
+	// Check if object eaten.
+	if (nextPtr->type() == TileType::OBJECT) {
+		objectEaten = true;
+		mScore += static_cast<long>(mCfg.pointsPerObject);
+		SnakeTile* freeTile = freeRandomTile(*this);
+		if (freeTile != nullptr) freeTile->setType(TileType::OBJECT);
+		nextPtr->setType(TileType::EMPTY);
+	}
+
+	// Check if Game Over
 	if (nextPtr->type() != TileType::EMPTY) return;
 
 	// Move Snake
-	mPreHeadPtr->setType(TileType::BODY);
+	// Previous pre_head, now body.
+	if (mPreHeadPtr->type() == TileType::PRE_HEAD) mPreHeadPtr->setType(TileType::BODY);
+	else mPreHeadPtr->setType(TileType::BODY_DIGESTING);
+	// Previous head, now pre_head
+	if (mHeadPtr->type() == TileType::HEAD) mHeadPtr->setType(TileType::PRE_HEAD);
+	else mHeadPtr->setType(TileType::PRE_HEAD_DIGESTING);
+
+	// Update head & pre_head ptrs
 	mPreHeadPtr = mHeadPtr;
-	mPreHeadPtr->setType(TileType::PRE_HEAD);
 	mHeadPtr = nextPtr;
 
-	mHeadPtr->setType(TileType::HEAD);
+	// Setup new head tile
+	mHeadPtr->setType(objectEaten ? TileType::HEAD_DIGESTING : TileType::HEAD);
 	mHeadPtr->setFrom(opposite(
 	              convertSideDirection(headPos.side, nextPos.side, mPreHeadPtr->to())));
 	mHeadPtr->setTo(opposite(mHeadPtr->from()));
 
-	Position tailNext = adjacent(getTilePosition(mTailPtr), mTailPtr->to(), mCfg.gridWidth);
-	mTailPtr->setType(TileType::EMPTY);
-	mTailPtr = getTilePtr(tailNext);
-	mTailPtr->setType(TileType::TAIL);
+	// Move tail if it's not digesting, otherwise finish digesting.
+	if (mTailPtr->type() == TileType::TAIL_DIGESTING) {
+		mTailPtr->setType(TileType::TAIL);
+	} else {
+		Position tailNext = adjacent(getTilePosition(mTailPtr), mTailPtr->to(), mCfg.gridWidth);
+		mTailPtr->setType(TileType::EMPTY);
+		mTailPtr = getTilePtr(tailNext);
+		if (mTailPtr->type() == TileType::BODY || mTailPtr->type() == TileType::PRE_HEAD) {
+			mTailPtr->setType(TileType::TAIL);
+		} else {
+			mTailPtr->setType(TileType::TAIL_DIGESTING);
+		}	
+	}
 }
 
 } // namespace s3

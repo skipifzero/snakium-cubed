@@ -14,7 +14,8 @@
 s3::Config getConfig(void) noexcept
 {
 	s3::Config cfg;
-	cfg.gridWidth = 4;
+	cfg.gridWidth = 3;
+	cfg.tilesPerSecond = 2.5f;
 	return cfg;
 }
 
@@ -141,8 +142,11 @@ GLuint getTileTexture(const s3::Assets& assets, s3::SnakeTile* tilePtr, float pr
 		}
 
 	case s3::TileType::HEAD_DIGESTING:
-		std::cerr << "HEAD_DIGESTING should never happen.\n";
-		std::terminate();
+		if (progress <= 0.5f) { // Frame 1
+			return assets.HEAD_D2U_F1.mHandle;
+		} else { // Frame 2
+			return assets.HEAD_D2U_F2.mHandle;
+		}
 	case s3::TileType::PRE_HEAD_DIGESTING:
 		if (progress <= 0.5f) { // Frame 1
 			if (!isTurn) return assets.PRE_HEAD_D2U_DIG_F1.mHandle;
@@ -213,27 +217,15 @@ bool handleInput(const SDL_Event& event)
 			isPaused = !isPaused;
 			break;
 		case SDLK_UP:
-			std::cout << "Input: changeDirection(UP), real 3D dir: "
-			     << map(model.getTilePosition(model.mHeadPtr).side, upDir, s3::Direction2D::UP)
-			     << std::endl;
 			model.changeDirection(upDir, s3::Direction2D::UP);
 			break;
 		case SDLK_DOWN:
-			std::cout << "Input: changeDirection(DOWN), real 3D dir: "
-			     << map(model.getTilePosition(model.mHeadPtr).side, upDir, s3::Direction2D::DOWN)
-			     << std::endl;
 			model.changeDirection(upDir, s3::Direction2D::DOWN);
 			break;
 		case SDLK_LEFT:
-			std::cout << "Input: changeDirection(LEFT), real 3D dir: "
-			     << map(model.getTilePosition(model.mHeadPtr).side, upDir, s3::Direction2D::LEFT)
-			     << std::endl;
 			model.changeDirection(upDir, s3::Direction2D::LEFT);
 			break;
 		case SDLK_RIGHT:
-			std::cout << "Input: changeDirection(RIGHT), real 3D dir: "
-			     << map(model.getTilePosition(model.mHeadPtr).side, upDir, s3::Direction2D::RIGHT)
-			     << std::endl;
 			model.changeDirection(upDir, s3::Direction2D::RIGHT);
 			break;
 		}
@@ -255,10 +247,11 @@ bool update(float delta)
 		else if (headPos.side == opposite(upDir)) upDir = lastCubeSide;
 		camUp = toVector(upDir);
 		lastCubeSide = headPos.side;
-		std::cout << "Side change: side == " << headPos.side << ", upDir == " << upDir
+		std::cout << headPos.side << std::endl;
+		/*std::cout << "Side change: side == " << headPos.side << ", upDir == " << upDir
 		          << ", camUp == " << camUp << "\n\tcurrent dir (2D): " << model.mHeadPtr->to()
 		          << ", real dir (3D): " << s3::mapDefaultUp(headPos.side, model.mHeadPtr->to())
-		          << std::endl;
+		          << std::endl;*/
 	}
 
 	const float tileWidth = 1.0f / static_cast<float>(model.mCfg.gridWidth);
