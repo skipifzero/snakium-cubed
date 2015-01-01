@@ -15,7 +15,7 @@ s3::Config getConfig(void) noexcept
 {
 	s3::Config cfg;
 	cfg.gridWidth = 3;
-	cfg.tilesPerSecond = 2.5f;
+	cfg.tilesPerSecond = 2.0f;
 	return cfg;
 }
 
@@ -239,6 +239,7 @@ bool update(float delta)
 	if (isPaused) return false;
 
 	model.update(delta);
+	if (model.mGameOver) std::cout << "GAME OVER, Final score: " << model.mScore << std::endl;
 
 	auto headPos = model.getTilePosition(model.mHeadPtr);
 
@@ -258,7 +259,7 @@ bool update(float delta)
 	const sfz::vec3f currentDir = toVector(mapDefaultUp(headPos.side, model.mHeadPtr->to()));
 	
 	sfz::vec3f tileVecPos = tilePosToVector(model, headPos) + currentDir*model.mProgress*tileWidth;
-	camPos = tileVecPos.normalize()*2.5f;
+	camPos = tileVecPos.normalize()*2.0f;
 
 	viewMatrix = sfz::lookAt(camPos, camTarget, camUp);
 

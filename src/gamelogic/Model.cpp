@@ -111,6 +111,7 @@ Model::Model(Config cfg) noexcept
 	const int16_t mid = static_cast<int16_t>(mCfg.gridWidth/2);
 	tempPos.e1 = mid;
 
+
 	tempPos.e2 = 0;
 	SnakeTile* tile = getTilePtr(tempPos);
 	tile->setType(TileType::TAIL);
@@ -154,6 +155,8 @@ Model::~Model() noexcept
 
 void Model::changeDirection(Direction3D upDir, Direction2D direction) noexcept
 {
+	if (mGameOver) return;
+
 	Direction3D cubeSide = getTilePosition(mHeadPtr).side;
 	Direction3D realDir = map(cubeSide, upDir, direction);
 	Direction2D remappedDir = unMapDefaultUp(cubeSide, realDir);
@@ -164,6 +167,8 @@ void Model::changeDirection(Direction3D upDir, Direction2D direction) noexcept
 
 void Model::update(float delta) noexcept
 {
+	if (mGameOver) return;
+
 	mProgress += delta * mCfg.tilesPerSecond;
 	if (mProgress <= 1.0f) return;
 	mProgress -= 1.0f;
@@ -186,7 +191,11 @@ void Model::update(float delta) noexcept
 	}
 
 	// Check if Game Over
-	if (nextPtr->type() != TileType::EMPTY) return;
+	if (nextPtr->type() != TileType::EMPTY) {
+		mGameOver = true;
+		mProgress = 1.0f;
+		return;
+	}
 
 	// Move Snake
 	// Previous pre_head, now body.

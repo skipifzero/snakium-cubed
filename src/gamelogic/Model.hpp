@@ -28,6 +28,7 @@ struct Model final {
 	float mProgress = 0.0f;
 	long mScore = 0;
 	SnakeTile *mHeadPtr, *mPreHeadPtr, *mTailPtr;
+	bool mGameOver = false;
 
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
