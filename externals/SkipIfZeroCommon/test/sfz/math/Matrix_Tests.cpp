@@ -348,7 +348,9 @@ TEST_CASE("Is proper POD", "[sfz::Matrix]")
 	REQUIRE(std::is_trivially_copyable<sfz::mat4f>::value);
 	REQUIRE(std::is_trivial<sfz::mat4f>::value);
 	REQUIRE(std::is_standard_layout<sfz::mat4f>::value);
+#ifndef _MSC_VER
 	REQUIRE(std::is_pod<sfz::mat4f>::value);
+#endif
 	REQUIRE(std::is_literal_type<sfz::mat4f>::value);
 }
 

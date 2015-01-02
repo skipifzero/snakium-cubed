@@ -2,6 +2,8 @@
 #ifndef SFZ_MATH_MATRIX_HPP
 #define SFZ_MATH_MATRIX_HPP
 
+#include "sfz/SFZCommonGlobal.hpp"
+
 #include <initializer_list>
 #include <string>
 #include <iostream> // std::ostream
@@ -100,7 +102,7 @@ struct Matrix final {
 	 * @param j the j:th column
 	 * @param value the value to assign
 	 */
-	void set(size_t i, size_t j, T value) const noexcept;
+	void set(size_t i, size_t j, T value) noexcept;
 
 	/**
 	 * @brief Assigns each element in the matrix with the specified value.

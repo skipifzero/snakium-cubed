@@ -11,7 +11,8 @@ if ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"
 	set(compiler_flags "-Wall -Wextra -Wno-c++11-extensions -std=c++11 -pthread -O3")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	# MSVC flags
-	set(compiler_flags "/Wall /EHsc /O2")
+	# set(compiler_flags "/Wall /EHsc /O2")
+	set(compiler_flags "/O2")
 else ()
 	# Unknown compiler, sets no flags and prints warning.
 	message("WARNING: Unknown compiler \"${CMAKE_CXX_COMPILER_ID}\", no specific flags set.")
@@ -40,6 +41,8 @@ include_directories(${CATCH_INCLUDE_DIRS})
 
 # Sources and headers needed to compile library
 add_library(SkipIfZeroCommon
+	${INCLUDE_DIR}/sfz/SFZCommonGlobal.hpp
+
 	${INCLUDE_DIR}/sfz/Math.hpp
 	${INCLUDE_DIR}/sfz/math/MathConstants.hpp
 	${INCLUDE_DIR}/sfz/math/Matrix.hpp

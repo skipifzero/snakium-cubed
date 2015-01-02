@@ -85,12 +85,13 @@ Matrix<T,4,4> translationMatrix(const Vector<T,3>& delta) noexcept
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 template<typename T>
-Matrix<T,4,4> glOrthogonalProjectionMatrix(T left, T bottom, T near,
-                                           T right, T top, T far) noexcept
+Matrix<T,4,4> glOrthogonalProjectionMatrix(T left, T bottom, T zNear,
+                                           T right, T top, T zFar) noexcept
 {
+	// Note: near is renamed to zNear to fix a bug when compiling on MSVC. I have no idea. =/
 	return Matrix<T,4,4>{{2/(right-left), 0, 0, -((right+left)/(right-left))},
 	                     {0, 2/(top-bottom), 0, -((top+bottom)/(top-bottom))},
-	                     {0, 0, -2/(far-near), -(far+near)/(far-near)},
+	                     {0, 0, -2/(zFar-zNear), -(zFar+zNear)/(zFar-zNear)},
 	                     {0, 0, 0, 1}};
 }
 

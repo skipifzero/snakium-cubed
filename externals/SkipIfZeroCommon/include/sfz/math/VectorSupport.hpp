@@ -2,6 +2,8 @@
 #ifndef SFZ_MATH_VECTOR_SUPPORT_HPP
 #define SFZ_MATH_VECTOR_SUPPORT_HPP
 
+#include "sfz/SFZCommonGlobal.hpp"
+
 #include <cmath>
 #include "sfz/math/Vector.hpp"
 

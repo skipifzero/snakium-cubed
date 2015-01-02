@@ -2,6 +2,8 @@
 #ifndef SFZ_MATH_MATHCONSTANTS_HPP
 #define SFZ_MATH_MATHCONSTANTS_HPP
 
+#include "sfz/SFZCommonGlobal.hpp"
+
 #include <cmath>
 
 namespace sfz {

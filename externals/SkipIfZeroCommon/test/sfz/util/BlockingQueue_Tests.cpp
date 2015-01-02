@@ -15,9 +15,11 @@ TEST_CASE("Pushing and popping elements", "[sfz::BlockingQueue]")
 		blockingQueue.push(10);
 		REQUIRE(!blockingQueue.empty());
 	}
+#ifndef _MSC_VER
 	SECTION("Empty queue returns empty unique_ptr (nullptr)") {
 		REQUIRE(blockingQueue.tryPop() == nullptr);
 	}
+#endif
 	SECTION("Pop blocks until element is available") {
 		std::thread thr{ [&blockingQueue]() {
 			REQUIRE(blockingQueue.empty());
