@@ -204,8 +204,8 @@ int axisCoord(const sfz::vec3f& vec) noexcept
 sfz::vec3f calculateUpVector(s3::Direction3D side, const sfz::vec3f& tileVecPos) noexcept
 {
 	sfz::vec3f upAxis = s3::toVector(upDir);
-	/*sfz::vec3f sideAxis = s3::toVector(s3::right(side, upDir));
-	int upAxisCoord = axisCoord(upAxis);
+	sfz::vec3f sideAxis = s3::toVector(s3::right(side, upDir));
+	/*int upAxisCoord = axisCoord(upAxis);
 	int sideAxisCoord = axisCoord(sideAxis);
 
 	sfz::vec3f midCamPos = s3::toVector(side);
