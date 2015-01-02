@@ -45,7 +45,7 @@ T Matrix<T,M,N>::at(size_t i, size_t j) const noexcept
 }
 
 template<typename T, size_t M, size_t N>
-void Matrix<T,M,N>::set(size_t i, size_t j, T value) const noexcept
+void Matrix<T,M,N>::set(size_t i, size_t j, T value) noexcept
 {
 	assert(i < M);
 	assert(j < N);

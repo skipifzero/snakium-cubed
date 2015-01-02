@@ -14,7 +14,7 @@ ScopedThread::~ScopedThread()
 	mThread.join();
 }
 
-std::thread::id ScopedThread::getID() const noexcept
+std::thread::id ScopedThread::getID() const
 {
 	return mThread.get_id();
 }

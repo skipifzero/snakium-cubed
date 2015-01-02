@@ -36,7 +36,13 @@ On Mac OS X you might also want to generate an Xcode project, you can do this us
 	cmake .. -GXcode
 
 ### Windows
-CMake will generate a Visual Studio solution by default, but will not currently build. The reason for this is that Visual Studio doesn't support noexcept yet, which is heavily used in this project.
+Windows (Visual Studio) support is currently very experimental. This is mostly due to the huge amount of noexcept used, which isn't supported by Visual Studio yet. Currently a macro is used to disable noexcept when compiling with MSVC. Unfortunately the way it is implemented is undefined behavior and might interfere with other stuff.
+
+	Create a directory called build in the root directory
+
+	Open cmd inside the build directory
+
+	cmake ..
 
 ## Linking
 

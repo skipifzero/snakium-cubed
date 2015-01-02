@@ -37,7 +37,7 @@ public:
 	 * Returns the id given by the internal std::thread.
 	 * @return id of this thread
 	 */
-	std::thread::id getID() const noexcept;
+	std::thread::id getID() const;
 
 	// No assignment.
 	ScopedThread& operator= (const ScopedThread&) = delete;

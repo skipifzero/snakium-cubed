@@ -4,6 +4,8 @@
 
 #include <chrono>
 
+#include "sfz/SFZCommonGlobal.hpp"
+
 namespace sfz {
 
 /**
