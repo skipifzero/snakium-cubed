@@ -193,6 +193,39 @@ sfz::mat4f tileSpaceRotation(s3::Direction3D side) noexcept
 	}
 }
 
+int axisCoord(const sfz::vec3f& vec) noexcept
+{
+	if (vec[0] != 0.0f) return 0;
+	if (vec[1] != 0.0f) return 1;
+	if (vec[2] != 0.0f) return 2;
+	return -1;
+}
+
+sfz::vec3f calculateUpVector(s3::Direction3D side, const sfz::vec3f& tileVecPos) noexcept
+{
+	sfz::vec3f upAxis = s3::toVector(upDir);
+	/*sfz::vec3f sideAxis = s3::toVector(s3::right(side, upDir));
+	int upAxisCoord = axisCoord(upAxis);
+	int sideAxisCoord = axisCoord(sideAxis);
+
+	sfz::vec3f midCamPos = s3::toVector(side);
+	sfz::vec3f upTileVecPos = tileVecPos;
+	upTileVecPos[sideAxisCoord] = 0.0f;
+	sfz::vec3f sideTileVecPos = tileVecPos;
+	sideTileVecPos[upAxisCoord] = 0.0f;
+
+	float upAngle = sfz::angle(midCamPos, upTileVecPos);
+	float sideAngle = sfz::angle(midCamPos, sideTileVecPos);
+
+	float upInterp = ((sfz::g_PI_FLOAT/2.0f) - upAngle) / (sfz::g_PI_FLOAT/2.0f);
+	float sideInterp = ((sfz::g_PI_FLOAT/2.0f) - sideAngle) / (sfz::g_PI_FLOAT/2.0f);*/
+
+	sfz::vec3f upVector = sfz::cross(tileVecPos, sideAxis);
+	//sfz::vec3f upVector = sfz::cross(tileVecPos, sfz::cross(upAxis, tileVecPos));
+	std::cout << "upVector: " << upVector << std::endl;
+	return upVector;
+}
+
 } // anonymous namespace
 
 // Game loop functions
@@ -246,7 +279,7 @@ bool update(float delta)
 	if (lastCubeSide != headPos.side) {
 		if (headPos.side == upDir) upDir = s3::opposite(lastCubeSide);
 		else if (headPos.side == opposite(upDir)) upDir = lastCubeSide;
-		camUp = toVector(upDir);
+		camUp = s3::toVector(upDir);
 		lastCubeSide = headPos.side;
 		std::cout << headPos.side << std::endl;
 		/*std::cout << "Side change: side == " << headPos.side << ", upDir == " << upDir
@@ -261,7 +294,7 @@ bool update(float delta)
 	sfz::vec3f tileVecPos = tilePosToVector(model, headPos) + currentDir*model.mProgress*tileWidth;
 	camPos = tileVecPos.normalize()*2.0f;
 
-	viewMatrix = sfz::lookAt(camPos, camTarget, camUp);
+	viewMatrix = sfz::lookAt(camPos, camTarget, calculateUpVector(headPos.side, tileVecPos));
 
 	return false;
 }
