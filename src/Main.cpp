@@ -370,7 +370,7 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 // Main
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-int main()
+int main(int argc, char* argv[])
 {
 	// Init libraries and stuff
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
