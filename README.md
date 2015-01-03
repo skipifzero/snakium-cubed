@@ -13,6 +13,14 @@ The much anticipated sequel to snakium, the summer hit of 2013. snakium³ (or sn
 
 ### Mac OS X
 
+#### Dependencies
+
+If homebrew is installed the dependencies can be installed with the following commands:
+
+	brew install sdl2
+
+	brew install sdl2_image
+
 #### Make
 
 Open a terminal in the snakium-cubed root directory.
