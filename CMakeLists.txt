@@ -38,8 +38,9 @@ add_subdirectory(${EXTERNALS_DIR}/SkipIfZeroCommon)
 find_package(SDL2 REQUIRED) # ${SDL2_INCLUDE_DIR}, ${SDL2_LIBRARY}
 find_package(SDL2_image REQUIRED) # ${SDL2_IMAGE_INCLUDE_DIR}, ${SDL2_IMAGE_LIBRARY}
 
-# Finds GLEW
-find_package(GLEW REQUIRED) # ${GLEW_INCLUDE_DIRS}, ${GLEW_LIBRARIES}
+# GLEW
+# find_package(GLEW REQUIRED) # ${GLEW_INCLUDE_DIRS}, ${GLEW_LIBRARIES}
+add_subdirectory(${EXTERNALS_DIR}/glew)
 
 # Links OpenGL
 find_package(OpenGL REQUIRED) # ${OPENGL_INCLUDE_DIR}, ${OPENGL_LIBRARIES}
