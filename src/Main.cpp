@@ -1,6 +1,7 @@
 #include <iostream>
 #include <exception> // std::terminate()
 #include <string>
+#include <chrono>
 
 #include "sfz/GL.hpp"
 #include "sfz/Math.hpp"
