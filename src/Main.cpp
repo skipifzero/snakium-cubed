@@ -10,6 +10,8 @@
 #include "Assets.hpp"
 #include "GameLogic.hpp"
 
+#undef main // Remove SDL hack until we can get it to compile properly
+
 // Variables
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 s3::Config getConfig(void) noexcept
