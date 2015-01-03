@@ -42,6 +42,7 @@ find_package(SDL2_image REQUIRED) # ${SDL2_IMAGE_INCLUDE_DIR}, ${SDL2_IMAGE_LIBR
 
 # GLEW
 # find_package(GLEW REQUIRED) # ${GLEW_INCLUDE_DIRS}, ${GLEW_LIBRARIES}
+add_definitions(-DGLEW_STATIC)
 add_subdirectory(${EXTERNALS_DIR}/glew)
 
 # Links OpenGL
