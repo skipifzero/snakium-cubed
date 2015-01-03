@@ -318,10 +318,10 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	// Enable culling
-	glEnable(GL_CULL_FACE);
-	//glDisable(GL_CULL_FACE);
-	//glDisable(GL_DEPTH_TEST);
+	// Disable culling
+	//glEnable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
 
 	// TODO: Hack. Assumes screen is HI-DPI and multiplies width and height with 2 to compensate.
 	glViewport(0, 0, window.width()*2, window.height()*2);
@@ -378,6 +378,9 @@ int main(int argc, char* argv[])
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	sdl::Session sdlSession{{sdl::InitFlags::EVERYTHING}, {sdl::ImgInitFlags::PNG}};
+
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
 
 	sdl::Window window{"snakium³", 500, 500,
 	     {sdl::WindowFlags::OPENGL, sdl::WindowFlags::RESIZABLE, sdl::WindowFlags::ALLOW_HIGHDPI}};
