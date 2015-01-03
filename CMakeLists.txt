@@ -6,10 +6,12 @@ if ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"
   OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
   OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
 	# GCC and Clang flags
-	set(compiler_flags "-Wall -Wextra -Wno-c++11-extensions -std=c++11 -O3")
+	set(cpp_compiler_flags "-Wall -Wextra -Wno-c++11-extensions -std=c++11 -O3")
+	set(c_compiler_flags "-Wall -Wextra -std=c11 -O3")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	# MSVC flags
-	set(compiler_flags "/Wall /EHsc /O2")
+	#set(cpp_compiler_flags "/Wall /EHsc /O2")
+	set(cpp_compiler_flags "/O2")
 else ()
 	# Unknown compiler, sets no flags and prints warning.
 	message("WARNING: Unknown compiler \"${CMAKE_CXX_COMPILER_ID}\", no specific flags set.")
@@ -17,9 +19,9 @@ endif ()
 
 # Sets the specified compiler flags, will only set the first time cmake configures project.
 if (NOT S3_CONFIGURED_ONCE)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${compiler_flags}" 
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${cpp_compiler_flags}" 
 	    CACHE STRING "Flags used by the compiler during all build types." FORCE)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${compiler_flags}"
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${c_compiler_flags}"
 	    CACHE STRING "Flags used by the compiler during all build types." FORCE)
 endif ()
 
