@@ -5,10 +5,11 @@
 
 #include "sfz/GL.hpp"
 #include "sfz/Math.hpp"
+#include "Assets.hpp"
+#include "Camera.hpp"
+#include "GameLogic.hpp"
 #include "SnakiumCubedShaders.hpp"
 #include "TileObject.hpp"
-#include "Assets.hpp"
-#include "GameLogic.hpp"
 
 #undef main // Remove SDL hack until we can get it to compile properly
 
@@ -26,12 +27,9 @@ s3::Model model{getConfig()};
 
 GLuint shaderProgram;
 
-sfz::vec3f camPos{0, 0, 2};
-sfz::vec3f camTarget{0, 0, 0};
 s3::Direction3D upDir = s3::Direction3D::UP;
 s3::Direction3D lastCubeSide = model.getTilePosition(model.mHeadPtr).side;
-sfz::vec3f camUp = toVector(upDir);
-sfz::mat4f viewMatrix = sfz::lookAt(camPos, camTarget, camUp);
+s3::Camera cam;
 sfz::mat4f projMatrix;
 
 bool isPaused = false;
@@ -196,39 +194,6 @@ sfz::mat4f tileSpaceRotation(s3::Direction3D side) noexcept
 	}
 }
 
-int axisCoord(const sfz::vec3f& vec) noexcept
-{
-	if (vec[0] != 0.0f) return 0;
-	if (vec[1] != 0.0f) return 1;
-	if (vec[2] != 0.0f) return 2;
-	return -1;
-}
-
-sfz::vec3f calculateUpVector(s3::Direction3D side, const sfz::vec3f& tileVecPos) noexcept
-{
-	sfz::vec3f upAxis = s3::toVector(upDir);
-	sfz::vec3f sideAxis = s3::toVector(s3::right(side, upDir));
-	/*int upAxisCoord = axisCoord(upAxis);
-	int sideAxisCoord = axisCoord(sideAxis);
-
-	sfz::vec3f midCamPos = s3::toVector(side);
-	sfz::vec3f upTileVecPos = tileVecPos;
-	upTileVecPos[sideAxisCoord] = 0.0f;
-	sfz::vec3f sideTileVecPos = tileVecPos;
-	sideTileVecPos[upAxisCoord] = 0.0f;
-
-	float upAngle = sfz::angle(midCamPos, upTileVecPos);
-	float sideAngle = sfz::angle(midCamPos, sideTileVecPos);
-
-	float upInterp = ((sfz::g_PI_FLOAT/2.0f) - upAngle) / (sfz::g_PI_FLOAT/2.0f);
-	float sideInterp = ((sfz::g_PI_FLOAT/2.0f) - sideAngle) / (sfz::g_PI_FLOAT/2.0f);*/
-
-	sfz::vec3f upVector = sfz::cross(tileVecPos, sideAxis);
-	//sfz::vec3f upVector = sfz::cross(tileVecPos, sfz::cross(upAxis, tileVecPos));
-	std::cout << "upVector: " << upVector << std::endl;
-	return upVector;
-}
-
 } // anonymous namespace
 
 // Game loop functions
@@ -278,26 +243,23 @@ bool update(float delta)
 	if (model.mGameOver) std::cout << "GAME OVER, Final score: " << model.mScore << std::endl;
 
 	auto headPos = model.getTilePosition(model.mHeadPtr);
+	auto preHeadPos = model.adjacent(headPos, model.mHeadPtr->from());
 
 	if (lastCubeSide != headPos.side) {
 		if (headPos.side == upDir) upDir = s3::opposite(lastCubeSide);
 		else if (headPos.side == opposite(upDir)) upDir = lastCubeSide;
-		camUp = s3::toVector(upDir);
 		lastCubeSide = headPos.side;
 		std::cout << headPos.side << std::endl;
-		/*std::cout << "Side change: side == " << headPos.side << ", upDir == " << upDir
-		          << ", camUp == " << camUp << "\n\tcurrent dir (2D): " << model.mHeadPtr->to()
-		          << ", real dir (3D): " << s3::mapDefaultUp(headPos.side, model.mHeadPtr->to())
-		          << std::endl;*/
 	}
 
-	const float tileWidth = 1.0f / static_cast<float>(model.mCfg.gridWidth);
-	const sfz::vec3f currentDir = toVector(mapDefaultUp(headPos.side, model.mHeadPtr->to()));
-	
-	sfz::vec3f tileVecPos = tilePosToVector(model, headPos) + currentDir*model.mProgress*tileWidth;
-	camPos = tileVecPos.normalize()*2.0f;
+	static const float tileWidth = 1.0f / static_cast<float>(model.mCfg.gridWidth);
 
-	viewMatrix = sfz::lookAt(camPos, camTarget, calculateUpVector(headPos.side, tileVecPos));
+	s3::Direction3D preHeadTo = mapDefaultUp(preHeadPos.side, model.getTilePtr(preHeadPos)->to());
+	sfz::vec3f currentDir = s3::toVector(preHeadTo);
+	//const sfz::vec3f currentDir = toVector(mapDefaultUp(headPos.side, model.mHeadPtr->to()));
+	sfz::vec3f tileVecPos = tilePosToVector(model, headPos) + currentDir*model.mProgress*tileWidth;
+
+	cam.update(upDir, tileVecPos);
 
 	return false;
 }
@@ -305,8 +267,6 @@ bool update(float delta)
 // Called once every frame
 void render(sdl::Window& window, const s3::Assets& assets, float)
 {
-	glActiveTexture(GL_TEXTURE0);
-
 	static s3::TileObject tile{false, false};
 	static s3::TileObject xFlippedTile{true, false};
 
@@ -333,7 +293,7 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 
 	glUseProgram(shaderProgram);
 
-	const sfz::mat4f viewProj = projMatrix * viewMatrix;
+	const sfz::mat4f viewProj = projMatrix * cam.mViewMatrix;
 
 	// Only one texture is used when rendering SnakeTiles
 	gl::setUniform(shaderProgram, "tex", 0);

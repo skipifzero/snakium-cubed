@@ -47,6 +47,8 @@ struct Model final {
 
 	void update(float delta) noexcept;
 
+	Position adjacent(Position pos, Direction2D to) noexcept;
+
 	inline SnakeTile* getTilePtr(const Position& pos) const noexcept;
 	inline Position getTilePosition(SnakeTile* tilePtr) const noexcept;
 };

@@ -63,6 +63,8 @@ add_executable(
 	snakium-cubed
 	
 	 ${SOURCE_DIR}/Main.cpp
+	${INCLUDE_DIR}/Camera.hpp
+	 ${SOURCE_DIR}/Camera.cpp
 	${INCLUDE_DIR}/SnakiumCubedShaders.hpp
 	 ${SOURCE_DIR}/SnakiumCubedShaders.cpp
 	${INCLUDE_DIR}/TileObject.hpp

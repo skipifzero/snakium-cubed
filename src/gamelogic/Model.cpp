@@ -10,60 +10,6 @@ Direction2D convertSideDirection(Direction3D from, Direction3D to, Direction2D f
 	return unMapDefaultUp(to, opposite(from));
 }
 
-Position adjacent(Position pos, Direction2D to, const int gridWidth) noexcept
-{
-	Position newPos = pos;
-
-	switch (to) {
-	case Direction2D::UP:
-		newPos.e2 += 1;
-		if (newPos.e2 < gridWidth) return newPos;
-		break;
-	case Direction2D::DOWN:
-		newPos.e2 -= 1;
-		if (newPos.e2 >= 0) return newPos;
-		break;
-	case Direction2D::LEFT:
-		newPos.e1 -= 1;
-		if (newPos.e1 >= 0) return newPos;
-		break;
-	case Direction2D::RIGHT:
-		newPos.e1 += 1;
-		if (newPos.e1 < gridWidth) return newPos;
-		break;
-	}
-
-	Direction3D toSide = mapDefaultUp(pos.side, to);
-	Direction3D newDir = opposite(pos.side);
-	Coordinate fromDirCoord = coordinate(pos.side, to);
-	Coordinate toDirCoord = coordinate(toSide, newDir);
-
-	// Set side
-	newPos.side = toSide;
-
-	// Fix the primary coordinate
-	if (direction(toSide, toDirCoord) == newDir) newPos.setCoordinate(toDirCoord, 0);
-	else newPos.setCoordinate(toDirCoord, gridWidth-1);
-
-	// Fix the secondary coordinate
-	if (fromDirCoord == toDirCoord) {
-		Coordinate otherCoord = other(toDirCoord);
-		if (coordinateSign(pos.side, otherCoord) != coordinateSign(toSide, otherCoord)) {
-			newPos.setCoordinate(otherCoord, (gridWidth-1)-pos.coordinate(otherCoord));
-		}
-	} else {
-		Coordinate otherFromCoord = toDirCoord;
-		Coordinate otherToCoord = fromDirCoord;
-		if (coordinateSign(pos.side, otherFromCoord) != coordinateSign(toSide, otherToCoord)) {
-			newPos.setCoordinate(otherToCoord, (gridWidth-1)-pos.coordinate(otherFromCoord));
-		} else {
-			newPos.setCoordinate(otherToCoord, pos.coordinate(otherFromCoord));
-		}
-	}
-
-	return newPos;
-}
-
 std::mt19937_64 createRNGGenerator(void) noexcept
 {
 	static std::random_device rnd_dev;
@@ -175,7 +121,7 @@ void Model::update(float delta) noexcept
 
 	// Calculate the next head position
 	Position headPos = getTilePosition(mHeadPtr);
-	Position nextPos = adjacent(headPos, mHeadPtr->to(), mCfg.gridWidth);
+	Position nextPos = adjacent(headPos, mHeadPtr->to());
 
 	
 	SnakeTile* nextPtr = getTilePtr(nextPos);
@@ -219,7 +165,7 @@ void Model::update(float delta) noexcept
 	if (mTailPtr->type() == TileType::TAIL_DIGESTING) {
 		mTailPtr->setType(TileType::TAIL);
 	} else {
-		Position tailNext = adjacent(getTilePosition(mTailPtr), mTailPtr->to(), mCfg.gridWidth);
+		Position tailNext = adjacent(getTilePosition(mTailPtr), mTailPtr->to());
 		mTailPtr->setType(TileType::EMPTY);
 		mTailPtr = getTilePtr(tailNext);
 		if (mTailPtr->type() == TileType::BODY || mTailPtr->type() == TileType::PRE_HEAD) {
@@ -228,6 +174,61 @@ void Model::update(float delta) noexcept
 			mTailPtr->setType(TileType::TAIL_DIGESTING);
 		}	
 	}
+}
+
+Position Model::adjacent(Position pos, Direction2D to) noexcept
+{
+	Position newPos = pos;
+	const int gridWidth = mCfg.gridWidth;
+
+	switch (to) {
+	case Direction2D::UP:
+		newPos.e2 += 1;
+		if (newPos.e2 < gridWidth) return newPos;
+		break;
+	case Direction2D::DOWN:
+		newPos.e2 -= 1;
+		if (newPos.e2 >= 0) return newPos;
+		break;
+	case Direction2D::LEFT:
+		newPos.e1 -= 1;
+		if (newPos.e1 >= 0) return newPos;
+		break;
+	case Direction2D::RIGHT:
+		newPos.e1 += 1;
+		if (newPos.e1 < gridWidth) return newPos;
+		break;
+	}
+
+	Direction3D toSide = mapDefaultUp(pos.side, to);
+	Direction3D newDir = opposite(pos.side);
+	Coordinate fromDirCoord = coordinate(pos.side, to);
+	Coordinate toDirCoord = coordinate(toSide, newDir);
+
+	// Set side
+	newPos.side = toSide;
+
+	// Fix the primary coordinate
+	if (direction(toSide, toDirCoord) == newDir) newPos.setCoordinate(toDirCoord, 0);
+	else newPos.setCoordinate(toDirCoord, gridWidth-1);
+
+	// Fix the secondary coordinate
+	if (fromDirCoord == toDirCoord) {
+		Coordinate otherCoord = other(toDirCoord);
+		if (coordinateSign(pos.side, otherCoord) != coordinateSign(toSide, otherCoord)) {
+			newPos.setCoordinate(otherCoord, (gridWidth-1)-pos.coordinate(otherCoord));
+		}
+	} else {
+		Coordinate otherFromCoord = toDirCoord;
+		Coordinate otherToCoord = fromDirCoord;
+		if (coordinateSign(pos.side, otherFromCoord) != coordinateSign(toSide, otherToCoord)) {
+			newPos.setCoordinate(otherToCoord, (gridWidth-1)-pos.coordinate(otherFromCoord));
+		} else {
+			newPos.setCoordinate(otherToCoord, pos.coordinate(otherFromCoord));
+		}
+	}
+
+	return newPos;
 }
 
 } // namespace s3
