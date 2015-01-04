@@ -257,7 +257,7 @@ bool update(float delta)
 	s3::Direction3D preHeadTo = mapDefaultUp(preHeadPos.side, model.getTilePtr(preHeadPos)->to());
 	sfz::vec3f currentDir = s3::toVector(preHeadTo);
 	//const sfz::vec3f currentDir = toVector(mapDefaultUp(headPos.side, model.mHeadPtr->to()));
-	sfz::vec3f tileVecPos = tilePosToVector(model, headPos) + currentDir*model.mProgress*tileWidth;
+	sfz::vec3f tileVecPos = tilePosToVector(model, preHeadPos) + currentDir*model.mProgress*tileWidth;
 
 	cam.update(upDir, tileVecPos);
 
