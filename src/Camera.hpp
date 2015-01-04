@@ -7,12 +7,17 @@
 
 namespace s3 {
 
-struct Camera {
+class Camera {
+public:
+	sfz::mat4f mViewMatrix;
+	Direction3D mUpDir = s3::Direction3D::UP;
+
+	void update(const Model& model) noexcept;
+
+private:
+	Direction3D lastCubeSide = s3::Direction3D::SOUTH;
 	sfz::vec3f mPos, mUp;
 	float mFov;
-	sfz::mat4f mViewMatrix;
-	
-	void update(Direction3D upDir, const sfz::vec3f& tilePos) noexcept;
 };
 
 } // namespace s3

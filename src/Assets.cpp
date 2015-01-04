@@ -50,7 +50,70 @@ Assets::Assets() noexcept
 	FILLED{snakeTexturePath + "filled_64.png"},
 	TILE_FACE{snakeTexturePath + "tile_face_64.png"}
 {
+	// Do nothing.
+}
 
+GLuint Assets::getTileTexture(SnakeTile *tilePtr, float progress) const noexcept
+{
+		bool isTurn = s3::isTurn(tilePtr->from(), tilePtr->to());
+
+	switch (tilePtr->type()) {
+	case s3::TileType::EMPTY: return TILE_FACE.mHandle;
+	case s3::TileType::OBJECT: return OBJECT.mHandle;
+	case s3::TileType::BONUS_OBJECT: return BONUS_OBJECT.mHandle;
+
+	case s3::TileType::HEAD:
+		if (progress <= 0.5f) { // Frame 1
+			return HEAD_D2U_F1.mHandle;
+		} else { // Frame 2
+			return HEAD_D2U_F2.mHandle;
+		}
+	case s3::TileType::PRE_HEAD:
+		if (progress <= 0.5f) { // Frame 1
+			if (!isTurn) return PRE_HEAD_D2U_F1.mHandle;
+			else return PRE_HEAD_D2R_F1.mHandle;
+		} else { // Frame 2
+			if (!isTurn) return BODY_D2U.mHandle;
+			else return BODY_D2R.mHandle;
+		}
+	case s3::TileType::BODY:
+		if (!isTurn) return BODY_D2U.mHandle;
+		else return BODY_D2R.mHandle;
+	case s3::TileType::TAIL:
+		if (progress <= 0.5f) { // Frame 1
+			if (!isTurn) return TAIL_D2U_F1.mHandle;
+			else return TAIL_D2R_F1.mHandle;
+		} else { // Frame 2
+			if (!isTurn) return TAIL_D2U_F2.mHandle;
+			else return TAIL_D2R_F2.mHandle;
+		}
+
+	case s3::TileType::HEAD_DIGESTING:
+		if (progress <= 0.5f) { // Frame 1
+			return HEAD_D2U_F1.mHandle;
+		} else { // Frame 2
+			return HEAD_D2U_F2.mHandle;
+		}
+	case s3::TileType::PRE_HEAD_DIGESTING:
+		if (progress <= 0.5f) { // Frame 1
+			if (!isTurn) return PRE_HEAD_D2U_DIG_F1.mHandle;
+			else return PRE_HEAD_D2R_DIG_F1.mHandle;
+		} else { // Frame 2
+			if (!isTurn) return BODY_D2U_DIG.mHandle;
+			else return BODY_D2R_DIG.mHandle;
+		}
+	case s3::TileType::BODY_DIGESTING:
+		if (!isTurn) return BODY_D2U_DIG.mHandle;
+		else return BODY_D2R_DIG.mHandle;
+	case s3::TileType::TAIL_DIGESTING:
+		if (progress <= 0.5f) { // Frame 1
+			if (!isTurn) return TAIL_D2U_DIG_F1.mHandle;
+			else return TAIL_D2R_DIG_F1.mHandle;
+		} else { // Frame 2
+			if (!isTurn) return TAIL_D2U_DIG_F2.mHandle;
+			else return TAIL_D2R_DIG_F2.mHandle;
+		}
+	}
 }
 
 } // namespace s3

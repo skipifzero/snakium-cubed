@@ -5,6 +5,7 @@
 #include "sfz/SDL.hpp"
 #include "sfz/GL.hpp"
 #include <string>
+#include "GameLogic.hpp"
 
 namespace s3 {
 
@@ -53,6 +54,8 @@ struct Assets final {
 	~Assets() noexcept = default;
 	Assets(const Assets&) = delete;
 	Assets& operator= (const Assets&) = delete;
+
+	GLuint getTileTexture(SnakeTile* tilePtr, float progress) const noexcept;
 };
 
 } // namespace s3

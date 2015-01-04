@@ -23,12 +23,8 @@ s3::Config getConfig(void) noexcept
 	return cfg;
 }
 
-s3::Model model{getConfig()};
-
 GLuint shaderProgram;
-
-s3::Direction3D upDir = s3::Direction3D::UP;
-s3::Direction3D lastCubeSide = model.getTilePosition(model.mHeadPtr).side;
+s3::Model model{getConfig()};
 s3::Camera cam;
 sfz::mat4f projMatrix;
 
@@ -51,9 +47,7 @@ float calculateDelta() noexcept
 
 void checkGLErrorsMessage(const std::string& msg) noexcept
 {
-	if (gl::checkAllGLErrors()) {
-		std::cerr << msg << std::endl;
-	}
+	if (gl::checkAllGLErrors()) std::cerr << msg << std::endl;
 }
 
 /*sfz::vec3f transformPoint(const sfz::mat4f& transformation, const sfz::vec3f& point) noexcept
@@ -107,69 +101,6 @@ float getTileAngleRad(s3::Direction3D side, s3::Direction2D from) noexcept
 	return angle * sfz::g_DEG_TO_RAD_FLOAT;
 }
 
-GLuint getTileTexture(const s3::Assets& assets, s3::SnakeTile* tilePtr, float progress) noexcept
-{
-	bool isTurn = s3::isTurn(tilePtr->from(), tilePtr->to());
-
-	switch (tilePtr->type()) {
-	case s3::TileType::EMPTY: return assets.TILE_FACE.mHandle;
-	case s3::TileType::OBJECT: return assets.OBJECT.mHandle;
-	case s3::TileType::BONUS_OBJECT: return assets.BONUS_OBJECT.mHandle;
-
-	case s3::TileType::HEAD:
-		if (progress <= 0.5f) { // Frame 1
-			return assets.HEAD_D2U_F1.mHandle;
-		} else { // Frame 2
-			return assets.HEAD_D2U_F2.mHandle;
-		}
-	case s3::TileType::PRE_HEAD:
-		if (progress <= 0.5f) { // Frame 1
-			if (!isTurn) return assets.PRE_HEAD_D2U_F1.mHandle;
-			else return assets.PRE_HEAD_D2R_F1.mHandle;
-		} else { // Frame 2
-			if (!isTurn) return assets.BODY_D2U.mHandle;
-			else return assets.BODY_D2R.mHandle;
-		}
-	case s3::TileType::BODY:
-		if (!isTurn) return assets.BODY_D2U.mHandle;
-		else return assets.BODY_D2R.mHandle;
-	case s3::TileType::TAIL:
-		if (progress <= 0.5f) { // Frame 1
-			if (!isTurn) return assets.TAIL_D2U_F1.mHandle;
-			else return assets.TAIL_D2R_F1.mHandle;
-		} else { // Frame 2
-			if (!isTurn) return assets.TAIL_D2U_F2.mHandle;
-			else return assets.TAIL_D2R_F2.mHandle;
-		}
-
-	case s3::TileType::HEAD_DIGESTING:
-		if (progress <= 0.5f) { // Frame 1
-			return assets.HEAD_D2U_F1.mHandle;
-		} else { // Frame 2
-			return assets.HEAD_D2U_F2.mHandle;
-		}
-	case s3::TileType::PRE_HEAD_DIGESTING:
-		if (progress <= 0.5f) { // Frame 1
-			if (!isTurn) return assets.PRE_HEAD_D2U_DIG_F1.mHandle;
-			else return assets.PRE_HEAD_D2R_DIG_F1.mHandle;
-		} else { // Frame 2
-			if (!isTurn) return assets.BODY_D2U_DIG.mHandle;
-			else return assets.BODY_D2R_DIG.mHandle;
-		}
-	case s3::TileType::BODY_DIGESTING:
-		if (!isTurn) return assets.BODY_D2U_DIG.mHandle;
-		else return assets.BODY_D2R_DIG.mHandle;
-	case s3::TileType::TAIL_DIGESTING:
-		if (progress <= 0.5f) { // Frame 1
-			if (!isTurn) return assets.TAIL_D2U_DIG_F1.mHandle;
-			else return assets.TAIL_D2R_DIG_F1.mHandle;
-		} else { // Frame 2
-			if (!isTurn) return assets.TAIL_D2U_DIG_F2.mHandle;
-			else return assets.TAIL_D2R_DIG_F2.mHandle;
-		}
-	}
-}
-
 sfz::vec3f tilePosToVector(const s3::Model& model, const s3::Position& tilePos) noexcept
 {
 	// +0.5f to get the midpoint of the tile
@@ -218,16 +149,16 @@ bool handleInput(const SDL_Event& event)
 			isPaused = !isPaused;
 			break;
 		case SDLK_UP:
-			model.changeDirection(upDir, s3::Direction2D::UP);
+			model.changeDirection(cam.mUpDir, s3::Direction2D::UP);
 			break;
 		case SDLK_DOWN:
-			model.changeDirection(upDir, s3::Direction2D::DOWN);
+			model.changeDirection(cam.mUpDir, s3::Direction2D::DOWN);
 			break;
 		case SDLK_LEFT:
-			model.changeDirection(upDir, s3::Direction2D::LEFT);
+			model.changeDirection(cam.mUpDir, s3::Direction2D::LEFT);
 			break;
 		case SDLK_RIGHT:
-			model.changeDirection(upDir, s3::Direction2D::RIGHT);
+			model.changeDirection(cam.mUpDir, s3::Direction2D::RIGHT);
 			break;
 		}
 	}
@@ -242,24 +173,7 @@ bool update(float delta)
 	model.update(delta);
 	if (model.mGameOver) std::cout << "GAME OVER, Final score: " << model.mScore << std::endl;
 
-	auto headPos = model.getTilePosition(model.mHeadPtr);
-	auto preHeadPos = model.adjacent(headPos, model.mHeadPtr->from());
-
-	if (lastCubeSide != headPos.side) {
-		if (headPos.side == upDir) upDir = s3::opposite(lastCubeSide);
-		else if (headPos.side == opposite(upDir)) upDir = lastCubeSide;
-		lastCubeSide = headPos.side;
-		std::cout << headPos.side << std::endl;
-	}
-
-	static const float tileWidth = 1.0f / static_cast<float>(model.mCfg.gridWidth);
-
-	s3::Direction3D preHeadTo = mapDefaultUp(preHeadPos.side, model.getTilePtr(preHeadPos)->to());
-	sfz::vec3f currentDir = s3::toVector(preHeadTo);
-	//const sfz::vec3f currentDir = toVector(mapDefaultUp(headPos.side, model.mHeadPtr->to()));
-	sfz::vec3f tileVecPos = tilePosToVector(model, preHeadPos) + currentDir*model.mProgress*tileWidth;
-
-	cam.update(upDir, tileVecPos);
+	cam.update(model);
 
 	return false;
 }
@@ -343,7 +257,7 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 		gl::setUniform(shaderProgram, "modelViewProj", transform);
 
 		// Render snake sprite
-		glBindTexture(GL_TEXTURE_2D, getTileTexture(assets, tilePtr, model.mProgress));
+		glBindTexture(GL_TEXTURE_2D, assets.getTileTexture(tilePtr, model.mProgress));
 		if (isLeftTurn(tilePtr->from(), tilePtr->to())) xFlippedTile.render();
 		else tile.render();
 
@@ -358,7 +272,7 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 		gl::setUniform(shaderProgram, "modelViewProj", transform);
 
 		// Render inside snake sprite
-		glBindTexture(GL_TEXTURE_2D, getTileTexture(assets, tilePtr, model.mProgress));
+		glBindTexture(GL_TEXTURE_2D, assets.getTileTexture(tilePtr, model.mProgress));
 		if (isLeftTurn(tilePtr->from(), tilePtr->to())) xFlippedTile.render();
 		else tile.render();
 	}
