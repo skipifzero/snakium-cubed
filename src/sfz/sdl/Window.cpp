@@ -61,6 +61,20 @@ int Window::height() const noexcept
 	return height;
 }
 
+int Window::drawableWidth() const noexcept
+{
+	int width, height;
+	SDL_GL_GetDrawableSize(mPtr, &width, &height);
+	return width;
+}
+
+int Window::drawableHeight() const noexcept
+{
+	int width, height;
+	SDL_GL_GetDrawableSize(mPtr, &width, &height);
+	return height;
+}
+
 SDL_Surface* Window::surfacePtr() const noexcept
 {
 	return SDL_GetWindowSurface(mPtr);

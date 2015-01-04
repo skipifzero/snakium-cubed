@@ -288,8 +288,7 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 	//glDisable(GL_CULL_FACE);
 	//glDisable(GL_DEPTH_TEST);
 
-	// TODO: Hack. Assumes screen is HI-DPI and multiplies width and height with 2 to compensate.
-	glViewport(0, 0, window.width(), window.height());
+	glViewport(0, 0, window.drawableWidth(), window.drawableHeight());
 
 	glUseProgram(shaderProgram);
 

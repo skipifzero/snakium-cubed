@@ -67,6 +67,10 @@ public:
 
 	int height() const noexcept;
 
+	int drawableWidth() const noexcept;
+
+	int drawableHeight() const noexcept;
+
 	SDL_Surface* surfacePtr() const noexcept;
 
 	// Setters
