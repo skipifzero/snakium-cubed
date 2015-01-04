@@ -140,7 +140,7 @@ bool handleInput(const SDL_Event& event)
 		case SDL_WINDOWEVENT_RESIZED:
 			float w = static_cast<float>(event.window.data1);
 			float h = static_cast<float>(event.window.data2);
-			projMatrix = sfz::glPerspectiveProjectionMatrix(60.0f, w/h, 0.1f, 50.0f);
+			projMatrix = sfz::glPerspectiveProjectionMatrix(cam.mFov, w/h, 0.1f, 50.0f);
 		}
 	case SDL_KEYDOWN:
 		switch (event.key.keysym.sym) {
@@ -314,7 +314,7 @@ int main(int argc, char* argv[])
 
 	shaderProgram = s3::compileStandardShaderProgram();
 
-	projMatrix = sfz::glPerspectiveProjectionMatrix(60.0f, window.width()/window.height(),
+	projMatrix = sfz::glPerspectiveProjectionMatrix(cam.mFov, window.width()/window.height(),
 	                                                0.1f, 50.0f);
 
 	s3::Assets assets;

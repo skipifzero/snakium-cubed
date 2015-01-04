@@ -56,32 +56,32 @@ sfz::vec3f tilePosToVector(const s3::Model& model, const s3::Position& tilePos) 
 
 void Camera::update(const Model& model) noexcept
 {
-	auto headPos = model.getTilePosition(model.mHeadPtr);
-	auto preHeadPos = model.getTilePosition(model.mPreHeadPtr);
+	Position headPos = model.getTilePosition(model.mHeadPtr);
+	Position preHeadPos = model.getTilePosition(model.mPreHeadPtr);
 
+	// Update up direction and lastCubeSide
 	if (lastCubeSide != headPos.side) {
 		if (headPos.side == mUpDir) mUpDir = s3::opposite(lastCubeSide);
 		else if (headPos.side == opposite(mUpDir)) mUpDir = lastCubeSide;
 		lastCubeSide = headPos.side;
-		std::cout << headPos.side << std::endl;
 	}
 
-
-
-	static const float tileWidth = 1.0f / static_cast<float>(model.mCfg.gridWidth);
-
-	// BAD ASSUMPTION! It will move up half a tile above cube when changing side
-	s3::Direction3D preHeadTo = mapDefaultUp(preHeadPos.side, model.getTilePtr(preHeadPos)->to());
-	sfz::vec3f tilePartialDiff = s3::toVector(preHeadTo) * model.mProgress * tileWidth;
-	sfz::vec3f tileVecPos = tilePosToVector(model, preHeadPos) + tilePartialDiff;
-	std::cout << tileVecPos << std::endl;
-
-	mPos = tileVecPos.normalize()*2.0f;
-	mUp = s3::toVector(mUpDir);
-
-
+	// Calculate the current position on the cube
+	const float tileWidth = 1.0f / static_cast<float>(model.mCfg.gridWidth);
+	sfz::vec3f tileVecPos;
+	if (model.mProgress <= 0.5f) {
+		Direction3D preHeadTo = mapDefaultUp(preHeadPos.side, model.mPreHeadPtr->to());
+		sfz::vec3f diff = toVector(preHeadTo) * model.mProgress * tileWidth;
+		tileVecPos = tilePosToVector(model, preHeadPos) + diff;
+	} else {
+		Direction3D headFrom = mapDefaultUp(headPos.side, model.mHeadPtr->from());
+		sfz::vec3f diff = toVector(headFrom) * (1.0f - model.mProgress) * tileWidth;
+		tileVecPos = tilePosToVector(model, headPos) + diff;
+	}
 
 	
+	mPos = tileVecPos.normalize()*2.0f;
+	mUp = s3::toVector(mUpDir);
 	mViewMatrix = sfz::lookAt(mPos, ZERO, mUp);
 }
 
