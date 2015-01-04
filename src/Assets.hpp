@@ -47,7 +47,7 @@ struct Assets final {
 				OBJECT,
 				BONUS_OBJECT,
 				FILLED,
-				TILE_BORDER;
+				TILE_FACE;
 
 	Assets() noexcept;
 	~Assets() noexcept = default;

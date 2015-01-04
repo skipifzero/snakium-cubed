@@ -114,7 +114,7 @@ GLuint getTileTexture(const s3::Assets& assets, s3::SnakeTile* tilePtr, float pr
 	bool isTurn = s3::isTurn(tilePtr->from(), tilePtr->to());
 
 	switch (tilePtr->type()) {
-	case s3::TileType::EMPTY: return assets.TILE_BORDER.mHandle;
+	case s3::TileType::EMPTY: return assets.TILE_FACE.mHandle;
 	case s3::TileType::OBJECT: return assets.OBJECT.mHandle;
 	case s3::TileType::BONUS_OBJECT: return assets.BONUS_OBJECT.mHandle;
 
@@ -310,6 +310,11 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 	static s3::TileObject tile{false, false};
 	static s3::TileObject xFlippedTile{true, false};
 
+	//glClearDepth(1.0f);
+	//glDepthFunc(GL_LESS);
+	glEnable(GL_DEPTH_TEST);
+	
+
 	// Clearing screen
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -318,13 +323,13 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	// Disable culling
-	//glEnable(GL_CULL_FACE);
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
+	// Enable culling
+	glEnable(GL_CULL_FACE);
+	//glDisable(GL_CULL_FACE);
+	//glDisable(GL_DEPTH_TEST);
 
 	// TODO: Hack. Assumes screen is HI-DPI and multiplies width and height with 2 to compensate.
-	glViewport(0, 0, window.width()*2, window.height()*2);
+	glViewport(0, 0, window.width(), window.height());
 
 	glUseProgram(shaderProgram);
 
@@ -341,6 +346,7 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 	s3::SnakeTile* tilePtr;
 	s3::Position tilePos;
 
+	// Render the empty tiles
 	for (std::size_t i = 0; i < model.mTileCount; i++) {
 		tilePtr = model.mTiles + i;
 		tilePos = model.getTilePosition(tilePtr);
@@ -356,10 +362,43 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 		gl::setUniform(shaderProgram, "modelViewProj", transform);
 
 		// Render tile border
-		glBindTexture(GL_TEXTURE_2D, assets.TILE_BORDER.mHandle);
+		glBindTexture(GL_TEXTURE_2D, assets.TILE_FACE.mHandle);
 		tile.render();
+	}
+
+	// Render the snake tiles
+	for (std::size_t i = 0; i < model.mTileCount; i++) {
+		tilePtr = model.mTiles + i;
+		tilePos = model.getTilePosition(tilePtr);
+
+		if(tilePtr->type() == s3::TileType::EMPTY) continue;
+
+		// Transform
+		transform =
+			viewProj *
+			sfz::translationMatrix(tilePosToVector(model, tilePos) + s3::toVector(tilePos.side)*0.001f) *
+			tileSpaceRotation(tilePos.side) *
+			sfz::scalingMatrix(tileWidth) *
+			sfz::yRotationMatrix(getTileAngleRad(tilePos.side, tilePtr->from()));
+
+		gl::setUniform(shaderProgram, "modelViewProj", transform);
 
 		// Render snake sprite
+		glBindTexture(GL_TEXTURE_2D, getTileTexture(assets, tilePtr, model.mProgress));
+		if (isLeftTurn(tilePtr->from(), tilePtr->to())) xFlippedTile.render();
+		else tile.render();
+
+		// Transform to inside
+		transform =
+			viewProj *
+			sfz::translationMatrix(tilePosToVector(model, tilePos) + s3::toVector(s3::opposite(tilePos.side))*0.001f) *
+			tileSpaceRotation(s3::opposite(tilePos.side)) *
+			sfz::scalingMatrix(tileWidth) *
+			sfz::yRotationMatrix(getTileAngleRad(tilePos.side, tilePtr->from()));
+
+		gl::setUniform(shaderProgram, "modelViewProj", transform);
+
+		// Render inside snake sprite
 		glBindTexture(GL_TEXTURE_2D, getTileTexture(assets, tilePtr, model.mProgress));
 		if (isLeftTurn(tilePtr->from(), tilePtr->to())) xFlippedTile.render();
 		else tile.render();
