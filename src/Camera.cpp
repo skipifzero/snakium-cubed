@@ -35,36 +35,58 @@ sfz::vec3f tilePosToVector(const s3::Model& model, const s3::Position& tilePos) 
 
 sfz::mat4f upRotationMatrix(Direction3D side, Direction3D upDir) noexcept
 {
-		/*switch (upDir) {
-		case Direction3D::NORTH:
-		case Direction3D::SOUTH:
-		case Direction3D::WEST:
-		case Direction3D::EAST:
-		case Direction3D::UP:
-		case Direction3D::DOWN:
-		}*/
+	static const float angle = sfz::g_PI_FLOAT/2.0f;
 	switch (side) {
 	case Direction3D::NORTH:
-		break;
+		switch (upDir) {
+		case Direction3D::WEST: return sfz::yRotationMatrix(angle);
+		case Direction3D::EAST: return sfz::yRotationMatrix(-angle);
+		case Direction3D::UP: return sfz::xRotationMatrix(angle);
+		case Direction3D::DOWN: return sfz::xRotationMatrix(-angle);
+		default: std::terminate();
+		}
 	case Direction3D::SOUTH:
 		switch (upDir) {
-		case Direction3D::NORTH:
-		case Direction3D::SOUTH:
-		case Direction3D::WEST:
-		case Direction3D::EAST:
-			break;
-		case Direction3D::UP: return sfz::xRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
-		case Direction3D::DOWN:
-			break;
+		case Direction3D::WEST: return sfz::yRotationMatrix(-angle);
+		case Direction3D::EAST: return sfz::yRotationMatrix(angle);
+		case Direction3D::UP: return sfz::xRotationMatrix(-angle);
+		case Direction3D::DOWN: return sfz::xRotationMatrix(angle);
+		default: std::terminate();
 		}
 	case Direction3D::WEST:
+		switch (upDir) {
+		case Direction3D::NORTH: return sfz::yRotationMatrix(-angle);
+		case Direction3D::SOUTH: return sfz::yRotationMatrix(angle);
+		case Direction3D::UP: return sfz::zRotationMatrix(-angle);
+		case Direction3D::DOWN: return sfz::zRotationMatrix(angle);
+		default: std::terminate();
+		}
 	case Direction3D::EAST:
-	case Direction3D::UP:
-	case Direction3D::DOWN:
+		switch (upDir) {
+		case Direction3D::NORTH: return sfz::yRotationMatrix(angle);
+		case Direction3D::SOUTH: return sfz::yRotationMatrix(-angle);
+		case Direction3D::UP: return sfz::zRotationMatrix(angle);
+		case Direction3D::DOWN: return sfz::zRotationMatrix(-angle);
+		default: std::terminate();
+		}
 		break;
+	case Direction3D::UP:
+		switch (upDir) {
+		case Direction3D::NORTH: return sfz::xRotationMatrix(-angle);
+		case Direction3D::SOUTH: return sfz::xRotationMatrix(angle);
+		case Direction3D::WEST: return sfz::zRotationMatrix(angle);
+		case Direction3D::EAST: return sfz::zRotationMatrix(-angle);
+		default: std::terminate();
+		}
+	case Direction3D::DOWN:
+		switch (upDir) {
+		case Direction3D::NORTH: return sfz::xRotationMatrix(angle);
+		case Direction3D::SOUTH: return sfz::xRotationMatrix(-angle);
+		case Direction3D::WEST: return sfz::zRotationMatrix(-angle);
+		case Direction3D::EAST: return sfz::zRotationMatrix(angle);
+		default: std::terminate();
+		}
 	}
-	std::cerr << "Not implemented\nSide: " << side << ", upDir: " << upDir << "\n";
-	std::terminate();
 }
 
 } // anonymous namespace
@@ -75,11 +97,13 @@ void Camera::update(const Model& model) noexcept
 	Position preHeadPos = model.getTilePosition(model.mPreHeadPtr);
 
 	// Update up direction and lastCubeSide
-	if (lastCubeSide != headPos.side) {
-		if (headPos.side == mUpDir) mUpDir = s3::opposite(lastCubeSide);
-		else if (headPos.side == opposite(mUpDir)) mUpDir = lastCubeSide;
-		lastCubeSide = headPos.side;
+	if (mLastCubeSide != headPos.side) {
+		if (headPos.side == mUpDir) mUpDir = s3::opposite(mLastCubeSide);
+		else if (headPos.side == opposite(mUpDir)) mUpDir = mLastCubeSide;
+		mLastCubeSide = headPos.side;
+		std::cout << headPos.side << ", upDir: " << mUpDir << "\n";
 	}
+	if (mUpDir != mLastUpDir && headPos.side == preHeadPos.side) mLastUpDir = mUpDir;
 
 	// Calculate the current position on the cube
 	const float tileWidth = 1.0f / static_cast<float>(model.mCfg.gridWidth);
@@ -98,13 +122,13 @@ void Camera::update(const Model& model) noexcept
 
 
 	sfz::vec3f upAxis = s3::toVector(mUpDir);
-	sfz::vec3f sideAxis = s3::toVector(s3::right(headPos.side, mUpDir));
+	sfz::vec3f sideAxis = s3::toVector(s3::right(preHeadPos.side, mLastUpDir));
 	int upAxisCoord = axisCoord(upAxis);
 	int sideAxisCoord = axisCoord(sideAxis);
 
 	sfz::vec3f upTargetVec = tileVecPos;
 	upTargetVec[sideAxisCoord] *= -1.0f;
-	upTargetVec = transformPoint(upRotationMatrix(preHeadPos.side, mUpDir), upTargetVec);
+	upTargetVec = transformPoint(upRotationMatrix(preHeadPos.side, mLastUpDir), upTargetVec);
 
 	mUp = upTargetVec - tileVecPos;
 

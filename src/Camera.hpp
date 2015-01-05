@@ -10,13 +10,14 @@ namespace s3 {
 class Camera {
 public:
 	sfz::mat4f mViewMatrix;
-	Direction3D mUpDir = s3::Direction3D::UP;
+	Direction3D mUpDir = Direction3D::UP;
 	float mFov = 60.0f;
 
 	void update(const Model& model) noexcept;
 
 private:
-	Direction3D lastCubeSide = s3::Direction3D::SOUTH;
+	Direction3D mLastCubeSide = Direction3D::SOUTH;
+	Direction3D mLastUpDir = Direction3D::UP;
 	sfz::vec3f mPos, mUp;
 };
 
