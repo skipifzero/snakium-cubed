@@ -176,7 +176,7 @@ void Model::update(float delta) noexcept
 	}
 }
 
-Position Model::adjacent(Position pos, Direction2D to) noexcept
+Position Model::adjacent(Position pos, Direction2D to) const noexcept
 {
 	Position newPos = pos;
 	const int gridWidth = mCfg.gridWidth;
