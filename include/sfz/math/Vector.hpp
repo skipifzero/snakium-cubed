@@ -2,8 +2,6 @@
 #ifndef SFZ_MATH_VECTOR_HPP
 #define SFZ_MATH_VECTOR_HPP
 
-#include "sfz/SFZCommonGlobal.hpp"
-
 #include <initializer_list>
 #include <cassert>
 #include <functional> // std::hash

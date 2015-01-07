@@ -2,8 +2,6 @@
 #ifndef SFZ_UTIL_BLOCKING_QUEUE_HPP
 #define SFZ_UTIL_BLOCKING_QUEUE_HPP
 
-#include "sfz/SFZCommonGlobal.hpp"
-
 #include <queue>
 #include <mutex>
 #include <condition_variable>
