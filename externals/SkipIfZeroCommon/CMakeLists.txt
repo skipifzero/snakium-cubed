@@ -41,8 +41,6 @@ include_directories(${CATCH_INCLUDE_DIRS})
 
 # Sources and headers needed to compile library
 add_library(SkipIfZeroCommon
-	${INCLUDE_DIR}/sfz/SFZCommonGlobal.hpp
-
 	${INCLUDE_DIR}/sfz/Math.hpp
 	${INCLUDE_DIR}/sfz/math/MathConstants.hpp
 	${INCLUDE_DIR}/sfz/math/Matrix.hpp

@@ -2,8 +2,6 @@
 #ifndef SFZ_MATH_MATRIX_SUPPORT_HPP
 #define SFZ_MATH_MATRIX_SUPPORT_HPP
 
-#include "sfz/SFZCommonGlobal.hpp"
-
 #include <cmath>
 #include "sfz/math/Matrix.hpp"
 
@@ -26,6 +24,9 @@ Matrix<T,4,4> yRotationMatrix(T angleRads) noexcept;
 
 template<typename T>
 Matrix<T,4,4> zRotationMatrix(T angleRads) noexcept;
+
+template<typename T>
+Matrix<T,4,4> rotationMatrix(const sfz::Vector<T,3>& axis, T angleRads) noexcept;
 
 // Transformation matrices
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

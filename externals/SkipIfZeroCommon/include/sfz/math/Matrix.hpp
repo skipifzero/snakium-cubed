@@ -2,8 +2,6 @@
 #ifndef SFZ_MATH_MATRIX_HPP
 #define SFZ_MATH_MATRIX_HPP
 
-#include "sfz/SFZCommonGlobal.hpp"
-
 #include <initializer_list>
 #include <string>
 #include <iostream> // std::ostream
@@ -158,6 +156,9 @@ struct Matrix final {
 
 // Non-member operators (arithmetic)
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+template<typename T, size_t N>
+Matrix<T,N,N>& operator*= (Matrix<T,N,N>& lhs, const Matrix<T,N,N>& rhs) noexcept;
 
 template<typename T, size_t M, size_t N>
 Matrix<T,M,N> operator* (const T& lhs, const Matrix<T,M,N>& rhs) noexcept;

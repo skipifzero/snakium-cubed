@@ -36,6 +36,25 @@ Matrix<T,4,4> zRotationMatrix(T angleRads) noexcept
 	                     {0, 0, 0, 1}};
 }
 
+template<typename T>
+Matrix<T,4,4> rotationMatrix(const sfz::Vector<T,3>& axis, T angleRads) noexcept
+{
+	using std::cos;
+	using std::sin;
+	sfz::Vector<T,3> r = axis.normalize();
+	T x = r[0];
+	T y = r[1];
+	T z = r[2];
+	T c = cos(angleRads);
+	T s = sin(angleRads);
+	T cm1 = static_cast<T>(1) - c;
+	// Matrix by Goldman, page 71 of Real-Time Rendering.
+	return Matrix<T,4,4>{{c + cm1*x*x, cm1*x*y - z*s, cm1*x*z + y*s, 0},
+	                     {cm1*x*y + z*s, c + cm1*y*y, cm1*y*z - x*s, 0},
+	                     {cm1*x*z - y*s, cm1*y*z + x*s, c + cm1*z*z, 0},
+	                     {0, 0, 0, 1}};
+}
+
 // Transformation matrices
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
