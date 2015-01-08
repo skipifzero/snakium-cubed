@@ -161,14 +161,22 @@ void Camera::update(const Model& model) noexcept
 	sfz::vec3f targetSideRightAxis = toVector(targetSideRight);
 
 
-
-	float diff = (std::abs(rightSideProgress)-0.5f) * (std::abs(upSideProgress)-0.5f);
+	float upProgAbs = std::abs(upSideProgress);
+	float rightProgAbs = std::abs(rightSideProgress);
+	float diff;
+	if (rightProgAbs <= 0.5f) {
+		diff = rightProgAbs + 2.0f*(0.5f-rightProgAbs)*upProgAbs;
+	} else {
+		diff = rightProgAbs - 2.0f*(rightProgAbs-0.5f)*upProgAbs;
+	}
 	//sfz::vec3f upTargetPos = toVector(posOnCubeSideUpDir);
-	sfz::vec3f upTargetPos = toVector(posOnCubeSideUpDir)
-	                       + (std::abs(upSideProgress) - 0.5f) * targetSideUpAxis
-						   + diff * targetSideRightAxis;
+	sfz::vec3f upTargetPos = toVector(posOnCubeSideUpDir) * 0.5f
+	                       + (upProgAbs - 0.5f) * targetSideUpAxis
+						   + (diff - 0.5f) * targetSideRightAxis;
 						   //+ (std::abs(rightSideProgress) - 0.5f) * targetSideRightAxis;
-
+	std::cout << "\nside: " << posOnCubeSide << ", up: " << posOnCubeSideUpDir << ", upProg: " << upSideProgress << ", rightProg: " << rightSideProgress
+	          << "\ntargetUp:  " << targetSideUpAxis << ", targetRight: " << targetSideRightAxis
+	          << "\nposOnCube: " << posOnCube << ", upTargetPos: " << upTargetPos << std::endl;
 
 	mUp = upTargetPos - posOnCube;
 	mViewMatrix = sfz::lookAt(mPos, ZERO, mUp);
