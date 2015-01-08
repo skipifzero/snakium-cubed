@@ -21,6 +21,18 @@ int axisCoord(const sfz::vec3f& vec) noexcept
 	return -1;
 }
 
+int axisCoord(Direction3D dir) noexcept
+{
+	switch (dir) {
+	case Direction3D::NORTH: return 2;
+	case Direction3D::SOUTH: return 2;
+	case Direction3D::WEST: return 0;
+	case Direction3D::EAST: return 0;
+	case Direction3D::UP: return 1;
+	case Direction3D::DOWN: return 1;
+	}
+}
+
 sfz::vec3f tilePosToVector(const s3::Model& model, const s3::Position& tilePos) noexcept
 {
 	// +0.5f to get the midpoint of the tile
@@ -98,40 +110,67 @@ void Camera::update(const Model& model) noexcept
 
 	// Update up direction and lastCubeSide
 	if (mLastCubeSide != headPos.side) {
-		if (headPos.side == mUpDir) mUpDir = s3::opposite(mLastCubeSide);
+		if (headPos.side == mUpDir) mUpDir = opposite(mLastCubeSide);
 		else if (headPos.side == opposite(mUpDir)) mUpDir = mLastCubeSide;
 		mLastCubeSide = headPos.side;
 		std::cout << headPos.side << ", upDir: " << mUpDir << "\n";
 	}
-	if (mUpDir != mLastUpDir && headPos.side == preHeadPos.side) mLastUpDir = mUpDir;
+	if (mUpDir != mLastUpDir && model.mProgress > 0.5f) mLastUpDir = mUpDir;
+
 
 	// Calculate the current position on the cube
 	const float tileWidth = 1.0f / static_cast<float>(model.mCfg.gridWidth);
-	sfz::vec3f tileVecPos;
+	sfz::vec3f posOnCube;
 	if (model.mProgress <= 0.5f) {
 		Direction3D preHeadTo = mapDefaultUp(preHeadPos.side, model.mPreHeadPtr->to());
 		sfz::vec3f diff = toVector(preHeadTo) * model.mProgress * tileWidth;
-		tileVecPos = tilePosToVector(model, preHeadPos) + diff;
+		posOnCube = tilePosToVector(model, preHeadPos) + diff;
 	} else {
 		Direction3D headFrom = mapDefaultUp(headPos.side, model.mHeadPtr->from());
 		sfz::vec3f diff = toVector(headFrom) * (1.0f - model.mProgress) * tileWidth;
-		tileVecPos = tilePosToVector(model, headPos) + diff;
+		posOnCube = tilePosToVector(model, headPos) + diff;
 	}
 
-	mPos = tileVecPos.normalize()*2.0f;
+	// Calculates and set camera position
+	mPos = posOnCube.normalize()*2.0f;
 
 
-	sfz::vec3f upAxis = s3::toVector(mUpDir);
-	sfz::vec3f sideAxis = s3::toVector(s3::right(preHeadPos.side, mLastUpDir));
-	int upAxisCoord = axisCoord(upAxis);
-	int sideAxisCoord = axisCoord(sideAxis);
+	Direction3D posOnCubeSide = preHeadPos.side;
+	Direction3D posOnCubeSideUpDir = mLastUpDir;
+	if (std::abs(posOnCube[axisCoord(posOnCubeSide)]) != 0.5f) {
+		posOnCubeSide = headPos.side;
+		posOnCubeSideUpDir = mUpDir;
+	}
+	//std::cout << "progress: " << model.mProgress << ", headSide:" << headPos.side << ", preSide: " << preHeadPos.side << ", posOnCubeSide: " << posOnCubeSide << std::endl;
 
-	sfz::vec3f upTargetVec = tileVecPos;
-	upTargetVec[sideAxisCoord] *= -1.0f;
-	upTargetVec = transformPoint(upRotationMatrix(preHeadPos.side, mLastUpDir), upTargetVec);
 
-	mUp = upTargetVec - tileVecPos;
+	// So, given posOnCube, posOnCubeSide and posOnCubeSideUpDir, what can we accomplish?
 
+	sfz::vec3f upAxis = toVector(posOnCubeSideUpDir);
+	sfz::vec3f rightAxis = toVector(right(posOnCubeSide, posOnCubeSideUpDir));
+	int upAxisCoord = axisCoord(posOnCubeSideUpDir);
+	int rightAxisCoord = axisCoord(right(posOnCubeSide, posOnCubeSideUpDir));
+	float upSideProgress = posOnCube[upAxisCoord] + 0.5f*upAxis.sum();
+	float rightSideProgress = posOnCube[rightAxisCoord] + 0.5f*rightAxis.sum();
+
+	//std::cout << "upProg: " << upSideProgress << ", rightProg: " << rightSideProgress << std::endl;
+
+	Direction3D targetSideUp = opposite(posOnCubeSide);
+	Direction3D targetSideRight = right(posOnCubeSideUpDir, targetSideUp);
+	sfz::vec3f targetSideUpAxis = toVector(targetSideUp);
+	sfz::vec3f targetSideRightAxis = toVector(targetSideRight);
+
+
+
+	float diff = (std::abs(rightSideProgress)-0.5f) * (std::abs(upSideProgress)-0.5f);
+	//sfz::vec3f upTargetPos = toVector(posOnCubeSideUpDir);
+	sfz::vec3f upTargetPos = toVector(posOnCubeSideUpDir)
+	                       + (std::abs(upSideProgress) - 0.5f) * targetSideUpAxis
+						   + diff * targetSideRightAxis;
+						   //+ (std::abs(rightSideProgress) - 0.5f) * targetSideRightAxis;
+
+
+	mUp = upTargetPos - posOnCube;
 	mViewMatrix = sfz::lookAt(mPos, ZERO, mUp);
 }
 

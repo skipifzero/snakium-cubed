@@ -87,7 +87,8 @@ inline Direction3D opposite(Direction3D direction) noexcept
 inline Direction3D up(Direction3D side, Direction3D sideRelativeUp) noexcept
 {
 	if (side == sideRelativeUp || side == opposite(sideRelativeUp)) {
-		std::cerr << "Invalid side relative up direction." << std::endl;
+		std::cerr << "Invalid side relative up direction, side == " << side
+		          << ", sideRelativeUp == " << sideRelativeUp << std::endl;
 		std::terminate();
 	}
 	return sideRelativeUp;
@@ -96,7 +97,8 @@ inline Direction3D up(Direction3D side, Direction3D sideRelativeUp) noexcept
 inline Direction3D down(Direction3D side, Direction3D sideRelativeUp) noexcept
 {
 	if (side == sideRelativeUp || side == opposite(sideRelativeUp)) {
-		std::cerr << "Invalid side relative up direction." << std::endl;
+		std::cerr << "Invalid side relative up direction, side == " << side
+		          << ", sideRelativeUp == " << sideRelativeUp << std::endl;
 		std::terminate();
 	}
 	return opposite(sideRelativeUp);
@@ -105,7 +107,8 @@ inline Direction3D down(Direction3D side, Direction3D sideRelativeUp) noexcept
 inline Direction3D left(Direction3D side, Direction3D sideRelativeUp) noexcept
 {
 	if (side == sideRelativeUp || side == opposite(sideRelativeUp)) {
-		std::cerr << "Invalid side relative up direction." << std::endl;
+		std::cerr << "Invalid side relative up direction, side == " << side
+		          << ", sideRelativeUp == " << sideRelativeUp << std::endl;
 		std::terminate();
 	}
 	switch (side) {
@@ -197,7 +200,8 @@ inline Direction3D mapDefaultUp(Direction3D side, Direction2D dir) noexcept
 inline Direction2D unMap(Direction3D side, Direction3D sideRelativeUp, Direction3D dir) noexcept
 {
 	if (side == sideRelativeUp || side == opposite(sideRelativeUp)) {
-		std::cerr << "Invalid side relative up direction." << std::endl;
+		std::cerr << "Invalid side relative up direction, side == " << side
+		          << ", sideRelativeUp == " << sideRelativeUp << std::endl;
 		std::terminate();
 	}
 	

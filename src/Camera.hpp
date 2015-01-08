@@ -4,6 +4,9 @@
 
 #include "sfz/Math.hpp"
 #include "GameLogic.hpp"
+#include <exception> // std::terminate
+#include <cmath>
+
 
 namespace s3 {
 

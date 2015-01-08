@@ -19,7 +19,7 @@ s3::Config getConfig(void) noexcept
 {
 	s3::Config cfg;
 	cfg.gridWidth = 3;
-	cfg.tilesPerSecond = 2.0f;
+	cfg.tilesPerSecond = 0.75f;
 	return cfg;
 }
 
