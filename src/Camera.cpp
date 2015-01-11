@@ -33,16 +33,25 @@ int axisCoord(Direction3D dir) noexcept
 	}
 }
 
-sfz::vec3f tilePosToVector(const s3::Model& model, const s3::Position& tilePos) noexcept
+sfz::vec3f tilePosToVector(const Model& model, const Position& tilePos) noexcept
 {
 	// +0.5f to get the midpoint of the tile
 	const float e1f = static_cast<float>(tilePos.e1) + 0.5f;
 	const float e2f = static_cast<float>(tilePos.e2) + 0.5f; 
 	const float tileWidth = 1.0f / static_cast<float>(model.mCfg.gridWidth);
 
-	return (e1f * tileWidth - 0.5f) * s3::directionVector(tilePos.side, s3::Coordinate::e1) +
-	       (e2f * tileWidth - 0.5f) * s3::directionVector(tilePos.side, s3::Coordinate::e2) +
-	       s3::toVector(tilePos.side) * 0.5f;
+	return (e1f * tileWidth - 0.5f) * directionVector(tilePos.side, Coordinate::e1) +
+	       (e2f * tileWidth - 0.5f) * directionVector(tilePos.side, Coordinate::e2) +
+	       toVector(tilePos.side) * 0.5f;
+}
+
+sfz::vec3f interpolatedUpVector(Direction3D side, Direction3D up, float upProgress) noexcept
+{
+	sfz::vec3f upAxis = toVector(up);
+	Direction3D closeUp = upProgress <= 0.5f ? side : opposite(side);
+	sfz::vec3f closeUpAxis = toVector(closeUp);
+	float interp = std::abs(0.5f-upProgress) / 0.5f;
+	return (1.0f-interp)*upAxis + interp*closeUpAxis;
 }
 
 } // anonymous namespace
@@ -90,7 +99,30 @@ void Camera::update(const Model& model) noexcept
 
 	// So, given posOnCube, posOnCubeSide and posOnCubeSideUpDir, what can we accomplish?
 
-	sfz::mat4f rot = sfz::rotationMatrix(toVector(posOnCubeSideUpDir), sfz::g_PI_FLOAT/2.0f);
+	sfz::vec3f upAxis = toVector(posOnCubeSideUpDir);
+	sfz::vec3f rightAxis = toVector(right(posOnCubeSide, posOnCubeSideUpDir));
+	int upAxisCoord = axisCoord(posOnCubeSideUpDir);
+	int rightAxisCoord = axisCoord(right(posOnCubeSide, posOnCubeSideUpDir));
+
+	float upProg = std::abs(posOnCube[upAxisCoord] + 0.5f*upAxis.sum());
+	float rightProg = std::abs(posOnCube[rightAxisCoord] + 0.5f*rightAxis.sum());
+
+	Direction3D closeSide = rightProg <= 0.5f ? left(posOnCubeSide, posOnCubeSideUpDir)
+	                                          : right(posOnCubeSide, posOnCubeSideUpDir);
+
+	sfz::vec3f thisSideInterpUp = interpolatedUpVector(posOnCubeSide, posOnCubeSideUpDir, upProg);
+	sfz::vec3f closeSideInterpUp = interpolatedUpVector(closeSide, posOnCubeSideUpDir, upProg);
+	float rightInterp = std::abs(rightProg-0.5f) / 0.5f;
+
+	mUp = (1.0f-rightInterp)*thisSideInterpUp + rightInterp*closeSideInterpUp;
+
+	std::cout  << "side: " << posOnCubeSide << ", up: " << posOnCubeSideUpDir
+               << "\nposOnCube: " << posOnCube << ", upProg: " << upProg << ", rightProg: " << rightProg
+               << "\nmUp: " << mUp << "\n\n";
+
+
+
+	/*sfz::mat4f rot = sfz::rotationMatrix(toVector(posOnCubeSideUpDir), sfz::g_PI_FLOAT/2.0f);
 
 	int upAxisCoord = axisCoord(posOnCubeSideUpDir);
 	int rightAxisCoord = axisCoord(right(posOnCubeSide, posOnCubeSideUpDir));
@@ -103,10 +135,13 @@ void Camera::update(const Model& model) noexcept
 
 	mUp = sfz::cross(posOnCube, rightSidePos);
 
+	Direction3D snakeDir = map(posOnCubeSide, posOnCubeSideUpDir, model.mHeadPtr->to());
 	std::cout << "\nside: " << posOnCubeSide << ", up: " << posOnCubeSideUpDir
 	          << "\nposOnCube: " << posOnCube << ", temp: " << temp << ", upFactor: " << upFactor
-			  << "\nrightSidePos: " << rightSidePos << ", mUp: " << mUp << std::endl;
+			  << "\nrightSidePos: " << rightSidePos << ", mUp: " << mUp
+			  << "\nsnakeDir: " << snakeDir << ", snakeDirVec: " << toVector(snakeDir) << std::endl;
 
+	*/
 
 	/*sfz::vec3f upAxis = toVector(posOnCubeSideUpDir);
 	sfz::vec3f rightAxis = toVector(right(posOnCubeSide, posOnCubeSideUpDir));
