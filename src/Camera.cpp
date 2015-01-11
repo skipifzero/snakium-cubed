@@ -45,18 +45,32 @@ sfz::vec3f tilePosToVector(const Model& model, const Position& tilePos) noexcept
 	       toVector(tilePos.side) * 0.5f;
 }
 
-sfz::vec3f interpolatedUpVector(Direction3D side, Direction3D up, float upProgress) noexcept
+bool approxEqual(float lhs, float rhs) noexcept
 {
-	sfz::vec3f upAxis = toVector(up);
-	Direction3D closeUp = upProgress <= 0.5f ? side : opposite(side);
-	sfz::vec3f closeUpAxis = toVector(closeUp);
-	float interp = std::abs(0.5f-upProgress) / 0.5f;
-	return (1.0f-interp)*upAxis + interp*closeUpAxis;
+	float eps = 0.001f;
+	return lhs <= rhs + eps && lhs >= rhs - eps;
+}
+
+bool approxEqual(const sfz::vec3f& lhs, const sfz::vec3f& rhs) noexcept
+{
+	if (!approxEqual(lhs[0], rhs[0])) return false;
+	if (!approxEqual(lhs[1], rhs[1])) return false;
+	if (!approxEqual(lhs[2], rhs[2])) return false;
+	return true;
 }
 
 } // anonymous namespace
 
-void Camera::update(const Model& model) noexcept
+Camera::Camera() noexcept
+:
+	mPos{0,0,0},
+	mUp{0,1,0},
+	mUpTarget{0,1,0}
+{
+
+}
+
+void Camera::update(const Model& model, float delta) noexcept
 {
 	Position headPos = model.getTilePosition(model.mHeadPtr);
 	Position preHeadPos = model.getTilePosition(model.mPreHeadPtr);
@@ -87,95 +101,24 @@ void Camera::update(const Model& model) noexcept
 	// Calculates and set camera position
 	mPos = posOnCube.normalize()*2.0f;
 
-
 	Direction3D posOnCubeSide = preHeadPos.side;
 	Direction3D posOnCubeSideUpDir = mLastUpDir;
 	if (std::abs(posOnCube[axisCoord(posOnCubeSide)]) != 0.5f) {
 		posOnCubeSide = headPos.side;
 		posOnCubeSideUpDir = mUpDir;
 	}
-	//std::cout << "progress: " << model.mProgress << ", headSide:" << headPos.side << ", preSide: " << preHeadPos.side << ", posOnCubeSide: " << posOnCubeSide << std::endl;
 
-
-	// So, given posOnCube, posOnCubeSide and posOnCubeSideUpDir, what can we accomplish?
-
-	sfz::vec3f upAxis = toVector(posOnCubeSideUpDir);
-	sfz::vec3f rightAxis = toVector(right(posOnCubeSide, posOnCubeSideUpDir));
-	int upAxisCoord = axisCoord(posOnCubeSideUpDir);
-	int rightAxisCoord = axisCoord(right(posOnCubeSide, posOnCubeSideUpDir));
-
-	float upProg = std::abs(posOnCube[upAxisCoord] + 0.5f*upAxis.sum());
-	float rightProg = std::abs(posOnCube[rightAxisCoord] + 0.5f*rightAxis.sum());
-
-	Direction3D closeSide = rightProg <= 0.5f ? left(posOnCubeSide, posOnCubeSideUpDir)
-	                                          : right(posOnCubeSide, posOnCubeSideUpDir);
-
-	sfz::vec3f thisSideInterpUp = interpolatedUpVector(posOnCubeSide, posOnCubeSideUpDir, upProg);
-	sfz::vec3f closeSideInterpUp = interpolatedUpVector(closeSide, posOnCubeSideUpDir, upProg);
-	float rightInterp = std::abs(rightProg-0.5f) / 0.5f;
-
-	mUp = (1.0f-rightInterp)*thisSideInterpUp + rightInterp*closeSideInterpUp;
-
-	std::cout  << "side: " << posOnCubeSide << ", up: " << posOnCubeSideUpDir
-               << "\nposOnCube: " << posOnCube << ", upProg: " << upProg << ", rightProg: " << rightProg
-               << "\nmUp: " << mUp << "\n\n";
-
-
-
-	/*sfz::mat4f rot = sfz::rotationMatrix(toVector(posOnCubeSideUpDir), sfz::g_PI_FLOAT/2.0f);
-
-	int upAxisCoord = axisCoord(posOnCubeSideUpDir);
-	int rightAxisCoord = axisCoord(right(posOnCubeSide, posOnCubeSideUpDir));
-
-	sfz::vec3f temp = posOnCube;
-	float upFactor = std::abs(posOnCube[rightAxisCoord])/0.5f;
-	temp[upAxisCoord] *= upFactor;
-
-	sfz::vec3f rightSidePos = transformPoint(rot, temp);
-
-	mUp = sfz::cross(posOnCube, rightSidePos);
-
-	Direction3D snakeDir = map(posOnCubeSide, posOnCubeSideUpDir, model.mHeadPtr->to());
-	std::cout << "\nside: " << posOnCubeSide << ", up: " << posOnCubeSideUpDir
-	          << "\nposOnCube: " << posOnCube << ", temp: " << temp << ", upFactor: " << upFactor
-			  << "\nrightSidePos: " << rightSidePos << ", mUp: " << mUp
-			  << "\nsnakeDir: " << snakeDir << ", snakeDirVec: " << toVector(snakeDir) << std::endl;
-
-	*/
-
-	/*sfz::vec3f upAxis = toVector(posOnCubeSideUpDir);
-	sfz::vec3f rightAxis = toVector(right(posOnCubeSide, posOnCubeSideUpDir));
-	int upAxisCoord = axisCoord(posOnCubeSideUpDir);
-	int rightAxisCoord = axisCoord(right(posOnCubeSide, posOnCubeSideUpDir));
-	float upSideProgress = posOnCube[upAxisCoord] + 0.5f*upAxis.sum();
-	float rightSideProgress = posOnCube[rightAxisCoord] + 0.5f*rightAxis.sum();
-
-	//std::cout << "upProg: " << upSideProgress << ", rightProg: " << rightSideProgress << std::endl;
-
-	Direction3D targetSideUp = opposite(posOnCubeSide);
-	Direction3D targetSideRight = right(posOnCubeSideUpDir, targetSideUp);
-	sfz::vec3f targetSideUpAxis = toVector(targetSideUp);
-	sfz::vec3f targetSideRightAxis = toVector(targetSideRight);
-
-
-	float upProgAbs = std::abs(upSideProgress);
-	float rightProgAbs = std::abs(rightSideProgress);
-	float diff;
-	if (rightProgAbs <= 0.5f) {
-		diff = rightProgAbs + 2.0f*(0.5f-rightProgAbs)*upProgAbs;
-	} else {
-		diff = rightProgAbs - 2.0f*(rightProgAbs-0.5f)*upProgAbs;
+	mUpTarget = toVector(posOnCubeSideUpDir);
+	if (!approxEqual(mUp, mUpTarget)) {
+		float maxAnglePerSec = (model.mCfg.tilesPerSecond*tileWidth*4.0f) * sfz::g_PI_FLOAT/2.0f;
+		float angleDiff = sfz::angle(mUp, mUpTarget);
+		sfz::vec3f rotAxis = sfz::cross(mUp, mUpTarget);
+		float angleToMove = maxAnglePerSec*delta;
+		if ((angleDiff-angleToMove) < 0) angleToMove = angleDiff;
+		sfz::mat4f rotMat = sfz::rotationMatrix(rotAxis, angleToMove);
+		mUp = transformPoint(rotMat, mUp).normalize();
 	}
-	//sfz::vec3f upTargetPos = toVector(posOnCubeSideUpDir);
-	sfz::vec3f upTargetPos = toVector(posOnCubeSideUpDir) * 0.5f
-	                       + (upProgAbs - 0.5f) * targetSideUpAxis
-						   + (diff - 0.5f) * targetSideRightAxis;
-						   //+ (std::abs(rightSideProgress) - 0.5f) * targetSideRightAxis;
-	std::cout << "\nside: " << posOnCubeSide << ", up: " << posOnCubeSideUpDir << ", upProg: " << upSideProgress << ", rightProg: " << rightSideProgress
-	          << "\ntargetUp:  " << targetSideUpAxis << ", targetRight: " << targetSideRightAxis
-	          << "\nposOnCube: " << posOnCube << ", upTargetPos: " << upTargetPos << std::endl;
 
-	mUp = upTargetPos - posOnCube;*/
 	mViewMatrix = sfz::lookAt(mPos, ZERO, mUp);
 }
 

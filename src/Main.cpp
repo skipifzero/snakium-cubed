@@ -173,7 +173,7 @@ bool update(float delta)
 	model.update(delta);
 	if (model.mGameOver) std::cout << "GAME OVER, Final score: " << model.mScore << std::endl;
 
-	cam.update(model);
+	cam.update(model, delta);
 
 	return false;
 }
