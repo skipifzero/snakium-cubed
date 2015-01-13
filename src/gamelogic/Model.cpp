@@ -122,58 +122,60 @@ void Model::update(float delta) noexcept
 	// Calculate the next head position
 	Position headPos = getTilePosition(mHeadPtr);
 	Position nextPos = adjacent(headPos, mHeadPtr->to());
+	SnakeTile* nextHeadPtr = getTilePtr(nextPos);
 
-	
-	SnakeTile* nextPtr = getTilePtr(nextPos);
-
-	bool objectEaten = false;
 	// Check if object eaten.
-	if (nextPtr->type() == TileType::OBJECT) {
+	bool objectEaten = false;
+	if (nextHeadPtr->type() == TileType::OBJECT) {
 		objectEaten = true;
 		mScore += static_cast<long>(mCfg.pointsPerObject);
 		SnakeTile* freeTile = freeRandomTile(*this);
 		if (freeTile != nullptr) freeTile->setType(TileType::OBJECT);
-		nextPtr->setType(TileType::EMPTY);
+		nextHeadPtr->setType(TileType::EMPTY);
 	}
 
 	// Check if Game Over
-	if (nextPtr->type() != TileType::EMPTY) {
+	if (nextHeadPtr->type() != TileType::EMPTY && nextHeadPtr->type() != TileType::TAIL) {
 		mGameOver = true;
 		mProgress = 1.0f;
 		return;
 	}
 
-	// Move Snake
-	// Previous pre_head, now body.
-	if (mPreHeadPtr->type() == TileType::PRE_HEAD) mPreHeadPtr->setType(TileType::BODY);
-	else mPreHeadPtr->setType(TileType::BODY_DIGESTING);
-	// Previous head, now pre_head
-	if (mHeadPtr->type() == TileType::HEAD) mHeadPtr->setType(TileType::PRE_HEAD);
-	else mHeadPtr->setType(TileType::PRE_HEAD_DIGESTING);
+	// Calculate more next pointers
+	Position tailPos = getTilePosition(mTailPtr);
+	Position nextTailPos = (mTailPtr->type() == TileType::TAIL_DIGESTING)
+	                     ? tailPos : adjacent(tailPos, mTailPtr->to());
+	SnakeTile* nextTailPtr = getTilePtr(nextTailPos);
+	SnakeTile* nextPreHeadPtr = mHeadPtr;
 
-	// Update head & pre_head ptrs
-	mPreHeadPtr = mHeadPtr;
-	mHeadPtr = nextPtr;
-
-	// Setup new head tile
-	mHeadPtr->setType(objectEaten ? TileType::HEAD_DIGESTING : TileType::HEAD);
-	mHeadPtr->setFrom(opposite(
-	              convertSideDirection(headPos.side, nextPos.side, mPreHeadPtr->to())));
-	mHeadPtr->setTo(opposite(mHeadPtr->from()));
-
-	// Move tail if it's not digesting, otherwise finish digesting.
+	// Move tail
 	if (mTailPtr->type() == TileType::TAIL_DIGESTING) {
-		mTailPtr->setType(TileType::TAIL);
+		nextTailPtr->setType(TileType::TAIL);
 	} else {
-		Position tailNext = adjacent(getTilePosition(mTailPtr), mTailPtr->to());
 		mTailPtr->setType(TileType::EMPTY);
-		mTailPtr = getTilePtr(tailNext);
-		if (mTailPtr->type() == TileType::BODY || mTailPtr->type() == TileType::PRE_HEAD) {
-			mTailPtr->setType(TileType::TAIL);
-		} else {
-			mTailPtr->setType(TileType::TAIL_DIGESTING);
-		}	
+		if (digesting(nextTailPtr->type())) nextTailPtr->setType(TileType::TAIL_DIGESTING);
+		else nextTailPtr->setType(TileType::TAIL);
 	}
+
+	// Move pre head
+	if (digesting(nextPreHeadPtr->type())) nextPreHeadPtr->setType(TileType::PRE_HEAD_DIGESTING);
+	else nextPreHeadPtr->setType(TileType::PRE_HEAD);
+	if (mPreHeadPtr != nextTailPtr) {
+		if (digesting(mPreHeadPtr->type())) mPreHeadPtr->setType(TileType::BODY_DIGESTING);
+		else mPreHeadPtr->setType(TileType::BODY);
+	}
+
+	// Move head
+	if (objectEaten) nextHeadPtr->setType(TileType::HEAD_DIGESTING);
+	else nextHeadPtr->setType(TileType::HEAD);
+	nextHeadPtr->setFrom(opposite(
+	              convertSideDirection(headPos.side, nextPos.side, nextPreHeadPtr->to())));
+	nextHeadPtr->setTo(opposite(nextHeadPtr->from()));
+
+	// Update pointers
+	mHeadPtr = nextHeadPtr;
+	mPreHeadPtr = nextPreHeadPtr;
+	mTailPtr = nextTailPtr;
 }
 
 Position Model::adjacent(Position pos, Direction2D to) const noexcept

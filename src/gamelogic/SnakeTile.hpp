@@ -31,6 +31,8 @@ enum class TileType : uint8_t {
 	TAIL_DIGESTING = 10
 };
 
+inline bool digesting(TileType type) noexcept;
+
 /**
  * Struct representing a SnakeTile.
  * Should takes up exactly one byte in memory, unless struct gets padded for some reason.
