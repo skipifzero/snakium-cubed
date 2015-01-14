@@ -36,6 +36,9 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 # SkipIfZero Common
 add_subdirectory(${EXTERNALS_DIR}/SkipIfZeroCommon)
 
+# Boost
+find_package(Boost REQUIRED)
+
 # Finds SDL2 and SDL2_image, will apparently make use of $SDL2 environment variable on Windows.
 find_package(SDL2 REQUIRED) # ${SDL2_INCLUDE_DIR}, ${SDL2_LIBRARY}
 find_package(SDL2_image REQUIRED) # ${SDL2_IMAGE_INCLUDE_DIR}, ${SDL2_IMAGE_LIBRARY}
@@ -52,6 +55,7 @@ find_package(OpenGL REQUIRED) # ${OPENGL_INCLUDE_DIR}, ${OPENGL_LIBRARIES}
 include_directories(
 	${INCLUDE_DIR}
 	${SFZ_COMMON_INCLUDE_DIRS}
+	${BOOST_INCLUDE_DIRS}
 	${SDL2_INCLUDE_DIR}
 	${SDL2_IMAGE_INCLUDE_DIR}
 	${GLEW_INCLUDE_DIRS}
@@ -103,6 +107,7 @@ target_link_libraries(
 	snakium-cubed
 
 	${SFZ_COMMON_LIBRARIES}
+	${BOOST_LIBRARIES}
 	${SDL2_LIBRARY}
 	${SDL2_IMAGE_LIBRARY}
 	${GLEW_LIBRARIES}
