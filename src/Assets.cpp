@@ -4,7 +4,7 @@ namespace s3 {
 
 namespace {
 
-const std::string& snakeTexturePath{"assets/128pix/"};
+const std::string snakeTexturePath{"assets/128pix/"};
 
 } // anonymous namespace
 
