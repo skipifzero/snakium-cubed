@@ -110,7 +110,7 @@ void Camera::update(const Model& model, float delta) noexcept
 
 	mUpTarget = toVector(posOnCubeSideUpDir);
 	if (!approxEqual(mUp, mUpTarget)) {
-		float maxAnglePerSec = (model.mCfg.tilesPerSecond*tileWidth*4.0f) * sfz::g_PI_FLOAT/2.0f;
+		float maxAnglePerSec = (model.mCfg.tilesPerSecond*tileWidth*2.5f) * sfz::g_PI_FLOAT/2.0f;
 		float angleDiff = sfz::angle(mUp, mUpTarget);
 		sfz::vec3f rotAxis = sfz::cross(mUp, mUpTarget);
 		float angleToMove = maxAnglePerSec*delta;

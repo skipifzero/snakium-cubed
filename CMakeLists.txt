@@ -69,8 +69,10 @@ add_executable(
 	 ${SOURCE_DIR}/Main.cpp
 	${INCLUDE_DIR}/Camera.hpp
 	 ${SOURCE_DIR}/Camera.cpp
-	${INCLUDE_DIR}/SnakiumCubedShaders.hpp
-	 ${SOURCE_DIR}/SnakiumCubedShaders.cpp
+	${INCLUDE_DIR}/S3Config.hpp
+	 ${SOURCE_DIR}/S3Config.cpp
+	${INCLUDE_DIR}/S3Shaders.hpp
+	 ${SOURCE_DIR}/S3Shaders.cpp
 	${INCLUDE_DIR}/TileObject.hpp
 	 ${SOURCE_DIR}/TileObject.cpp
 	${INCLUDE_DIR}/Assets.hpp

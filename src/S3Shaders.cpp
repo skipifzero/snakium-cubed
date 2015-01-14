@@ -1,4 +1,4 @@
-#include "SnakiumCubedShaders.hpp"
+#include "S3Shaders.hpp"
 
 namespace s3 {
 

@@ -8,7 +8,8 @@
 #include "Assets.hpp"
 #include "Camera.hpp"
 #include "GameLogic.hpp"
-#include "SnakiumCubedShaders.hpp"
+#include "S3Config.hpp"
+#include "S3Shaders.hpp"
 #include "TileObject.hpp"
 
 #undef main // Remove SDL hack until we can get it to compile properly
