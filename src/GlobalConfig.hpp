@@ -11,6 +11,7 @@
 #include <exception> // std::terminate()
 #include <cstdint> // int16_t
 
+#include "sfz/SDL.hpp"
 #include "gamelogic/ModelConfig.hpp"
 
 namespace s3 {
