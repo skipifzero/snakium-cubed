@@ -11,7 +11,7 @@ using std::uint16_t;
 /**
  * @brief Struct used to create an s3::Model.
  */
-struct Config final {
+struct ModelConfig final {
 	uint16_t gridWidth = 6;
 	float tilesPerSecond = 2.5f;
 	bool hasSpeedIncrease = true;

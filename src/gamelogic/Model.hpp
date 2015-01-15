@@ -7,11 +7,12 @@
 #include <cassert>
 #include <vector>
 #include <random> // std::mt19937_64, std::random_device
-#include "gamelogic/Config.hpp"
+#include <iostream>
+
+#include "gamelogic/ModelConfig.hpp"
 #include "gamelogic/Direction.hpp"
 #include "gamelogic/Position.hpp"
 #include "gamelogic/SnakeTile.hpp"
-#include <iostream>
 
 namespace s3 {
 
@@ -22,7 +23,7 @@ struct Model final {
 	// Members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	const Config mCfg;
+	const ModelConfig mCfg;
 	const size_t mTileCount;
 	SnakeTile* const mTiles;
 	float mProgress = 0.0f;
@@ -37,7 +38,7 @@ struct Model final {
 	Model(const Model&) = delete;
 	Model& operator= (const Model&) = delete;
 
-	Model(Config cfg) noexcept;
+	Model(ModelConfig cfg) noexcept;
 	~Model() noexcept;
 
 	// Member functions

@@ -37,7 +37,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 add_subdirectory(${EXTERNALS_DIR}/SkipIfZeroCommon)
 
 # Boost
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED COMPONENTS filesystem system)
 
 # Finds SDL2 and SDL2_image, will apparently make use of $SDL2 environment variable on Windows.
 find_package(SDL2 REQUIRED) # ${SDL2_INCLUDE_DIR}, ${SDL2_LIBRARY}
@@ -69,8 +69,8 @@ add_executable(
 	 ${SOURCE_DIR}/Main.cpp
 	${INCLUDE_DIR}/Camera.hpp
 	 ${SOURCE_DIR}/Camera.cpp
-	${INCLUDE_DIR}/S3Config.hpp
-	 ${SOURCE_DIR}/S3Config.cpp
+	${INCLUDE_DIR}/GlobalConfig.hpp
+	 ${SOURCE_DIR}/GlobalConfig.cpp
 	${INCLUDE_DIR}/S3Shaders.hpp
 	 ${SOURCE_DIR}/S3Shaders.cpp
 	${INCLUDE_DIR}/TileObject.hpp
@@ -79,13 +79,13 @@ add_executable(
 	 ${SOURCE_DIR}/Assets.cpp
 	
 	${INCLUDE_DIR}/GameLogic.hpp
-	${INCLUDE_DIR}/gamelogic/Config.hpp
 	${INCLUDE_DIR}/gamelogic/Direction.hpp
 	${INCLUDE_DIR}/gamelogic/Direction.inl
 	${INCLUDE_DIR}/gamelogic/Position.hpp
 	${INCLUDE_DIR}/gamelogic/Position.inl
 	${INCLUDE_DIR}/gamelogic/Model.hpp
 	 ${SOURCE_DIR}/gamelogic/Model.cpp
+	${INCLUDE_DIR}/gamelogic/ModelConfig.hpp
 	${INCLUDE_DIR}/gamelogic/SnakeTile.hpp
 	${INCLUDE_DIR}/gamelogic/SnakeTile.inl
 

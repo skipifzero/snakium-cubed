@@ -2,13 +2,14 @@
 #include <exception> // std::terminate()
 #include <string>
 #include <chrono>
+#include <memory>
 
 #include "sfz/GL.hpp"
 #include "sfz/Math.hpp"
 #include "Assets.hpp"
 #include "Camera.hpp"
 #include "GameLogic.hpp"
-#include "S3Config.hpp"
+#include "GlobalConfig.hpp"
 #include "S3Shaders.hpp"
 #include "TileObject.hpp"
 
@@ -16,16 +17,9 @@
 
 // Variables
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-s3::Config getConfig(void) noexcept
-{
-	s3::Config cfg;
-	cfg.gridWidth = 3;
-	cfg.tilesPerSecond = 0.75f;
-	return cfg;
-}
-
 GLuint shaderProgram;
-s3::Model model{getConfig()};
+s3::GlobalConfig globalConfig;
+s3::Model model{[]() { globalConfig.load(); return globalConfig.mModelConfig; }()};
 s3::Camera cam;
 sfz::mat4f projMatrix;
 
@@ -309,9 +303,10 @@ int main(int argc, char* argv[])
 	}
 	checkGLErrorsMessage("^^^ Above errors caused by glewInit().");
 
-
 	// Init variables
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	globalConfig.load();
 
 	shaderProgram = s3::compileStandardShaderProgram();
 

@@ -35,7 +35,7 @@ SnakeTile* freeRandomTile(const Model& model) noexcept
 // Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Model::Model(Config cfg) noexcept
+Model::Model(ModelConfig cfg) noexcept
 :
 	mCfg(cfg),
 	mTileCount{static_cast<size_t>(mCfg.gridWidth*mCfg.gridWidth*6)},
