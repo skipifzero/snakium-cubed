@@ -52,6 +52,7 @@ void GlobalConfig::load() noexcept
 	mPtree.clear();
 	ini_parser::read_ini(USER_INI_PATH, mPtree);
 
+	mModelConfig.gridWidth = mPtree.get<uint16_t>("GameSettings.gridWidth");
 	mModelConfig.tilesPerSecond = mPtree.get<float>("GameSettings.tilesPerSecond");
 	mModelConfig.hasSpeedIncrease = mPtree.get<bool>("GameSettings.hasSpeedIncrease");
 	mModelConfig.speedIncreasePerObject = mPtree.get<float>("GameSettings.speedIncreasePerObject");

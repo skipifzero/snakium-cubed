@@ -41,53 +41,42 @@ Model::Model(ModelConfig cfg) noexcept
 	mTileCount{static_cast<size_t>(mCfg.gridWidth*mCfg.gridWidth*6)},
 	mTiles{new SnakeTile[mTileCount]}
 {
-	static_assert(sizeof(SnakeTile) <= 1, "SnakeTile is larger than 1 byte.");
-
 	// Set the type of every SnakeTile to EMPTY.
 	SnakeTile* current = mTiles;
 	SnakeTile* const max = mTiles + mTileCount;
-	while (current < max) {
-		current->setType(TileType::EMPTY);
-		current++;
-	}
+	while (current++ < max) current->setType(TileType::EMPTY);
 
-	// Create the first Snake.
+	// Start position for snake (head)
 	Position tempPos;
 	tempPos.side = Direction3D::SOUTH;
 	const int16_t mid = static_cast<int16_t>(mCfg.gridWidth/2);
 	tempPos.e1 = mid;
+	tempPos.e2 = mid;
 
-
-	tempPos.e2 = 0;
+	// Head
 	SnakeTile* tile = getTilePtr(tempPos);
-	tile->setType(TileType::TAIL);
-	tile->setFrom(Direction2D::DOWN);
+	tile->setType(TileType::HEAD);
 	tile->setTo(Direction2D::UP);
-	mTailPtr = tile;
-	assert(getTilePosition(tile).side == Direction3D::SOUTH);
-	assert(getTilePosition(tile).e1 == mid);
-	assert(getTilePosition(tile).e2 == 0);
+	tile->setFrom(Direction2D::DOWN);
+	mHeadPtr = tile;
 
-	tempPos.e2 = 1;
+	// Pre Head
+	tempPos = adjacent(tempPos, Direction2D::DOWN);
 	tile = getTilePtr(tempPos);
 	tile->setType(TileType::PRE_HEAD);
-	tile->setFrom(Direction2D::DOWN);
 	tile->setTo(Direction2D::UP);
+	tile->setFrom(Direction2D::DOWN);
 	mPreHeadPtr = tile;
-	assert(getTilePosition(tile).side == Direction3D::SOUTH);
-	assert(getTilePosition(tile).e1 == mid);
-	assert(getTilePosition(tile).e2 == 1);
 
-	tempPos.e2 = 2;
+	// Tile
+	tempPos = adjacent(tempPos, Direction2D::DOWN);
 	tile = getTilePtr(tempPos);
-	tile->setType(TileType::HEAD);
-	tile->setFrom(Direction2D::DOWN);
+	tile->setType(TileType::TAIL);
 	tile->setTo(Direction2D::UP);
-	mHeadPtr = tile;
-	assert(getTilePosition(tile).side == Direction3D::SOUTH);
-	assert(getTilePosition(tile).e1 == mid);
-	assert(getTilePosition(tile).e2 == 2);
+	tile->setFrom(Direction2D::DOWN);
+	mTailPtr = tile;
 
+	// Object
 	freeRandomTile(*this)->setType(TileType::OBJECT);
 }
 
