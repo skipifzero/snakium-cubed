@@ -9,20 +9,26 @@
 #include <iostream>
 #include <string>
 #include <exception> // std::terminate()
-#include <cstdint> // int16_t
+#include <cstdint> // uint16_t
 
 #include "sfz/SDL.hpp"
 #include "gamelogic/ModelConfig.hpp"
 
 namespace s3 {
 
-struct GlobalConfig {
+using std::uint16_t;
+
+class GlobalConfig {
+public:
 	ModelConfig mModelConfig;
+	uint16_t mWindowResolutionX, mWindowResolutionY;
+	uint16_t mMSAA;
 
-
-	boost::property_tree::ptree mPtree;
 	void load() noexcept;
 	void save() noexcept;
+
+private:
+	boost::property_tree::ptree mPtree;
 };
 
 } // namespace s3

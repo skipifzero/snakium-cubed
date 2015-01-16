@@ -45,13 +45,6 @@ void checkGLErrorsMessage(const std::string& msg) noexcept
 	if (gl::checkAllGLErrors()) std::cerr << msg << std::endl;
 }
 
-/*sfz::vec3f transformPoint(const sfz::mat4f& transformation, const sfz::vec3f& point) noexcept
-{
-	sfz::vec4f point4{point[0], point[1], point[2], 1.0f};
-	point4 = transformation * point4;
-	return sfz::vec3f{point4[0], point4[1], point4[2]};
-}*/
-
 float getTileAngleRad(s3::Direction3D side, s3::Direction2D from) noexcept
 {
 	float angle;
@@ -279,17 +272,25 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 // Main
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-int main(int argc, char* argv[])
+int main()
 {
+	// Init global config variable
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	globalConfig.load();
+	globalConfig.save(); // Save the sanitized values to avoid user confusion.
+
 	// Init libraries and stuff
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	sdl::Session sdlSession{{sdl::InitFlags::EVERYTHING}, {sdl::ImgInitFlags::PNG}};
 
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 8);
+	if (globalConfig.mMSAA > 0) {
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, globalConfig.mMSAA);
+	}
 
-	sdl::Window window{"snakium³", 500, 500,
+	sdl::Window window{"snakium³", globalConfig.mWindowResolutionX, globalConfig.mWindowResolutionY,
 	     {sdl::WindowFlags::OPENGL, sdl::WindowFlags::RESIZABLE, sdl::WindowFlags::ALLOW_HIGHDPI}};
 
 	gl::Context glContext{window.mPtr, 3, 3, gl::GLContextProfile::CORE};
@@ -306,12 +307,10 @@ int main(int argc, char* argv[])
 	// Init variables
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	globalConfig.load();
-
 	shaderProgram = s3::compileStandardShaderProgram();
 
-	projMatrix = sfz::glPerspectiveProjectionMatrix(cam.mFov, window.width()/window.height(),
-	                                                0.1f, 50.0f);
+	float aspect = static_cast<float>(window.width()) / static_cast<float>(window.height());
+	projMatrix = sfz::glPerspectiveProjectionMatrix(cam.mFov, aspect, 0.1f, 50.0f);
 
 	s3::Assets assets;
 

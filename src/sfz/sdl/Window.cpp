@@ -13,7 +13,7 @@ Uint32 processFlags(const std::initializer_list<WindowFlags>& flags) noexcept
 	return flag;
 }
 
-SDL_Window* createWindow(const char* title, int height, int width, Uint32 flags) noexcept
+SDL_Window* createWindow(const char* title, int width, int height, Uint32 flags) noexcept
 {
 	SDL_Window* window = NULL;
 	window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -49,29 +49,29 @@ Window::~Window() noexcept
 
 int Window::width() const noexcept
 {
-	int width, height;
-	SDL_GetWindowSize(mPtr, &width, &height);
+	int width;
+	SDL_GetWindowSize(mPtr, &width, nullptr);
 	return width;
 }
 
 int Window::height() const noexcept
 {
-	int width, height;
-	SDL_GetWindowSize(mPtr, &width, &height);
+	int height;
+	SDL_GetWindowSize(mPtr, nullptr, &height);
 	return height;
 }
 
 int Window::drawableWidth() const noexcept
 {
-	int width, height;
-	SDL_GL_GetDrawableSize(mPtr, &width, &height);
+	int width;
+	SDL_GL_GetDrawableSize(mPtr, &width, nullptr);
 	return width;
 }
 
 int Window::drawableHeight() const noexcept
 {
-	int width, height;
-	SDL_GL_GetDrawableSize(mPtr, &width, &height);
+	int height;
+	SDL_GL_GetDrawableSize(mPtr, nullptr, &height);
 	return height;
 }
 
