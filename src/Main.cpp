@@ -185,10 +185,10 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	// Enable culling
-	glEnable(GL_CULL_FACE);
-	//glDisable(GL_CULL_FACE);
-	//glDisable(GL_DEPTH_TEST);
+	// Enable/Disable culling
+	if (globalConfig.mTransparentCube) glDisable(GL_CULL_FACE);
+	else glEnable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
 
 	glViewport(0, 0, window.drawableWidth(), window.drawableHeight());
 
@@ -260,9 +260,9 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 		gl::setUniform(shaderProgram, "modelViewProj", transform);
 
 		// Render inside snake sprite
-		glBindTexture(GL_TEXTURE_2D, assets.getTileTexture(tilePtr, model.mProgress));
-		if (isLeftTurn(tilePtr->from(), tilePtr->to())) xFlippedTile.render();
-		else tile.render();
+		//glBindTexture(GL_TEXTURE_2D, assets.getTileTexture(tilePtr, model.mProgress));
+		//if (isLeftTurn(tilePtr->from(), tilePtr->to())) xFlippedTile.render();
+		//else tile.render();
 	}
 
 	// Clean up

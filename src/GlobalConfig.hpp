@@ -23,6 +23,7 @@ public:
 	ModelConfig mModelConfig;
 	uint16_t mWindowResolutionX, mWindowResolutionY;
 	uint16_t mMSAA;
+	bool mTransparentCube;
 
 	void load() noexcept;
 	void save() noexcept;
