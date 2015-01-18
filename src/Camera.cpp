@@ -61,13 +61,11 @@ bool approxEqual(const sfz::vec3f& lhs, const sfz::vec3f& rhs) noexcept
 
 } // anonymous namespace
 
-Camera::Camera() noexcept
-:
-	mPos{0,0,0},
-	mUp{0,1,0},
-	mUpTarget{0,1,0}
+Camera::Camera() noexcept	
 {
-
+	mPos = sfz::vec3f{0,0,0};
+	mUp = sfz::vec3f{0,1,0};
+	mUpTarget = sfz::vec3f{0,1,0};
 }
 
 void Camera::update(const Model& model, float delta) noexcept

@@ -38,6 +38,7 @@ add_subdirectory(${EXTERNALS_DIR}/SkipIfZeroCommon)
 
 # Boost
 find_package(Boost REQUIRED COMPONENTS filesystem system)
+link_directories(${Boost_LIBRARY_DIR})
 
 # Finds SDL2 and SDL2_image, will apparently make use of $SDL2 environment variable on Windows.
 find_package(SDL2 REQUIRED) # ${SDL2_INCLUDE_DIR}, ${SDL2_LIBRARY}
