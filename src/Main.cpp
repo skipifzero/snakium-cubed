@@ -23,6 +23,7 @@ s3::Model model{[]() { globalConfig.load(); return globalConfig.mModelConfig; }(
 s3::Camera cam;
 sfz::mat4f projMatrix;
 
+bool isTransparent = false;
 bool isPaused = false;
 
 // Helper functions
@@ -130,6 +131,7 @@ bool handleInput(const SDL_Event& event)
 			float h = static_cast<float>(event.window.data2);
 			projMatrix = sfz::glPerspectiveProjectionMatrix(cam.mFov, w/h, 0.1f, 50.0f);
 		}
+		break;
 	case SDL_KEYDOWN:
 		switch (event.key.keysym.sym) {
 		case SDLK_ESCAPE: return true;
@@ -148,7 +150,24 @@ bool handleInput(const SDL_Event& event)
 		case SDLK_RIGHT:
 			model.changeDirection(cam.mUpDir, s3::Direction2D::RIGHT);
 			break;
+		case 'x':
+		case 'X':
+			isTransparent = !isTransparent;
+			break;
+		case 'z':
+		case 'Z':
+			isTransparent = true;
+			break;
 		}
+		break;
+	case SDL_KEYUP:
+		switch (event.key.keysym.sym) {
+		case 'z':
+		case 'Z':
+			isTransparent = globalConfig.mTransparentCube;
+			break;
+		}
+		break;
 	}
 	return false;
 }
@@ -186,7 +205,7 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Enable/Disable culling
-	if (globalConfig.mTransparentCube) glDisable(GL_CULL_FACE);
+	if (isTransparent) glDisable(GL_CULL_FACE);
 	else glEnable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 
@@ -311,6 +330,8 @@ int main()
 
 	float aspect = static_cast<float>(window.width()) / static_cast<float>(window.height());
 	projMatrix = sfz::glPerspectiveProjectionMatrix(cam.mFov, aspect, 0.1f, 50.0f);
+
+	isTransparent = globalConfig.mTransparentCube;
 
 	s3::Assets assets;
 
