@@ -2,20 +2,15 @@ cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 project("snakium-cubed")
 
 # Compiler flags
-if ( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"
-  OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
-  OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-	# GCC and Clang flags
-	set(cpp_compiler_flags "-Wall -Wextra -Wno-c++11-extensions -std=c++11 -O3")
-	set(c_compiler_flags "-Wall -Wextra -std=c11 -O3")
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+if(MSVC)
 	# MSVC flags
 	#set(cpp_compiler_flags "/Wall /EHsc /O2")
 	set(cpp_compiler_flags "/O2")
-else ()
-	# Unknown compiler, sets no flags and prints warning.
-	message("WARNING: Unknown compiler \"${CMAKE_CXX_COMPILER_ID}\", no specific flags set.")
-endif ()
+else() # Assume we're compiling with CLANG or GCC if not MSVC.
+	# GCC and Clang flags
+	set(cpp_compiler_flags "-Wall -Wextra -Wno-c++11-extensions -std=c++11 -O3")
+	set(c_compiler_flags "-Wall -Wextra -std=c11 -O3")
+endif()
 
 # Sets the specified compiler flags, will only set the first time cmake configures project.
 if (NOT S3_CONFIGURED_ONCE)
@@ -122,6 +117,15 @@ target_link_libraries(
 message("Binary output directory: " ${CMAKE_BINARY_DIR}/bin)
 INSTALL(TARGETS snakium-cubed DESTINATION ${CMAKE_BINARY_DIR}/bin)
 file(COPY assets DESTINATION ${CMAKE_BINARY_DIR}/bin)
+
+if(CMAKE_GENERATOR STREQUAL Xcode)
+	file(COPY assets DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+	file(COPY assets DESTINATION ${CMAKE_BINARY_DIR}/Release)
+endif()
+
+if(MSVC)
+	file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
+endif()
 
 # Sets flag that ensures some variables are only set once.
 set(S3_CONFIGURED_ONCE TRUE CACHE INTERNAL "A flag showing that CMake has configured at least once.")
