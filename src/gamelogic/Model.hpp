@@ -30,6 +30,8 @@ struct Model final {
 	long mScore = 0;
 	SnakeTile *mHeadPtr, *mPreHeadPtr, *mTailPtr;
 	bool mGameOver = false;
+	int timeSinceBonus = 0;
+	int bonusTimeLeft = 0;
 
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

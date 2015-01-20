@@ -113,13 +113,46 @@ void Model::update(float delta) noexcept
 	Position nextPos = adjacent(headPos, mHeadPtr->to());
 	SnakeTile* nextHeadPtr = getTilePtr(nextPos);
 
+	// Check if bonus time is over
+	if (mCfg.hasBonus) {
+		bonusTimeLeft -= 1;
+		if (bonusTimeLeft == 0) {
+			// TODO: Remove O(n) loop
+			SnakeTile* bonusTile = nullptr;
+			for (size_t i = 0; i < mTileCount; i++) {
+				if ((mTiles+i)->type() == TileType::BONUS_OBJECT) {
+					bonusTile = mTiles+i;
+					break;
+				}
+			}
+			if (bonusTile != nullptr) {
+				bonusTile->setType(TileType::EMPTY);
+			}
+		}
+	}
+
 	// Check if object eaten.
 	bool objectEaten = false;
 	if (nextHeadPtr->type() == TileType::OBJECT) {
 		objectEaten = true;
 		mScore += static_cast<long>(mCfg.pointsPerObject);
+		timeSinceBonus += 1;
+
 		SnakeTile* freeTile = freeRandomTile(*this);
 		if (freeTile != nullptr) freeTile->setType(TileType::OBJECT);
+
+		if (timeSinceBonus >= mCfg.bonusFrequency) {
+			freeTile = freeRandomTile(*this);
+			if (freeTile != nullptr) freeTile->setType(TileType::BONUS_OBJECT);
+			timeSinceBonus = 0;
+			bonusTimeLeft = mCfg.bonusDuration;
+		}
+
+		nextHeadPtr->setType(TileType::EMPTY);
+	}
+	else if (nextHeadPtr->type() == TileType::BONUS_OBJECT) {
+		objectEaten = true;
+		mScore += static_cast<long>(mCfg.pointsPerBonusObject);
 		nextHeadPtr->setType(TileType::EMPTY);
 	}
 
