@@ -13,14 +13,6 @@ sfz::vec3f transformPoint(const sfz::mat4f& transformation, const sfz::vec3f& po
 	return sfz::vec3f{point4[0], point4[1], point4[2]};
 }
 
-int axisCoord(const sfz::vec3f& vec) noexcept
-{
-	if (vec[0] != 0.0f) return 0;
-	if (vec[1] != 0.0f) return 1;
-	if (vec[2] != 0.0f) return 2;
-	return -1;
-}
-
 int axisCoord(Direction3D dir) noexcept
 {
 	switch (dir) {

@@ -267,21 +267,6 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 		glBindTexture(GL_TEXTURE_2D, assets.getTileTexture(tilePtr, model.mProgress));
 		if (isLeftTurn(tilePtr->from(), tilePtr->to())) xFlippedTile.render();
 		else tile.render();
-
-		// Transform to inside
-		transform =
-			viewProj *
-			sfz::translationMatrix(tilePosToVector(model, tilePos) + s3::toVector(s3::opposite(tilePos.side))*0.001f) *
-			tileSpaceRotation(s3::opposite(tilePos.side)) *
-			sfz::scalingMatrix(tileWidth) *
-			sfz::yRotationMatrix(getTileAngleRad(tilePos.side, tilePtr->from()));
-
-		gl::setUniform(shaderProgram, "modelViewProj", transform);
-
-		// Render inside snake sprite
-		//glBindTexture(GL_TEXTURE_2D, assets.getTileTexture(tilePtr, model.mProgress));
-		//if (isLeftTurn(tilePtr->from(), tilePtr->to())) xFlippedTile.render();
-		//else tile.render();
 	}
 
 	// Clean up
