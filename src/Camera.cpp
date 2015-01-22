@@ -70,7 +70,7 @@ void Camera::update(const Model& model, float delta) noexcept
 		if (headPos.side == mUpDir) mUpDir = opposite(mLastCubeSide);
 		else if (headPos.side == opposite(mUpDir)) mUpDir = mLastCubeSide;
 		mLastCubeSide = headPos.side;
-		std::cout << headPos.side << ", upDir: " << mUpDir << "\n";
+		//std::cout << headPos.side << ", upDir: " << mUpDir << "\n";
 	}
 	if (mUpDir != mLastUpDir && model.mProgress > 0.5f) mLastUpDir = mUpDir;
 
