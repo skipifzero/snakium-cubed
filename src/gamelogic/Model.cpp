@@ -104,6 +104,8 @@ void Model::update(float delta) noexcept
 {
 	if (mGameOver) return;
 
+	mTransparentTimeLeft -= delta;
+
 	mProgress += delta * mCfg.tilesPerSecond;
 	if (mProgress <= 1.0f) return;
 	mProgress -= 1.0f;
@@ -159,9 +161,12 @@ void Model::update(float delta) noexcept
 	// Check if Game Over
 	if (nextHeadPtr->type() != TileType::EMPTY && nextHeadPtr->type() != TileType::TAIL) {
 		mGameOver = true;
-		mProgress = 1.0f;
+		mProgress = 0.8f;
 		return;
 	}
+
+	if (objectEaten) mTransparentTimeLeft = 1.0f;
+	std::cout << "Transparent time left: " << mTransparentTimeLeft << std::endl;
 
 	// Calculate more next pointers
 	Position tailPos = getTilePosition(mTailPtr);

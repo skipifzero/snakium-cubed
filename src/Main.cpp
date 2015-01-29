@@ -205,7 +205,7 @@ void render(sdl::Window& window, const s3::Assets& assets, float)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Enable/Disable culling
-	if (isTransparent) glDisable(GL_CULL_FACE);
+	if (isTransparent || model.mTransparentTimeLeft > 0.0f) glDisable(GL_CULL_FACE);
 	else glEnable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 

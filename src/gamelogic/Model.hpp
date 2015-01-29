@@ -32,6 +32,7 @@ struct Model final {
 	bool mGameOver = false;
 	int timeSinceBonus = 0;
 	int bonusTimeLeft = 0;
+	float mTransparentTimeLeft = -1.0f;
 
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
