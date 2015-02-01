@@ -374,13 +374,13 @@ TEST_CASE("Is proper POD", "[sfz::Matrix]")
 // MatrixSupport.hpp
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool approxEqual(float lhs, float rhs) noexcept
+bool approxEqual(float lhs, float rhs)
 {
 	float eps = 0.001f;
 	return lhs <= rhs + eps && lhs >= rhs - eps;
 }
 
-bool approxEqual(const sfz::mat4f& lhs, const sfz::mat4f& rhs) noexcept
+bool approxEqual(const sfz::mat4f& lhs, const sfz::mat4f& rhs)
 {
 	if (!approxEqual(lhs.at(0, 0), rhs.at(0, 0))) return false;
 	if (!approxEqual(lhs.at(0, 1), rhs.at(0, 1))) return false;

@@ -40,7 +40,12 @@ include_directories(${INCLUDE_DIR})
 include_directories(${CATCH_INCLUDE_DIRS})
 
 # Sources and headers needed to compile library
-add_library(SkipIfZeroCommon
+add_library(
+	SkipIfZeroCommon
+	
+	${INCLUDE_DIR}/sfz/MSVC12HackON.hpp
+	${INCLUDE_DIR}/sfz/MSVC12HackOFF.hpp
+
 	${INCLUDE_DIR}/sfz/Math.hpp
 	${INCLUDE_DIR}/sfz/math/MathConstants.hpp
 	${INCLUDE_DIR}/sfz/math/Matrix.hpp

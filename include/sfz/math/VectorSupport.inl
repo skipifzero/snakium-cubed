@@ -1,3 +1,5 @@
+#include "sfz/MSVC12HackON.hpp"
+
 namespace sfz {
 
 template<typename T>
@@ -47,3 +49,5 @@ Vector<T,N> projectOnto(const Vector<T,N>& toProject, const Vector<T,N>& target)
 }
 
 } // namespace sfz
+
+#include "sfz/MSVC12HackOFF.hpp"

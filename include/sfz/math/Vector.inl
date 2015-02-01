@@ -1,3 +1,5 @@
+#include "sfz/MSVC12HackON.hpp"
+
 namespace sfz {
 	
 // Constructors and destructors
@@ -339,3 +341,5 @@ size_t hash<sfz::Vector<T,N>>::operator() (const sfz::Vector<T,N>& vector) const
 }
 
 } // namespace std
+
+#include "sfz/MSVC12HackOFF.hpp"
