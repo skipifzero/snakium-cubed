@@ -8,6 +8,8 @@
 #include <string>
 #include <exception> // std::terminate()
 
+#include "sfz/MSVC12HackON.hpp"
+
 namespace gl {
 
 /**
@@ -62,5 +64,7 @@ void setUniform(int location, int i) noexcept;
 void setUniform(GLuint shaderProgram, const std::string& name, int i) noexcept;
 
 } // namespace gl
+
+#include "sfz/MSVC12HackOFF.hpp"
 
 #endif

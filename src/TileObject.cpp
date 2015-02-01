@@ -1,6 +1,8 @@
 #include "TileObject.hpp"
 
-namespace  s3 {
+#include "sfz/MSVC12HackON.hpp"
+
+namespace s3 {
 
 TileObject::TileObject(bool xFlipped, bool yFlipped) noexcept
 {
@@ -118,3 +120,5 @@ void TileObject::render() noexcept
 }
 
 } // namespace s3
+
+#include "sfz/MSVC12HackOFF.hpp"

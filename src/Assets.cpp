@@ -1,5 +1,7 @@
 #include "Assets.hpp"
 
+#include "sfz/MSVC12HackON.hpp"
+
 namespace s3 {
 
 namespace {
@@ -117,3 +119,5 @@ GLuint Assets::getTileTexture(SnakeTile *tilePtr, float progress) const noexcept
 }
 
 } // namespace s3
+
+#include "sfz/MSVC12HackOFF.hpp"

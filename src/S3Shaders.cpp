@@ -1,5 +1,7 @@
 #include "S3Shaders.hpp"
 
+#include "sfz/MSVC12HackON.hpp"
+
 namespace s3 {
 
 GLuint compileStandardShaderProgram() noexcept
@@ -59,3 +61,5 @@ GLuint compileStandardShaderProgram() noexcept
 }
 
 } // namespace s3
+
+#include "sfz/MSVC12HackOFF.hpp"

@@ -11,6 +11,8 @@
 #include <exception> // std::terminate
 #include "sfz/gl/Utils.hpp"
 
+#include "sfz/MSVC12HackON.hpp"
+
 namespace gl {
 
 class Texture final {
@@ -42,5 +44,7 @@ public:
 };
 
 } // namespace gl
+
+#include "sfz/MSVC12HackOFF.hpp"
 
 #endif

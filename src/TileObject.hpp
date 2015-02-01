@@ -5,6 +5,8 @@
 #include <sfz/Math.hpp>
 #include "sfz/GL.hpp"
 
+#include "sfz/MSVC12HackON.hpp"
+
 namespace s3 {
 
 class TileObject final {
@@ -22,5 +24,7 @@ private:
 };
 
 } // namespace s3
+
+#include "sfz/MSVC12HackOFF.hpp"
 
 #endif

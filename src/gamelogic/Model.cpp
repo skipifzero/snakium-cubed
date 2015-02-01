@@ -1,5 +1,7 @@
 #include "gamelogic/Model.hpp"
 
+#include "sfz/MSVC12HackON.hpp"
+
 namespace s3 {
 
 namespace {
@@ -261,3 +263,5 @@ Position Model::adjacent(Position pos, Direction2D to) const noexcept
 }
 
 } // namespace s3
+
+#include "sfz/MSVC12HackOFF.hpp"

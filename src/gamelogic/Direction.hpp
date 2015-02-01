@@ -9,6 +9,8 @@
 #include <iostream> // std::ostream
 #include <sfz/math/Vector.hpp>
 
+#include "sfz/MSVC12HackON.hpp"
+
 namespace s3 {
 
 using std::uint8_t;
@@ -77,5 +79,6 @@ inline std::ostream& operator<< (std::ostream& ostream, const Direction3D& direc
 
 } // namespace s3
 
+#include "sfz/MSVC12HackOFF.hpp"
 #include "gamelogic/Direction.inl"
 #endif

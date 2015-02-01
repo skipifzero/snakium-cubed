@@ -8,6 +8,8 @@
 #include "sfz/math/Vector.hpp"
 #include "gamelogic/Direction.hpp"
 
+#include "sfz/MSVC12HackON.hpp"
+
 namespace s3 {
 
 using std::uint8_t;
@@ -47,5 +49,6 @@ inline Coordinate other(Coordinate coord) noexcept;
 
 } // namespace s3
 
+#include "sfz/MSVC12HackOFF.hpp"
 #include "gamelogic/Position.inl"
 #endif

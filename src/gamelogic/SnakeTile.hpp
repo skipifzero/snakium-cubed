@@ -7,6 +7,8 @@
 
 #include "gamelogic/Direction.hpp"
 
+#include "sfz/MSVC12HackON.hpp"
+
 namespace s3 {
 
 using std::uint8_t;
@@ -52,5 +54,6 @@ struct SnakeTile final {
 
 } // namespace s3
 
+#include "sfz/MSVC12HackOFF.hpp"
 #include "gamelogic/SnakeTile.inl"
 #endif

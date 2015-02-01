@@ -7,6 +7,8 @@
 #include <iostream>
 #include <exception> // std::terminate
 
+#include "sfz/MSVC12HackON.hpp"
+
 namespace sdl {
 
 /**
@@ -86,4 +88,7 @@ public:
 };
 
 } // namespace sfz
+
+#include "sfz/MSVC12HackOFF.hpp"
+
 #endif

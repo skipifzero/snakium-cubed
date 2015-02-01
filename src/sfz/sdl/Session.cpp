@@ -1,5 +1,7 @@
 #include "sfz/sdl/Session.hpp"
 
+#include "sfz/MSVC12HackON.hpp"
+
 namespace sdl {
 		
 Session::Session(std::initializer_list<InitFlags> initFlags,
@@ -34,3 +36,5 @@ Session::~Session() noexcept
 }
 
 } // namespace sdl
+
+#include "sfz/MSVC12HackOFF.hpp"

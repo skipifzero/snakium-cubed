@@ -1,3 +1,5 @@
+#include "sfz/MSVC12HackON.hpp"
+
 namespace s3 {
 
 // 2D Direction enum
@@ -250,3 +252,5 @@ inline std::ostream& operator<< (std::ostream& ostream, const Direction3D& direc
 }
 
 } // namespace s3
+
+#include "sfz/MSVC12HackOFF.hpp"

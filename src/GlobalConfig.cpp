@@ -1,5 +1,7 @@
 #include "GlobalConfig.hpp"
 
+#include "sfz/MSVC12HackON.hpp"
+
 namespace s3 {
 
 namespace {
@@ -154,3 +156,5 @@ void GlobalConfig::save() noexcept
 }
 
 } // namespace s3
+
+#include "sfz/MSVC12HackOFF.hpp"

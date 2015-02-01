@@ -4,6 +4,8 @@
 
 #include "sfz/GL.hpp"
 
+#include "sfz/MSVC12HackON.hpp"
+
 namespace s3 {
 
 /**
@@ -18,3 +20,5 @@ GLuint compileStandardShaderProgram() noexcept;
 } // namespace s3
 
 #endif
+
+#include "sfz/MSVC12HackOFF.hpp"

@@ -1,5 +1,7 @@
 #include "sfz/gl/Texture.hpp"
 
+#include "sfz/MSVC12HackON.hpp"
+
 namespace gl {
 	
 namespace {
@@ -109,3 +111,5 @@ Texture::~Texture() noexcept
 }
 	
 } // namespace gl
+
+#include "sfz/MSVC12HackOFF.hpp"
