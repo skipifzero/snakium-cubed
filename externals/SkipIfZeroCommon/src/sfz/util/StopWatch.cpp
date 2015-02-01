@@ -1,4 +1,5 @@
 #include "sfz/util/StopWatch.hpp"
+#include "sfz/MSVC12HackON.hpp"
 
 namespace sfz {
 
@@ -44,3 +45,5 @@ std::chrono::nanoseconds StopWatch::getTimeNanoSeconds() noexcept
 }
 
 } // namespace sfz
+
+#include "sfz/MSVC12HackOFF.hpp"

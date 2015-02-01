@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include "sfz/math/Matrix.hpp"
+#include "sfz/MSVC12HackON.hpp"
 
 namespace sfz {
 
@@ -81,5 +82,6 @@ Matrix<T,4,4> lookAt(const Vector<T,3>& cameraPosition, const Vector<T,3> camera
 
 } // namespace sfz
 
+#include "sfz/MSVC12HackOFF.hpp"
 #include "sfz/math/MatrixSupport.inl"
 #endif

@@ -8,6 +8,7 @@
 #include <cassert>
 
 #include "sfz/math/Vector.hpp"
+#include "sfz/MSVC12HackON.hpp"
 
 namespace sfz {
 
@@ -195,6 +196,7 @@ struct hash<sfz::Matrix<T,M,N>> {
 
 } // namespace std
 
+#include "sfz/MSVC12HackOFF.hpp"
 #include "sfz/math/Matrix.inl"
 #include "sfz/math/MatrixSupport.hpp"
 #endif

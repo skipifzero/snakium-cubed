@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include "sfz/math/Vector.hpp"
+#include "sfz/MSVC12HackON.hpp"
 
 namespace sfz {
 
@@ -60,5 +61,6 @@ Vector<T,N> projectOnto(const Vector<T,N>& toProject, const Vector<T,N>& target)
 
 } // namespace sfz
 
+#include "sfz/MSVC12HackOFF.hpp"
 #include "sfz/math/VectorSupport.inl"
 #endif

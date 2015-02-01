@@ -1,3 +1,5 @@
+#include "sfz/MSVC12HackON.hpp"
+
 namespace sfz {
 
 // Rotation matrices
@@ -167,3 +169,5 @@ Matrix<T,4,4> lookAt(const Vector<T,3>& cameraPosition, const Vector<T,3> camera
 }
 
 } // namespace sfz
+
+#include "sfz/MSVC12HackOFF.hpp"
