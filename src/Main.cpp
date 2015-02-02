@@ -21,7 +21,6 @@
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 GLuint shaderProgram;
 s3::GlobalConfig globalConfig;
-s3::Model model{[]() { globalConfig.load(); return globalConfig.mModelConfig; }()};
 s3::Camera cam;
 sfz::mat4f projMatrix;
 
@@ -122,7 +121,7 @@ sfz::mat4f tileSpaceRotation(s3::Direction3D side) noexcept
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Called once for each event every frame.
-bool handleInput(const SDL_Event& event)
+bool handleInput(s3::Model& model, const SDL_Event& event)
 {
 	switch (event.type) {
 	case SDL_QUIT: return true;
@@ -175,7 +174,7 @@ bool handleInput(const SDL_Event& event)
 }
 
 // Called once every frame
-bool update(float delta)
+bool update(s3::Model& model, float delta)
 {
 	if (isPaused) return false;
 
@@ -188,7 +187,7 @@ bool update(float delta)
 }
 
 // Called once every frame
-void render(sdl::Window& window, const s3::Assets& assets, float)
+void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, float)
 {
 	static s3::TileObject tile{false, false};
 	static s3::TileObject xFlippedTile{true, false};
@@ -326,6 +325,8 @@ int main()
 
 	s3::Assets assets;
 
+	s3::Model model{globalConfig.mModelConfig};
+
 	checkGLErrorsMessage("^^^ Above errors caused by initing variables and loading assets.");
 
 	// Game loop
@@ -340,9 +341,9 @@ int main()
 
 		//std::cout << "Delta = " << delta << ", fps = " << (1.0f / delta) << "\n";
 
-		while (SDL_PollEvent(&event) != 0) if (handleInput(event)) running = false;
-		if (update(delta)) running = false;
-		render(window, assets, delta);
+		while (SDL_PollEvent(&event) != 0) if (handleInput(model, event)) running = false;
+		if (update(model, delta)) running = false;
+		render(window, assets, model, delta);
 
 		SDL_GL_SwapWindow(window.mPtr);
 
