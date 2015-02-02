@@ -119,8 +119,8 @@ void Model::update(float delta) noexcept
 
 	// Check if bonus time is over
 	if (mCfg.hasBonus) {
-		bonusTimeLeft -= 1;
-		if (bonusTimeLeft == 0) {
+		mBonusTimeLeft -= 1;
+		if (mBonusTimeLeft == 0) {
 			// TODO: Remove O(n) loop
 			SnakeTile* bonusTile = nullptr;
 			for (size_t i = 0; i < mTileCount; i++) {
@@ -140,16 +140,16 @@ void Model::update(float delta) noexcept
 	if (nextHeadPtr->type() == TileType::OBJECT) {
 		objectEaten = true;
 		mScore += static_cast<long>(mCfg.pointsPerObject);
-		timeSinceBonus += 1;
+		mTimeSinceBonus += 1;
 
 		SnakeTile* freeTile = freeRandomTile(*this);
 		if (freeTile != nullptr) freeTile->setType(TileType::OBJECT);
 
-		if (timeSinceBonus >= mCfg.bonusFrequency) {
+		if (mTimeSinceBonus >= mCfg.bonusFrequency) {
 			freeTile = freeRandomTile(*this);
 			if (freeTile != nullptr) freeTile->setType(TileType::BONUS_OBJECT);
-			timeSinceBonus = 0;
-			bonusTimeLeft = mCfg.bonusDuration;
+			mTimeSinceBonus = 0;
+			mBonusTimeLeft = mCfg.bonusDuration;
 		}
 
 		nextHeadPtr->setType(TileType::EMPTY);
