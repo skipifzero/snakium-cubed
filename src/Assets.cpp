@@ -50,7 +50,7 @@ Assets::Assets() noexcept
 	OBJECT{snakeTexturePath + "object_128.png"},
 	BONUS_OBJECT{snakeTexturePath + "bonus_object_128.png"},
 	FILLED{snakeTexturePath + "filled_64.png"},
-	TILE_FACE{snakeTexturePath + "tile_face_64.png"}
+	TILE_FACE{snakeTexturePath + "tile_face_128.png"}
 {
 	// Do nothing.
 }

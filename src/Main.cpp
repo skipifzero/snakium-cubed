@@ -193,10 +193,9 @@ void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, flo
 	static s3::TileObject xFlippedTile{true, false};
 
 	//glClearDepth(1.0f);
-	//glDepthFunc(GL_LESS);
+	glDepthFunc(GL_LESS);
 	glEnable(GL_DEPTH_TEST);
 	
-
 	// Clearing screen
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -212,7 +211,6 @@ void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, flo
 	} else {
 		glEnable(GL_CULL_FACE);
 	}
-	glEnable(GL_DEPTH_TEST);
 
 	glViewport(0, 0, window.drawableWidth(), window.drawableHeight());
 
