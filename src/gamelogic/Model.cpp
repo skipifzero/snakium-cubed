@@ -45,8 +45,11 @@ Model::Model(ModelConfig cfg) noexcept
 {
 	// Set the type of every SnakeTile to EMPTY.
 	SnakeTile* current = mTiles;
-	SnakeTile* const max = mTiles + mTileCount - 1;
-	while (current++ < max) current->setType(TileType::EMPTY);
+	SnakeTile* const max = mTiles + mTileCount;
+	while (current < max) {
+		current->setType(TileType::EMPTY);
+		current++;
+	}
 
 	// Start position for snake (head)
 	Position tempPos;
