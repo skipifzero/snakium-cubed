@@ -27,6 +27,23 @@ int axisCoord(Direction3D dir) noexcept
 	}
 }
 
+/** Returns a value between 0.0 (down) and 1.0 (up) */
+float upProgress(const sfz::vec3f& posOnCube, Direction3D posOnCubeSideUpDir) noexcept
+{
+	sfz::vec3f upAxis = toVector(posOnCubeSideUpDir);
+	int upAxisCoord = axisCoord(posOnCubeSideUpDir);
+	return std::abs(posOnCube[upAxisCoord] + 0.5f*upAxis.sum());
+}
+
+/** Returns a value between 0.0 (left) and 1.0 (right) */
+float rightProgress(const sfz::vec3f& posOnCube,
+                    Direction3D posOnCubeSide, Direction3D posOnCubeSideUpDir) noexcept
+{
+	sfz::vec3f rightAxis = toVector(right(posOnCubeSide, posOnCubeSideUpDir));
+	int rightAxisCoord = axisCoord(right(posOnCubeSide, posOnCubeSideUpDir));
+	return std::abs(posOnCube[rightAxisCoord] + 0.5f*rightAxis.sum());
+}
+
 sfz::vec3f tilePosToVector(const Model& model, const Position& tilePos) noexcept
 {
 	// +0.5f to get the midpoint of the tile
@@ -112,6 +129,29 @@ void Camera::update(const Model& model, float delta) noexcept
 	}
 
 	mViewMatrix = sfz::lookAt(mPos, ZERO, mUp);
+
+	float upProg = upProgress(posOnCube, posOnCubeSideUpDir);
+	float rightProg = rightProgress(posOnCube, posOnCubeSide, posOnCubeSideUpDir);
+	float upProgClosest = upProg <= 0.5f ? upProg : (1.0f - upProg);
+	float rightProgClosest = rightProg <= 0.5f ? rightProg : (1.0f - rightProg);
+	bool upClosest = upProgClosest <= rightProgClosest;
+
+	mSideRenderOrder[0] = opposite(posOnCubeSide); // Back
+	if (upProg <= 0.5f) {
+		mSideRenderOrder[1] = up(posOnCubeSide, posOnCubeSideUpDir); // Top
+		mSideRenderOrder[upClosest ? 4 : 3] = down(posOnCubeSide, posOnCubeSideUpDir); // Bottom
+	} else {
+		mSideRenderOrder[1] = down(posOnCubeSide, posOnCubeSideUpDir); // Bottom
+		mSideRenderOrder[upClosest ? 4 : 3] = up(posOnCubeSide, posOnCubeSideUpDir); // Top
+	}
+	if (rightProg <= 0.5f) {
+		mSideRenderOrder[2] = right(posOnCubeSide, posOnCubeSideUpDir); // Right
+		mSideRenderOrder[upClosest ? 3 : 4] = left(posOnCubeSide, posOnCubeSideUpDir); // Left
+	} else {
+		mSideRenderOrder[2] = left(posOnCubeSide, posOnCubeSideUpDir); // Left
+		mSideRenderOrder[upClosest ? 3 : 4] = right(posOnCubeSide, posOnCubeSideUpDir); // Right
+	}
+	mSideRenderOrder[5] = posOnCubeSide; // Front
 }
 
 } // namespace s3

@@ -16,6 +16,7 @@ public:
 	sfz::mat4f mViewMatrix;
 	Direction3D mUpDir = Direction3D::UP;
 	float mFov = 60.0f;
+	Direction3D mSideRenderOrder[6];
 
 	Camera() noexcept;
 	void update(const Model& model, float delta) noexcept;

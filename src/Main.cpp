@@ -231,47 +231,46 @@ void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, flo
 	s3::SnakeTile* tilePtr;
 	s3::Position tilePos;
 
-	// Render the empty tiles
-	for (std::size_t i = 0; i < model.mTileCount; i++) {
-		tilePtr = model.mTiles + i;
-		tilePos = model.getTilePosition(tilePtr);
+	const size_t tilesPerSide = model.mCfg.gridWidth*model.mCfg.gridWidth;
+	for (size_t side = 0; side < 6; side++) {
+		s3::SnakeTile* sidePtr = model.getTilePtr(s3::Position{cam.mSideRenderOrder[side], 0, 0});
 
-		// Transform
-		transform =
-		    viewProj *
-			sfz::translationMatrix(tilePosToVector(model, tilePos)) *
-			tileSpaceRotation(tilePos.side) *
-			sfz::scalingMatrix(tileWidth) *
-			sfz::yRotationMatrix(getTileAngleRad(tilePos.side, tilePtr->from()));
+		for (size_t i = 0; i < tilesPerSide; i++) {
+			tilePtr = sidePtr + i;
+			tilePos = model.getTilePosition(tilePtr);
 
-		gl::setUniform(shaderProgram, "modelViewProj", transform);
+			// Transform
+			transform =
+				viewProj *
+				sfz::translationMatrix(tilePosToVector(model, tilePos)) *
+				tileSpaceRotation(tilePos.side) *
+				sfz::scalingMatrix(tileWidth) *
+				sfz::yRotationMatrix(getTileAngleRad(tilePos.side, tilePtr->from()));
 
-		// Render tile border
-		glBindTexture(GL_TEXTURE_2D, assets.TILE_FACE.mHandle);
-		tile.render();
-	}
+			gl::setUniform(shaderProgram, "modelViewProj", transform);
 
-	// Render the snake tiles
-	for (std::size_t i = 0; i < model.mTileCount; i++) {
-		tilePtr = model.mTiles + i;
-		tilePos = model.getTilePosition(tilePtr);
+			// Render tile border
+			glBindTexture(GL_TEXTURE_2D, assets.TILE_FACE.mHandle);
+			tile.render();
 
-		if(tilePtr->type() == s3::TileType::EMPTY) continue;
+			// Only render tiles with sprites
+			if(tilePtr->type() == s3::TileType::EMPTY) continue;
 
-		// Transform
-		transform =
-			viewProj *
-			sfz::translationMatrix(tilePosToVector(model, tilePos) + s3::toVector(tilePos.side)*0.001f) *
-			tileSpaceRotation(tilePos.side) *
-			sfz::scalingMatrix(tileWidth) *
-			sfz::yRotationMatrix(getTileAngleRad(tilePos.side, tilePtr->from()));
+			// Transform
+			transform =
+				viewProj *
+				sfz::translationMatrix(tilePosToVector(model, tilePos) + s3::toVector(tilePos.side)*0.001f) *
+				tileSpaceRotation(tilePos.side) *
+				sfz::scalingMatrix(tileWidth) *
+				sfz::yRotationMatrix(getTileAngleRad(tilePos.side, tilePtr->from()));
 
-		gl::setUniform(shaderProgram, "modelViewProj", transform);
+			gl::setUniform(shaderProgram, "modelViewProj", transform);
 
-		// Render snake sprite
-		glBindTexture(GL_TEXTURE_2D, assets.getTileTexture(tilePtr, model.mProgress));
-		if (isLeftTurn(tilePtr->from(), tilePtr->to())) xFlippedTile.render();
-		else tile.render();
+			// Render snake sprite
+			glBindTexture(GL_TEXTURE_2D, assets.getTileTexture(tilePtr, model.mProgress));
+			if (isLeftTurn(tilePtr->from(), tilePtr->to())) xFlippedTile.render();
+			else tile.render();
+		}
 	}
 
 	// Clean up
