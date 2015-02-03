@@ -152,6 +152,10 @@ void Camera::update(const Model& model, float delta) noexcept
 		mSideRenderOrder[upClosest ? 3 : 4] = right(posOnCubeSide, posOnCubeSideUpDir); // Right
 	}
 	mSideRenderOrder[5] = posOnCubeSide; // Front
+
+	for (size_t i = 0; i < 6; i++) {
+		mRenderTileBorderFirst[i] = mPos.dot(toVector(mSideRenderOrder[i])) >= 0.5f;
+	}
 }
 
 } // namespace s3
