@@ -171,7 +171,6 @@ void Model::update(float delta) noexcept
 	}
 
 	if (objectEaten) mTransparentTimeLeft = 1.0f;
-	std::cout << "Transparent time left: " << mTransparentTimeLeft << std::endl;
 
 	// Calculate more next pointers
 	Position tailPos = getTilePosition(mTailPtr);
