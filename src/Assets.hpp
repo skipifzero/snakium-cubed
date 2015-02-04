@@ -20,10 +20,10 @@ struct Assets final {
 				PRE_HEAD_D2R_F1,
 				PRE_HEAD_D2R_DIG_F1,
 
-				DEADHEAD_D2U_F3,
-				DEADHEAD_D2U_DIG_F3,
-				DEADHEAD_D2R_F3,
-				DEADHEAD_D2R_DIG_F3,
+				DEAD_PRE_HEAD_D2U_F1,
+				DEAD_PRE_HEAD_D2U_DIG_F1,
+				DEAD_PRE_HEAD_D2R_F1,
+				DEAD_PRE_HEAD_D2R_DIG_F1,
 
 				BODY_D2U,
 				BODY_D2U_DIG,
@@ -57,7 +57,7 @@ struct Assets final {
 	Assets(const Assets&) = delete;
 	Assets& operator= (const Assets&) = delete;
 
-	GLuint getTileTexture(SnakeTile* tilePtr, float progress) const noexcept;
+	const gl::Texture& getTileTexture(SnakeTile* tilePtr, float progress, bool gameOver) const noexcept;
 };
 
 } // namespace s3

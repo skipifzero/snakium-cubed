@@ -264,7 +264,7 @@ void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, flo
 
 				// Render snake sprite
 				gl::setUniform(shaderProgram, "modelViewProj", spriteTransform);
-				glBindTexture(GL_TEXTURE_2D, assets.getTileTexture(tilePtr, model.mProgress));
+				glBindTexture(GL_TEXTURE_2D, assets.getTileTexture(tilePtr, model.mProgress, model.mGameOver).mHandle);
 				if (isLeftTurn(tilePtr->from(), tilePtr->to())) xFlippedTile.render();
 				else tile.render();
 			}
@@ -286,7 +286,7 @@ void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, flo
 
 					// Render snake sprite
 					gl::setUniform(shaderProgram, "modelViewProj", spriteTransform);
-					glBindTexture(GL_TEXTURE_2D, assets.getTileTexture(tilePtr, model.mProgress));
+					glBindTexture(GL_TEXTURE_2D, assets.getTileTexture(tilePtr, model.mProgress, model.mGameOver).mHandle);
 					if (isLeftTurn(tilePtr->from(), tilePtr->to())) xFlippedTile.render();
 					else tile.render();
 				}
