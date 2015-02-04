@@ -181,7 +181,7 @@ bool update(s3::Model& model, float delta)
 	model.update(delta);
 	if (model.mGameOver) std::cout << "GAME OVER, Final score: " << model.mScore << std::endl;
 
-	cam.update(model, delta);
+	if (!model.mGameOver) cam.update(model, delta);
 
 	return false;
 }
