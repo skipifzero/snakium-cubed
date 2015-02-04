@@ -118,13 +118,41 @@ message("Binary output directory: " ${CMAKE_BINARY_DIR}/bin)
 INSTALL(TARGETS snakium-cubed DESTINATION ${CMAKE_BINARY_DIR}/bin)
 file(COPY assets DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
+# Xcode specific file copying
 if(CMAKE_GENERATOR STREQUAL Xcode)
 	file(COPY assets DESTINATION ${CMAKE_BINARY_DIR}/Debug)
 	file(COPY assets DESTINATION ${CMAKE_BINARY_DIR}/Release)
 endif()
 
+# MSVC specific file copying
 if(MSVC)
+
+	# Assets folder
 	file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
+	file(COPY assets DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+	file(COPY assets DESTINATION ${CMAKE_BINARY_DIR}/Release)
+
+	# Runtime DLLs
+	file(COPY RuntimeDLLs/msvc12_x64_debug/boost_filesystem-vc120-mt-gd-1_57.dll DESTINATION ${CMAKE_BINARY_DIR})
+	file(COPY RuntimeDLLs/msvc12_x64_debug/boost_system-vc120-mt-gd-1_57.dll DESTINATION ${CMAKE_BINARY_DIR})
+	file(COPY RuntimeDLLs/msvc12_x64_debug/libjpeg-9.dll DESTINATION ${CMAKE_BINARY_DIR})
+	file(COPY RuntimeDLLs/msvc12_x64_debug/libpng16-16.dll DESTINATION ${CMAKE_BINARY_DIR})
+	file(COPY RuntimeDLLs/msvc12_x64_debug/libtiff-5.dll DESTINATION ${CMAKE_BINARY_DIR})
+	file(COPY RuntimeDLLs/msvc12_x64_debug/libwebp-4.dll DESTINATION ${CMAKE_BINARY_DIR})
+	file(COPY RuntimeDLLs/msvc12_x64_debug/SDL2.dll DESTINATION ${CMAKE_BINARY_DIR})
+	file(COPY RuntimeDLLs/msvc12_x64_debug/SDL2_image.dll DESTINATION ${CMAKE_BINARY_DIR})
+	file(COPY RuntimeDLLs/msvc12_x64_debug/zlib1.dll DESTINATION ${CMAKE_BINARY_DIR})
+
+	file(COPY RuntimeDLLs/msvc12_x64_release/boost_filesystem-vc120-mt-1_57.dll DESTINATION ${CMAKE_BINARY_DIR})
+	file(COPY RuntimeDLLs/msvc12_x64_release/boost_system-vc120-mt-1_57.dll DESTINATION ${CMAKE_BINARY_DIR})
+	file(COPY RuntimeDLLs/msvc12_x64_release/libjpeg-9.dll DESTINATION ${CMAKE_BINARY_DIR})
+	file(COPY RuntimeDLLs/msvc12_x64_release/libpng16-16.dll DESTINATION ${CMAKE_BINARY_DIR})
+	file(COPY RuntimeDLLs/msvc12_x64_release/libtiff-5.dll DESTINATION ${CMAKE_BINARY_DIR})
+	file(COPY RuntimeDLLs/msvc12_x64_release/libwebp-4.dll DESTINATION ${CMAKE_BINARY_DIR})
+	file(COPY RuntimeDLLs/msvc12_x64_release/SDL2.dll DESTINATION ${CMAKE_BINARY_DIR})
+	file(COPY RuntimeDLLs/msvc12_x64_release/SDL2_image.dll DESTINATION ${CMAKE_BINARY_DIR})
+	file(COPY RuntimeDLLs/msvc12_x64_release/zlib1.dll DESTINATION ${CMAKE_BINARY_DIR})
+
 endif()
 
 # Sets flag that ensures some variables are only set once.
