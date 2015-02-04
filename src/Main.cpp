@@ -233,6 +233,25 @@ void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, flo
 	for (size_t side = 0; side < 6; side++) {
 		s3::SnakeTile* sidePtr = model.getTilePtr(s3::Position{cam.mSideRenderOrder[side], 0, 0});
 
+		// Hack to correctly print dead snake (part 1)
+		if (model.mGameOver && !cam.mRenderTileBorderFirst[side]) {
+			s3::Position deadHeadPos = model.getTilePosition(model.mDeadHeadPtr);
+
+			// Tile Sprite Transform
+			spriteTransform =
+				viewProj *
+				sfz::translationMatrix(tilePosToVector(model, deadHeadPos) + s3::toVector(deadHeadPos.side)*0.001f) *
+				tileSpaceRotation(deadHeadPos.side) *
+				sfz::scalingMatrix(tileWidth) *
+				sfz::yRotationMatrix(getTileAngleRad(deadHeadPos.side, tilePtr->from()));
+
+			// Render snake sprite
+			gl::setUniform(shaderProgram, "modelViewProj", spriteTransform);
+			glBindTexture(GL_TEXTURE_2D, assets.getTileTexture(tilePtr, model.mProgress, model.mGameOver).mHandle);
+			if (isLeftTurn(tilePtr->from(), tilePtr->to())) xFlippedTile.render();
+			else tile.render();
+		}
+
 		if (cam.mRenderTileBorderFirst[side]) {
 			for (size_t i = 0; i < tilesPerSide; i++) {
 				tilePtr = sidePtr + i;
@@ -304,6 +323,11 @@ void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, flo
 				glBindTexture(GL_TEXTURE_2D, assets.TILE_FACE.mHandle);
 				tile.render();
 			}
+		}
+
+		// Hack to correctly print dead snake (part 2)
+		if (model.mGameOver && !cam.mRenderTileBorderFirst[side]) {
+			
 		}
 	}
 

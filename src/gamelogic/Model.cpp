@@ -81,6 +81,8 @@ Model::Model(ModelConfig cfg) noexcept
 	tile->setFrom(Direction2D::DOWN);
 	mTailPtr = tile;
 
+	mDeadHeadPtr = nullptr;
+
 	// Object
 	freeRandomTile(*this)->setType(TileType::OBJECT);
 }
@@ -163,21 +165,30 @@ void Model::update(float delta) noexcept
 		nextHeadPtr->setType(TileType::EMPTY);
 	}
 
-	// Check if Game Over
-	if (nextHeadPtr->type() != TileType::EMPTY && nextHeadPtr->type() != TileType::TAIL) {
-		mGameOver = true;
-		mProgress = 0.8f;
-		return;
-	}
-
-	if (objectEaten) mTransparentTimeLeft = 1.0f;
-
 	// Calculate more next pointers
 	Position tailPos = getTilePosition(mTailPtr);
 	Position nextTailPos = (mTailPtr->type() == TileType::TAIL_DIGESTING)
 	                     ? tailPos : adjacent(tailPos, mTailPtr->to());
 	SnakeTile* nextTailPtr = getTilePtr(nextTailPos);
 	SnakeTile* nextPreHeadPtr = mHeadPtr;
+
+	// Move pre head
+	if (digesting(nextPreHeadPtr->type())) nextPreHeadPtr->setType(TileType::PRE_HEAD_DIGESTING);
+	else nextPreHeadPtr->setType(TileType::PRE_HEAD);
+	if (mPreHeadPtr != nextTailPtr) {
+		if (digesting(mPreHeadPtr->type())) mPreHeadPtr->setType(TileType::BODY_DIGESTING);
+		else mPreHeadPtr->setType(TileType::BODY);
+	}
+
+	// Check if Game Over
+	if (nextHeadPtr->type() != TileType::EMPTY && nextHeadPtr->type() != TileType::TAIL) {
+		mGameOver = true;
+		mProgress = 0.499f;
+		mDeadHeadPtr = nextHeadPtr;
+		return;
+	}
+
+	if (objectEaten) mTransparentTimeLeft = 1.0f;
 
 	// Move tail
 	if (mTailPtr->type() == TileType::TAIL_DIGESTING) {
@@ -186,14 +197,6 @@ void Model::update(float delta) noexcept
 		mTailPtr->setType(TileType::EMPTY);
 		if (digesting(nextTailPtr->type())) nextTailPtr->setType(TileType::TAIL_DIGESTING);
 		else nextTailPtr->setType(TileType::TAIL);
-	}
-
-	// Move pre head
-	if (digesting(nextPreHeadPtr->type())) nextPreHeadPtr->setType(TileType::PRE_HEAD_DIGESTING);
-	else nextPreHeadPtr->setType(TileType::PRE_HEAD);
-	if (mPreHeadPtr != nextTailPtr) {
-		if (digesting(mPreHeadPtr->type())) mPreHeadPtr->setType(TileType::BODY_DIGESTING);
-		else mPreHeadPtr->setType(TileType::BODY);
 	}
 
 	// Move head
