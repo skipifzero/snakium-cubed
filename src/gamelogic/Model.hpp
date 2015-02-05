@@ -30,6 +30,7 @@ public:
 	const size_t mTileCount;
 	SnakeTile* const mTiles;
 	SnakeTile *mHeadPtr, *mPreHeadPtr, *mTailPtr, *mDeadHeadPtr;
+	Position mDeadHeadPos;
 	float mProgress = 0.0f;
 	long mScore = 0;
 	bool mGameOver = false;

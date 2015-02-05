@@ -41,11 +41,11 @@ Model::Model(ModelConfig cfg) noexcept
 :
 	mCfg(cfg),
 	mTileCount{static_cast<size_t>(mCfg.gridWidth*mCfg.gridWidth*6)},
-	mTiles{new SnakeTile[mTileCount]}
+	mTiles{new SnakeTile[mTileCount+1]} // +1, last tile is the dead head tile
 {
 	// Set the type of every SnakeTile to EMPTY.
 	SnakeTile* current = mTiles;
-	SnakeTile* const max = mTiles + mTileCount;
+	SnakeTile* const max = mTiles + mTileCount + 1; // +1 to reset dead head tile
 	while (current < max) {
 		current->setType(TileType::EMPTY);
 		current++;
@@ -81,7 +81,8 @@ Model::Model(ModelConfig cfg) noexcept
 	tile->setFrom(Direction2D::DOWN);
 	mTailPtr = tile;
 
-	mDeadHeadPtr = nullptr;
+	// Dead Head Ptr
+	mDeadHeadPtr = mTiles + mTileCount;
 
 	// Object
 	freeRandomTile(*this)->setType(TileType::OBJECT);
@@ -165,30 +166,21 @@ void Model::update(float delta) noexcept
 		nextHeadPtr->setType(TileType::EMPTY);
 	}
 
-	// Calculate more next pointers
-	Position tailPos = getTilePosition(mTailPtr);
-	Position nextTailPos = (mTailPtr->type() == TileType::TAIL_DIGESTING)
-	                     ? tailPos : adjacent(tailPos, mTailPtr->to());
-	SnakeTile* nextTailPtr = getTilePtr(nextTailPos);
-	SnakeTile* nextPreHeadPtr = mHeadPtr;
-
-	// Move pre head
-	if (digesting(nextPreHeadPtr->type())) nextPreHeadPtr->setType(TileType::PRE_HEAD_DIGESTING);
-	else nextPreHeadPtr->setType(TileType::PRE_HEAD);
-	if (mPreHeadPtr != nextTailPtr) {
-		if (digesting(mPreHeadPtr->type())) mPreHeadPtr->setType(TileType::BODY_DIGESTING);
-		else mPreHeadPtr->setType(TileType::BODY);
-	}
-
 	// Check if Game Over
 	if (nextHeadPtr->type() != TileType::EMPTY && nextHeadPtr->type() != TileType::TAIL) {
+		nextHeadPtr = mDeadHeadPtr;
+		mDeadHeadPos = nextPos;
 		mGameOver = true;
-		mProgress = 0.499f;
-		mDeadHeadPtr = nextHeadPtr;
-		return;
 	}
 
 	if (objectEaten) mTransparentTimeLeft = 1.0f;
+
+	// Calculate more next pointers
+	Position tailPos = getTilePosition(mTailPtr);
+	Position nextTailPos = (mTailPtr->type() == TileType::TAIL_DIGESTING)
+	                       ? tailPos : adjacent(tailPos, mTailPtr->to());
+	SnakeTile* nextTailPtr = getTilePtr(nextTailPos);
+	SnakeTile* nextPreHeadPtr = mHeadPtr;
 
 	// Move tail
 	if (mTailPtr->type() == TileType::TAIL_DIGESTING) {
@@ -197,6 +189,14 @@ void Model::update(float delta) noexcept
 		mTailPtr->setType(TileType::EMPTY);
 		if (digesting(nextTailPtr->type())) nextTailPtr->setType(TileType::TAIL_DIGESTING);
 		else nextTailPtr->setType(TileType::TAIL);
+	}
+
+	// Move pre head
+	if (digesting(nextPreHeadPtr->type())) nextPreHeadPtr->setType(TileType::PRE_HEAD_DIGESTING);
+	else nextPreHeadPtr->setType(TileType::PRE_HEAD);
+	if (mPreHeadPtr != nextTailPtr) {
+		if (digesting(mPreHeadPtr->type())) mPreHeadPtr->setType(TileType::BODY_DIGESTING);
+		else mPreHeadPtr->setType(TileType::BODY);
 	}
 
 	// Move head
