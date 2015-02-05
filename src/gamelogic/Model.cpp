@@ -112,8 +112,6 @@ void Model::update(float delta) noexcept
 {
 	if (mGameOver) return;
 
-	mTransparentTimeLeft -= delta;
-
 	mProgress += delta * mCfg.tilesPerSecond;
 	if (mProgress <= 1.0f) return;
 	mProgress -= 1.0f;
@@ -172,8 +170,6 @@ void Model::update(float delta) noexcept
 		mDeadHeadPos = nextPos;
 		mGameOver = true;
 	}
-
-	if (objectEaten) mTransparentTimeLeft = 1.0f;
 
 	// Calculate more next pointers
 	Position tailPos = getTilePosition(mTailPtr);

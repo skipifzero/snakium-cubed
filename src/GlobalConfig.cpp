@@ -62,7 +62,6 @@ void sanitizePropertyTree(ptree& pt) noexcept
 	sanitizePTItem<uint16_t>(pt, "Graphics.windowResolutionY", 64, 8192, 800);
 	sanitizePTItem<uint16_t>(pt, "Graphics.MSAA", 0, 32, 8);
 	sanitizePTItemBool(pt, "Graphics.transparentCube", false);
-	sanitizePTItemBool(pt, "Graphics.transparentWhenEating", true);
 
 	// [GameSettings]
 	sanitizePTItem<uint16_t>(pt, "GameSettings.gridWidth", 2, 128, 4);
@@ -113,7 +112,6 @@ void GlobalConfig::load() noexcept
 	mWindowResolutionY = mPtree.get<uint16_t>("Graphics.windowResolutionY");
 	mMSAA = mPtree.get<uint16_t>("Graphics.MSAA");
 	mTransparentCube = mPtree.get<bool>("Graphics.transparentCube");
-	mTransparentWhenEating = mPtree.get<bool>("Graphics.transparentWhenEating");
 
 	// [GameSettings]
 	mModelConfig.gridWidth = mPtree.get<uint16_t>("GameSettings.gridWidth");
@@ -134,7 +132,6 @@ void GlobalConfig::save() noexcept
 	mPtree.put("Graphics.windowResolutionY", mWindowResolutionY);
 	mPtree.put("Graphics.MSAA", mMSAA);
 	mPtree.put("Graphics.transparentCube", mTransparentCube);
-	mPtree.put("Graphics.transparentWhenEating", mTransparentWhenEating);
 
 	// [GameSettings]
 	mPtree.put("GameSettings.gridWidth", mModelConfig.gridWidth);

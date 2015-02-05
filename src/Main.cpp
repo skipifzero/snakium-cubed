@@ -205,12 +205,8 @@ void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, flo
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Enable/Disable culling
-	if (isTransparent ||
-	    (globalConfig.mTransparentWhenEating && model.mTransparentTimeLeft > 0.f)) {
-		glDisable(GL_CULL_FACE);
-	} else {
-		glEnable(GL_CULL_FACE);
-	}
+	if (isTransparent) glDisable(GL_CULL_FACE);
+	else glEnable(GL_CULL_FACE);
 
 	glViewport(0, 0, window.drawableWidth(), window.drawableHeight());
 
@@ -314,7 +310,7 @@ void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, flo
 		// Tile Sprite Transform
 		spriteTransform =
 			viewProj *
-			sfz::translationMatrix(tilePosToVector(model, deadHeadPos) + s3::toVector(deadHeadPos.side)*0.00125f) *
+			sfz::translationMatrix(tilePosToVector(model, deadHeadPos) + s3::toVector(deadHeadPos.side)*0.0015f) *
 			tileSpaceRotation(deadHeadPos.side) *
 			sfz::scalingMatrix(tileWidth) *
 			sfz::yRotationMatrix(getTileAngleRad(deadHeadPos.side, deadHeadPtr->from()));
