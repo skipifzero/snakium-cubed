@@ -41,11 +41,11 @@ Model::Model(ModelConfig cfg) noexcept
 :
 	mCfg(cfg),
 	mTileCount{static_cast<size_t>(mCfg.gridWidth*mCfg.gridWidth*6)},
-	mTiles{new SnakeTile[mTileCount]}
+	mTiles{new SnakeTile[mTileCount+1]} // +1, last tile is the dead head tile
 {
 	// Set the type of every SnakeTile to EMPTY.
 	SnakeTile* current = mTiles;
-	SnakeTile* const max = mTiles + mTileCount;
+	SnakeTile* const max = mTiles + mTileCount + 1; // +1 to reset dead head tile
 	while (current < max) {
 		current->setType(TileType::EMPTY);
 		current++;
@@ -80,6 +80,9 @@ Model::Model(ModelConfig cfg) noexcept
 	tile->setTo(Direction2D::UP);
 	tile->setFrom(Direction2D::DOWN);
 	mTailPtr = tile;
+
+	// Dead Head Ptr
+	mDeadHeadPtr = mTiles + mTileCount;
 
 	// Object
 	freeRandomTile(*this)->setType(TileType::OBJECT);
@@ -165,9 +168,9 @@ void Model::update(float delta) noexcept
 
 	// Check if Game Over
 	if (nextHeadPtr->type() != TileType::EMPTY && nextHeadPtr->type() != TileType::TAIL) {
+		nextHeadPtr = mDeadHeadPtr;
+		mDeadHeadPos = nextPos;
 		mGameOver = true;
-		mProgress = 0.8f;
-		return;
 	}
 
 	if (objectEaten) mTransparentTimeLeft = 1.0f;
@@ -175,7 +178,7 @@ void Model::update(float delta) noexcept
 	// Calculate more next pointers
 	Position tailPos = getTilePosition(mTailPtr);
 	Position nextTailPos = (mTailPtr->type() == TileType::TAIL_DIGESTING)
-	                     ? tailPos : adjacent(tailPos, mTailPtr->to());
+	                       ? tailPos : adjacent(tailPos, mTailPtr->to());
 	SnakeTile* nextTailPtr = getTilePtr(nextTailPos);
 	SnakeTile* nextPreHeadPtr = mHeadPtr;
 

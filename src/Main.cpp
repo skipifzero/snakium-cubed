@@ -181,7 +181,7 @@ bool update(s3::Model& model, float delta)
 	model.update(delta);
 	if (model.mGameOver) std::cout << "GAME OVER, Final score: " << model.mScore << std::endl;
 
-	cam.update(model, delta);
+	if (!model.mGameOver) cam.update(model, delta);
 
 	return false;
 }
@@ -230,7 +230,7 @@ void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, flo
 	s3::Position tilePos;
 
 	const size_t tilesPerSide = model.mCfg.gridWidth*model.mCfg.gridWidth;
-	for (size_t side = 0; side < 6; side++) {
+	for (uint8_t side = 0; side < 6; side++) {
 		s3::SnakeTile* sidePtr = model.getTilePtr(s3::Position{cam.mSideRenderOrder[side], 0, 0});
 
 		if (cam.mRenderTileBorderFirst[side]) {
@@ -273,7 +273,6 @@ void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, flo
 				tilePtr = sidePtr + i;
 				tilePos = model.getTilePosition(tilePtr);
 
-
 				// Only render tiles with sprites
 				if(tilePtr->type() != s3::TileType::EMPTY) {
 					// Tile Sprite Transform
@@ -305,6 +304,26 @@ void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, flo
 				tile.render();
 			}
 		}
+	}
+
+	// Hack to correctly print dead snake head
+	if (model.mGameOver) {
+		s3::SnakeTile* deadHeadPtr = model.mDeadHeadPtr;
+		s3::Position deadHeadPos = model.mDeadHeadPos;
+
+		// Tile Sprite Transform
+		spriteTransform =
+			viewProj *
+			sfz::translationMatrix(tilePosToVector(model, deadHeadPos) + s3::toVector(deadHeadPos.side)*0.00125f) *
+			tileSpaceRotation(deadHeadPos.side) *
+			sfz::scalingMatrix(tileWidth) *
+			sfz::yRotationMatrix(getTileAngleRad(deadHeadPos.side, deadHeadPtr->from()));
+
+		// Render snake sprite
+		gl::setUniform(shaderProgram, "modelViewProj", spriteTransform);
+		glBindTexture(GL_TEXTURE_2D, assets.getTileTexture(deadHeadPtr, model.mProgress, model.mGameOver).mHandle);
+		if (isLeftTurn(deadHeadPtr->from(), deadHeadPtr->to())) xFlippedTile.render();
+		else tile.render();
 	}
 
 	// Clean up
