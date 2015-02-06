@@ -34,6 +34,7 @@ public:
 	float mProgress = 0.0f;
 	long mScore = 0;
 	bool mGameOver = false;
+	float mCurrentSpeed;
 
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

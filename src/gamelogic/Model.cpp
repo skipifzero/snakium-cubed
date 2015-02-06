@@ -41,7 +41,8 @@ Model::Model(ModelConfig cfg) noexcept
 :
 	mCfg(cfg),
 	mTileCount{static_cast<size_t>(mCfg.gridWidth*mCfg.gridWidth*6)},
-	mTiles{new SnakeTile[mTileCount+1]} // +1, last tile is the dead head tile
+	mTiles{new SnakeTile[mTileCount+1]}, // +1, last tile is the dead head tile
+	mCurrentSpeed{cfg.tilesPerSecond}
 {
 	// Set the type of every SnakeTile to EMPTY.
 	SnakeTile* current = mTiles;
@@ -112,7 +113,7 @@ void Model::update(float delta) noexcept
 {
 	if (mGameOver) return;
 
-	mProgress += delta * mCfg.tilesPerSecond;
+	mProgress += delta * mCurrentSpeed;
 	if (mProgress <= 1.0f) return;
 	mProgress -= 1.0f;
 
@@ -162,6 +163,11 @@ void Model::update(float delta) noexcept
 		objectEaten = true;
 		mScore += static_cast<long>(mCfg.pointsPerBonusObject);
 		nextHeadPtr->setType(TileType::EMPTY);
+	}
+
+	// Check if speed should be increased
+	if (objectEaten && mCfg.hasSpeedIncrease) {
+		mCurrentSpeed += mCfg.speedIncreasePerObject;
 	}
 
 	// Check if Game Over
