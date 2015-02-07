@@ -219,48 +219,47 @@ void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, flo
 	glActiveTexture(GL_TEXTURE0);
 
 	// Render all SnakeTiles
+	const size_t tilesPerSide = model.mCfg.gridWidth*model.mCfg.gridWidth;
 	const float gridWidth = static_cast<float>(model.mCfg.gridWidth);
 	const float tileWidth = 1.0f / gridWidth;
-	sfz::mat4f borderTransform, spriteTransform;
-	s3::SnakeTile* tilePtr;
+	const sfz::mat4f tileScaling = sfz::scalingMatrix(tileWidth);
+	sfz::mat4f transform, tileSpaceRot, tileSpaceRotScaling;
+	sfz::vec3f snakeFloatVec;
+	s3::SnakeTile *sidePtr, *tilePtr;
 	s3::Position tilePos;
+	s3::Direction3D currentSide;
 
-	const size_t tilesPerSide = model.mCfg.gridWidth*model.mCfg.gridWidth;
-	for (uint8_t side = 0; side < 6; side++) {
-		s3::SnakeTile* sidePtr = model.getTilePtr(s3::Position{cam.mSideRenderOrder[side], 0, 0});
+	for (size_t side = 0; side < 6; side++) {
+		currentSide = cam.mSideRenderOrder[side];
+		sidePtr = model.getTilePtr(s3::Position{currentSide, 0, 0});
 
-		if (cam.mRenderTileBorderFirst[side]) {
+		tileSpaceRot = tileSpaceRotation(currentSide);
+		tileSpaceRotScaling = tileSpaceRot * tileScaling;
+		snakeFloatVec = s3::toVector(currentSide) * 0.001f;
+
+		if (cam.mRenderTileFaceFirst[side]) {
 			for (size_t i = 0; i < tilesPerSide; i++) {
 				tilePtr = sidePtr + i;
 				tilePos = model.getTilePosition(tilePtr);
 
-				// Tile Border Transform
-				borderTransform =
-					viewProj *
-					sfz::translationMatrix(tilePosToVector(model, tilePos)) *
-					tileSpaceRotation(tilePos.side) *
-					sfz::scalingMatrix(tileWidth) *
-					sfz::yRotationMatrix(getTileAngleRad(tilePos.side, tilePtr->from()));
+				// Calculate base transform
+				transform = tileSpaceRotScaling;
+				transform *= sfz::yRotationMatrix(getTileAngleRad(tilePos.side, tilePtr->from()));
 
-				// Render tile border
-				gl::setUniform(shaderProgram, "modelViewProj", borderTransform);
+				// Render tile face
+				translation(transform, tilePosToVector(model, tilePos));
+				gl::setUniform(shaderProgram, "modelViewProj", viewProj * transform);
 				glBindTexture(GL_TEXTURE_2D, assets.TILE_FACE.mHandle);
 				tile.render();
 
-				// Only render tiles with sprites
+				// Render snake sprite for non-empty tiles
 				if(tilePtr->type() == s3::TileType::EMPTY) continue;
 
 				// Tile Sprite Transform
-				spriteTransform =
-					viewProj *
-					sfz::translationMatrix(tilePosToVector(model, tilePos) + s3::toVector(tilePos.side)*0.001f) *
-					tileSpaceRotation(tilePos.side) *
-					sfz::scalingMatrix(tileWidth) *
-					sfz::yRotationMatrix(getTileAngleRad(tilePos.side, tilePtr->from()));
-
-				// Render snake sprite
-				gl::setUniform(shaderProgram, "modelViewProj", spriteTransform);
-				glBindTexture(GL_TEXTURE_2D, assets.getTileTexture(tilePtr, model.mProgress, model.mGameOver).mHandle);
+				translation(transform, translation(transform) + snakeFloatVec);
+				gl::setUniform(shaderProgram, "modelViewProj", viewProj * transform);
+				glBindTexture(GL_TEXTURE_2D,
+				     assets.getTileTexture(tilePtr, model.mProgress, model.mGameOver).mHandle);
 				if (isLeftTurn(tilePtr->from(), tilePtr->to())) xFlippedTile.render();
 				else tile.render();
 			}
@@ -269,55 +268,46 @@ void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, flo
 				tilePtr = sidePtr + i;
 				tilePos = model.getTilePosition(tilePtr);
 
-				// Only render tiles with sprites
-				if(tilePtr->type() != s3::TileType::EMPTY) {
-					// Tile Sprite Transform
-					spriteTransform =
-						viewProj *
-						sfz::translationMatrix(tilePosToVector(model, tilePos) + s3::toVector(tilePos.side)*0.001f) *
-						tileSpaceRotation(tilePos.side) *
-						sfz::scalingMatrix(tileWidth) *
-						sfz::yRotationMatrix(getTileAngleRad(tilePos.side, tilePtr->from()));
+				// Calculate base transform
+				transform = tileSpaceRotScaling;
+				transform *= sfz::yRotationMatrix(getTileAngleRad(tilePos.side, tilePtr->from()));
 
-					// Render snake sprite
-					gl::setUniform(shaderProgram, "modelViewProj", spriteTransform);
-					glBindTexture(GL_TEXTURE_2D, assets.getTileTexture(tilePtr, model.mProgress, model.mGameOver).mHandle);
+				// Render snake sprite for non-empty tiles
+				if(tilePtr->type() != s3::TileType::EMPTY) {
+					translation(transform, tilePosToVector(model, tilePos) + snakeFloatVec);
+					gl::setUniform(shaderProgram, "modelViewProj", viewProj * transform);
+					glBindTexture(GL_TEXTURE_2D,
+					     assets.getTileTexture(tilePtr, model.mProgress, model.mGameOver).mHandle);
 					if (isLeftTurn(tilePtr->from(), tilePtr->to())) xFlippedTile.render();
 					else tile.render();
 				}
 
-				// Tile Border Transform
-				borderTransform =
-					viewProj *
-					sfz::translationMatrix(tilePosToVector(model, tilePos)) *
-					tileSpaceRotation(tilePos.side) *
-					sfz::scalingMatrix(tileWidth) *
-					sfz::yRotationMatrix(getTileAngleRad(tilePos.side, tilePtr->from()));
-
-				// Render tile border
-				gl::setUniform(shaderProgram, "modelViewProj", borderTransform);
+				// Render tile face
+				translation(transform, tilePosToVector(model, tilePos));
+				gl::setUniform(shaderProgram, "modelViewProj", viewProj * transform);
 				glBindTexture(GL_TEXTURE_2D, assets.TILE_FACE.mHandle);
 				tile.render();
 			}
 		}
 	}
 
-	// Hack to correctly print dead snake head
+	// Hack to correctly render dead snake head
 	if (model.mGameOver) {
 		s3::SnakeTile* deadHeadPtr = model.mDeadHeadPtr;
 		s3::Position deadHeadPos = model.mDeadHeadPos;
 
-		// Tile Sprite Transform
-		spriteTransform =
-			viewProj *
-			sfz::translationMatrix(tilePosToVector(model, deadHeadPos) + s3::toVector(deadHeadPos.side)*0.0015f) *
-			tileSpaceRotation(deadHeadPos.side) *
-			sfz::scalingMatrix(tileWidth) *
-			sfz::yRotationMatrix(getTileAngleRad(deadHeadPos.side, deadHeadPtr->from()));
+		// Calculate dead head transform
+		tileSpaceRot = tileSpaceRotation(deadHeadPos.side);
+		tileSpaceRotScaling = tileSpaceRot * tileScaling;
+		snakeFloatVec = s3::toVector(deadHeadPos.side) * 0.0015f;
+		transform = tileSpaceRotScaling;
+		transform *= sfz::yRotationMatrix(getTileAngleRad(deadHeadPos.side, deadHeadPtr->from()));
+		translation(transform, tilePosToVector(model, deadHeadPos) + snakeFloatVec);
 
-		// Render snake sprite
-		gl::setUniform(shaderProgram, "modelViewProj", spriteTransform);
-		glBindTexture(GL_TEXTURE_2D, assets.getTileTexture(deadHeadPtr, model.mProgress, model.mGameOver).mHandle);
+		// Render dead head
+		gl::setUniform(shaderProgram, "modelViewProj", viewProj * transform);
+		glBindTexture(GL_TEXTURE_2D,
+		   assets.getTileTexture(deadHeadPtr, model.mProgress, model.mGameOver).mHandle);
 		if (isLeftTurn(deadHeadPtr->from(), deadHeadPtr->to())) xFlippedTile.render();
 		else tile.render();
 	}
