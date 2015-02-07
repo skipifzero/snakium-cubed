@@ -80,6 +80,57 @@ template<typename T>
 Matrix<T,4,4> lookAt(const Vector<T,3>& cameraPosition, const Vector<T,3> cameraTarget,
                      const Vector<T,3> upVector) noexcept;
 
+// Transform helper functions
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+template<typename T>
+Vector<T,3> translation(const Matrix<T,4,4>& transform) noexcept;
+
+template<typename T>
+void translation(Matrix<T,4,4>& transform, const Vector<T,3>& translation) noexcept;
+
+template<typename T>
+Vector<T,3> scaling(const Matrix<T,4,4>& transform) noexcept;
+
+template<typename T>
+void scaling(Matrix<T,4,4>& transform, const Vector<T,3>& scaling) noexcept;
+
+template<typename T>
+Vector<T,3> forward(const Matrix<T,4,4>& transform) noexcept;
+
+template<typename T>
+void forward(Matrix<T,4,4>& transform, const Vector<T,3>& forward) noexcept;
+
+template<typename T>
+Vector<T,3> backward(const Matrix<T,4,4>& transform) noexcept;
+
+template<typename T>
+void backward(Matrix<T,4,4>& transform, const Vector<T,3>& backward) noexcept;
+
+template<typename T>
+Vector<T,3> up(const Matrix<T,4,4>& transform) noexcept;
+
+template<typename T>
+void up(Matrix<T,4,4>& transform, const Vector<T,3>& up) noexcept;
+
+template<typename T>
+Vector<T,3> down(const Matrix<T,4,4>& transform) noexcept;
+
+template<typename T>
+void down(Matrix<T,4,4>& transform, const Vector<T,3>& down) noexcept;
+
+template<typename T>
+Vector<T,3> right(const Matrix<T,4,4>& transform) noexcept;
+
+template<typename T>
+void right(Matrix<T,4,4>& transform, const Vector<T,3>& right) noexcept;
+
+template<typename T>
+Vector<T,3> left(const Matrix<T,4,4>& transform) noexcept;
+
+template<typename T>
+void left(Matrix<T,4,4>& transform, const Vector<T,3>& left) noexcept;
+
 } // namespace sfz
 
 #include "sfz/MSVC12HackOFF.hpp"

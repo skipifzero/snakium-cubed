@@ -168,6 +168,135 @@ Matrix<T,4,4> lookAt(const Vector<T,3>& cameraPosition, const Vector<T,3> camera
 	                     * translationMatrix(-cameraPosition);
 }
 
+// Transform helper functions
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+template<typename T>
+Vector<T,3> translation(const Matrix<T,4,4>& transform) noexcept
+{
+	Vector<T,3> temp;
+	temp[0] = transform.at(0, 3);
+	temp[1] = transform.at(1, 3);
+	temp[2] = transform.at(2, 3);
+	return temp;
+}
+
+template<typename T>
+void translation(Matrix<T,4,4>& transform, const Vector<T,3>& translation) noexcept
+{
+	transform.set(0, 3, translation[0]);
+	transform.set(1, 3, translation[1]);
+	transform.set(2, 3, translation[2]);
+}
+
+template<typename T>
+Vector<T,3> scaling(const Matrix<T,4,4>& transform) noexcept
+{
+	Vector<T,3> temp;
+	temp[0] = transform.at(0, 0);
+	temp[1] = transform.at(1, 1);
+	temp[2] = transform.at(2, 2);
+	return temp;
+}
+
+template<typename T>
+void scaling(Matrix<T,4,4>& transform, const Vector<T,3>& scaling) noexcept
+{
+	transform.set(0, 0, scaling[0]);
+	transform.set(1, 1, scaling[1]);
+	transform.set(2, 2, scaling[2]);
+}
+
+template<typename T>
+Vector<T,3> forward(const Matrix<T,4,4>& transform) noexcept
+{
+	Vector<T,3> temp;
+	temp[0] = transform.at(0, 2);
+	temp[1] = transform.at(1, 2);
+	temp[2] = transform.at(2, 2);
+	return temp;
+}
+
+template<typename T>
+void forward(Matrix<T,4,4>& transform, const Vector<T,3>& forward) noexcept
+{
+	transform.set(0, 2, forward[0]);
+	transform.set(1, 2, forward[1]);
+	transform.set(2, 2, forward[2]);
+}
+
+template<typename T>
+Vector<T,3> backward(const Matrix<T,4,4>& transform) noexcept
+{
+	return -forward(transform);
+}
+
+template<typename T>
+void backward(Matrix<T,4,4>& transform, const Vector<T,3>& backward) noexcept
+{
+	forward(transform, -backward);
+}
+
+template<typename T>
+Vector<T,3> up(const Matrix<T,4,4>& transform) noexcept
+{
+	Vector<T,3> temp;
+	temp[0] = transform.at(0, 1);
+	temp[1] = transform.at(1, 1);
+	temp[2] = transform.at(2, 1);
+	return temp;
+}
+
+template<typename T>
+void up(Matrix<T,4,4>& transform, const Vector<T,3>& up) noexcept
+{
+	transform.set(0, 1, up[0]);
+	transform.set(1, 1, up[1]);
+	transform.set(2, 1, up[2]);
+}
+
+template<typename T>
+Vector<T,3> down(const Matrix<T,4,4>& transform) noexcept
+{
+	return -up(transform);
+}
+
+template<typename T>
+void down(Matrix<T,4,4>& transform, const Vector<T,3>& down) noexcept
+{
+	up(transform, -down);
+}
+
+template<typename T>
+Vector<T,3> right(const Matrix<T,4,4>& transform) noexcept
+{
+	Vector<T,3> temp;
+	temp[0] = transform.at(0, 0);
+	temp[1] = transform.at(1, 0);
+	temp[2] = transform.at(2, 0);
+	return temp;
+}
+
+template<typename T>
+void right(Matrix<T,4,4>& transform, const Vector<T,3>& right) noexcept
+{
+	transform.set(0, 0, right[0]);
+	transform.set(1, 0, right[1]);
+	transform.set(2, 0, right[2]);
+}
+
+template<typename T>
+Vector<T,3> left(const Matrix<T,4,4>& transform) noexcept
+{
+	return -right(transform);
+}
+
+template<typename T>
+void left(Matrix<T,4,4>& transform, const Vector<T,3>& left) noexcept
+{
+	right(transform, -left);
+}
+
 } // namespace sfz
 
 #include "sfz/MSVC12HackOFF.hpp"
