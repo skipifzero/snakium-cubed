@@ -330,7 +330,8 @@ int main()
 	// Init libraries and stuff
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	sdl::Session sdlSession{{sdl::InitFlags::EVERYTHING}, {sdl::ImgInitFlags::PNG}};
+	sdl::Session sdlSession{{sdl::InitFlags::EVENTS, sdl::InitFlags::VIDEO},
+	                        {sdl::ImgInitFlags::PNG}};
 
 	if (globalConfig.mMSAA > 0) {
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
@@ -338,7 +339,8 @@ int main()
 	}
 
 	sdl::Window window{"snakium³", globalConfig.mWindowResolutionX, globalConfig.mWindowResolutionY,
-	     {sdl::WindowFlags::OPENGL, sdl::WindowFlags::RESIZABLE, sdl::WindowFlags::ALLOW_HIGHDPI}};
+	     {sdl::WindowFlags::OPENGL, sdl::WindowFlags::RESIZABLE, sdl::WindowFlags::ALLOW_HIGHDPI,
+	      globalConfig.mFullscreen ? sdl::WindowFlags::FULLSCREEN_DESKTOP : sdl::WindowFlags::OPENGL}};
 
 	gl::Context glContext{window.mPtr, 3, 3, gl::GLContextProfile::CORE};
 

@@ -23,6 +23,7 @@ using std::uint16_t;
 class GlobalConfig {
 public:
 	ModelConfig mModelConfig;
+	bool mFullscreen;
 	uint16_t mWindowResolutionX, mWindowResolutionY;
 	uint16_t mMSAA;
 	bool mTransparentCube;

@@ -58,6 +58,7 @@ void sanitizePTItemBool(ptree& pt, const std::string& key, bool def) noexcept
 void sanitizePropertyTree(ptree& pt) noexcept
 {
 	// [Graphics]
+	sanitizePTItemBool(pt, "Graphics.fullscreen", false);
 	sanitizePTItem<uint16_t>(pt, "Graphics.windowResolutionX", 64, 8192, 800);
 	sanitizePTItem<uint16_t>(pt, "Graphics.windowResolutionY", 64, 8192, 800);
 	sanitizePTItem<uint16_t>(pt, "Graphics.MSAA", 0, 32, 8);
@@ -108,6 +109,7 @@ void GlobalConfig::load() noexcept
 	sanitizePropertyTree(mPtree);
 
 	// [Graphics]
+	mFullscreen = mPtree.get<bool>("Graphics.fullscreen");
 	mWindowResolutionX = mPtree.get<uint16_t>("Graphics.windowResolutionX");
 	mWindowResolutionY = mPtree.get<uint16_t>("Graphics.windowResolutionY");
 	mMSAA = mPtree.get<uint16_t>("Graphics.MSAA");
@@ -128,6 +130,7 @@ void GlobalConfig::load() noexcept
 void GlobalConfig::save() noexcept
 {
 	// [Graphics]
+	mPtree.put("Graphics.fullscreen", mFullscreen);
 	mPtree.put("Graphics.windowResolutionX", mWindowResolutionX);
 	mPtree.put("Graphics.windowResolutionY", mWindowResolutionY);
 	mPtree.put("Graphics.MSAA", mMSAA);
