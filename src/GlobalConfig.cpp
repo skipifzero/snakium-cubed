@@ -61,6 +61,7 @@ void sanitizePropertyTree(ptree& pt) noexcept
 	sanitizePTItemBool(pt, "Graphics.fullscreen", false);
 	sanitizePTItem<uint16_t>(pt, "Graphics.windowResolutionX", 64, 8192, 800);
 	sanitizePTItem<uint16_t>(pt, "Graphics.windowResolutionY", 64, 8192, 800);
+	sanitizePTItemBool(pt, "Graphics.VSync", true);
 	sanitizePTItem<uint16_t>(pt, "Graphics.MSAA", 0, 32, 8);
 	sanitizePTItemBool(pt, "Graphics.transparentCube", false);
 
@@ -112,6 +113,7 @@ void GlobalConfig::load() noexcept
 	mFullscreen = mPtree.get<bool>("Graphics.fullscreen");
 	mWindowResolutionX = mPtree.get<uint16_t>("Graphics.windowResolutionX");
 	mWindowResolutionY = mPtree.get<uint16_t>("Graphics.windowResolutionY");
+	mVSync = mPtree.get<bool>("Graphics.VSync");
 	mMSAA = mPtree.get<uint16_t>("Graphics.MSAA");
 	mTransparentCube = mPtree.get<bool>("Graphics.transparentCube");
 
@@ -134,6 +136,7 @@ void GlobalConfig::save() noexcept
 	mPtree.put("Graphics.windowResolutionX", mWindowResolutionX);
 	mPtree.put("Graphics.windowResolutionY", mWindowResolutionY);
 	mPtree.put("Graphics.MSAA", mMSAA);
+	mPtree.put("Graphics.VSync", mVSync);
 	mPtree.put("Graphics.transparentCube", mTransparentCube);
 
 	// [GameSettings]

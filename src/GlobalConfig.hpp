@@ -25,6 +25,7 @@ public:
 	ModelConfig mModelConfig;
 	bool mFullscreen;
 	uint16_t mWindowResolutionX, mWindowResolutionY;
+	bool mVSync;
 	uint16_t mMSAA;
 	bool mTransparentCube;
 

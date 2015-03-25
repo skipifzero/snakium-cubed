@@ -353,6 +353,9 @@ int main()
 	}
 	checkGLErrorsMessage("^^^ Above errors caused by glewInit().");
 
+	// Enable/disable vsync
+	if (!globalConfig.mVSync) SDL_GL_SetSwapInterval(0);
+
 	// Init variables
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
