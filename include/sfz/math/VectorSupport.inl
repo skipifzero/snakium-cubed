@@ -16,16 +16,16 @@ template<typename T, size_t N>
 T angle(const Vector<T,N>& vectorA, const Vector<T,N>& vectorB) noexcept
 {
 	auto squaredNormA = vectorA.squaredNorm();
-	assert(squaredNormA != 0);
+	sfz_assert_debug(squaredNormA != 0);
 	auto squaredNormB = vectorB.squaredNorm();
-	assert(squaredNormB != 0);
+	sfz_assert_debug(squaredNormB != 0);
 	return std::acos(vectorA.dot(vectorB)/(std::sqrt(squaredNormA*squaredNormB)));
 }
 
 template<typename T>
 T angle(const Vector<T,2>& vector) noexcept
 {
-	assert(!(vector[0] == 0 && vector[1] == 0));
+	sfz_assert_debug(!(vector[0] == 0 && vector[1] == 0));
 	T angle = std::atan2(vector[1], vector[0]);
 	if (angle < 0) {
 		angle += static_cast<T>(2)*static_cast<T>(g_PI_DOUBLE);

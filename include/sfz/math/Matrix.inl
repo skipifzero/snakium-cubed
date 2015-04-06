@@ -2,16 +2,30 @@
 
 namespace sfz {
 
+// Public constants
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+template<typename T, size_t M, size_t N>
+const Matrix<T,M,N>& Matrix<T,M,N>::ZERO() noexcept
+{
+	static const Matrix<T,M,N> zero = []() -> Matrix<T,M,N> {
+		Matrix<T,M,N> tmp;
+		tmp.fill(T(0));
+		return tmp;
+	}();
+	return zero; 
+}
+
 // Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 template<typename T, size_t M, size_t N>
 Matrix<T,M,N>::Matrix(std::initializer_list<std::initializer_list<T>> list) noexcept
 {
-	assert(list.size() <= M);
+	sfz_assert_debug(list.size() <= M);
 	size_t i = 0;
 	for (auto& rowList : list) {
-		assert(rowList.size() <= N);
+		sfz_assert_debug(rowList.size() <= N);
 		size_t j = 0;
 		for (T element : rowList) {
 			mElements[j][i] = element;
@@ -37,21 +51,69 @@ Matrix<T,M,N>::Matrix(std::initializer_list<std::initializer_list<T>> list) noex
 template<typename T, size_t M, size_t N>
 T& Matrix<T,M,N>::at(size_t i, size_t j) noexcept
 {
+	sfz_assert_debug(i < M);
+	sfz_assert_debug(j < N);
 	return mElements[j][i];
 }
 
 template<typename T, size_t M, size_t N>
 T Matrix<T,M,N>::at(size_t i, size_t j) const noexcept
 {
+	sfz_assert_debug(i < M);
+	sfz_assert_debug(j < N);
 	return mElements[j][i];
+}
+
+template<typename T, size_t M, size_t N>
+Vector<T,N> Matrix<T,M,N>::rowAt(size_t i) const noexcept
+{
+	sfz_assert_debug(i < M);
+	Vector<T,N> row;
+	for (size_t j = 0; j < N; j++) {
+		row[j] = mElements[j][i];
+	}
+	return row;
+}
+
+template<typename T, size_t M, size_t N>
+Vector<T,M> Matrix<T,M,N>::columnAt(size_t j) const noexcept
+{
+	sfz_assert_debug(j < N);
+	Vector<T,M> column;
+	for (size_t i = 0; i < N; i++) {
+		column[i] = mElements[j][i];
+	}
+	return column;
 }
 
 template<typename T, size_t M, size_t N>
 void Matrix<T,M,N>::set(size_t i, size_t j, T value) noexcept
 {
-	assert(i < M);
-	assert(j < N);
+	sfz_assert_debug(i < M);
+	sfz_assert_debug(j < N);
 	mElements[j][i] = value;
+}
+
+template<typename T, size_t M, size_t N>
+void Matrix<T,M,N>::setRow(size_t i, const Vector<T,N>& row) noexcept
+{
+	sfz_assert_debug(i < M);
+	size_t j = 0;
+	for (auto element : row) {
+		mElements[j][i] = element;
+		j++;
+	}
+}
+
+template<typename T, size_t M, size_t N>
+void Matrix<T,M,N>::setColumn(size_t j, const Vector<T,M>& column) noexcept
+{
+	sfz_assert_debug(j < N);
+	size_t i = 0;
+	for (auto element : column) {
+		mElements[j][i] = element;
+		i++;
+	}
 }
 
 template<typename T, size_t M, size_t N>
@@ -96,7 +158,7 @@ size_t Matrix<T,M,N>::hash() const noexcept
 	for (size_t i = 0; i < M; i++) {
 		for (size_t j = 0; j < N; j++) {
 			// hash_combine algorithm from boost
-		hash ^= hasher(mElements[j][i]) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
+			hash ^= hasher(mElements[j][i]) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
 		}
 	}
 	return hash;
@@ -276,7 +338,7 @@ std::ostream& operator<< (std::ostream& ostream, const Matrix<T,M,N>& matrix) no
 
 } // namespace sfz
 
-// Specializations of standard library for sfz::Vector
+// Specializations of standard library for sfz::Matrix
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 namespace std {

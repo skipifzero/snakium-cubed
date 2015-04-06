@@ -6,7 +6,7 @@ ScopedThread::ScopedThread(std::thread t)
 :
 	mThread{std::move(t)}
 {
-	assert(mThread.joinable());
+	sfz_assert_debug(mThread.joinable());
 }
 
 ScopedThread::~ScopedThread()
