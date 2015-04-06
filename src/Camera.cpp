@@ -124,7 +124,7 @@ void Camera::update(const Model& model, float delta) noexcept
 		sfz::vec3f rotAxis = sfz::cross(mUp, mUpTarget);
 		float angleToMove = maxAnglePerSec*delta;
 		if ((angleDiff-angleToMove) < 0) angleToMove = angleDiff;
-		sfz::mat4f rotMat = sfz::rotationMatrix(rotAxis, angleToMove);
+		sfz::mat4f rotMat = sfz::rotationMatrix4(rotAxis, angleToMove);
 		mUp = transformPoint(rotMat, mUp).normalize();
 	}
 

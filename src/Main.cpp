@@ -106,12 +106,12 @@ sfz::vec3f tilePosToVector(const s3::Model& model, const s3::Position& tilePos) 
 sfz::mat4f tileSpaceRotation(s3::Direction3D side) noexcept
 {
 	switch (side) {
-	case s3::Direction3D::UP: return sfz::identityMatrix<float>();
-	case s3::Direction3D::DOWN: return sfz::xRotationMatrix(sfz::g_PI_FLOAT);
-	case s3::Direction3D::SOUTH: return sfz::xRotationMatrix(sfz::g_PI_FLOAT/2.0f);
-	case s3::Direction3D::NORTH: return sfz::xRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
-	case s3::Direction3D::WEST: return sfz::zRotationMatrix(sfz::g_PI_FLOAT/2.0f);
-	case s3::Direction3D::EAST: return sfz::zRotationMatrix(-sfz::g_PI_FLOAT/2.0f);
+	case s3::Direction3D::UP: return sfz::identityMatrix4<float>();
+	case s3::Direction3D::DOWN: return sfz::xRotationMatrix4(sfz::g_PI_FLOAT);
+	case s3::Direction3D::SOUTH: return sfz::xRotationMatrix4(sfz::g_PI_FLOAT/2.0f);
+	case s3::Direction3D::NORTH: return sfz::xRotationMatrix4(-sfz::g_PI_FLOAT/2.0f);
+	case s3::Direction3D::WEST: return sfz::zRotationMatrix4(sfz::g_PI_FLOAT/2.0f);
+	case s3::Direction3D::EAST: return sfz::zRotationMatrix4(-sfz::g_PI_FLOAT/2.0f);
 	}
 }
 
@@ -222,7 +222,7 @@ void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, flo
 	const size_t tilesPerSide = model.mCfg.gridWidth*model.mCfg.gridWidth;
 	const float gridWidth = static_cast<float>(model.mCfg.gridWidth);
 	const float tileWidth = 1.0f / gridWidth;
-	const sfz::mat4f tileScaling = sfz::scalingMatrix(tileWidth);
+	const sfz::mat4f tileScaling = sfz::scalingMatrix4(tileWidth);
 	sfz::mat4f transform, tileSpaceRot, tileSpaceRotScaling;
 	sfz::vec3f snakeFloatVec;
 	s3::SnakeTile *sidePtr, *tilePtr;
@@ -244,7 +244,7 @@ void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, flo
 
 				// Calculate base transform
 				transform = tileSpaceRotScaling;
-				transform *= sfz::yRotationMatrix(getTileAngleRad(tilePos.side, tilePtr->from()));
+				transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
 
 				// Render tile face
 				translation(transform, tilePosToVector(model, tilePos));
@@ -270,7 +270,7 @@ void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, flo
 
 				// Calculate base transform
 				transform = tileSpaceRotScaling;
-				transform *= sfz::yRotationMatrix(getTileAngleRad(tilePos.side, tilePtr->from()));
+				transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
 
 				// Render snake sprite for non-empty tiles
 				if(tilePtr->type() != s3::TileType::EMPTY) {
@@ -301,7 +301,7 @@ void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, flo
 		tileSpaceRotScaling = tileSpaceRot * tileScaling;
 		snakeFloatVec = s3::toVector(deadHeadPos.side) * 0.0015f;
 		transform = tileSpaceRotScaling;
-		transform *= sfz::yRotationMatrix(getTileAngleRad(deadHeadPos.side, deadHeadPtr->from()));
+		transform *= sfz::yRotationMatrix4(getTileAngleRad(deadHeadPos.side, deadHeadPtr->from()));
 		translation(transform, tilePosToVector(model, deadHeadPos) + snakeFloatVec);
 
 		// Render dead head
