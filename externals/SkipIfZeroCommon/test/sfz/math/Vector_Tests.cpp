@@ -7,6 +7,15 @@
 #include <unordered_map>
 #include <type_traits>
 
+TEST_CASE("Constants", "[sfz::Vector]")
+{
+	SECTION("ZERO()") {
+		REQUIRE((sfz::Vector<int,2>::ZERO()) == (sfz::Vector<int,2>{0,0}));
+		REQUIRE((sfz::Vector<int,3>::ZERO()) == (sfz::Vector<int,3>{0,0,0}));
+		REQUIRE((sfz::Vector<int,4>::ZERO()) == (sfz::Vector<int,4>{0,0,0,0}));
+	}
+}
+
 TEST_CASE("Constructors", "[sfz::Vector]")
 {
 	SECTION("Initalizer list constructor assigns correct value to elements") {

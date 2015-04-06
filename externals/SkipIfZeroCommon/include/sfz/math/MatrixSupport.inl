@@ -2,11 +2,124 @@
 
 namespace sfz {
 
+// Resizing helpers
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+template<typename T>
+Matrix<T,3,3> mat3(const Matrix<T,4,4>& m) noexcept
+{
+	return Matrix<T,3,3>{{m.at(0,0), m.at(0,1), m.at(0,2)},
+	                     {m.at(1,0), m.at(1,1), m.at(1,2)},
+	                     {m.at(2,0), m.at(2,1), m.at(2,2)}};
+}
+
+template<typename T>
+Matrix<T,4,4> mat4(const Matrix<T,3,3>& m) noexcept
+{
+	return Matrix<T,4,4>{{m.at(0,0), m.at(0,1), m.at(0,2), 0},
+	                     {m.at(1,0), m.at(1,1), m.at(1,2), 0},
+	                     {m.at(2,0), m.at(2,1), m.at(2,2), 0},
+	                     {0, 0, 0, 1}};
+}
+
+// Transforming 3D vector helpers
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+template<typename T>
+Vector<T,3> transformPoint(const Matrix<T,4,4>& m, const Vector<T,3>& p) noexcept
+{
+	Vector<T,4> v4{p[0], p[1], p[2], 1};
+	v4 = m * v4;
+	v4 = v4 / v4[3];
+	return Vector<T,3>{v4[0], v4[1], v4[2]};
+}
+
+template<typename T>
+Vector<T,3> transformDir(const Matrix<T,4,4>& m, const Vector<T,3>& d) noexcept
+{
+	Vector<T,4> v4{d[0], d[1], d[2], 0};
+	v4 = m * v4;
+	return Vector<T,3>{v4[0], v4[1], v4[2]};
+}
+
+// Common specialized operations
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+template<typename T>
+T determinant(const Matrix<T,2,2>& m) noexcept
+{
+	return m.at(0,0)*m.at(1,1) - m.at(0,1)*m.at(1,0);
+}
+
+template<typename T>
+T determinant(const Matrix<T,3,3>& m) noexcept
+{
+	return m.at(0, 0) * m.at(1, 1) * m.at(2, 2)
+	     + m.at(0, 1) * m.at(1, 2) * m.at(2, 0)
+	     + m.at(0, 2) * m.at(1, 0) * m.at(2, 1)
+	     - m.at(0, 2) * m.at(1, 1) * m.at(2, 0)
+	     - m.at(0, 1) * m.at(1, 0) * m.at(2, 2)
+	     - m.at(0, 0) * m.at(1, 2) * m.at(2, 1);
+}
+
+template<typename T>
+Matrix<T,2,2> inverse(const Matrix<T,2,2>& m) noexcept
+{
+	const T det = determinant(m);
+	if (det == 0) return Matrix<T,2,2>{{0,0},{0,0}};
+
+	Matrix<T,2,2> temp{{m.at(1, 1), -m.at(0, 1)},
+	                  {-m.at(1,0), m.at(0,0)}};
+
+	return (1/det) * temp;
+}
+
+template<typename T>
+Matrix<T,3,3> inverse(const Matrix<T,3,3>& m) noexcept
+{
+	const T det = determinant(m);
+	if (det == 0) return Matrix<T,3,3>{{0,0,0},{0,0,0},{0,0,0}};
+
+	const T a = m.at(0,0);
+	const T b = m.at(0,1); 
+	const T c = m.at(0,2);
+	const T d = m.at(1,0);
+	const T e = m.at(1,1); 
+	const T f = m.at(1,2);
+	const T g = m.at(2,0);
+	const T h = m.at(2,1); 
+	const T i = m.at(2,2);
+
+	
+	const T A = (e*i - f*h);
+	const T B = -(d*i - f*g);
+	const T C = (d*h - e*g);
+	const T D = -(b*i - c*h);
+	const T E = (a*i - c*g);
+	const T F = -(a*h - b*g);
+	const T G = (b*f - c*e);
+	const T H = -(a*f - c*d);
+	const T I = (a*e - b*d);
+
+	Matrix<T,3,3> temp{{A, D, G}, {B, E, H}, {C, F, I}};
+	return (1/det) * temp;
+}
+
 // Rotation matrices
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 template<typename T>
-Matrix<T,4,4> xRotationMatrix(T angleRads) noexcept
+Matrix<T,3,3> xRotationMatrix3(T angleRads) noexcept
+{
+	using std::cos;
+	using std::sin;
+	return Matrix<T,3,3>{{1, 0, 0},
+	                     {0, cos(angleRads), -sin(angleRads)},
+	                     {0, sin(angleRads), cos(angleRads)}};
+}
+
+template<typename T>
+Matrix<T,4,4> xRotationMatrix4(T angleRads) noexcept
 {
 	using std::cos;
 	using std::sin;
@@ -17,7 +130,17 @@ Matrix<T,4,4> xRotationMatrix(T angleRads) noexcept
 }
 
 template<typename T>
-Matrix<T,4,4> yRotationMatrix(T angleRads) noexcept
+Matrix<T,3,3> yRotationMatrix3(T angleRads) noexcept
+{
+	using std::cos;
+	using std::sin;
+	return Matrix<T,3,3>{{cos(angleRads), 0, sin(angleRads)},
+	                     {0, 1, 0},
+	                     {-sin(angleRads), 0, cos(angleRads)}};
+}
+
+template<typename T>
+Matrix<T,4,4> yRotationMatrix4(T angleRads) noexcept
 {
 	using std::cos;
 	using std::sin;
@@ -28,7 +151,17 @@ Matrix<T,4,4> yRotationMatrix(T angleRads) noexcept
 }
 
 template<typename T>
-Matrix<T,4,4> zRotationMatrix(T angleRads) noexcept
+Matrix<T,3,3> zRotationMatrix3(T angleRads) noexcept
+{
+	using std::cos;
+	using std::sin;
+	return Matrix<T,3,3>{{cos(angleRads), -sin(angleRads), 0},
+	                     {sin(angleRads), cos(angleRads), 0},
+	                     {0, 0, 1}};
+}
+
+template<typename T>
+Matrix<T,4,4> zRotationMatrix4(T angleRads) noexcept
 {
 	using std::cos;
 	using std::sin;
@@ -39,7 +172,25 @@ Matrix<T,4,4> zRotationMatrix(T angleRads) noexcept
 }
 
 template<typename T>
-Matrix<T,4,4> rotationMatrix(const sfz::Vector<T,3>& axis, T angleRads) noexcept
+Matrix<T,3,3> rotationMatrix3(const sfz::Vector<T,3>& axis, T angleRads) noexcept
+{
+	using std::cos;
+	using std::sin;
+	sfz::Vector<T,3> r = axis.normalize();
+	T x = r[0];
+	T y = r[1];
+	T z = r[2];
+	T c = cos(angleRads);
+	T s = sin(angleRads);
+	T cm1 = static_cast<T>(1) - c;
+	// Matrix by Goldman, page 71 of Real-Time Rendering.
+	return Matrix<T,3,3>{{c + cm1*x*x, cm1*x*y - z*s, cm1*x*z + y*s},
+	                     {cm1*x*y + z*s, c + cm1*y*y, cm1*y*z - x*s},
+	                     {cm1*x*z - y*s, cm1*y*z + x*s, c + cm1*z*z}};
+}
+
+template<typename T>
+Matrix<T,4,4> rotationMatrix4(const sfz::Vector<T,3>& axis, T angleRads) noexcept
 {
 	using std::cos;
 	using std::sin;
@@ -61,7 +212,15 @@ Matrix<T,4,4> rotationMatrix(const sfz::Vector<T,3>& axis, T angleRads) noexcept
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 template<typename T>
-Matrix<T,4,4> identityMatrix() noexcept
+Matrix<T,3,3> identityMatrix3() noexcept
+{
+	return Matrix<T,3,3>{{1, 0, 0},
+	                     {0, 1, 0},
+	                     {0, 0, 1}};
+}
+
+template<typename T>
+Matrix<T,4,4> identityMatrix4() noexcept
 {
 	return Matrix<T,4,4>{{1, 0, 0, 0},
 	                     {0, 1, 0, 0},
@@ -70,7 +229,15 @@ Matrix<T,4,4> identityMatrix() noexcept
 }
 
 template<typename T>
-Matrix<T,4,4> scalingMatrix(T scaleFactor) noexcept
+Matrix<T,3,3> scalingMatrix3(T scaleFactor) noexcept
+{
+	return Matrix<T,3,3>{{scaleFactor, 0, 0},
+	                     {0, scaleFactor, 0},
+	                     {0, 0, scaleFactor}};
+}
+
+template<typename T>
+Matrix<T,4,4> scalingMatrix4(T scaleFactor) noexcept
 {
 	return Matrix<T,4,4>{{scaleFactor, 0, 0, 0},
 	                     {0, scaleFactor, 0, 0},
@@ -79,7 +246,15 @@ Matrix<T,4,4> scalingMatrix(T scaleFactor) noexcept
 }
 
 template<typename T>
-Matrix<T,4,4> scalingMatrix(T scaleX, T scaleY, T scaleZ) noexcept
+Matrix<T,3,3> scalingMatrix3(T scaleX, T scaleY, T scaleZ) noexcept
+{
+	return Matrix<T,3,3>{{scaleX, 0, 0},
+	                     {0, scaleY, 0},
+	                     {0, 0, scaleZ}};
+}
+
+template<typename T>
+Matrix<T,4,4> scalingMatrix4(T scaleX, T scaleY, T scaleZ) noexcept
 {
 	return Matrix<T,4,4>{{scaleX, 0, 0, 0},
 	                     {0, scaleY, 0, 0},
@@ -141,8 +316,8 @@ Matrix<T,4,4> glPerspectiveProjectionMatrix(T left, T bottom, T zNear,
 inline Matrix<float,4,4> glPerspectiveProjectionMatrix(float yFovDeg, float aspectRatio,
                                                        float zNear, float zFar) noexcept
 {
-	assert(0 < zNear);
-	assert(zNear < zFar);
+	sfz_assert_debug(0 < zNear);
+	sfz_assert_debug(zNear < zFar);
 	float yMax = zNear * tanf(yFovDeg * (g_PI_FLOAT/360.f));
 	float xMax = yMax * aspectRatio;
 	return glPerspectiveProjectionMatrix(-xMax, -yMax, zNear, xMax, yMax, zFar);

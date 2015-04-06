@@ -3,6 +3,8 @@
 #define SFZ_MATH_VECTOR_SUPPORT_HPP
 
 #include <cmath>
+
+#include "sfz/Assert.hpp"
 #include "sfz/math/Vector.hpp"
 #include "sfz/MSVC12HackON.hpp"
 
@@ -25,7 +27,7 @@ Vector<T,3> cross(const Vector<T,3>& vectorA, const Vector<T,3>& vectorB) noexce
  * @brief Calculates the positive angle between two vectors.
  * The angle will be in range [0, Pi] and will always be the smallest possible angle between the
  * vectors.
- * @assert norm of vectorA or B != 0
+ * @sfz_assert_debug norm of vectorA or B != 0
  * @return the angle between the two vectors
  */
 template<typename T, size_t N>
@@ -34,7 +36,7 @@ T angle(const Vector<T,N>& vectorA, const Vector<T,N>& vectorB) noexcept;
 /**
  * @brief Calculates the positive angle between the specified vector and the x-axis in radians.
  * The angle will be in the range [0, 2*Pi).
- * @assert norm of vector != 0
+ * @sfz_assert_debug norm of vector != 0
  * @return the angle between the vector and the x-axis
  */
 template<typename T>

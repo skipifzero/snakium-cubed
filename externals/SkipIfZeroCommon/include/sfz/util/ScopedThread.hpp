@@ -3,7 +3,8 @@
 #define SFZ_UTIL_SCOPED_THREAD_HPP
 
 #include <thread>
-#include <cassert>
+
+#include "sfz/Assert.hpp"
 
 namespace sfz {
 
@@ -19,7 +20,7 @@ public:
 	 * @brief Constructs a ScopedThread given an std::thread that is joinable.
 	 * The specified std::thread is moved into this ScopedThread which then assumes ownership of
 	 * the thread.
-	 * @assert thread is joinable
+	 * @sfz_assert_debug thread is joinable
 	 * @param t the std::thread to transfer to this ScopedThread
 	 */
 	explicit ScopedThread(std::thread t);

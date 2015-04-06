@@ -3,12 +3,12 @@
 #define SFZ_MATH_VECTOR_HPP
 
 #include <initializer_list>
-#include <cassert>
 #include <functional> // std::hash
 #include <cmath> // std::sqrt
 #include <string>
 #include <iostream> // std::ostream
 
+#include "sfz/Assert.hpp"
 #include "sfz/math/MathConstants.hpp"
 #include "sfz/MSVC12HackON.hpp"
 
@@ -42,6 +42,11 @@ using std::size_t;
 template<typename T, size_t N>
 struct Vector final {
 	
+	// Public constants
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	static const Vector<T,N>& ZERO() noexcept;
+
 	// Public members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -65,7 +70,7 @@ struct Vector final {
 	 * @brief Initializer list constructor.
 	 * If the initializer list contains less element than the size of the vector the remaining
 	 * elements will be set to 0.
-	 * @assert vector and initializer list must fit in the vector
+	 * @sfz_assert_debug vector and initializer list must fit in the vector
 	 * @param list the initializer_list with values to fill the vector with
 	 */
 	Vector(std::initializer_list<T> list) noexcept;
@@ -77,21 +82,21 @@ struct Vector final {
 	
 	/**
 	 * @brief General accessor returning the reference to element at the specified location.
-	 * @assert index must be in range
+	 * @sfz_assert_debug index must be in range
 	 * @return reference to the element at the specified index
 	 */
 	T& at(const size_t index) noexcept;
 
 	/**
 	 * @brief Returns the element at the specified index.
-	 * @assert index must be in range
+	 * @sfz_assert_debug index must be in range
 	 * @return the element at the specified index
 	 */
 	T at(const size_t index) const noexcept;
 
 	/**
 	 * @brief Assigns value to the specified index.
-	 * @assert index must be in range
+	 * @sfz_assert_debug index must be in range
 	 */
 	void set(const size_t index, const T value) noexcept;
 
@@ -160,6 +165,7 @@ struct Vector final {
 
 	/**
 	 * @brief Returns a reference to element at the specified index, no range checking.
+	 * @sfz_assert_debug index must be in range
 	 * @param index the index of the element
 	 * @return reference to element at the specified index
 	 */
@@ -167,6 +173,7 @@ struct Vector final {
 
 	/**
 	 * @brief Returns the element at the specified index, no range checking.
+	 * @sfz_assert_debug index must be in range
 	 * @param index the index of the element
 	 * @return element at the specified index
 	 */

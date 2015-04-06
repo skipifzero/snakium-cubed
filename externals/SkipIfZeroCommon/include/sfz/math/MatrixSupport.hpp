@@ -3,6 +3,8 @@
 #define SFZ_MATH_MATRIX_SUPPORT_HPP
 
 #include <cmath>
+
+#include "sfz/Assert.hpp"
 #include "sfz/math/Matrix.hpp"
 #include "sfz/MSVC12HackON.hpp"
 
@@ -14,32 +16,86 @@ namespace sfz {
  * @author Peter Hillerström
  */
 
+// Resizing helpers
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+template<typename T>
+Matrix<T,3,3> mat3(const Matrix<T,4,4>& m) noexcept;
+
+template<typename T>
+Matrix<T,4,4> mat4(const Matrix<T,3,3>& m) noexcept;
+
+// Transforming 3D vector helpers
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+template<typename T>
+Vector<T,3> transformPoint(const Matrix<T,4,4>& m, const Vector<T,3>& p) noexcept;
+
+template<typename T>
+Vector<T,3> transformDir(const Matrix<T,4,4>& m, const Vector<T,3>& d) noexcept;
+
+// Common specialized operations
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+template<typename T>
+T determinant(const Matrix<T,2,2>& m) noexcept;
+
+template<typename T>
+T determinant(const Matrix<T,3,3>& m) noexcept;
+
+template<typename T>
+Matrix<T,2,2> inverse(const Matrix<T,2,2>& m) noexcept;
+
+template<typename T>
+Matrix<T,3,3> inverse(const Matrix<T,3,3>& m) noexcept;
+
 // Rotation matrices
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 template<typename T>
-Matrix<T,4,4> xRotationMatrix(T angleRads) noexcept;
+Matrix<T,3,3> xRotationMatrix3(T angleRads) noexcept;
 
 template<typename T>
-Matrix<T,4,4> yRotationMatrix(T angleRads) noexcept;
+Matrix<T,4,4> xRotationMatrix4(T angleRads) noexcept;
 
 template<typename T>
-Matrix<T,4,4> zRotationMatrix(T angleRads) noexcept;
+Matrix<T,3,3> yRotationMatrix3(T angleRads) noexcept;
 
 template<typename T>
-Matrix<T,4,4> rotationMatrix(const sfz::Vector<T,3>& axis, T angleRads) noexcept;
+Matrix<T,4,4> yRotationMatrix4(T angleRads) noexcept;
+
+template<typename T>
+Matrix<T,3,3> zRotationMatrix3(T angleRads) noexcept;
+
+template<typename T>
+Matrix<T,4,4> zRotationMatrix4(T angleRads) noexcept;
+
+template<typename T>
+Matrix<T,3,3> rotationMatrix3(const sfz::Vector<T,3>& axis, T angleRads) noexcept;
+
+template<typename T>
+Matrix<T,4,4> rotationMatrix4(const sfz::Vector<T,3>& axis, T angleRads) noexcept;
 
 // Transformation matrices
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 template<typename T>
-Matrix<T,4,4> identityMatrix() noexcept;
+Matrix<T,3,3> identityMatrix3() noexcept;
 
 template<typename T>
-Matrix<T,4,4> scalingMatrix(T scaleFactor) noexcept;
+Matrix<T,4,4> identityMatrix4() noexcept;
 
 template<typename T>
-Matrix<T,4,4> scalingMatrix(T scaleX, T scaleY, T scaleZ) noexcept;
+Matrix<T,3,3> scalingMatrix3(T scaleFactor) noexcept;
+
+template<typename T>
+Matrix<T,4,4> scalingMatrix4(T scaleFactor) noexcept;
+
+template<typename T>
+Matrix<T,3,3> scalingMatrix3(T scaleX, T scaleY, T scaleZ) noexcept;
+
+template<typename T>
+Matrix<T,4,4> scalingMatrix4(T scaleX, T scaleY, T scaleZ) noexcept;
 
 template<typename T>
 Matrix<T,4,4> translationMatrix(T deltaX, T deltaY, T deltaZ) noexcept;

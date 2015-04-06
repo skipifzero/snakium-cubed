@@ -1,7 +1,21 @@
 #include "sfz/MSVC12HackON.hpp"
 
 namespace sfz {
-	
+
+// Public constants
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+template<typename T, size_t N>
+const Vector<T,N>& Vector<T,N>::ZERO() noexcept
+{
+	static const Vector<T,N> zero = []() -> Vector<T,N> {
+		Vector<T,N> tmp;
+		tmp.fill(T(0));
+		return tmp;
+	}();
+	return zero; 
+}
+
 // Constructors and destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -9,7 +23,7 @@ template<typename T, size_t N>
 Vector<T,N>::Vector(std::initializer_list<T> list) noexcept
 {
 	size_t listSize = list.size();
-	assert(listSize <= N);
+	sfz_assert_debug(listSize <= N);
 	// Sets elements to values from initializer list.
 	T* elementItr = mElements;
 	for (auto listElement : list) {
@@ -27,21 +41,21 @@ Vector<T,N>::Vector(std::initializer_list<T> list) noexcept
 template<typename T, size_t N>
 T& Vector<T,N>::at(const size_t index) noexcept
 {
-	assert(index < N);
+	sfz_assert_debug(index < N);
 	return mElements[index];
 }
 
 template<typename T, size_t N>
 T Vector<T,N>::at(const size_t index) const noexcept
 {
-	assert(index < N);
+	sfz_assert_debug(index < N);
 	return mElements[index];
 }
 
 template<typename T, size_t N>
 void Vector<T,N>::set(const size_t index, T value) noexcept
 {
-	assert(index < N);
+	sfz_assert_debug(index < N);
 	mElements[index] = value;
 }
 
@@ -180,12 +194,14 @@ const T* Vector<T,N>::cend() const noexcept
 template<typename T, size_t N>
 T& Vector<T,N>::operator[] (const size_t index) noexcept
 {
+	sfz_assert_debug(index < N);
 	return mElements[index];
 }
 
 template<typename T, size_t N>
 T Vector<T,N>::operator[] (const size_t index) const noexcept
 {
+	sfz_assert_debug(index < N);
 	return mElements[index];
 }
 
@@ -224,7 +240,7 @@ Vector<T,N>& Vector<T,N>::operator*= (const T& right) noexcept
 template<typename T, size_t N>
 Vector<T,N>& Vector<T,N>::operator/= (const T& right) noexcept
 {
-	assert(right != 0);
+	sfz_assert_debug(right != 0);
 	for (auto& element : mElements) {
 		element /= right;
 	}
