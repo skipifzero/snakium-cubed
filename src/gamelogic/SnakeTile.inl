@@ -1,5 +1,3 @@
-#include "sfz/MSVC12HackON.hpp"
-
 namespace s3 {
 
 inline bool digesting(TileType type) noexcept
@@ -49,5 +47,3 @@ inline void SnakeTile::setTo(Direction2D to) noexcept
 }
 
 } // namespace s3
-
-#include "sfz/MSVC12HackOFF.hpp"

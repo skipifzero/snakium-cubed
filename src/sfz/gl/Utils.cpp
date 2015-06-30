@@ -1,7 +1,5 @@
 #include "sfz/gl/Utils.hpp"
 
-#include "sfz/MSVC12HackON.hpp"
-
 namespace gl {
 
 bool checkGLError() noexcept
@@ -117,5 +115,3 @@ void setUniform(GLuint shaderProgram, const std::string& name, int i) noexcept
 }
 
 } // namespace gl
-
-#include "sfz/MSVC12HackOFF.hpp"

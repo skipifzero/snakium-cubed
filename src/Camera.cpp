@@ -1,7 +1,5 @@
 #include "Camera.hpp"
 
-#include "sfz/MSVC12HackON.hpp"
-
 namespace s3 {
 
 namespace {
@@ -159,5 +157,3 @@ void Camera::update(const Model& model, float delta) noexcept
 }
 
 } // namespace s3
-
-#include "sfz/MSVC12HackOFF.hpp"

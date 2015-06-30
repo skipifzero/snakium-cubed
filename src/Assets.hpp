@@ -7,8 +7,6 @@
 #include <string>
 #include "GameLogic.hpp"
 
-#include "sfz/MSVC12HackON.hpp"
-
 namespace s3 {
 
 struct Assets final {
@@ -61,7 +59,5 @@ struct Assets final {
 };
 
 } // namespace s3
-
-#include "sfz/MSVC12HackOFF.hpp"
 
 #endif

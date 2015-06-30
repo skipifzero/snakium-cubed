@@ -14,8 +14,6 @@
 #include "sfz/SDL.hpp"
 #include "gamelogic/ModelConfig.hpp"
 
-#include "sfz/MSVC12HackON.hpp"
-
 namespace s3 {
 
 using std::uint16_t;
@@ -37,7 +35,4 @@ private:
 };
 
 } // namespace s3
-
-#include "sfz/MSVC12HackOFF.hpp"
-
 #endif

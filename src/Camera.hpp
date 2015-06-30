@@ -7,8 +7,6 @@
 #include <exception> // std::terminate
 #include <cmath>
 
-#include "sfz/MSVC12HackON.hpp"
-
 namespace s3 {
 
 class Camera {
@@ -29,7 +27,5 @@ private:
 };
 
 } // namespace s3
-
-#include "sfz/MSVC12HackOFF.hpp"
 
 #endif

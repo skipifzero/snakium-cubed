@@ -1,7 +1,5 @@
 #include "sfz/gl/Context.hpp"
 
-#include "sfz/MSVC12HackON.hpp"
-
 namespace gl {
 
 Context::Context(SDL_Window* window, int major, int minor, GLContextProfile profile) noexcept
@@ -37,5 +35,3 @@ Context::~Context() noexcept
 }
 
 } // namespace gl
-
-#include "sfz/MSVC12HackOFF.hpp"

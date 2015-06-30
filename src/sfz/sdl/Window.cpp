@@ -1,7 +1,5 @@
 #include "sfz/sdl/Window.hpp"
 
-#include "sfz/MSVC12HackON.hpp"
-
 namespace sdl {
 
 namespace {
@@ -94,5 +92,3 @@ void Window::setSize(int width, int height) noexcept
 }
 
 } // namespace sdl
-
-#include "sfz/MSVC12HackOFF.hpp"

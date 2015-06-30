@@ -15,8 +15,6 @@
 
 #undef main // Remove SDL hack until we can get it to compile properly
 
-#include "sfz/MSVC12HackON.hpp"
-
 // Variables
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 GLuint shaderProgram;
@@ -396,5 +394,3 @@ int main()
 
 	return 0;
 }
-
-#include "sfz/MSVC12HackOFF.hpp"

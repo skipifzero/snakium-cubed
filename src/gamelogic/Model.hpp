@@ -14,8 +14,6 @@
 #include "gamelogic/Position.hpp"
 #include "gamelogic/SnakeTile.hpp"
 
-#include "sfz/MSVC12HackON.hpp"
-
 namespace s3 {
 
 using std::uint8_t;
@@ -129,7 +127,4 @@ inline Position Model::getTilePosition(SnakeTile* tilePtr) const noexcept
 }
 
 } // namespace s3
-
-#include "sfz/MSVC12HackOFF.hpp"
-
 #endif

@@ -1,5 +1,3 @@
-#include "sfz/MSVC12HackON.hpp"
-
 namespace s3 {
 
 inline int16_t Position::coordinate(Coordinate coord) noexcept
@@ -66,5 +64,3 @@ inline Coordinate other(Coordinate coord) noexcept
 }
 
 } // namespace s3
-
-#include "sfz/MSVC12HackOFF.hpp"
