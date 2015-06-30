@@ -1,27 +1,25 @@
-#include "sfz/MSVC12HackON.hpp"
-
 namespace sfz {
 
 // Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-inline AABB::AABB(const vec3f& min, const vec3f& max) noexcept
+inline AABB::AABB(const vec3& min, const vec3& max) noexcept
 :
-	mMin{min},
-	mMax{max}
+	mMin(min),
+	mMax(max)
 {
 	sfz_assert_debug(min[0] < max[0]);
 	sfz_assert_debug(min[1] < max[1]);
 	sfz_assert_debug(min[2] < max[2]);
 }
 
-inline AABB::AABB(const vec3f& centerPos, float xExtent, float yExtent, float zExtent) noexcept
+inline AABB::AABB(const vec3& centerPos, float xExtent, float yExtent, float zExtent) noexcept
 {
 	sfz_assert_debug(xExtent > 0);
 	sfz_assert_debug(yExtent > 0);
 	sfz_assert_debug(zExtent > 0);
 
-	vec3f temp = centerPos;
+	vec3 temp = centerPos;
 	temp[0] -= xExtent/2.0f;
 	temp[1] -= yExtent/2.0f;
 	temp[2] -= zExtent/2.0f;
@@ -36,18 +34,18 @@ inline AABB::AABB(const vec3f& centerPos, float xExtent, float yExtent, float zE
 // Public member functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-inline std::array<vec3f,8> AABB::corners() const noexcept
+inline std::array<vec3,8> AABB::corners() const noexcept
 {
-	std::array<vec3f,8> result;
+	std::array<vec3,8> result;
 	this->corners(&result[0]);
 	return result;
 }
 
-inline void AABB::corners(vec3f* arrayOut) const noexcept
+inline void AABB::corners(vec3* arrayOut) const noexcept
 {
-	const vec3f xExtent = vec3f{mMax[0] - mMin[0], 0.0f, 0.0f};
-	const vec3f yExtent = vec3f{0.0f, mMax[1] - mMin[1], 0.0f};
-	const vec3f zExtent = vec3f{0.0f, 0.0f, mMax[2] - mMin[2]};
+	const vec3 xExtent = vec3{mMax[0] - mMin[0], 0.0f, 0.0f};
+	const vec3 yExtent = vec3{0.0f, mMax[1] - mMin[1], 0.0f};
+	const vec3 zExtent = vec3{0.0f, 0.0f, mMax[2] - mMin[2]};
 
 	arrayOut[0] = mMin; // Back-bottom-left
 	arrayOut[1] = mMin + zExtent; // Front-bottom-left
@@ -59,9 +57,9 @@ inline void AABB::corners(vec3f* arrayOut) const noexcept
 	arrayOut[7] = mMax; // Front-top-right
 }
 
-inline vec3f AABB::closestPoint(const vec3f& point) const noexcept
+inline vec3 AABB::closestPoint(const vec3& point) const noexcept
 {
-	vec3f res = point;
+	vec3 res = point;
 	float val;
 	for (size_t i = 0; i < 3; i++) {
 		val = point[i];
@@ -74,7 +72,7 @@ inline vec3f AABB::closestPoint(const vec3f& point) const noexcept
 
 inline size_t AABB::hash() const noexcept
 {
-	std::hash<vec3f> hasher;
+	std::hash<vec3> hasher;
 	size_t hash = 0;
 	// hash_combine algorithm from boost
 	hash ^= hasher(mMin) + 0x9e3779b9 + (hash << 6) + (hash >> 2);
@@ -85,46 +83,46 @@ inline size_t AABB::hash() const noexcept
 inline std::string AABB::to_string() const noexcept
 {
 	std::string str{"Min: "};
-	str += mMin.to_string();
+	str += sfz::to_string(mMin);
 	str += "\nMax: ";
-	str += mMax.to_string();
+	str += sfz::to_string(mMax);
 	return std::move(str);
 }
 
 // Public getters/setters
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-inline void AABB::position(const vec3f& newCenterPos) noexcept
+inline void AABB::position(const vec3& newCenterPos) noexcept
 {
-	const vec3f halfExtents{xExtent()/2.0f, yExtent()/2.0f, zExtent()/2.0f};
+	const vec3 halfExtents{xExtent()/2.0f, yExtent()/2.0f, zExtent()/2.0f};
 	mMin = newCenterPos - halfExtents;
 	mMax = newCenterPos + halfExtents;
 }
 
-inline void AABB::extents(const vec3f& newExtents) noexcept
+inline void AABB::extents(const vec3& newExtents) noexcept
 {
 	sfz_assert_debug(newExtents[0] > 0);
 	sfz_assert_debug(newExtents[1] > 0);
 	sfz_assert_debug(newExtents[2] > 0);
-	const vec3f pos = position();
-	const vec3f halfExtents = newExtents/2.0f;
+	const vec3 pos = position();
+	const vec3 halfExtents = newExtents/2.0f;
 	mMin = pos - halfExtents;
 	mMin = pos + halfExtents;
 }
 
 inline void AABB::xExtent(float newXExtent) noexcept
 {
-	extents(vec3f{newXExtent, yExtent(), zExtent()});
+	extents(vec3{newXExtent, yExtent(), zExtent()});
 }
 
 inline void AABB::yExtent(float newYExtent) noexcept
 {
-	extents(vec3f{xExtent(), newYExtent, zExtent()});
+	extents(vec3{xExtent(), newYExtent, zExtent()});
 }
 
 inline void AABB::zExtent(float newZExtent) noexcept
 {
-	extents(vec3f{xExtent(), yExtent(), newZExtent});
+	extents(vec3{xExtent(), yExtent(), newZExtent});
 }
 
 // Non-member operators
@@ -148,5 +146,3 @@ inline size_t hash<sfz::AABB>::operator() (const sfz::AABB& aabb) const noexcept
 }
 
 } // namespace std
-
-#include "sfz/MSVC12HackOFF.hpp"

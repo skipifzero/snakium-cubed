@@ -1,13 +1,11 @@
-#include "sfz/MSVC12HackON.hpp"
-
 namespace sfz {
 
 // Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-inline Sphere::Sphere(const vec3f& center, float radius) noexcept
+inline Sphere::Sphere(const vec3& center, float radius) noexcept
 :
-	mCenter{center},
+	mCenter(center),
 	mRadius{radius}
 {
 	sfz_assert_debug(radius > 0.0f);
@@ -16,20 +14,20 @@ inline Sphere::Sphere(const vec3f& center, float radius) noexcept
 // Public member functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-inline vec3f Sphere::closestPoint(const vec3f& point) const noexcept
+inline vec3 Sphere::closestPoint(const vec3& point) const noexcept
 {
-	const vec3f distToPoint = point - mCenter;
-	vec3f res = point;
-	if (distToPoint.squaredNorm() > mRadius*mRadius)
+	const vec3 distToPoint = point - mCenter;
+	vec3 res = point;
+	if (squaredLength(distToPoint) > mRadius*mRadius)
 	{
-		res = mCenter + distToPoint.normalize()*mRadius;
+		res = mCenter + normalize(distToPoint)*mRadius;
 	}
 	return res;
 }
 
 inline size_t Sphere::hash() const noexcept
 {
-	std::hash<vec3f> vecHasher;
+	std::hash<vec3> vecHasher;
 	std::hash<float> floatHasher;
 	size_t hash = 0;
 	// hash_combine algorithm from boost
@@ -41,7 +39,7 @@ inline size_t Sphere::hash() const noexcept
 inline std::string Sphere::to_string() const noexcept
 {
 	std::string str{"Center: "};
-	str += mCenter.to_string();
+	str += sfz::to_string(mCenter);
 	str += "\nRadius: ";
 	str += std::to_string(mRadius);
 	return std::move(str);
@@ -77,5 +75,3 @@ inline size_t hash<sfz::Sphere>::operator() (const sfz::Sphere& sphere) const no
 }
 
 } // namespace std
-
-#include "sfz/MSVC12HackOFF.hpp"

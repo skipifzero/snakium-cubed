@@ -1,12 +1,10 @@
-#include "sfz/MSVC12HackON.hpp"
-
 namespace sfz {
 
 // Resizing helpers
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 template<typename T>
-Matrix<T,3,3> mat3(const Matrix<T,4,4>& m) noexcept
+Matrix<T,3,3> toMat3(const Matrix<T,4,4>& m) noexcept
 {
 	return Matrix<T,3,3>{{m.at(0,0), m.at(0,1), m.at(0,2)},
 	                     {m.at(1,0), m.at(1,1), m.at(1,2)},
@@ -14,7 +12,7 @@ Matrix<T,3,3> mat3(const Matrix<T,4,4>& m) noexcept
 }
 
 template<typename T>
-Matrix<T,4,4> mat4(const Matrix<T,3,3>& m) noexcept
+Matrix<T,4,4> toMat4(const Matrix<T,3,3>& m) noexcept
 {
 	return Matrix<T,4,4>{{m.at(0,0), m.at(0,1), m.at(0,2), 0},
 	                     {m.at(1,0), m.at(1,1), m.at(1,2), 0},
@@ -63,22 +61,40 @@ T determinant(const Matrix<T,3,3>& m) noexcept
 }
 
 template<typename T>
+T determinant(const Matrix<T,4,4>& m) noexcept
+{
+	const T m00 = m.at(0, 0), m01 = m.at(0, 1), m02 = m.at(0, 2), m03 = m.at(0, 3),
+	        m10 = m.at(1, 0), m11 = m.at(1, 1), m12 = m.at(1, 2), m13 = m.at(1, 3),
+	        m20 = m.at(2, 0), m21 = m.at(2, 1), m22 = m.at(2, 2), m23 = m.at(2, 3),
+	        m30 = m.at(3, 0), m31 = m.at(3, 1), m32 = m.at(3, 2), m33 = m.at(3, 3);
+	
+	return m00*m11*m22*m33 + m00*m12*m23*m31 + m00*m13*m21*m32
+	     + m01*m10*m23*m32 + m01*m12*m20*m33 + m01*m13*m22*m30
+	     + m02*m10*m21*m33 + m02*m11*m23*m30 + m02*m13*m20*m31
+	     + m03*m10*m22*m31 + m03*m11*m20*m32 + m03*m12*m21*m30
+	     - m00*m11*m23*m32 - m00*m12*m21*m33 - m00*m13*m22*m31
+	     - m01*m10*m22*m33 - m01*m12*m23*m30 - m01*m13*m20*m32
+	     - m02*m10*m23*m31 - m02*m11*m20*m33 - m02*m13*m21*m30
+	     - m03*m10*m21*m32 - m03*m11*m22*m30 - m03*m12*m20*m31;
+}
+
+template<typename T>
 Matrix<T,2,2> inverse(const Matrix<T,2,2>& m) noexcept
 {
 	const T det = determinant(m);
-	if (det == 0) return Matrix<T,2,2>{{0,0},{0,0}};
+	if (det == 0) return ZERO_MATRIX<T,2,2>();
 
 	Matrix<T,2,2> temp{{m.at(1, 1), -m.at(0, 1)},
 	                  {-m.at(1,0), m.at(0,0)}};
 
-	return (1/det) * temp;
+	return (T(1)/det) * temp;
 }
 
 template<typename T>
 Matrix<T,3,3> inverse(const Matrix<T,3,3>& m) noexcept
 {
 	const T det = determinant(m);
-	if (det == 0) return Matrix<T,3,3>{{0,0,0},{0,0,0},{0,0,0}};
+	if (det == 0) return ZERO_MATRIX<T,3,3>();
 
 	const T a = m.at(0,0);
 	const T b = m.at(0,1); 
@@ -102,7 +118,42 @@ Matrix<T,3,3> inverse(const Matrix<T,3,3>& m) noexcept
 	const T I = (a*e - b*d);
 
 	Matrix<T,3,3> temp{{A, D, G}, {B, E, H}, {C, F, I}};
-	return (1/det) * temp;
+	return (T(1)/det) * temp;
+}
+
+template<typename T>
+Matrix<T,4,4> inverse(const Matrix<T,4,4>& m) noexcept
+{
+	const T det = determinant(m);
+	if (det == 0) return ZERO_MATRIX<T,4,4>();
+
+	const T m00 = m.at(0, 0), m01 = m.at(0, 1), m02 = m.at(0, 2), m03 = m.at(0, 3),
+	        m10 = m.at(1, 0), m11 = m.at(1, 1), m12 = m.at(1, 2), m13 = m.at(1, 3),
+	        m20 = m.at(2, 0), m21 = m.at(2, 1), m22 = m.at(2, 2), m23 = m.at(2, 3),
+	        m30 = m.at(3, 0), m31 = m.at(3, 1), m32 = m.at(3, 2), m33 = m.at(3, 3);
+
+	const T b00 = m11*m22*m33 + m12*m23*m31 + m13*m21*m32 - m11*m23*m32 - m12*m21*m33 - m13*m22*m31;
+	const T b01 = m01*m23*m32 + m02*m21*m33 + m03*m22*m31 - m01*m22*m33 - m02*m23*m31 - m03*m21*m32;
+	const T b02 = m01*m12*m33 + m02*m13*m31 + m03*m11*m32 - m01*m13*m32 - m02*m11*m33 - m03*m12*m31;
+	const T b03 = m01*m13*m22 + m02*m11*m23 + m03*m12*m21 - m01*m12*m23 - m02*m13*m21 - m03*m11*m22;
+	const T b10 = m10*m23*m32 + m12*m20*m33 + m13*m22*m30 - m10*m22*m33 - m12*m23*m30 - m13*m20*m32;
+	const T b11 = m00*m22*m33 + m02*m23*m30 + m03*m20*m32 - m00*m23*m32 - m02*m20*m33 - m03*m22*m30;
+	const T b12 = m00*m13*m32 + m02*m10*m33 + m03*m12*m30 - m00*m12*m33 - m02*m13*m30 - m03*m10*m32;
+	const T b13 = m00*m12*m23 + m02*m13*m20 + m03*m10*m22 - m00*m13*m22 - m02*m10*m23 - m03*m12*m20;
+	const T b20 = m10*m21*m33 + m11*m23*m30 + m13*m20*m31 - m01*m23*m31 - m11*m20*m33 - m13*m21*m30;
+	const T b21 = m00*m23*m31 + m01*m20*m33 + m03*m21*m30 - m00*m21*m33 - m01*m23*m30 - m03*m20*m31;
+	const T b22 = m00*m11*m33 + m01*m13*m30 + m03*m10*m31 - m00*m13*m31 - m01*m10*m33 - m03*m11*m30;
+	const T b23 = m00*m13*m21 + m01*m10*m23 + m03*m11*m20 - m00*m11*m23 - m01*m13*m20 - m03*m10*m21;
+	const T b30 = m10*m22*m31 + m11*m20*m32 + m12*m21*m30 - m10*m21*m32 - m11*m22*m30 - m12*m20*m31;
+	const T b31 = m00*m21*m32 + m01*m22*m30 + m02*m20*m31 - m00*m22*m31 - m01*m20*m32 - m02*m21*m30;
+	const T b32 = m00*m12*m31 + m01*m10*m32 + m02*m11*m30 - m00*m11*m32 - m01*m12*m30 - m02*m10*m31;
+	const T b33 = m00*m11*m22 + m01*m12*m20 + m02*m10*m21 - m00*m12*m21 - m01*m10*m22 - m02*m11*m20;
+
+	Matrix<T,4,4> temp{{b00, b01, b02, b03},
+	                   {b10, b11, b12, b13},
+	                   {b20, b21, b22, b23},
+	                   {b30, b31, b32, b33}};
+	return (T(1)/det) * temp;
 }
 
 // Rotation matrices
@@ -176,7 +227,7 @@ Matrix<T,3,3> rotationMatrix3(const sfz::Vector<T,3>& axis, T angleRads) noexcep
 {
 	using std::cos;
 	using std::sin;
-	sfz::Vector<T,3> r = axis.normalize();
+	sfz::Vector<T,3> r = normalize(axis);
 	T x = r[0];
 	T y = r[1];
 	T z = r[2];
@@ -194,7 +245,7 @@ Matrix<T,4,4> rotationMatrix4(const sfz::Vector<T,3>& axis, T angleRads) noexcep
 {
 	using std::cos;
 	using std::sin;
-	sfz::Vector<T,3> r = axis.normalize();
+	sfz::Vector<T,3> r = normalize(axis);
 	T x = r[0];
 	T y = r[1];
 	T z = r[2];
@@ -292,11 +343,21 @@ Matrix<T,4,4> glOrthogonalProjectionMatrix(T left, T bottom, T zNear,
 }
 
 template<typename T>
-Matrix<T,4,4> glOrthogonalProjectionMatrix(const sfz::Vector<T,3>& leftBottomNear,
-                                           const sfz::Vector<T,3>& rightTopFar) noexcept
+Matrix<T,4,4> glOrthogonalProjectionMatrix(const Vector<T,3>& leftBottomNear,
+                                           const Vector<T,3>& rightTopFar) noexcept
 {
 	return glOrthogonalProjectionMatrix(leftBottomNear[0], leftBottomNear[1], leftBottomNear[2],
 	                                    rightTopFar[0], rightTopFar[1], rightTopFar[2]);
+}
+
+template<typename T>
+Matrix<T,3,3> glOrthogonalProjectionMatrix2D(Vector<T,2> center, Vector<T,2> dimensions) noexcept
+{
+	T a = T(2)/dimensions[0];
+	T b = T(2)/dimensions[1];
+	return Matrix<T,3,3>{{a, 0, -(center[0]*a)},
+	                     {0, b, -(center[1]*b)},
+	                     {0, 0, 1}};
 }
 
 template<typename T>
@@ -318,7 +379,7 @@ inline Matrix<float,4,4> glPerspectiveProjectionMatrix(float yFovDeg, float aspe
 {
 	sfz_assert_debug(0 < zNear);
 	sfz_assert_debug(zNear < zFar);
-	float yMax = zNear * tanf(yFovDeg * (g_PI_FLOAT/360.f));
+	float yMax = zNear * tanf(yFovDeg * (PI()/360.f));
 	float xMax = yMax * aspectRatio;
 	return glPerspectiveProjectionMatrix(-xMax, -yMax, zNear, xMax, yMax, zFar);
 }
@@ -331,10 +392,10 @@ Matrix<T,4,4> lookAt(const Vector<T,3>& cameraPosition, const Vector<T,3> camera
                      const Vector<T,3> upVector) noexcept
 {
 	// Inspired by gluLookAt().
-	Vector<T,3> normalizedDir = (cameraTarget - cameraPosition).normalize();
-	Vector<T,3> normalizedUpVec = upVector.normalize();
-	Vector<T,3> s = cross(normalizedDir, normalizedUpVec).normalize();
-	Vector<T,3> u = cross(s.normalize(), normalizedDir).normalize();
+	Vector<T,3> normalizedDir = normalize(cameraTarget - cameraPosition);
+	Vector<T,3> normalizedUpVec = normalize(upVector);
+	Vector<T,3> s = normalize(cross(normalizedDir, normalizedUpVec));
+	Vector<T,3> u = normalize(cross(normalize(s), normalizedDir));
 	return Matrix<T,4,4>{{s[0], s[1], s[2], 0},
 	                     {u[0], u[1], u[2], 0},
 	                     {-normalizedDir[0], -normalizedDir[1], -normalizedDir[2], 0},
@@ -473,5 +534,3 @@ void left(Matrix<T,4,4>& transform, const Vector<T,3>& left) noexcept
 }
 
 } // namespace sfz
-
-#include "sfz/MSVC12HackOFF.hpp"

@@ -6,14 +6,14 @@
 
 namespace sfz {
 
-const float g_PI_FLOAT{std::atan(1.0f)*4.0f};
-const double g_PI_DOUBLE{std::atan(1.0)*4.0};
+template<typename T = float>
+constexpr T PI() noexcept { return T(3.14159265358979323846); }
 
-const double g_DEG_TO_RAD_DOUBLE = g_PI_DOUBLE / 180.0;
-const double g_RAD_TO_DEG_DOUBLE = 180.0 / g_PI_DOUBLE;
+template<typename T = float>
+constexpr T DEG_TO_RAD() noexcept { return PI<T>() / T(180); }
 
-const float g_DEG_TO_RAD_FLOAT = g_PI_FLOAT / 180.0f;
-const float g_RAD_TO_DEG_FLOAT = 180.0f / g_PI_FLOAT;
+template<typename T = float>
+constexpr T RAD_TO_DEG() noexcept { return T(180) / PI<T>(); }
 
 } // namespace sfz
 #endif

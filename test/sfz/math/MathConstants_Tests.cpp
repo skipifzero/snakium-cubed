@@ -5,12 +5,7 @@
 
 TEST_CASE("Pi constants", "[MathConstants]")
 {
-	SECTION("Float version") {
-		REQUIRE(3.1415f <= sfz::g_PI_FLOAT);
-		REQUIRE(sfz::g_PI_FLOAT <= 3.1416f);
-	}
-	SECTION("Double version") {
-		REQUIRE(3.1415 <= sfz::g_PI_DOUBLE);
-		REQUIRE(sfz::g_PI_DOUBLE <= 3.1416);
-	}
+	REQUIRE(3.1415f <= sfz::PI());
+	REQUIRE(sfz::PI() <= 3.1416f);
+	REQUIRE(sfz::PI<int>() == 3);
 }

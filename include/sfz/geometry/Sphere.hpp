@@ -9,8 +9,6 @@
 #include "sfz/Assert.hpp"
 #include "sfz/math/Vector.hpp"
 
-#include "sfz/MSVC12HackON.hpp"
-
 namespace sfz {
 
 /**
@@ -27,29 +25,29 @@ public:
 	/**
 	 * @sfz_assert_debug radius > 0
 	 */
-	inline Sphere(const vec3f& center, float radius) noexcept;
+	inline Sphere(const vec3& center, float radius) noexcept;
 
 	// Public member functions
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	inline size_t hash() const noexcept;
 	inline std::string to_string() const noexcept;
-	inline vec3f closestPoint(const vec3f& point) const noexcept;
+	inline vec3 closestPoint(const vec3& point) const noexcept;
 
 	// Public getters/setters
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	inline vec3f position() const noexcept { return mCenter; }
+	inline vec3 position() const noexcept { return mCenter; }
 	inline float radius() const noexcept { return mRadius; }
 
-	inline void position(const vec3f& newPosition) noexcept { mCenter = newPosition; }
+	inline void position(const vec3& newPosition) noexcept { mCenter = newPosition; }
 	inline void radius(float newRadius) noexcept;
 
 private:
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	vec3f mCenter;
+	vec3 mCenter;
 	float mRadius;
 };
 
@@ -72,6 +70,5 @@ struct hash<sfz::Sphere> {
 
 } // namespace std
 
-#include "sfz/MSVC12HackOFF.hpp"
 #include "sfz/geometry/Sphere.inl"
 #endif

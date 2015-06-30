@@ -10,8 +10,6 @@
 #include "sfz/math/Vector.hpp"
 #include "sfz/math/MathHelpers.hpp"
 
-#include "sfz/MSVC12HackON.hpp"
-
 namespace sfz {
 
 /**
@@ -31,30 +29,30 @@ public:
 	inline Plane() noexcept = default;
 
 	/** @brief dot(normal, x) - d = 0 */
-	inline Plane(const vec3f& normal, float d) noexcept;
+	inline Plane(const vec3& normal, float d) noexcept;
 	/** @brief dot(normal, x - position) = 0 */
-	inline Plane(const vec3f& normal, const vec3f& position) noexcept;
+	inline Plane(const vec3& normal, const vec3& position) noexcept;
 
 	// Public member functions
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	/** @brief Returns the signed distance to the plane. Positive if above, negative if below. */
-	inline float signedDistance(const vec3f& point) const noexcept;
-	inline vec3f closestPoint(const vec3f& point) const noexcept;
+	inline float signedDistance(const vec3& point) const noexcept;
+	inline vec3 closestPoint(const vec3& point) const noexcept;
 	inline size_t hash() const noexcept;
 	inline std::string to_string() const noexcept;
 
 	// Public getters/setters
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	inline const vec3f& normal() const noexcept { return mNormal; }
+	inline const vec3& normal() const noexcept { return mNormal; }
 	inline float d() const noexcept { return mD; }
 
 private:
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	vec3f mNormal;
+	vec3 mNormal;
 	float mD;
 };
 
@@ -77,6 +75,5 @@ struct hash<sfz::Plane> {
 
 } // namespace std
 
-#include "sfz/MSVC12HackOFF.hpp"
 #include "sfz/geometry/Plane.inl"
 #endif

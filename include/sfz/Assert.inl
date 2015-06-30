@@ -1,6 +1,3 @@
-#include "sfz/MSVC12HackON.hpp"
-
-
 #if !defined(SFZ_NO_DEBUG) && !defined(SFZ_NO_ASSERTIONS)
 
 	#define sfz_assert_debug_impl(condition) assert(condition)
@@ -49,6 +46,3 @@
 #else
 	#define sfz_error_impl(message) ((void)0)
 #endif
-
-
-#include "sfz/MSVC12HackOFF.hpp"
