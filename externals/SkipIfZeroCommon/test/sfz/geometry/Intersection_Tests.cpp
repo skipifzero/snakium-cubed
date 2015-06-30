@@ -9,38 +9,38 @@ TEST_CASE("Signed distance to plane", "[sfz::Plane]")
 {
 	using namespace sfz;
 
-	Plane p{vec3f{0.0f, 1.0f, 0.0f}, vec3f{2.0f, 1.0f, 0.0f}};
+	Plane p{vec3{0.0f, 1.0f, 0.0f}, vec3{2.0f, 1.0f, 0.0f}};
 
-	REQUIRE(approxEqual<float>(p.signedDistance(vec3f{2.0f, 3.0f, 0.0f}), 2.0f));
-	REQUIRE(approxEqual<float>(p.signedDistance(vec3f{0.0f, 3.0f, 0.0f}), 2.0f));
-	REQUIRE(approxEqual<float>(p.signedDistance(vec3f{2.0f, 0.0f, 0.0f}), -1.0f));
+	REQUIRE(approxEqual<float>(p.signedDistance(vec3{2.0f, 3.0f, 0.0f}), 2.0f));
+	REQUIRE(approxEqual<float>(p.signedDistance(vec3{0.0f, 3.0f, 0.0f}), 2.0f));
+	REQUIRE(approxEqual<float>(p.signedDistance(vec3{2.0f, 0.0f, 0.0f}), -1.0f));
 }
 
 TEST_CASE("Point inside AABB test", "[sfz::Intersection]")
 {
 	using namespace sfz;
 
-	AABB box{vec3f{-1,-1,-1}, vec3f{1,1,1}};
+	AABB box{vec3{-1,-1,-1}, vec3{1,1,1}};
 
-	REQUIRE(pointInside(box, vec3f{0,0,0}));
-	REQUIRE(!pointInside(box, vec3f{-2,0,0}));
+	REQUIRE(pointInside(box, vec3{0,0,0}));
+	REQUIRE(!pointInside(box, vec3{-2,0,0}));
 }
 
 TEST_CASE("AABB vs AABB test", "[sfz::Intersection]")
 {
 	using namespace sfz;
 
-	AABB boxMid{vec3f{-1.0f, -1.0f, -1.0f}, vec3f{1.0f, 1.0f, 1.0f}};
-	AABB boxMidSmall{vec3f{-0.5f, -0.5f, -0.5f}, vec3f{0.5f, 0.5f, 0.5f}};
+	AABB boxMid{vec3{-1.0f, -1.0f, -1.0f}, vec3{1.0f, 1.0f, 1.0f}};
+	AABB boxMidSmall{vec3{-0.5f, -0.5f, -0.5f}, vec3{0.5f, 0.5f, 0.5f}};
 
-	AABB boxFrontSmall{vec3f{-0.5f, -0.5f, 0.75f}, vec3f{0.5f, 0.5f, 1.75f}};
-	AABB boxBackSmall{vec3f{-0.5f, -0.5f, -1.75f}, vec3f{0.5f, 0.5f, -0.75f}};
+	AABB boxFrontSmall{vec3{-0.5f, -0.5f, 0.75f}, vec3{0.5f, 0.5f, 1.75f}};
+	AABB boxBackSmall{vec3{-0.5f, -0.5f, -1.75f}, vec3{0.5f, 0.5f, -0.75f}};
 
-	AABB boxUpSmall{vec3f{-0.5f, 0.75f, -0.5f}, vec3f{0.5f, 1.75f, 0.5f}};
-	AABB boxDownSmall{vec3f{-0.5f, -1.75f, -0.5f}, vec3f{0.5f, -0.75f, 0.5f}};
+	AABB boxUpSmall{vec3{-0.5f, 0.75f, -0.5f}, vec3{0.5f, 1.75f, 0.5f}};
+	AABB boxDownSmall{vec3{-0.5f, -1.75f, -0.5f}, vec3{0.5f, -0.75f, 0.5f}};
 
-	AABB boxLeftSmall{vec3f{-1.75f, -0.5f, -0.5f}, vec3f{-0.75f, 0.5f, 0.5f}};
-	AABB boxRightSMall{vec3f{0.75f, -0.5f, -0.5f}, vec3f{1.75f, 0.5f, 0.5f}};
+	AABB boxLeftSmall{vec3{-1.75f, -0.5f, -0.5f}, vec3{-0.75f, 0.5f, 0.5f}};
+	AABB boxRightSMall{vec3{0.75f, -0.5f, -0.5f}, vec3{1.75f, 0.5f, 0.5f}};
 
 	std::vector<AABB*> smallSurroundingBoxes;
 	smallSurroundingBoxes.push_back(&boxFrontSmall);
@@ -72,19 +72,19 @@ TEST_CASE("OBB vs OBB test", "[sfz::Intersection]")
 {
 	using namespace sfz;
 
-	std::array<vec3f,3> axisAlignedAxes{vec3f{1.0f, 0.0f, 0.0f},
-	                                    vec3f{0.0f, 1.0f, 0.0f},
-	                                    vec3f{0.0f, 0.0f, 1.0f}};
-	vec3f smallExts{1.0f, 1.0f, 1.0f};
-	vec3f bigExts{2.0f, 2.0f, 2.0f};
+	std::array<vec3,3> axisAlignedAxes{vec3{1.0f, 0.0f, 0.0f},
+	                                    vec3{0.0f, 1.0f, 0.0f},
+	                                    vec3{0.0f, 0.0f, 1.0f}};
+	vec3 smallExts{1.0f, 1.0f, 1.0f};
+	vec3 bigExts{2.0f, 2.0f, 2.0f};
 
-	OBB midSmallAA{vec3f{0.0f, 0.0f, 0.0f}, axisAlignedAxes, smallExts};
-	OBB midSmallLeftAA{vec3f{-1.0f, 0.0f, 0.0f}, axisAlignedAxes, smallExts};
-	OBB midSmallRightAA{vec3f{1.0f, 0.0f, 0.0f}, axisAlignedAxes, smallExts};
-	OBB midSmallDownAA{vec3f{0.0f, -1.0f, 0.0f}, axisAlignedAxes, smallExts};
-	OBB midSmallUpAA{vec3f{0.0f, 1.0f, 0.0f}, axisAlignedAxes, smallExts};
-	OBB midSmallBackAA{vec3f{0.0f, 0.0f, -1.0f}, axisAlignedAxes, smallExts};
-	OBB midSmallFrontAA{vec3f{0.0f, 0.0f, 1.0f}, axisAlignedAxes, smallExts};
+	OBB midSmallAA{vec3{0.0f, 0.0f, 0.0f}, axisAlignedAxes, smallExts};
+	OBB midSmallLeftAA{vec3{-1.0f, 0.0f, 0.0f}, axisAlignedAxes, smallExts};
+	OBB midSmallRightAA{vec3{1.0f, 0.0f, 0.0f}, axisAlignedAxes, smallExts};
+	OBB midSmallDownAA{vec3{0.0f, -1.0f, 0.0f}, axisAlignedAxes, smallExts};
+	OBB midSmallUpAA{vec3{0.0f, 1.0f, 0.0f}, axisAlignedAxes, smallExts};
+	OBB midSmallBackAA{vec3{0.0f, 0.0f, -1.0f}, axisAlignedAxes, smallExts};
+	OBB midSmallFrontAA{vec3{0.0f, 0.0f, 1.0f}, axisAlignedAxes, smallExts};
 	std::vector<OBB*> smallSurroundingAABoxes;
 	smallSurroundingAABoxes.push_back(&midSmallLeftAA);
 	smallSurroundingAABoxes.push_back(&midSmallRightAA);
@@ -93,13 +93,13 @@ TEST_CASE("OBB vs OBB test", "[sfz::Intersection]")
 	smallSurroundingAABoxes.push_back(&midSmallBackAA);
 	smallSurroundingAABoxes.push_back(&midSmallFrontAA);
 
-	OBB midAA{vec3f{0.0f, 0.0f, 0.0f}, axisAlignedAxes, bigExts};
-	OBB midLeftAA{vec3f{-1.0f, 0.0f, 0.0f}, axisAlignedAxes, bigExts};
-	OBB midRightAA{vec3f{1.0f, 0.0f, 0.0f}, axisAlignedAxes, bigExts};
-	OBB midDownAA{vec3f{0.0f, -1.0f, 0.0f}, axisAlignedAxes, bigExts};
-	OBB midUpAA{vec3f{0.0f, 1.0f, 0.0f}, axisAlignedAxes, bigExts};
-	OBB midBackAA{vec3f{0.0f, 0.0f, -1.0f}, axisAlignedAxes, bigExts};
-	OBB midFrontAA{vec3f{0.0f, 0.0f, 1.0f}, axisAlignedAxes, bigExts};
+	OBB midAA{vec3{0.0f, 0.0f, 0.0f}, axisAlignedAxes, bigExts};
+	OBB midLeftAA{vec3{-1.0f, 0.0f, 0.0f}, axisAlignedAxes, bigExts};
+	OBB midRightAA{vec3{1.0f, 0.0f, 0.0f}, axisAlignedAxes, bigExts};
+	OBB midDownAA{vec3{0.0f, -1.0f, 0.0f}, axisAlignedAxes, bigExts};
+	OBB midUpAA{vec3{0.0f, 1.0f, 0.0f}, axisAlignedAxes, bigExts};
+	OBB midBackAA{vec3{0.0f, 0.0f, -1.0f}, axisAlignedAxes, bigExts};
+	OBB midFrontAA{vec3{0.0f, 0.0f, 1.0f}, axisAlignedAxes, bigExts};
 	std::vector<OBB*> surroundingAABoxes;
 	surroundingAABoxes.push_back(&midLeftAA);
 	surroundingAABoxes.push_back(&midRightAA);
@@ -130,9 +130,9 @@ TEST_CASE("Sphere vs Sphere test", "[sfz::Intersection]")
 {
 	using namespace sfz;
 
-	Sphere mid{vec3f{0.0f, 0.0f, 0.0f}, 0.5f};
-	Sphere midBig{vec3f{0.0f, 0.0f, 0.0f}, 1.0f};
-	Sphere aBitOff{vec3f{-1.1f, 0.0f, 0.0f}, 0.5f};
+	Sphere mid{vec3{0.0f, 0.0f, 0.0f}, 0.5f};
+	Sphere midBig{vec3{0.0f, 0.0f, 0.0f}, 1.0f};
+	Sphere aBitOff{vec3{-1.1f, 0.0f, 0.0f}, 0.5f};
 
 	REQUIRE(intersects(mid, midBig));
 	REQUIRE(intersects(midBig, aBitOff));
@@ -143,9 +143,9 @@ TEST_CASE("Plane vs AABB test", "[sfz::Intersection]")
 {
 	using namespace sfz;
 
-	Plane p1{vec3f{0.0f, 1.0f, 0.0f}, vec3f{0.0f, 0.5f, 0.0f}};
-	Plane p2{vec3f{0.0f, 1.0f, 0.0f}, vec3f{0.0f, 1.5f, 0.0f}};
-	AABB aabb{vec3f{1.0f, 1.0f, 1.0f}, vec3f{3.0f, 3.0f, 3.0f}};
+	Plane p1{vec3{0.0f, 1.0f, 0.0f}, vec3{0.0f, 0.5f, 0.0f}};
+	Plane p2{vec3{0.0f, 1.0f, 0.0f}, vec3{0.0f, 1.5f, 0.0f}};
+	AABB aabb{vec3{1.0f, 1.0f, 1.0f}, vec3{3.0f, 3.0f, 3.0f}};
 
 	REQUIRE(!intersects(p1, aabb));
 	REQUIRE(intersects(p2, aabb));
@@ -155,9 +155,9 @@ TEST_CASE("Plane vs OBB test", "[sfz::Intersection]")
 {
 	using namespace sfz;
 
-	Plane p1{vec3f{0.0f, 1.0f, 0.0f}, vec3f{0.0f, 0.5f, 0.0f}};
-	Plane p2{vec3f{0.0f, 1.0f, 0.0f}, vec3f{0.0f, 1.5f, 0.0f}};
-	OBB obb{AABB{vec3f{1.0f, 1.0f, 1.0f}, vec3f{3.0f, 3.0f, 3.0f}}};
+	Plane p1{vec3{0.0f, 1.0f, 0.0f}, vec3{0.0f, 0.5f, 0.0f}};
+	Plane p2{vec3{0.0f, 1.0f, 0.0f}, vec3{0.0f, 1.5f, 0.0f}};
+	OBB obb{AABB{vec3{1.0f, 1.0f, 1.0f}, vec3{3.0f, 3.0f, 3.0f}}};
 
 	REQUIRE(!intersects(p1, obb));
 	REQUIRE(intersects(p2, obb));

@@ -3,7 +3,6 @@
 #define SFZ_UTIL_STOP_WATCH_HPP
 
 #include <chrono>
-#include "sfz/MSVC12HackON.hpp"
 
 namespace sfz {
 
@@ -24,9 +23,9 @@ public:
 	 */
 	StopWatch() noexcept;
 
-	StopWatch(const StopWatch&) = default;
-
-	~StopWatch() = default;
+	StopWatch(const StopWatch&) noexcept = default;
+	StopWatch& operator= (const StopWatch&) noexcept = default;
+	~StopWatch() noexcept = default;
 
 	/**
 	 * @brief Starts the StopWatch.
@@ -49,7 +48,7 @@ public:
 	 * start and current time.
 	 * @return time in seconds
 	 */
-	std::chrono::seconds getTimeSeconds() noexcept;
+	float getTimeSeconds() noexcept;
 	
 	/**
 	 * @brief Returns the time in milliseconds.
@@ -58,7 +57,7 @@ public:
 	 * start and current time.
 	 * @return time in milliseconds
 	 */
-	std::chrono::milliseconds getTimeMilliSeconds() noexcept;
+	float getTimeMilliSeconds() noexcept;
 	
 	/**
 	 * @brief Returns the time in nanoseconds.
@@ -67,7 +66,7 @@ public:
 	 * start and current time.
 	 * @return time in nanoseconds
 	 */
-	std::chrono::nanoseconds getTimeNanoSeconds() noexcept;
+	float getTimeNanoSeconds() noexcept;
 
 private:
 	bool mHasTime;
@@ -75,6 +74,4 @@ private:
 };
 
 } // namespace sfz
-
-#include "sfz/MSVC12HackOFF.hpp"
 #endif

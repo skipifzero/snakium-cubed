@@ -8,14 +8,12 @@
 #include "sfz/math/Vector.hpp"
 #include "sfz/math/Matrix.hpp"
 
-#include "sfz/MSVC12HackON.hpp"
-
 namespace sfz {
 
 using std::size_t;
 
 template<typename T>
-T defaultEpsilon() { return static_cast<T>(0.00001); }
+T defaultEpsilon() { return static_cast<T>(0.0001); }
 
 template<typename T>
 bool approxEqual(T lhs, T rhs, T epsilon) noexcept;
@@ -35,8 +33,13 @@ bool approxEqual(const Matrix<T,M,N>& lhs, const Matrix<T,M,N>& rhs, T epsilon) 
 template<typename T, size_t M, size_t N>
 bool approxEqual(const Matrix<T,M,N>& lhs, const Matrix<T,M,N>& rhs) noexcept;
 
-} // namespace sfz
+/**
+ * @brief Lerp function, v0 when t == 0 and v1 when t == 1.
+ * @see http://en.wikipedia.org/wiki/Lerp_%28computing%29
+ */
+template<typename ArgT, typename FloatT>
+ArgT lerp(const ArgT& v0, const ArgT& v1, FloatT t) noexcept;
 
-#include "sfz/MSVC12HackOFF.hpp"
+} // namespace sfz
 #include "sfz/math/MathHelpers.inl"
 #endif

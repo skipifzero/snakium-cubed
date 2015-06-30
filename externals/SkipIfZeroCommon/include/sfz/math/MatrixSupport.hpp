@@ -6,7 +6,6 @@
 
 #include "sfz/Assert.hpp"
 #include "sfz/math/Matrix.hpp"
-#include "sfz/MSVC12HackON.hpp"
 
 namespace sfz {
 
@@ -20,10 +19,10 @@ namespace sfz {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 template<typename T>
-Matrix<T,3,3> mat3(const Matrix<T,4,4>& m) noexcept;
+Matrix<T,3,3> toMat3(const Matrix<T,4,4>& m) noexcept;
 
 template<typename T>
-Matrix<T,4,4> mat4(const Matrix<T,3,3>& m) noexcept;
+Matrix<T,4,4> toMat4(const Matrix<T,3,3>& m) noexcept;
 
 // Transforming 3D vector helpers
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -44,10 +43,16 @@ template<typename T>
 T determinant(const Matrix<T,3,3>& m) noexcept;
 
 template<typename T>
+T determinant(const Matrix<T,4,4>& m) noexcept;
+
+template<typename T>
 Matrix<T,2,2> inverse(const Matrix<T,2,2>& m) noexcept;
 
 template<typename T>
 Matrix<T,3,3> inverse(const Matrix<T,3,3>& m) noexcept;
+
+template<typename T>
+Matrix<T,4,4> inverse(const Matrix<T,4,4>& m) noexcept;
 
 // Rotation matrices
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -111,8 +116,11 @@ Matrix<T,4,4> glOrthogonalProjectionMatrix(T left, T bottom, T near,
                                            T right, T top, T far) noexcept;
 
 template<typename T>
-Matrix<T,4,4> glOrthogonalProjectionMatrix(const sfz::Vector<T,3>& leftBottomNear,
-                                           const sfz::Vector<T,3>& rightTopFar) noexcept;
+Matrix<T,4,4> glOrthogonalProjectionMatrix(const Vector<T,3>& leftBottomNear,
+                                           const Vector<T,3>& rightTopFar) noexcept;
+
+template<typename T>
+Matrix<T,3,3> glOrthogonalProjectionMatrix2D(Vector<T,2> center, Vector<T,2> dimensions) noexcept;
 
 template<typename T>
 Matrix<T,4,4> glPerspectiveProjectionMatrix(T left, T bottom, T zNear,
@@ -188,7 +196,5 @@ template<typename T>
 void left(Matrix<T,4,4>& transform, const Vector<T,3>& left) noexcept;
 
 } // namespace sfz
-
-#include "sfz/MSVC12HackOFF.hpp"
 #include "sfz/math/MatrixSupport.inl"
 #endif

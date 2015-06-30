@@ -7,8 +7,6 @@
 #include <exception> // std::terminate()
 #include <cassert>
 
-#include "sfz/MSVC12HackON.hpp"
-
 /**
  * @brief Stops program or opens debugger if condition is false.
  * To be used often to catch bugs during debugging progress. Should normally only be enabled in
@@ -44,6 +42,5 @@
  */
 #define sfz_error(message) sfz_error_impl(message)
 
-#include "sfz/MSVC12HackOFF.hpp"
 #include "sfz/Assert.inl"
 #endif
