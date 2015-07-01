@@ -53,9 +53,9 @@ void linkProgram(GLuint program) noexcept;
 // Uniform setters
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void setUniform(int location, const sfz::mat4f& matrix) noexcept;
+void setUniform(int location, const sfz::mat4& matrix) noexcept;
 
-void setUniform(GLuint shaderProgram, const std::string& name, const sfz::mat4f& matrix) noexcept;
+void setUniform(GLuint shaderProgram, const std::string& name, const sfz::mat4& matrix) noexcept;
 
 void setUniform(int location, int i) noexcept;
 

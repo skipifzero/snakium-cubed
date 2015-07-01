@@ -4,13 +4,13 @@ namespace s3 {
 
 namespace {
 
-const sfz::vec3f ZERO{0,0,0};
+const sfz::vec3 ZERO{0,0,0};
 
-sfz::vec3f transformPoint(const sfz::mat4f& transformation, const sfz::vec3f& point) noexcept
+sfz::vec3 transformPoint(const sfz::mat4& transformation, const sfz::vec3& point) noexcept
 {
-	sfz::vec4f point4{point[0], point[1], point[2], 1.0f};
+	sfz::vec4 point4{point[0], point[1], point[2], 1.0f};
 	point4 = transformation * point4;
-	return sfz::vec3f{point4[0], point4[1], point4[2]};
+	return sfz::vec3{point4[0], point4[1], point4[2]};
 }
 
 int axisCoord(Direction3D dir) noexcept
@@ -26,23 +26,23 @@ int axisCoord(Direction3D dir) noexcept
 }
 
 /** Returns a value between 0.0 (down) and 1.0 (up) */
-float upProgress(const sfz::vec3f& posOnCube, Direction3D posOnCubeSideUpDir) noexcept
+float upProgress(const sfz::vec3& posOnCube, Direction3D posOnCubeSideUpDir) noexcept
 {
-	sfz::vec3f upAxis = toVector(posOnCubeSideUpDir);
+	sfz::vec3 upAxis = toVector(posOnCubeSideUpDir);
 	int upAxisCoord = axisCoord(posOnCubeSideUpDir);
-	return std::abs(posOnCube[upAxisCoord] + 0.5f*upAxis.sum());
+	return std::abs(posOnCube[upAxisCoord] + 0.5f*sfz::sum(upAxis));
 }
 
 /** Returns a value between 0.0 (left) and 1.0 (right) */
-float rightProgress(const sfz::vec3f& posOnCube,
+float rightProgress(const sfz::vec3& posOnCube,
                     Direction3D posOnCubeSide, Direction3D posOnCubeSideUpDir) noexcept
 {
-	sfz::vec3f rightAxis = toVector(right(posOnCubeSide, posOnCubeSideUpDir));
+	sfz::vec3 rightAxis = toVector(right(posOnCubeSide, posOnCubeSideUpDir));
 	int rightAxisCoord = axisCoord(right(posOnCubeSide, posOnCubeSideUpDir));
-	return std::abs(posOnCube[rightAxisCoord] + 0.5f*rightAxis.sum());
+	return std::abs(posOnCube[rightAxisCoord] + 0.5f*sfz::sum(rightAxis));
 }
 
-sfz::vec3f tilePosToVector(const Model& model, const Position& tilePos) noexcept
+sfz::vec3 tilePosToVector(const Model& model, const Position& tilePos) noexcept
 {
 	// +0.5f to get the midpoint of the tile
 	const float e1f = static_cast<float>(tilePos.e1) + 0.5f;
@@ -60,7 +60,7 @@ bool approxEqual(float lhs, float rhs) noexcept
 	return lhs <= rhs + eps && lhs >= rhs - eps;
 }
 
-bool approxEqual(const sfz::vec3f& lhs, const sfz::vec3f& rhs) noexcept
+bool approxEqual(const sfz::vec3& lhs, const sfz::vec3& rhs) noexcept
 {
 	if (!approxEqual(lhs[0], rhs[0])) return false;
 	if (!approxEqual(lhs[1], rhs[1])) return false;
@@ -72,9 +72,9 @@ bool approxEqual(const sfz::vec3f& lhs, const sfz::vec3f& rhs) noexcept
 
 Camera::Camera() noexcept	
 {
-	mPos = sfz::vec3f{0,0,0};
-	mUp = sfz::vec3f{0,1,0};
-	mUpTarget = sfz::vec3f{0,1,0};
+	mPos = sfz::vec3{0,0,0};
+	mUp = sfz::vec3{0,1,0};
+	mUpTarget = sfz::vec3{0,1,0};
 }
 
 void Camera::update(const Model& model, float delta) noexcept
@@ -94,19 +94,19 @@ void Camera::update(const Model& model, float delta) noexcept
 
 	// Calculate the current position on the cube
 	const float tileWidth = 1.0f / static_cast<float>(model.mCfg.gridWidth);
-	sfz::vec3f posOnCube;
+	sfz::vec3 posOnCube;
 	if (model.mProgress <= 0.5f) {
 		Direction3D preHeadTo = mapDefaultUp(preHeadPos.side, model.mPreHeadPtr->to());
-		sfz::vec3f diff = toVector(preHeadTo) * model.mProgress * tileWidth;
+		sfz::vec3 diff = toVector(preHeadTo) * model.mProgress * tileWidth;
 		posOnCube = tilePosToVector(model, preHeadPos) + diff;
 	} else {
 		Direction3D headFrom = mapDefaultUp(headPos.side, model.mHeadPtr->from());
-		sfz::vec3f diff = toVector(headFrom) * (1.0f - model.mProgress) * tileWidth;
+		sfz::vec3 diff = toVector(headFrom) * (1.0f - model.mProgress) * tileWidth;
 		posOnCube = tilePosToVector(model, headPos) + diff;
 	}
 
 	// Calculates and set camera position
-	mPos = posOnCube.normalize()*2.0f;
+	mPos = normalize(posOnCube)*2.0f;
 
 	Direction3D posOnCubeSide = preHeadPos.side;
 	Direction3D posOnCubeSideUpDir = mLastUpDir;
@@ -117,13 +117,13 @@ void Camera::update(const Model& model, float delta) noexcept
 
 	mUpTarget = toVector(posOnCubeSideUpDir);
 	if (!approxEqual(mUp, mUpTarget)) {
-		float maxAnglePerSec = (model.mCurrentSpeed*tileWidth*3.0f) * sfz::g_PI_FLOAT/2.0f;
+		float maxAnglePerSec = (model.mCurrentSpeed*tileWidth*3.0f) * sfz::PI()/2.0f;
 		float angleDiff = sfz::angle(mUp, mUpTarget);
-		sfz::vec3f rotAxis = sfz::cross(mUp, mUpTarget);
+		sfz::vec3 rotAxis = sfz::cross(mUp, mUpTarget);
 		float angleToMove = maxAnglePerSec*delta;
 		if ((angleDiff-angleToMove) < 0) angleToMove = angleDiff;
-		sfz::mat4f rotMat = sfz::rotationMatrix4(rotAxis, angleToMove);
-		mUp = transformPoint(rotMat, mUp).normalize();
+		sfz::mat4 rotMat = sfz::rotationMatrix4(rotAxis, angleToMove);
+		mUp = sfz::normalize(transformPoint(rotMat, mUp));
 	}
 
 	mViewMatrix = sfz::lookAt(mPos, ZERO, mUp);
@@ -152,7 +152,7 @@ void Camera::update(const Model& model, float delta) noexcept
 	mSideRenderOrder[5] = posOnCubeSide; // Front
 
 	for (size_t i = 0; i < 6; i++) {
-		mRenderTileFaceFirst[i] = mPos.dot(toVector(mSideRenderOrder[i])) >= 0.5f;
+		mRenderTileFaceFirst[i] = dot(mPos, toVector(mSideRenderOrder[i])) >= 0.5f;
 	}
 }
 

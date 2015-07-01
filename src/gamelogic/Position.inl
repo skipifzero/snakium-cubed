@@ -33,7 +33,7 @@ inline Direction3D direction(Direction3D side, Coordinate coordinate) noexcept
 	}*/
 }
 
-inline sfz::vec3f directionVector(Direction3D side, Coordinate coordinate) noexcept
+inline sfz::vec3 directionVector(Direction3D side, Coordinate coordinate) noexcept
 {
 	return toVector(direction(side, coordinate));
 }
@@ -55,7 +55,8 @@ inline Coordinate coordinate(Direction3D side, Direction2D dir) noexcept
 
 inline int coordinateSign(Direction3D side, Coordinate coord) noexcept
 {
-	return sgn(toVector(direction(side, coord)).sum());
+
+	return sgn(sfz::sum(toVector(direction(side, coord))));
 }
 
 inline Coordinate other(Coordinate coord) noexcept

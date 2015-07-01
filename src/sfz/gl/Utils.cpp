@@ -92,12 +92,12 @@ void linkProgram(GLuint program) noexcept
 // Uniform setters
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void setUniform(int location, const sfz::mat4f& matrix) noexcept
+void setUniform(int location, const sfz::mat4& matrix) noexcept
 {
-	glUniformMatrix4fv(location, 1, false, matrix.glPtr());
+	glUniformMatrix4fv(location, 1, false, matrix.data());
 }
 
-void setUniform(GLuint shaderProgram, const std::string& name, const sfz::mat4f& matrix) noexcept
+void setUniform(GLuint shaderProgram, const std::string& name, const sfz::mat4& matrix) noexcept
 {
 	int loc = glGetUniformLocation(shaderProgram, name.c_str());
 	setUniform(loc, matrix);

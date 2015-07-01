@@ -220,15 +220,15 @@ inline Direction2D unMapDefaultUp(Direction3D side, Direction3D dir) noexcept
 	return unMap(side, defaultUp(side), dir);
 }
 
-inline sfz::vec3f toVector(Direction3D direction) noexcept
+inline sfz::vec3 toVector(Direction3D direction) noexcept
 {
 	switch (direction) {
-	case Direction3D::NORTH: return sfz::vec3f{0.0f, 0.0f, -1.0f};
-	case Direction3D::SOUTH: return sfz::vec3f{0.0f, 0.0f, 1.0f};
-	case Direction3D::WEST: return sfz::vec3f{-1.0f, 0.0f, 0.0f};
-	case Direction3D::EAST: return sfz::vec3f{1.0f, 0.0f, 0.0f};
-	case Direction3D::UP: return sfz::vec3f{0.0f, 1.0f, 0.0f};
-	case Direction3D::DOWN: return sfz::vec3f{0.0f, -1.0f, 0.0f};
+	case Direction3D::NORTH: return sfz::vec3{0.0f, 0.0f, -1.0f};
+	case Direction3D::SOUTH: return sfz::vec3{0.0f, 0.0f, 1.0f};
+	case Direction3D::WEST: return sfz::vec3{-1.0f, 0.0f, 0.0f};
+	case Direction3D::EAST: return sfz::vec3{1.0f, 0.0f, 0.0f};
+	case Direction3D::UP: return sfz::vec3{0.0f, 1.0f, 0.0f};
+	case Direction3D::DOWN: return sfz::vec3{0.0f, -1.0f, 0.0f};
 	}
 }
 

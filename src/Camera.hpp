@@ -11,7 +11,7 @@ namespace s3 {
 
 class Camera {
 public:
-	sfz::mat4f mViewMatrix;
+	sfz::mat4 mViewMatrix;
 	Direction3D mUpDir = Direction3D::UP;
 	float mFov = 60.0f;
 	Direction3D mSideRenderOrder[6];
@@ -23,7 +23,7 @@ public:
 private:
 	Direction3D mLastCubeSide = Direction3D::SOUTH;
 	Direction3D mLastUpDir = Direction3D::UP;
-	sfz::vec3f mPos, mUp, mUpTarget;
+	sfz::vec3 mPos, mUp, mUpTarget;
 };
 
 } // namespace s3

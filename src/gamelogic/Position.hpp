@@ -38,7 +38,7 @@ template<typename T>
 inline int sgn(T value) noexcept;
 
 inline Direction3D direction(Direction3D side, Coordinate coordinate) noexcept;
-inline sfz::vec3f directionVector(Direction3D side, Coordinate coordinate) noexcept;
+inline sfz::vec3 directionVector(Direction3D side, Coordinate coordinate) noexcept;
 inline Coordinate coordinate(Direction3D side, Direction3D dir) noexcept;
 inline Coordinate coordinate(Direction3D side, Direction2D dir) noexcept;
 inline int coordinateSign(Direction3D side, Coordinate coord) noexcept;

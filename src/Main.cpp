@@ -20,7 +20,7 @@
 GLuint shaderProgram;
 s3::GlobalConfig globalConfig;
 s3::Camera cam;
-sfz::mat4f projMatrix;
+sfz::mat4 projMatrix;
 
 bool isTransparent = false;
 bool isPaused = false;
@@ -86,10 +86,10 @@ float getTileAngleRad(s3::Direction3D side, s3::Direction2D from) noexcept
 		break;
 	}
 
-	return angle * sfz::g_DEG_TO_RAD_FLOAT;
+	return angle * sfz::DEG_TO_RAD();
 }
 
-sfz::vec3f tilePosToVector(const s3::Model& model, const s3::Position& tilePos) noexcept
+sfz::vec3 tilePosToVector(const s3::Model& model, const s3::Position& tilePos) noexcept
 {
 	// +0.5f to get the midpoint of the tile
 	const float e1f = static_cast<float>(tilePos.e1) + 0.5f;
@@ -101,15 +101,15 @@ sfz::vec3f tilePosToVector(const s3::Model& model, const s3::Position& tilePos) 
 	       s3::toVector(tilePos.side) * 0.5f;
 }
 
-sfz::mat4f tileSpaceRotation(s3::Direction3D side) noexcept
+sfz::mat4 tileSpaceRotation(s3::Direction3D side) noexcept
 {
 	switch (side) {
 	case s3::Direction3D::UP: return sfz::identityMatrix4<float>();
-	case s3::Direction3D::DOWN: return sfz::xRotationMatrix4(sfz::g_PI_FLOAT);
-	case s3::Direction3D::SOUTH: return sfz::xRotationMatrix4(sfz::g_PI_FLOAT/2.0f);
-	case s3::Direction3D::NORTH: return sfz::xRotationMatrix4(-sfz::g_PI_FLOAT/2.0f);
-	case s3::Direction3D::WEST: return sfz::zRotationMatrix4(sfz::g_PI_FLOAT/2.0f);
-	case s3::Direction3D::EAST: return sfz::zRotationMatrix4(-sfz::g_PI_FLOAT/2.0f);
+	case s3::Direction3D::DOWN: return sfz::xRotationMatrix4(sfz::PI());
+	case s3::Direction3D::SOUTH: return sfz::xRotationMatrix4(sfz::PI()/2.0f);
+	case s3::Direction3D::NORTH: return sfz::xRotationMatrix4(-sfz::PI()/2.0f);
+	case s3::Direction3D::WEST: return sfz::zRotationMatrix4(sfz::PI()/2.0f);
+	case s3::Direction3D::EAST: return sfz::zRotationMatrix4(-sfz::PI()/2.0f);
 	}
 }
 
@@ -210,7 +210,7 @@ void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, flo
 
 	glUseProgram(shaderProgram);
 
-	const sfz::mat4f viewProj = projMatrix * cam.mViewMatrix;
+	const sfz::mat4 viewProj = projMatrix * cam.mViewMatrix;
 
 	// Only one texture is used when rendering SnakeTiles
 	gl::setUniform(shaderProgram, "tex", 0);
@@ -220,9 +220,9 @@ void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, flo
 	const size_t tilesPerSide = model.mCfg.gridWidth*model.mCfg.gridWidth;
 	const float gridWidth = static_cast<float>(model.mCfg.gridWidth);
 	const float tileWidth = 1.0f / gridWidth;
-	const sfz::mat4f tileScaling = sfz::scalingMatrix4(tileWidth);
-	sfz::mat4f transform, tileSpaceRot, tileSpaceRotScaling;
-	sfz::vec3f snakeFloatVec;
+	const sfz::mat4 tileScaling = sfz::scalingMatrix4(tileWidth);
+	sfz::mat4 transform, tileSpaceRot, tileSpaceRotScaling;
+	sfz::vec3 snakeFloatVec;
 	s3::SnakeTile *sidePtr, *tilePtr;
 	s3::Position tilePos;
 	s3::Direction3D currentSide;
