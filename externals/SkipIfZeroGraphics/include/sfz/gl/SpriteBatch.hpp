@@ -9,8 +9,6 @@
 #include <cstddef> // size_t
 #include <memory>
 
-
-
 namespace gl {
 
 using sfz::vec2;
@@ -27,9 +25,9 @@ public:
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	SpriteBatch() = delete;
-	SpriteBatch(const SpriteBatch&) = delete;
-	SpriteBatch& operator= (const SpriteBatch&) = delete;
+	SpriteBatch() noexcept = delete;
+	SpriteBatch(const SpriteBatch&) noexcept = delete;
+	SpriteBatch& operator= (const SpriteBatch&) noexcept = delete;
 
 	/**
 	 * @brief Creates a SpriteBatch with the specified capacity.
@@ -77,6 +75,4 @@ private:
 };
 
 } // namespace sfz
-
-
 #endif

@@ -76,5 +76,4 @@ void updateProcessEvent(GameController& controller, const SDL_Event& event) noex
 void updateFinish(GameController& controller) noexcept;
 
 } // namespace sdl
-
 #endif

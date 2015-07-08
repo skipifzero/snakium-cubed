@@ -6,8 +6,6 @@
 #include "sfz/gl/OpenGL.hpp"
 #include "sfz/gl/Utils.hpp"
 
-
-
 namespace gl {
 
 using std::string;

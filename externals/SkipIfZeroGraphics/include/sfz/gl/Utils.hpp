@@ -4,11 +4,7 @@
 
 #include <sfz/Math.hpp>
 #include "sfz/gl/OpenGL.hpp"
-#include <iostream>
 #include <string>
-#include <exception> // std::terminate()
-
-
 
 namespace gl {
 
@@ -98,6 +94,4 @@ void setUniform(int location, const mat4* matrixArray, size_t count) noexcept;
 void setUniform(GLuint shaderProgram, const string& name, const mat4* matrixArray, size_t count) noexcept;
 
 } // namespace gl
-
-
 #endif

@@ -34,20 +34,12 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	// No default constructor
-	Context() = delete;
+	Context() noexcept = delete;
+	Context(const Context&) noexcept = delete;
+	Context& operator= (const Context&) noexcept = delete;
 
-	// No copy constructor
-	Context(const Context&) = delete;
-
-	Context(SDL_Window* window, int major, int minor, GLContextProfile profile);
-
-	~Context();
-
-	// Member operators
-	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	// No assignment
-	Context& operator= (const Context&) = delete;
+	Context(SDL_Window* window, int major, int minor, GLContextProfile profile) noexcept;
+	~Context() noexcept;
 };
 
 } // namespace gl

@@ -2,12 +2,13 @@
 #ifndef SFZ_SDL_WINDOW_HPP
 #define SFZ_SDL_WINDOW_HPP
 
+#include <sfz/math/Vector.hpp>
 #include <SDL.h>
 #include <initializer_list>
-#include <iostream>
-#include <exception> // std::terminate
 
 namespace sdl {
+
+using sfz::vec2;
 
 /**
  * @brief Enum wrapper for SDL_WindowFlags.
@@ -49,39 +50,32 @@ public:
 	// Constructors and destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	// No default constructor.
-	Window() = delete;
+	Window() noexcept = delete;
+	Window(const Window&) noexcept = delete;
+	Window& operator= (const Window&) noexcept = delete;
 
-	// No copy constructor.
-	Window(const Window&) = delete;
+	Window(const char* title, int width, int height,
+	       std::initializer_list<WindowFlags> flags) noexcept;
 
-	Window(const char* title, int width, int height, std::initializer_list<WindowFlags> flags);
-
-	~Window();
+	~Window() noexcept;
 
 	// Getters
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	int width() const;
+	int width() const noexcept;
+	int height() const noexcept;
+	vec2 dimensions() const noexcept;
 
-	int height() const;
+	int drawableWidth() const noexcept;
+	int drawableHeight() const noexcept;
+	vec2 drawableDimensions() const noexcept;
 
-	int drawableWidth() const;
-
-	int drawableHeight() const;
-
-	SDL_Surface* surfacePtr() const;
+	SDL_Surface* surfacePtr() const noexcept;
 
 	// Setters
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	void setSize(int width, int height);
-
-	// Operators
-	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	// No assignment.
-	Window& operator= (const Window&) = delete;
+	void setSize(int width, int height) noexcept;
 };
 
 } // namespace sfz

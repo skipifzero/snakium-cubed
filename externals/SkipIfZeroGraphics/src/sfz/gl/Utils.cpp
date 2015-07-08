@@ -1,6 +1,7 @@
 #include "sfz/gl/Utils.hpp"
 
-
+#include <iostream>
+#include <exception> // std::terminate()
 
 namespace gl {
 
@@ -272,4 +273,3 @@ void setUniform(GLuint shaderProgram, const string& name, const mat4* matrixArra
 }
 
 } // namespace gl
-
