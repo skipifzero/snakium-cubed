@@ -68,20 +68,6 @@ add_executable(
 	${INCLUDE_DIR}/gamelogic/ModelConfig.hpp
 	${INCLUDE_DIR}/gamelogic/SnakeTile.hpp
 	${INCLUDE_DIR}/gamelogic/SnakeTile.inl
-
-	${INCLUDE_DIR}/sfz/SDL.hpp
-	${INCLUDE_DIR}/sfz/sdl/Session.hpp
-	 ${SOURCE_DIR}/sfz/sdl/Session.cpp
-	${INCLUDE_DIR}/sfz/sdl/Window.hpp
-	 ${SOURCE_DIR}/sfz/sdl/Window.cpp
-
-	${INCLUDE_DIR}/sfz/GL.hpp
-	${INCLUDE_DIR}/sfz/gl/Context.hpp
-	 ${SOURCE_DIR}/sfz/gl/Context.cpp
-	${INCLUDE_DIR}/sfz/gl/Texture.hpp
-	 ${SOURCE_DIR}/sfz/gl/Texture.cpp
-	${INCLUDE_DIR}/sfz/gl/Utils.hpp
-	 ${SOURCE_DIR}/sfz/gl/Utils.cpp
 )
 
 # Linking libraries to main executable
