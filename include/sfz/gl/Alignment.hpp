@@ -5,8 +5,6 @@
 #include <cstdint> // int8_t
 #include <iostream> // std::ostream
 
-
-
 namespace gl {
 
 using std::int8_t;

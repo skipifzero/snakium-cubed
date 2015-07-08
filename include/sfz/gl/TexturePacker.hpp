@@ -11,8 +11,6 @@
 #include <string>
 #include <unordered_map>
 
-
-
 namespace gl {
 
 using std::size_t;
@@ -30,11 +28,11 @@ public:
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	TexturePacker() = delete;
-	TexturePacker(const TexturePacker&) = delete;
-	TexturePacker(TexturePacker&&) = delete;
-	TexturePacker& operator= (const TexturePacker&) = delete;
-	TexturePacker& operator= (TexturePacker&&) = delete;
+	TexturePacker() noexcept = delete;
+	TexturePacker(const TexturePacker&) noexcept = delete;
+	TexturePacker(TexturePacker&&) noexcept = delete;
+	TexturePacker& operator= (const TexturePacker&) noexcept = delete;
+	TexturePacker& operator= (TexturePacker&&) noexcept = delete;
 
 	TexturePacker(const string& dirPath, const vector<string>& filenames, int padding = 1,
 	              size_t suggestedWidth = 256, size_t suggestedHeight = 256) noexcept;
@@ -60,6 +58,4 @@ private:
 };
 
 } // namespace sfz
-
-
 #endif

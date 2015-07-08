@@ -6,8 +6,6 @@
 #include <exception> // std::terminate
 #include <algorithm> // std::swap
 
-
-
 namespace gl {
 	
 namespace {

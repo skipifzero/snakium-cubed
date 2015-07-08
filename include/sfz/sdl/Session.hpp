@@ -5,8 +5,6 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <initializer_list>
-#include <iostream>
-#include <exception> // std::terminate
 
 namespace sdl {
 
@@ -49,26 +47,21 @@ enum class ImgInitFlags : int {
  */
 class Session final {
 public:
-	// No default constructor.
-	Session() = delete;
 
-	// No copy constructor.
-	Session(const Session&) = delete;
-	
+	Session() noexcept = delete;
+	Session(const Session&) noexcept = delete;
+	Session& operator= (const Session&) noexcept = delete;
+
 	/**
 	 * @brief Initializes SDL & SDL_image with the specified flags.
 	 * @param initFlags the InitFlags to pass upon initialization
 	 * @param imgFlags the ImgInitFlags to pass upon initialization
 	 */
 	Session(std::initializer_list<InitFlags> initFlags,
-	        std::initializer_list<ImgInitFlags> imgFlags);
+	        std::initializer_list<ImgInitFlags> imgFlags) noexcept;
 	
-	~Session();
-
-	// No assignment.
-	Session& operator= (const Session&) = delete;
+	~Session() noexcept;
 };
 
 } // namespace sdl
-
 #endif

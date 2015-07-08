@@ -2,7 +2,7 @@
 
 namespace gl {
 
-Context::Context(SDL_Window* window, int major, int minor, GLContextProfile profile)
+Context::Context(SDL_Window* window, int major, int minor, GLContextProfile profile) noexcept
 {
 	// Set context attributes
 	if (SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, major) < 0) {
@@ -29,7 +29,7 @@ Context::Context(SDL_Window* window, int major, int minor, GLContextProfile prof
 	}
 }
 
-Context::~Context()
+Context::~Context() noexcept
 {
 	SDL_GL_DeleteContext(mContext);
 }

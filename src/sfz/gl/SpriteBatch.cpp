@@ -7,8 +7,6 @@
 #include <algorithm> // std::swap
 #include <cmath>
 
-
-
 namespace gl {
 
 // Anonymous namespace

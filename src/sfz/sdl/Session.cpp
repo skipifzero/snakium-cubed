@@ -1,9 +1,12 @@
 #include "sfz/sdl/Session.hpp"
 
+#include <iostream>
+#include <exception> // std::terminate
+
 namespace sdl {
 		
 Session::Session(std::initializer_list<InitFlags> initFlags,
-                 std::initializer_list<ImgInitFlags> imgFlags)
+                 std::initializer_list<ImgInitFlags> imgFlags) noexcept
 {
 	// Initializes SDL
 	Uint32 initFlag = 0;
@@ -27,7 +30,7 @@ Session::Session(std::initializer_list<InitFlags> initFlags,
 	}
 }
 	
-Session::~Session()
+Session::~Session() noexcept
 {
 	IMG_Quit();
 	SDL_Quit();

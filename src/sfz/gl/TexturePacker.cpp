@@ -11,8 +11,6 @@
 #include <exception> // std::terminate
 #include <algorithm> // std::swap
 
-
-
 namespace gl {
 
 // Anonymous namespace
@@ -197,4 +195,3 @@ const TextureRegion* TexturePacker::textureRegion(const string& filename) const 
 }
 
 } // namespace sfz
-
