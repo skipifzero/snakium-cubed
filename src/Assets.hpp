@@ -2,14 +2,18 @@
 #ifndef S3_ASSETS_HPP
 #define S3_ASSETS_HPP
 
-#include "sfz/SDL.hpp"
-#include "sfz/GL.hpp"
+#include <sfz/SDL.hpp>
+#include <sfz/GL.hpp>
 #include <string>
 #include "GameLogic.hpp"
 
 namespace s3 {
 
 struct Assets final {
+
+	gl::SpriteBatch mSpriteBatch;
+	gl::FontRenderer mFontRenderer;
+
 	gl::Texture HEAD_D2U_F1,
 	            HEAD_D2U_F2,
 

@@ -177,15 +177,13 @@ bool update(s3::Model& model, float delta)
 	if (isPaused) return false;
 
 	model.update(delta);
-	if (model.mGameOver) std::cout << "GAME OVER, Final score: " << model.mScore << std::endl;
-
 	if (!model.mGameOver) cam.update(model, delta);
 
 	return false;
 }
 
 // Called once every frame
-void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, float)
+void render(sdl::Window& window, s3::Assets& assets, s3::Model& model, float)
 {
 	static s3::TileObject tile{false, false};
 	static s3::TileObject xFlippedTile{true, false};
@@ -309,6 +307,15 @@ void render(sdl::Window& window, const s3::Assets& assets, s3::Model& model, flo
 		if (isLeftTurn(deadHeadPtr->from(), deadHeadPtr->to())) xFlippedTile.render();
 		else tile.render();
 	}
+
+	assets.mFontRenderer.verticalAlign(gl::VerticalAlign::TOP);
+	assets.mFontRenderer.horizontalAlign(gl::HorizontalAlign::LEFT);
+
+	assets.mFontRenderer.begin(window.drawableDimensions()/2.0f, window.drawableDimensions());
+
+	assets.mFontRenderer.write(sfz::vec2{0.0f, (float)window.drawableHeight()}, 64.0f, "Score: " + std::to_string(model.mScore));
+
+	assets.mFontRenderer.end(0, window.drawableDimensions(), sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
 
 	// Clean up
 	glUseProgram(0);
