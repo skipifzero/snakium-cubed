@@ -1,10 +1,10 @@
 #include "sfz/gl/font/FontRenderer.hpp"
 
 #define STB_RECT_PACK_IMPLEMENTATION
-#include "stb_rect_pack.h"
+#include "sfz/gl/font/stb_rect_pack.h"
 #define STB_TRUETYPE_IMPLEMENTATION
 #define STBTT_STATIC
-#include "stb_truetype.h"
+#include "sfz/gl/font/stb_truetype.h"
 
 #include <sfz/gl/Utils.hpp>
 #include <new> // std::nothrow
