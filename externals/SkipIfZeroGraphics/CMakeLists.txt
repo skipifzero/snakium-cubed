@@ -67,6 +67,10 @@ set(SOURCE_BASE_FILES
 source_group(sfz_graphics FILES ${SOURCE_BASE_FILES})
 
 set(SOURCE_GL_FILES
+	${INCLUDE_DIR}/sfz/gl/font/FontRenderer.hpp
+	 ${SOURCE_DIR}/sfz/gl/font/FontRenderer.cpp
+	${INCLUDE_DIR}/sfz/gl/font/stb_rect_pack.h
+	${INCLUDE_DIR}/sfz/gl/font/stb_truetype.h
 	${INCLUDE_DIR}/sfz/gl/Alignment.hpp
 	${INCLUDE_DIR}/sfz/gl/Context.hpp
 	 ${SOURCE_DIR}/sfz/gl/Context.cpp
