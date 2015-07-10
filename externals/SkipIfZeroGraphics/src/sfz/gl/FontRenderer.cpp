@@ -1,10 +1,10 @@
-#include "sfz/gl/font/FontRenderer.hpp"
+#include "sfz/gl/FontRenderer.hpp"
 
 #define STB_RECT_PACK_IMPLEMENTATION
-#include "sfz/gl/font/stb_rect_pack.h"
+#include <stb_rect_pack.h>
 #define STB_TRUETYPE_IMPLEMENTATION
 #define STBTT_STATIC
-#include "sfz/gl/font/stb_truetype.h"
+#include <stb_truetype.h>
 
 #include <sfz/gl/Utils.hpp>
 #include <new> // std::nothrow
@@ -13,8 +13,6 @@
 #include <cstring> // std::memcpy
 #include <iostream> // std::cerr
 #include <exception> // std::terminate
-
-
 
 namespace gl {
 
