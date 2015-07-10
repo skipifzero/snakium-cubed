@@ -1,7 +1,7 @@
 #include "sfz/gl/TexturePacker.hpp"
 
 //#define STB_RECT_PACK_IMPLEMENTATION
-#include "sfz/gl/font/stb_rect_pack.h"
+#include <stb_rect_pack.h>
 
 #include "sfz/gl/Utils.hpp"
 #include <SDL_image.h>

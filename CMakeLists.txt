@@ -37,10 +37,12 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_MODULES})
 find_package(SDL2 REQUIRED) # ${SDL2_INCLUDE_DIR}, ${SDL2_LIBRARY}
 find_package(SDL2_image REQUIRED) # ${SDL2_IMAGE_INCLUDE_DIR}, ${SDL2_IMAGE_LIBRARY}
 
-
 # Subdirectories (libraries)
 # SkipIfZeroCommon # ${SFZ_COMMON_INCLUDE_DIRS}, ${SFZ_COMMON_LIBRARIES}
 add_subdirectory(${EXTERNALS_DIR}/SkipIfZeroCommon)
+
+# stb nothings
+add_subdirectory(${EXTERNALS_DIR}/stb)
 
 # GLEW
 # find_package(GLEW REQUIRED) # ${GLEW_INCLUDE_DIRS}, ${GLEW_LIBRARIES}
@@ -57,6 +59,7 @@ include_directories(
 	${SDL2_INCLUDE_DIR}
 	${SDL2_IMAGE_INCLUDE_DIR}
 	${GLEW_INCLUDE_DIRS}
+	${STB_INCLUDE_DIRS}
 	${OPENGL_INCLUDE_DIR}
 )
 
@@ -67,10 +70,8 @@ set(SOURCE_BASE_FILES
 source_group(sfz_graphics FILES ${SOURCE_BASE_FILES})
 
 set(SOURCE_GL_FILES
-	${INCLUDE_DIR}/sfz/gl/font/FontRenderer.hpp
-	 ${SOURCE_DIR}/sfz/gl/font/FontRenderer.cpp
-	${INCLUDE_DIR}/sfz/gl/font/stb_rect_pack.h
-	${INCLUDE_DIR}/sfz/gl/font/stb_truetype.h
+	${INCLUDE_DIR}/sfz/gl/FontRenderer.hpp
+	 ${SOURCE_DIR}/sfz/gl/FontRenderer.cpp
 	${INCLUDE_DIR}/sfz/gl/Alignment.hpp
 	${INCLUDE_DIR}/sfz/gl/Context.hpp
 	 ${SOURCE_DIR}/sfz/gl/Context.cpp
