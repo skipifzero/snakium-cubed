@@ -1,6 +1,9 @@
 #include "sfz/gl/Texture.hpp"
 
-#include <SDL_image.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
+#include <cstdint>
 #include <cstring> // std::memcpy
 #include <iostream>
 #include <exception> // std::terminate
@@ -10,7 +13,9 @@ namespace gl {
 	
 namespace {
 
-// Simple function that flips a surface by byte-level manipulation.
+using std::uint8_t;
+
+/*// Simple function that flips a surface by byte-level manipulation.
 void flipSurface(SDL_Surface* surface) noexcept
 {
 	// Locking the surface
@@ -47,11 +52,26 @@ void flipSurface(SDL_Surface* surface) noexcept
 
 	// Unlocking the surface
 	SDL_UnlockSurface(surface);
-}
+}*/
 
 GLuint loadTexture(const string& path) noexcept
 {
-	// Load specified surface.
+	// Loading image
+	int width, height, numChannels;
+	int numChannelsWanted = 0;
+	uint8_t* img = stbi_load(path.c_str(), &width, &height, &numChannels, numChannelsWanted);
+
+	// Some error checking
+	if (img == NULL) {		
+		std::cerr << "Unable to load image at: " << path << std::endl;
+		std::terminate();
+	}
+	if (numChannels != 4) {
+		std::cerr << "Number of channels in image not equal to 4 in inage at: " << path << std::endl;
+		std::terminate();
+	}
+
+	/*// Load specified surface.
 	SDL_Surface* surface = NULL;
 	surface = IMG_Load(path.c_str());
 	if (surface == NULL) {
@@ -70,16 +90,17 @@ GLuint loadTexture(const string& path) noexcept
 	}
 
 	// Flips surface so UV coordinates will be in a right-handed system in OpenGL.
-	flipSurface(surface);
+	flipSurface(surface);*/
 
 	// Creating OpenGL Texture from surface.
 	GLuint texture;
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, surface->w, surface->h, 0,
-	             GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
-	SDL_FreeSurface(surface);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0,
+	             GL_RGBA, GL_UNSIGNED_BYTE, img);
+	//SDL_FreeSurface(surface);
+	stbi_image_free(img);
 
 	// Generate mipmaps
 	glGenerateMipmap(GL_TEXTURE_2D);

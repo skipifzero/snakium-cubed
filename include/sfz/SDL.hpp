@@ -3,7 +3,6 @@
 #define SFZ_SDL_HPP
 
 #include <SDL.h>
-#include <SDL_image.h>
 
 #include "sfz/sdl/GameController.hpp"
 #include "sfz/sdl/Session.hpp"
