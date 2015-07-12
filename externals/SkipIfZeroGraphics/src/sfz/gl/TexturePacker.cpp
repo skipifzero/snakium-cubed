@@ -85,22 +85,44 @@ void flipSurface(SDL_Surface* surface) noexcept
 	return surface;
 }*/
 
-SDL_Surface* loadTexture(const std::string& path) noexcept
+void flipImage(uint8_t* const pixels, int w, int h, int pitch, int numChannels) noexcept
+{
+	const int bytesPerRow = w*numChannels;
+	const int bytePitch = pitch*numChannels;
+	uint8_t* const buffer = new (std::nothrow) uint8_t[bytesPerRow];
+
+	for (int i = 0; i < (h/2); ++i) {
+		uint8_t* begin = pixels + i*bytePitch;
+		uint8_t* end = pixels + (h-i-1)*bytePitch;
+
+		std::memcpy(buffer, begin, bytesPerRow);
+		std::memcpy(begin, end, bytesPerRow);
+		std::memcpy(end, buffer, bytesPerRow);
+	}
+
+	delete[] buffer;
+}
+
+SDL_Surface* loadTexture(const string& path) noexcept
 {
 	// Loading image
 	int width, height, numChannels;
-	int numChannelsWanted = 0;
-	uint8_t* data = stbi_load(path.c_str(), &width, &height, &numChannels, numChannelsWanted);
+	uint8_t* data = stbi_load(path.c_str(), &width, &height, &numChannels, 4);
 
 	// Some error checking
 	if (data == NULL) {		
-		std::cerr << "Unable to load image at: " << path << std::endl;
+		std::cerr << "Unable to load image at: " << path << ", reason: "
+		          << stbi_failure_reason() << std::endl;
 		std::terminate();
 	}
-	if (numChannels != 4) {
-		std::cerr << "Number of channels in image not equal to 4 in inage at: " << path << std::endl;
+	if (numChannels != 4)
+	{
+		std::cerr << "Number of channels in image not equal to 4 at: " << path << std::endl;
 		std::terminate();
 	}
+
+	// Flips image so UV coordinates will be in a right-handed system in OpenGL.
+	flipImage(data, width, height, width, numChannels);
 
 	uint32_t rmask, gmask, bmask, amask;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -115,7 +137,7 @@ SDL_Surface* loadTexture(const std::string& path) noexcept
 	amask = 0xff000000;
 #endif
 
-	SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(data, width, height, 8, width*numChannels,
+	SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(data, width, height, 32, width*numChannels,
 	                                                rmask, gmask, bmask, amask);
 
 	if (surface == NULL) {
@@ -170,8 +192,7 @@ TexturePacker::TexturePacker(const string& dirPath, const vector<string>& filena
 
 	// Increases size until packing succeeds
 	bool widthIncTurn = true;
-	while (!packRects(rects, (int)mWidth, (int)mHeight))
-	{
+	while (!packRects(rects, (int)mWidth, (int)mHeight)) {
 		if (widthIncTurn) mWidth *= 2;
 		else mHeight *= 2;
 		widthIncTurn = !widthIncTurn;
