@@ -3,8 +3,10 @@
 //#define STB_RECT_PACK_IMPLEMENTATION
 #include <stb_rect_pack.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+
 #include "sfz/gl/Utils.hpp"
-#include <SDL_image.h>
 #include <new> // std::nothrow
 #include <cstring> // std::memcpy
 #include <iostream>
@@ -18,7 +20,7 @@ namespace gl {
 
 namespace {
 
-// Simple function that flips a surface by byte-level manipulation.
+/*// Simple function that flips a surface by byte-level manipulation.
 void flipSurface(SDL_Surface* surface) noexcept
 {
 	// Locking the surface
@@ -55,9 +57,9 @@ void flipSurface(SDL_Surface* surface) noexcept
 
 	// Unlocking the surface
 	SDL_UnlockSurface(surface);
-}
+}*/
 
-SDL_Surface* loadTexture(const std::string& path) noexcept
+/*SDL_Surface* loadTexture(const std::string& path) noexcept
 {
 	// Load specified surface.
 	SDL_Surface* surface = NULL;
@@ -79,6 +81,48 @@ SDL_Surface* loadTexture(const std::string& path) noexcept
 
 	// Flips surface so UV coordinates will be in a right-handed system in OpenGL.
 	flipSurface(surface);
+
+	return surface;
+}*/
+
+SDL_Surface* loadTexture(const std::string& path) noexcept
+{
+	// Loading image
+	int width, height, numChannels;
+	int numChannelsWanted = 0;
+	uint8_t* data = stbi_load(path.c_str(), &width, &height, &numChannels, numChannelsWanted);
+
+	// Some error checking
+	if (data == NULL) {		
+		std::cerr << "Unable to load image at: " << path << std::endl;
+		std::terminate();
+	}
+	if (numChannels != 4) {
+		std::cerr << "Number of channels in image not equal to 4 in inage at: " << path << std::endl;
+		std::terminate();
+	}
+
+	uint32_t rmask, gmask, bmask, amask;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	rmask = 0xff000000;
+	gmask = 0x00ff0000;
+	bmask = 0x0000ff00;
+	amask = 0x000000ff;
+#else
+	rmask = 0x000000ff;
+	gmask = 0x0000ff00;
+	bmask = 0x00ff0000;
+	amask = 0xff000000;
+#endif
+
+	SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(data, width, height, 8, width*numChannels,
+	                                                rmask, gmask, bmask, amask);
+
+	if (surface == NULL) {
+		std::cerr << "SDL_CreateRGBSurfaceFrom() failed for image at: " << path << ", SDL error: "
+		          << SDL_GetError() << std::endl;
+		std::terminate();
+	}
 
 	return surface;
 }
@@ -134,10 +178,18 @@ TexturePacker::TexturePacker(const string& dirPath, const vector<string>& filena
 	}
 
 	// Creates surface and makes sure it's empty.
-	uint32_t rmask = 0x000000ff;
-    uint32_t gmask = 0x0000ff00;
-    uint32_t bmask = 0x00ff0000;
-    uint32_t amask = 0xff000000;
+	uint32_t rmask, gmask, bmask, amask;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	rmask = 0xff000000;
+	gmask = 0x00ff0000;
+	bmask = 0x0000ff00;
+	amask = 0x000000ff;
+#else
+	rmask = 0x000000ff;
+	gmask = 0x0000ff00;
+	bmask = 0x00ff0000;
+	amask = 0xff000000;
+#endif
     SDL_Surface* surface = SDL_CreateRGBSurface(0, mWidth, mHeight, 32, rmask, gmask, bmask, amask);
 	SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
 	SDL_FillRect(surface, NULL, 0);
@@ -161,7 +213,9 @@ TexturePacker::TexturePacker(const string& dirPath, const vector<string>& filena
 
 	// Cleaning up surfaces
 	for (SDL_Surface* surface : surfaces) {
+		uint8_t* data = (uint8_t*)surface->pixels;
 		SDL_FreeSurface(surface);
+		stbi_image_free(data);
 	}
 
 	// Generating texture.
