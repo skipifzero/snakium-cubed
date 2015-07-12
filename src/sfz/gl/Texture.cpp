@@ -54,6 +54,47 @@ void flipSurface(SDL_Surface* surface) noexcept
 	SDL_UnlockSurface(surface);
 }*/
 
+void flipImage(uint8_t* const pixels, int w, int h, int pitch, int numChannels)
+{
+	const int bytesPerRow = w*numChannels;
+	uint8_t* const buffer = new uint8_t[bytesPerRow];
+
+	for (int i = 0; i < (h/2); ++i) {
+		uint8_t* begin = pixels + i*pitch;
+		uint8_t* end = pixels + (h-i-1)*pitch;
+
+		std::memcpy(buffer, begin, bytesPerRow);
+		std::memcpy(begin, end, bytesPerRow);
+		std::memcpy(end, buffer, bytesPerRow);
+	}
+
+	delete[] buffer;
+
+	/*// Constants
+	const int pixelCount = w * h;
+	const int bytesPerPixel = 4;
+	const int bytesPerRow = w * bytesPerPixel;
+	const int totalByteCount = pixelCount * bytesPerPixel;
+	uint8_t* const buffer = new uint8_t[pixelCount*bytesPerPixel];
+
+	// surfPtr reads from surface, starting value is first pixel.
+	Uint32* surfPtr = surfacePixels;
+
+	// bufPtr writes to buffer, starting value is the first pixel outside the image
+	Uint32* bufPtr = pixelBuffer + pixelCount;
+
+	// Copy pixels from surface to buffer until all pixels are copied
+	while (bufPtr > pixelBuffer) {
+		bufPtr = bufPtr - w; // Move bufPtr back one image row
+		std::memcpy(bufPtr, surfPtr, bytesPerRow); // Copy one image row to buffer
+		surfPtr = surfPtr + w; // Move surfPtr forward one image row
+	}
+
+	// Copy pixels back from buffer and free memory.
+	std::memcpy(surfacePixels, pixelBuffer, totalByteCount);
+	delete[] buffer;*/
+}
+
 GLuint loadTexture(const string& path) noexcept
 {
 	// Loading image
@@ -70,6 +111,9 @@ GLuint loadTexture(const string& path) noexcept
 		std::cerr << "Number of channels in image not equal to 4 in inage at: " << path << std::endl;
 		std::terminate();
 	}
+
+	// Flips image so UV coordinates will be in a right-handed system in OpenGL.
+	flipImage(img, width, height, width, numChannels);
 
 	/*// Load specified surface.
 	SDL_Surface* surface = NULL;
