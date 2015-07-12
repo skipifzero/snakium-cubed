@@ -13,9 +13,8 @@ using std::string;
 using std::uint8_t;
 
 enum class TextureFormat : uint8_t {
-	ANY = 0,
-	GRAY = 1,
-	GRAY_ALPHA = 2,
+	GRAY = 1, // Gray == color.r
+	GRAY_ALPHA = 2, // Gray == color.r, Alpha == color.g
 	RGB = 3,
 	RGBA = 4
 };
@@ -34,7 +33,7 @@ public:
 	Texture(const Texture&) = delete;
 	Texture& operator= (const Texture&) = delete;
 	
-	Texture(const string& path, TextureFormat format) noexcept;
+	Texture(const string& path, TextureFormat format = TextureFormat::RGBA) noexcept;
 	Texture& operator= (Texture&& other) noexcept;
 	~Texture() noexcept;
 };
