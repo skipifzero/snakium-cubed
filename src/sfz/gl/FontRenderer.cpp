@@ -1,10 +1,12 @@
 #include "sfz/gl/FontRenderer.hpp"
 
+#include <sfz/PushWarnings.hpp>
 #define STB_RECT_PACK_IMPLEMENTATION
 #include <stb_rect_pack.h>
 #define STB_TRUETYPE_IMPLEMENTATION
 #define STBTT_STATIC
 #include <stb_truetype.h>
+#include <sfz/PopWarnings.hpp>
 
 #include <sfz/gl/Utils.hpp>
 #include <new> // std::nothrow

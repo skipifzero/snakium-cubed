@@ -42,6 +42,8 @@ set(SOURCE_GENERAL_FILES
 	${INCLUDE_DIR}/sfz/Assert.inl
 	${INCLUDE_DIR}/sfz/Geometry.hpp
 	${INCLUDE_DIR}/sfz/Math.hpp
+	${INCLUDE_DIR}/sfz/PopWarnings.hpp
+	${INCLUDE_DIR}/sfz/PushWarnings.hpp
 	${INCLUDE_DIR}/sfz/Util.hpp)
 source_group(sfz FILES ${SOURCE_GENERAL_FILES})
 
