@@ -1,11 +1,14 @@
 #include "sfz/gl/TexturePacker.hpp"
 
+#include <SDL.h>
+
+#include <sfz/PushWarnings.hpp>
 //#define STB_RECT_PACK_IMPLEMENTATION
 #include <stb_rect_pack.h>
-
 #define STB_IMAGE_STATIC
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include <sfz/PopWarnings.hpp>
 
 #include "sfz/gl/Utils.hpp"
 #include <new> // std::nothrow

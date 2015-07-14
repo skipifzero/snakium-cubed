@@ -1,8 +1,10 @@
 #include "sfz/gl/Texture.hpp"
 
+#include <sfz/PushWarnings.hpp>
 #define STB_IMAGE_STATIC
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+#include <sfz/PopWarnings.hpp>
 
 #include <algorithm> // std::swap
 #include <cstring> // std::memcpy
