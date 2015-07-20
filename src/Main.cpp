@@ -149,6 +149,22 @@ bool handleInput(s3::Model& model, const SDL_Event& event)
 		case SDLK_RIGHT:
 			model.changeDirection(cam.mUpDir, s3::Direction2D::RIGHT);
 			break;
+		case 'w':
+		case 'W':
+			model.changeDirection(cam.mUpDir, s3::Direction2D::UP);
+			break;
+		case 's':
+		case 'S':
+			model.changeDirection(cam.mUpDir, s3::Direction2D::DOWN);
+			break;
+		case 'a':
+		case 'A':
+			model.changeDirection(cam.mUpDir, s3::Direction2D::LEFT);
+			break;
+		case 'd':
+		case 'D':
+			model.changeDirection(cam.mUpDir, s3::Direction2D::RIGHT);
+			break;
 		case 'x':
 		case 'X':
 			isTransparent = !isTransparent;
@@ -308,14 +324,27 @@ void render(sdl::Window& window, s3::Assets& assets, s3::Model& model, float)
 		else tile.render();
 	}
 
-	assets.mFontRenderer.verticalAlign(gl::VerticalAlign::TOP);
-	assets.mFontRenderer.horizontalAlign(gl::HorizontalAlign::LEFT);
+	gl::FontRenderer& font = assets.mFontRenderer;
 
-	assets.mFontRenderer.begin(window.drawableDimensions()/2.0f, window.drawableDimensions());
+	font.verticalAlign(gl::VerticalAlign::TOP);
+	font.horizontalAlign(gl::HorizontalAlign::LEFT);
 
-	assets.mFontRenderer.write(sfz::vec2{0.0f, (float)window.drawableHeight()}, 64.0f, "Score: " + std::to_string(model.mScore));
+	font.begin(window.drawableDimensions()/2.0f, window.drawableDimensions());
 
-	assets.mFontRenderer.end(0, window.drawableDimensions(), sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+	font.write(sfz::vec2{0.0f, (float)window.drawableHeight()}, 64.0f, "Score: " + std::to_string(model.mScore));
+
+	font.end(0, window.drawableDimensions(), sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+
+	if (model.mGameOver) {
+		font.verticalAlign(gl::VerticalAlign::MIDDLE);
+		font.horizontalAlign(gl::HorizontalAlign::CENTER);
+
+		font.begin(window.drawableDimensions()/2.0f, window.drawableDimensions());
+
+		font.write(window.drawableDimensions()/2.0f, 160.0f, "Game Over");
+
+		font.end(0, window.drawableDimensions(), sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+	}
 
 	// Clean up
 	glUseProgram(0);
