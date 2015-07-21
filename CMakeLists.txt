@@ -21,8 +21,8 @@ if (NOT S3_CONFIGURED_ONCE)
 endif ()
 
 # Directories
-set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
-set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src) # Same as source dir since no library.
+set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(INCLUDE_DIR ${SRC_DIR})
 set(EXTERNALS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externals)
 
 # Adds our cmake modules to module path.
@@ -42,33 +42,50 @@ include_directories(
 	${Boost_INCLUDE_DIRS}
 )
 
+# Source files
+set(SOURCE_BASE_FILES
+	${SRC_DIR}/Assets.hpp
+	${SRC_DIR}/Assets.cpp
+	${SRC_DIR}/Camera.hpp
+	${SRC_DIR}/Camera.cpp
+	${SRC_DIR}/GameLogic.hpp
+	${SRC_DIR}/GlobalConfig.hpp
+	${SRC_DIR}/GlobalConfig.cpp
+	${SRC_DIR}/Main.cpp
+	${SRC_DIR}/Rendering.hpp)
+source_group(snakium_cubed_root FILES ${SOURCE_BASE_FILES})
+
+set(SOURCE_GAMELOGIC_FILES
+	${SRC_DIR}/gamelogic/Direction.hpp
+	${SRC_DIR}/gamelogic/Direction.inl
+	${SRC_DIR}/gamelogic/Model.hpp
+	${SRC_DIR}/gamelogic/Model.cpp
+	${SRC_DIR}/gamelogic/ModelConfig.hpp
+	${SRC_DIR}/gamelogic/Position.hpp
+	${SRC_DIR}/gamelogic/Position.inl
+	${SRC_DIR}/gamelogic/SnakeTile.hpp
+	${SRC_DIR}/gamelogic/SnakeTile.inl)
+source_group(gamelogic FILES ${SOURCE_GAMELOGIC_FILES})
+
+set(SOURCE_RENDERING_FILES
+	${SRC_DIR}/rendering/S3Shaders.hpp
+	${SRC_DIR}/rendering/S3Shaders.cpp
+	${SRC_DIR}/rendering/TileObject.hpp
+	${SRC_DIR}/rendering/TileObject.cpp)
+source_group(rendering FILES ${SOURCE_RENDERING_FILES})
+
+set(SOURCE_SCREENS_FILES
+	${SRC_DIR}/screens/IScreen.hpp)
+source_group(screens FILES ${SOURCE_SCREENS_FILES})
+
+set(SOURCE_ALL_FILES
+	${SOURCE_BASE_FILES}
+	${SOURCE_GAMELOGIC_FILES}
+	${SOURCE_RENDERING_FILES}
+	${SOURCE_SCREENS_FILES})
+
 # Main executable
-add_executable(
-	snakium-cubed
-	
-	 ${SOURCE_DIR}/Main.cpp
-	${INCLUDE_DIR}/Camera.hpp
-	 ${SOURCE_DIR}/Camera.cpp
-	${INCLUDE_DIR}/GlobalConfig.hpp
-	 ${SOURCE_DIR}/GlobalConfig.cpp
-	${INCLUDE_DIR}/S3Shaders.hpp
-	 ${SOURCE_DIR}/S3Shaders.cpp
-	${INCLUDE_DIR}/TileObject.hpp
-	 ${SOURCE_DIR}/TileObject.cpp
-	${INCLUDE_DIR}/Assets.hpp
-	 ${SOURCE_DIR}/Assets.cpp
-	
-	${INCLUDE_DIR}/GameLogic.hpp
-	${INCLUDE_DIR}/gamelogic/Direction.hpp
-	${INCLUDE_DIR}/gamelogic/Direction.inl
-	${INCLUDE_DIR}/gamelogic/Position.hpp
-	${INCLUDE_DIR}/gamelogic/Position.inl
-	${INCLUDE_DIR}/gamelogic/Model.hpp
-	 ${SOURCE_DIR}/gamelogic/Model.cpp
-	${INCLUDE_DIR}/gamelogic/ModelConfig.hpp
-	${INCLUDE_DIR}/gamelogic/SnakeTile.hpp
-	${INCLUDE_DIR}/gamelogic/SnakeTile.inl
-)
+add_executable(snakium-cubed ${SOURCE_ALL_FILES})
 
 # Linking libraries to main executable
 target_link_libraries(

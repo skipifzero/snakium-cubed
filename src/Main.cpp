@@ -10,8 +10,7 @@
 #include "Camera.hpp"
 #include "GameLogic.hpp"
 #include "GlobalConfig.hpp"
-#include "S3Shaders.hpp"
-#include "TileObject.hpp"
+#include "Rendering.hpp"
 
 #undef main // Remove SDL hack until we can get it to compile properly
 
