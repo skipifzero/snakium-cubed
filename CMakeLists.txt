@@ -52,7 +52,8 @@ set(SOURCE_BASE_FILES
 	${SRC_DIR}/GlobalConfig.hpp
 	${SRC_DIR}/GlobalConfig.cpp
 	${SRC_DIR}/Main.cpp
-	${SRC_DIR}/Rendering.hpp)
+	${SRC_DIR}/Rendering.hpp
+	${SRC_DIR}/Screens.hpp)
 source_group(snakium_cubed_root FILES ${SOURCE_BASE_FILES})
 
 set(SOURCE_GAMELOGIC_FILES
@@ -75,6 +76,8 @@ set(SOURCE_RENDERING_FILES
 source_group(rendering FILES ${SOURCE_RENDERING_FILES})
 
 set(SOURCE_SCREENS_FILES
+	${SRC_DIR}/screens/GameScreen.hpp
+	${SRC_DIR}/screens/GameScreen.cpp
 	${SRC_DIR}/screens/IScreen.hpp)
 source_group(screens FILES ${SOURCE_SCREENS_FILES})
 
