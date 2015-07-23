@@ -25,7 +25,7 @@ public:
 	GameScreen() noexcept = delete;
 	GameScreen& operator= (const GameScreen&) noexcept = delete;
 
-	GameScreen(sdl::Window& window, s3::Assets& assets, GlobalConfig& cfg) noexcept;
+	GameScreen(sdl::Window& window, Assets& assets, const ModelConfig& modelCfg) noexcept;
 	~GameScreen() noexcept = default;
 
 	// Overriden screen methods
@@ -37,28 +37,20 @@ public:
 	virtual void render(float delta) override final;
 
 private:
-	// Private methods
-	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	bool handleInput(s3::Model& model, const SDL_Event& event);
-	bool update(s3::Model& model, float delta);
-	void render(sdl::Window& window, s3::Assets& assets, s3::Model& model, float);
-
-
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	GLuint shaderProgram;
+	GLuint mShaderProgram;
+	Camera mCam;
 
-	Camera cam;
 	mat4 projMatrix;
 	bool isTransparent = false;
 	bool isPaused = false;
 
-	sdl::Window& mWindow;
-	s3::Assets& mAssets;
 	GlobalConfig mCfg;
-	s3::Model mModel;
+	sdl::Window& mWindow;
+	Assets& mAssets;
+	Model mModel;
 
 
 	bool mQuit = false;

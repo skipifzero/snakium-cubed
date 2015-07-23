@@ -9,11 +9,6 @@ namespace s3 {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 namespace {
 
-void checkGLErrorsMessage(const std::string& msg) noexcept
-{
-	if (gl::checkAllGLErrors()) std::cerr << msg << std::endl;
-}
-
 float getTileAngleRad(s3::Direction3D side, s3::Direction2D from) noexcept
 {
 	float angle;
@@ -87,17 +82,17 @@ sfz::mat4 tileSpaceRotation(s3::Direction3D side) noexcept
 // GameScreen: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-GameScreen::GameScreen(sdl::Window& window, s3::Assets& assets, GlobalConfig& cfg) noexcept
+GameScreen::GameScreen(sdl::Window& window, s3::Assets& assets, const ModelConfig& modelCfg) noexcept
 :
-	mCfg{cfg},
 	mWindow{window},
 	mAssets{assets},
-	mModel{cfg.mModelConfig}
+	mModel{modelCfg}
 {
-	shaderProgram = s3::compileStandardShaderProgram();
+	mCfg.load();
+	mShaderProgram = s3::compileStandardShaderProgram();
 
 	float aspect = static_cast<float>(window.width()) / static_cast<float>(window.height());
-	projMatrix = sfz::glPerspectiveProjectionMatrix(cam.mFov, aspect, 0.1f, 50.0f);
+	projMatrix = sfz::glPerspectiveProjectionMatrix(mCam.mFov, aspect, 0.1f, 50.0f);
 
 	isTransparent = mCfg.mTransparentCube;
 }
@@ -107,11 +102,74 @@ GameScreen::GameScreen(sdl::Window& window, s3::Assets& assets, GlobalConfig& cf
 
 void GameScreen::update(const std::vector<SDL_Event>& events, float delta)
 {
+	// Handle input
 	for (const SDL_Event& event : events) {
-		mQuit = handleInput(mModel, event);
-		if (mQuit) return;
+		switch (event.type) {
+		case SDL_QUIT:
+			mQuit = true;
+			return;
+		case SDL_WINDOWEVENT:
+			switch (event.window.event) {
+			case SDL_WINDOWEVENT_RESIZED:
+				float w = static_cast<float>(event.window.data1);
+				float h = static_cast<float>(event.window.data2);
+				projMatrix = sfz::glPerspectiveProjectionMatrix(mCam.mFov, w/h, 0.1f, 50.0f);
+			}
+			break;
+		case SDL_KEYDOWN:
+			switch (event.key.keysym.sym) {
+			case SDLK_ESCAPE:
+				mQuit = true;
+				return;
+			case SDLK_SPACE:
+				isPaused = !isPaused;
+				break;
+			case SDLK_UP:
+			case 'w':
+			case 'W':
+				mModel.changeDirection(mCam.mUpDir, s3::Direction2D::UP);
+				break;
+			case SDLK_DOWN:
+			case 's':
+			case 'S':
+				mModel.changeDirection(mCam.mUpDir, s3::Direction2D::DOWN);
+				break;
+			case SDLK_LEFT:
+			case 'a':
+			case 'A':
+				mModel.changeDirection(mCam.mUpDir, s3::Direction2D::LEFT);
+				break;
+			case SDLK_RIGHT:
+			case 'd':
+			case 'D':
+				mModel.changeDirection(mCam.mUpDir, s3::Direction2D::RIGHT);
+				break;
+			case 'x':
+			case 'X':
+				isTransparent = !isTransparent;
+				break;
+			case 'z':
+			case 'Z':
+				isTransparent = true;
+				break;
+			}
+			break;
+		case SDL_KEYUP:
+			switch (event.key.keysym.sym) {
+			case 'z':
+			case 'Z':
+				isTransparent = mCfg.mTransparentCube;
+				break;
+			}
+			break;
+		}
 	}
-	mQuit = update(mModel, delta);
+
+	// Updating
+	if (isPaused) return;
+
+	mModel.update(delta);
+	if (!mModel.mGameOver) mCam.update(mModel, delta);
 }
 
 IScreen* GameScreen::changeScreen()
@@ -125,92 +183,6 @@ bool GameScreen::quit()
 }
 
 void GameScreen::render(float delta)
-{
-	render(mWindow, mAssets, mModel, delta);
-}
-
-// GameScreen: Private methods
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-bool GameScreen::handleInput(s3::Model& model, const SDL_Event& event)
-{
-	switch (event.type) {
-	case SDL_QUIT: return true;
-	case SDL_WINDOWEVENT:
-		switch (event.window.event) {
-		case SDL_WINDOWEVENT_RESIZED:
-			float w = static_cast<float>(event.window.data1);
-			float h = static_cast<float>(event.window.data2);
-			projMatrix = sfz::glPerspectiveProjectionMatrix(cam.mFov, w/h, 0.1f, 50.0f);
-		}
-		break;
-	case SDL_KEYDOWN:
-		switch (event.key.keysym.sym) {
-		case SDLK_ESCAPE: return true;
-		case SDLK_SPACE:
-			isPaused = !isPaused;
-			break;
-		case SDLK_UP:
-			model.changeDirection(cam.mUpDir, s3::Direction2D::UP);
-			break;
-		case SDLK_DOWN:
-			model.changeDirection(cam.mUpDir, s3::Direction2D::DOWN);
-			break;
-		case SDLK_LEFT:
-			model.changeDirection(cam.mUpDir, s3::Direction2D::LEFT);
-			break;
-		case SDLK_RIGHT:
-			model.changeDirection(cam.mUpDir, s3::Direction2D::RIGHT);
-			break;
-		case 'w':
-		case 'W':
-			model.changeDirection(cam.mUpDir, s3::Direction2D::UP);
-			break;
-		case 's':
-		case 'S':
-			model.changeDirection(cam.mUpDir, s3::Direction2D::DOWN);
-			break;
-		case 'a':
-		case 'A':
-			model.changeDirection(cam.mUpDir, s3::Direction2D::LEFT);
-			break;
-		case 'd':
-		case 'D':
-			model.changeDirection(cam.mUpDir, s3::Direction2D::RIGHT);
-			break;
-		case 'x':
-		case 'X':
-			isTransparent = !isTransparent;
-			break;
-		case 'z':
-		case 'Z':
-			isTransparent = true;
-			break;
-		}
-		break;
-	case SDL_KEYUP:
-		switch (event.key.keysym.sym) {
-		case 'z':
-		case 'Z':
-			isTransparent = mCfg.mTransparentCube;
-			break;
-		}
-		break;
-	}
-	return false;
-}
-
-bool GameScreen::update(s3::Model& model, float delta)
-{
-	if (isPaused) return false;
-
-	model.update(delta);
-	if (!model.mGameOver) cam.update(model, delta);
-
-	return false;
-}
-
-void GameScreen::render(sdl::Window& window, s3::Assets& assets, s3::Model& model, float)
 {
 	static s3::TileObject tile{false, false};
 	static s3::TileObject xFlippedTile{true, false};
@@ -231,19 +203,19 @@ void GameScreen::render(sdl::Window& window, s3::Assets& assets, s3::Model& mode
 	if (isTransparent) glDisable(GL_CULL_FACE);
 	else glEnable(GL_CULL_FACE);
 
-	glViewport(0, 0, window.drawableWidth(), window.drawableHeight());
+	glViewport(0, 0, mWindow.drawableWidth(), mWindow.drawableHeight());
 
-	glUseProgram(shaderProgram);
+	glUseProgram(mShaderProgram);
 
-	const sfz::mat4 viewProj = projMatrix * cam.mViewMatrix;
+	const sfz::mat4 viewProj = projMatrix * mCam.mViewMatrix;
 
 	// Only one texture is used when rendering SnakeTiles
-	gl::setUniform(shaderProgram, "tex", 0);
+	gl::setUniform(mShaderProgram, "tex", 0);
 	glActiveTexture(GL_TEXTURE0);
 
 	// Render all SnakeTiles
-	const size_t tilesPerSide = model.mCfg.gridWidth*model.mCfg.gridWidth;
-	const float gridWidth = static_cast<float>(model.mCfg.gridWidth);
+	const size_t tilesPerSide = mModel.mCfg.gridWidth*mModel.mCfg.gridWidth;
+	const float gridWidth = static_cast<float>(mModel.mCfg.gridWidth);
 	const float tileWidth = 1.0f / gridWidth;
 	const sfz::mat4 tileScaling = sfz::scalingMatrix4(tileWidth);
 	sfz::mat4 transform, tileSpaceRot, tileSpaceRotScaling;
@@ -253,26 +225,26 @@ void GameScreen::render(sdl::Window& window, s3::Assets& assets, s3::Model& mode
 	s3::Direction3D currentSide;
 
 	for (size_t side = 0; side < 6; side++) {
-		currentSide = cam.mSideRenderOrder[side];
-		sidePtr = model.getTilePtr(s3::Position{currentSide, 0, 0});
+		currentSide = mCam.mSideRenderOrder[side];
+		sidePtr = mModel.getTilePtr(s3::Position{currentSide, 0, 0});
 
 		tileSpaceRot = tileSpaceRotation(currentSide);
 		tileSpaceRotScaling = tileSpaceRot * tileScaling;
 		snakeFloatVec = s3::toVector(currentSide) * 0.001f;
 
-		if (cam.mRenderTileFaceFirst[side]) {
+		if (mCam.mRenderTileFaceFirst[side]) {
 			for (size_t i = 0; i < tilesPerSide; i++) {
 				tilePtr = sidePtr + i;
-				tilePos = model.getTilePosition(tilePtr);
+				tilePos = mModel.getTilePosition(tilePtr);
 
 				// Calculate base transform
 				transform = tileSpaceRotScaling;
 				transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
 
 				// Render tile face
-				translation(transform, tilePosToVector(model, tilePos));
-				gl::setUniform(shaderProgram, "modelViewProj", viewProj * transform);
-				glBindTexture(GL_TEXTURE_2D, assets.TILE_FACE.mHandle);
+				translation(transform, tilePosToVector(mModel, tilePos));
+				gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
+				glBindTexture(GL_TEXTURE_2D, mAssets.TILE_FACE.mHandle);
 				tile.render();
 
 				// Render snake sprite for non-empty tiles
@@ -280,16 +252,16 @@ void GameScreen::render(sdl::Window& window, s3::Assets& assets, s3::Model& mode
 
 				// Tile Sprite Transform
 				translation(transform, translation(transform) + snakeFloatVec);
-				gl::setUniform(shaderProgram, "modelViewProj", viewProj * transform);
+				gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
 				glBindTexture(GL_TEXTURE_2D,
-				     assets.getTileTexture(tilePtr, model.mProgress, model.mGameOver).mHandle);
+				     mAssets.getTileTexture(tilePtr, mModel.mProgress, mModel.mGameOver).mHandle);
 				if (isLeftTurn(tilePtr->from(), tilePtr->to())) xFlippedTile.render();
 				else tile.render();
 			}
 		} else {
 			for (size_t i = 0; i < tilesPerSide; i++) {
 				tilePtr = sidePtr + i;
-				tilePos = model.getTilePosition(tilePtr);
+				tilePos = mModel.getTilePosition(tilePtr);
 
 				// Calculate base transform
 				transform = tileSpaceRotScaling;
@@ -297,27 +269,27 @@ void GameScreen::render(sdl::Window& window, s3::Assets& assets, s3::Model& mode
 
 				// Render snake sprite for non-empty tiles
 				if(tilePtr->type() != s3::TileType::EMPTY) {
-					translation(transform, tilePosToVector(model, tilePos) + snakeFloatVec);
-					gl::setUniform(shaderProgram, "modelViewProj", viewProj * transform);
+					translation(transform, tilePosToVector(mModel, tilePos) + snakeFloatVec);
+					gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
 					glBindTexture(GL_TEXTURE_2D,
-					     assets.getTileTexture(tilePtr, model.mProgress, model.mGameOver).mHandle);
+					     mAssets.getTileTexture(tilePtr, mModel.mProgress, mModel.mGameOver).mHandle);
 					if (isLeftTurn(tilePtr->from(), tilePtr->to())) xFlippedTile.render();
 					else tile.render();
 				}
 
 				// Render tile face
-				translation(transform, tilePosToVector(model, tilePos));
-				gl::setUniform(shaderProgram, "modelViewProj", viewProj * transform);
-				glBindTexture(GL_TEXTURE_2D, assets.TILE_FACE.mHandle);
+				translation(transform, tilePosToVector(mModel, tilePos));
+				gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
+				glBindTexture(GL_TEXTURE_2D, mAssets.TILE_FACE.mHandle);
 				tile.render();
 			}
 		}
 	}
 
 	// Hack to correctly render dead snake head
-	if (model.mGameOver) {
-		s3::SnakeTile* deadHeadPtr = model.mDeadHeadPtr;
-		s3::Position deadHeadPos = model.mDeadHeadPos;
+	if (mModel.mGameOver) {
+		s3::SnakeTile* deadHeadPtr = mModel.mDeadHeadPtr;
+		s3::Position deadHeadPos = mModel.mDeadHeadPos;
 
 		// Calculate dead head transform
 		tileSpaceRot = tileSpaceRotation(deadHeadPos.side);
@@ -325,36 +297,36 @@ void GameScreen::render(sdl::Window& window, s3::Assets& assets, s3::Model& mode
 		snakeFloatVec = s3::toVector(deadHeadPos.side) * 0.0015f;
 		transform = tileSpaceRotScaling;
 		transform *= sfz::yRotationMatrix4(getTileAngleRad(deadHeadPos.side, deadHeadPtr->from()));
-		translation(transform, tilePosToVector(model, deadHeadPos) + snakeFloatVec);
+		translation(transform, tilePosToVector(mModel, deadHeadPos) + snakeFloatVec);
 
 		// Render dead head
-		gl::setUniform(shaderProgram, "modelViewProj", viewProj * transform);
+		gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
 		glBindTexture(GL_TEXTURE_2D,
-		   assets.getTileTexture(deadHeadPtr, model.mProgress, model.mGameOver).mHandle);
+		   mAssets.getTileTexture(deadHeadPtr, mModel.mProgress, mModel.mGameOver).mHandle);
 		if (isLeftTurn(deadHeadPtr->from(), deadHeadPtr->to())) xFlippedTile.render();
 		else tile.render();
 	}
 
-	gl::FontRenderer& font = assets.mFontRenderer;
+	gl::FontRenderer& font = mAssets.mFontRenderer;
 
 	font.verticalAlign(gl::VerticalAlign::TOP);
 	font.horizontalAlign(gl::HorizontalAlign::LEFT);
 
-	font.begin(window.drawableDimensions()/2.0f, window.drawableDimensions());
+	font.begin(mWindow.drawableDimensions()/2.0f, mWindow.drawableDimensions());
 
-	font.write(sfz::vec2{0.0f, (float)window.drawableHeight()}, 64.0f, "Score: " + std::to_string(model.mScore));
+	font.write(sfz::vec2{0.0f, (float)mWindow.drawableHeight()}, 64.0f, "Score: " + std::to_string(mModel.mScore));
 
-	font.end(0, window.drawableDimensions(), sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+	font.end(0, mWindow.drawableDimensions(), sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
 
-	if (model.mGameOver) {
+	if (mModel.mGameOver) {
 		font.verticalAlign(gl::VerticalAlign::MIDDLE);
 		font.horizontalAlign(gl::HorizontalAlign::CENTER);
 
-		font.begin(window.drawableDimensions()/2.0f, window.drawableDimensions());
+		font.begin(mWindow.drawableDimensions()/2.0f, mWindow.drawableDimensions());
 
-		font.write(window.drawableDimensions()/2.0f, 160.0f, "Game Over");
+		font.write(mWindow.drawableDimensions()/2.0f, 160.0f, "Game Over");
 
-		font.end(0, window.drawableDimensions(), sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+		font.end(0, mWindow.drawableDimensions(), sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
 	}
 
 	// Clean up
