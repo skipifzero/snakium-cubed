@@ -4,5 +4,6 @@
 
 #include "screens/IScreen.hpp"
 #include "screens/GameScreen.hpp"
+#include "screens/MainMenuScreen.hpp"
 
 #endif

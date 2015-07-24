@@ -85,7 +85,9 @@ int main()
 
 	s3::Assets assets;
 
-	std::unique_ptr<s3::IScreen> currentScreen{new s3::GameScreen{window, assets, globalConfig.mModelConfig}};
+	//std::unique_ptr<s3::IScreen> currentScreen{new s3::GameScreen{window, assets, globalConfig.mModelConfig}};
+
+	std::unique_ptr<s3::IScreen> currentScreen{new s3::MainMenuScreen{window, assets}};
 
 	// Game loop
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
