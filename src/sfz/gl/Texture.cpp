@@ -34,7 +34,20 @@ void flipImage(uint8_t* const pixels, int w, int h, int pitch, int numChannels) 
 	delete[] buffer;
 }
 
-GLuint loadTexture(const string& path, int numChannelsWanted) noexcept
+float anisotropicFactor(TextureFiltering filtering) noexcept
+{
+	switch (filtering) {
+	case TextureFiltering::ANISOTROPIC_1: return 1.0f;
+	case TextureFiltering::ANISOTROPIC_2: return 2.0f;
+	case TextureFiltering::ANISOTROPIC_4: return 4.0f;
+	case TextureFiltering::ANISOTROPIC_8: return 8.0f;
+	case TextureFiltering::ANISOTROPIC_16: return 16.0f;
+	default:
+		sfz_error("Can't extract anisotropic factor.");
+	}
+}
+
+GLuint loadTexture(const string& path, int numChannelsWanted, TextureFiltering filtering) noexcept
 {
 	// Loading image
 	int width, height, numChannels;
@@ -71,13 +84,33 @@ GLuint loadTexture(const string& path, int numChannelsWanted) noexcept
 	}
 	stbi_image_free(img);
 
-	// Generate mipmaps
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	// Enable anisotropic filtering
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.0f);
+	// Sets specified texture filtering, generating mipmaps if needed.
+	switch (filtering) {
+	case TextureFiltering::NEAREST:
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		break;
+	case TextureFiltering::BILINEAR:
+		glGenerateMipmap(GL_TEXTURE_2D);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		break;
+	case TextureFiltering::TRILINEAR:
+		glGenerateMipmap(GL_TEXTURE_2D);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		break;
+	case TextureFiltering::ANISOTROPIC_1:
+	case TextureFiltering::ANISOTROPIC_2:
+	case TextureFiltering::ANISOTROPIC_4:
+	case TextureFiltering::ANISOTROPIC_8:
+	case TextureFiltering::ANISOTROPIC_16:
+		glGenerateMipmap(GL_TEXTURE_2D);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropicFactor(filtering));
+		break;
+	}
 
 	if (checkAllGLErrors()) {
 		std::cerr << "^^^ Above errors likely caused by loading texture at \"" << path
@@ -92,13 +125,20 @@ GLuint loadTexture(const string& path, int numChannelsWanted) noexcept
 // Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Texture::Texture(const string& path, TextureFormat format) noexcept
+Texture::Texture(const string& path, TextureFormat format, TextureFiltering filtering) noexcept
 :
-	mHandle{loadTexture(path, static_cast<uint8_t>(format))}
+	mHandle{loadTexture(path, static_cast<uint8_t>(format), filtering)}
 { }
+
+Texture::Texture(Texture&& other) noexcept
+{
+	glGenTextures(1, &mHandle);
+	std::swap(mHandle, other.mHandle);
+}
 
 Texture& Texture::operator= (Texture&& other) noexcept
 {
+	glGenTextures(1, &mHandle);
 	std::swap(mHandle, other.mHandle);
 	return *this;
 }

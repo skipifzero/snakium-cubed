@@ -3,15 +3,19 @@
 #define SFZ_SDL_GAME_CONTROLLER_HPP
 
 #include <cstdint> // uint8_t, int32_t
+#include <unordered_map>
+#include <vector>
 
 #include <SDL.h>
-#include <sfz/Assert.hpp>
 #include <sfz/math/Vector.hpp>
 
 namespace sdl {
 
 using std::uint8_t;
 using std::int32_t;
+using sfz::vec2;
+using std::unordered_map;
+using std::vector;
 
 // GameController structs & enums
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -24,47 +28,69 @@ enum class Button : uint8_t {
 	UP
 };
 
-/** Struct representing the state of a GameController at a given point in time. */
-struct GameController final {
-	Button mButtonA = Button::NOT_PRESSED;
-	Button mButtonB = Button::NOT_PRESSED;
-	Button mButtonX = Button::NOT_PRESSED;
-	Button mButtonY = Button::NOT_PRESSED;
+/** Class representing the state of a GameController at a given point in time. */
+class GameController final {
+public:
+	// Public members
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	Button mButtonLeftShoulder = Button::NOT_PRESSED;
-	Button mButtonRightShoulder = Button::NOT_PRESSED;
-	Button mButtonLeftStick = Button::NOT_PRESSED;
-	Button mButtonRightStick = Button::NOT_PRESSED;
+	inline SDL_GameController* gameControllerPtr() const noexcept { return mGameControllerPtr; }
+	inline int32_t id() const noexcept { return mID; } // Unique static identifier
 
-	Button mButtonDPADUp = Button::NOT_PRESSED;
-	Button mButtonDPADDown = Button::NOT_PRESSED;
-	Button mButtonDPADLeft = Button::NOT_PRESSED;
-	Button mButtonDPADRight = Button::NOT_PRESSED;
+	Button a = Button::NOT_PRESSED;
+	Button b = Button::NOT_PRESSED;
+	Button x = Button::NOT_PRESSED;
+	Button y = Button::NOT_PRESSED;
 
-	Button mButtonStart = Button::NOT_PRESSED;
-	Button mButtonBack = Button::NOT_PRESSED;
-	Button mButtonGuide = Button::NOT_PRESSED;
+	float stickDeadzone = 0.15f;
+	float triggerDeadzone = 0.05f;
 
-	/** Range (norm of vector): (middle) [0.0f, 1.0f] (fully-pressed) */
-	sfz::vec2 mLeftStick;
+	vec2 leftStick; // Approximate range (length of vector): [0.0f, 1.0f]
+	vec2 rightStick; // Approximate range (length of vector): [0.0f, 1.0f]
+	Button leftStickButton = Button::NOT_PRESSED;
+	Button rightStickButton = Button::NOT_PRESSED;
 
-	/** Range (norm of vector): (middle) [0.0f, 1.0f] (fully-pressed) */
-	sfz::vec2 mRightStick;
+	Button leftShoulder = Button::NOT_PRESSED;
+	Button rightShoulder = Button::NOT_PRESSED;
+	float leftTrigger; // Range: (not-pressed) [0.0f, 1.0f] (fully-pressed)
+	float rightTrigger; // Range: (not-pressed) [0.0f, 1.0f] (fully-pressed)
 
-	float mLeftStickDeadzone = 0.15f;
-	float mRightStickDeadzone = 0.15f;
+	Button padUp = Button::NOT_PRESSED;
+	Button padDown = Button::NOT_PRESSED;
+	Button padLeft = Button::NOT_PRESSED;
+	Button padRight = Button::NOT_PRESSED;
 
-	/** Range: (not-pressed) [0.0f, 1.0f] (fully-pressed) */
-	float mLeftTrigger;
-	/** Range: (not-pressed) [0.0f, 1.0f] (fully-pressed) */
-	float mRightTrigger;
+	Button start = Button::NOT_PRESSED;
+	Button back = Button::NOT_PRESSED;
+	Button guide = Button::NOT_PRESSED;
 
-	float mLeftTriggerDeadzone = 0.05f;
-	float mRightTriggerDeadzone = 0.05f;
+	// Constructors & destructors
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	GameController() noexcept;
+	GameController(const GameController&) = delete;
+	GameController& operator= (const GameController&) = delete;
+	GameController(GameController&& other) noexcept;
+	GameController& operator= (GameController&& other) noexcept;
+
+	/** 0 <= deviceIndex < SDL_NumJoysticks() */
+	GameController(int deviceIndex) noexcept;
+	~GameController() noexcept;
+
+	friend void update(vector<GameController>& controllers, const vector<SDL_Event>& events);
+
+private:
+	// Private members
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	SDL_GameController* mGameControllerPtr;
+	int32_t mID; // The SDL joystick id of this controller, used to identify.
 };
 
 // Update functions to update GameController struct
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+void update(unordered_map<int32_t,GameController>& controllers, const vector<SDL_Event>& events) noexcept;
 
 /** Starts the update process, should be called once before updateEvent() each frame. */
 void updateStart(GameController& controller) noexcept;

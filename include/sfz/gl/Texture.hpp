@@ -19,6 +19,17 @@ enum class TextureFormat : uint8_t {
 	RGBA = 4
 };
 
+enum class TextureFiltering : uint8_t {
+	NEAREST,
+	BILINEAR,
+	TRILINEAR,
+	ANISOTROPIC_1,
+	ANISOTROPIC_2,
+	ANISOTROPIC_4,
+	ANISOTROPIC_8,
+	ANISOTROPIC_16
+};
+
 class Texture final {
 public:
 	// Public members
@@ -33,7 +44,9 @@ public:
 	Texture(const Texture&) = delete;
 	Texture& operator= (const Texture&) = delete;
 	
-	Texture(const string& path, TextureFormat format = TextureFormat::RGBA) noexcept;
+	Texture(const string& path, TextureFormat format = TextureFormat::RGBA,
+	        TextureFiltering filtering = TextureFiltering::ANISOTROPIC_16) noexcept;
+	Texture(Texture&& other) noexcept;
 	Texture& operator= (Texture&& other) noexcept;
 	~Texture() noexcept;
 };
