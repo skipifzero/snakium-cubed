@@ -11,7 +11,7 @@ endif(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
 # Compiler flags
 if(MSVC)
 	# MSVC flags
-	set(CMAKE_CXX_FLAGS "/Wall /Zi /EHsc /Gv /wd4201 /wd4350 /wd4514 /wd4571 /wd4668 /wd4710 /wd4711 /wd4820")
+	set(CMAKE_CXX_FLAGS "/Wall /Zi /EHsc /wd4201 /wd4350 /wd4514 /wd4571 /wd4668 /wd4710 /wd4711 /wd4820")
 	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/O2 /fp:fast /DEBUG /DSFZ_NO_DEBUG")
 	set(CMAKE_CXX_FLAGS_RELEASE "/O2 /fp:fast /DSFZ_NO_DEBUG")
 	set(CMAKE_CXX_FLAGS_DEBUG  "/Od /DEBUG")
@@ -64,7 +64,8 @@ include_directories(
 # Sources and headers needed to compile library
 set(SOURCE_BASE_FILES
 	${INCLUDE_DIR}/sfz/GL.hpp
-	${INCLUDE_DIR}/sfz/SDL.hpp)
+	${INCLUDE_DIR}/sfz/SDL.hpp
+	${INCLUDE_DIR}/sfz/Screens.hpp)
 source_group(sfz_graphics FILES ${SOURCE_BASE_FILES})
 
 set(SOURCE_GL_FILES
@@ -94,10 +95,16 @@ set(SOURCE_SDL_FILES
 	 ${SOURCE_DIR}/sfz/sdl/Window.cpp)
 source_group(sdl FILES ${SOURCE_SDL_FILES})
 
+set(SOURCE_SCREENS_FILES
+	${INCLUDE_DIR}/sfz/screens/BaseScreen.hpp
+	${INCLUDE_DIR}/sfz/screens/GameLoop.hpp
+	 ${SOURCE_DIR}/sfz/screens/GameLoop.cpp)
+
 set(SOURCE_ALL_FILES
 	${SOURCE_BASE_FILES}
 	${SOURCE_GL_FILES}
-	${SOURCE_SDL_FILES})
+	${SOURCE_SDL_FILES}
+	${SOURCE_SCREENS_FILES})
 
 # Library compile target
 add_library(SkipIfZeroGraphics ${SOURCE_ALL_FILES})
