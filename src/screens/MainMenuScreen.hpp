@@ -2,16 +2,22 @@
 #ifndef S3_SCREENS_MAIN_MENU_SCREEN_HPP
 #define S3_SCREENS_MAIN_MENU_SCREEN_HPP
 
+#include <memory>
+
 #include <sfz/GL.hpp>
+#include <sfz/Screens.hpp>
 
 #include "Assets.hpp"
-#include "screens/IScreen.hpp"
 #include "GlobalConfig.hpp"
 #include "screens/GameScreen.hpp"
 
 namespace s3 {
 
-class MainMenuScreen : public IScreen {
+using std::shared_ptr;
+
+using sfz::ScreenUpdateOp;
+
+class MainMenuScreen : public sfz::BaseScreen {
 public:
 
 	// Constructors & destructors
@@ -26,10 +32,12 @@ public:
 	// Overriden screen methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	virtual void update(const std::vector<SDL_Event>& events, float delta) override final;
-	virtual IScreen* changeScreen() override final;
-	virtual bool quit() override final;
+	virtual ScreenUpdateOp update(const vector<SDL_Event>& events,
+	                              const unordered_map<int32_t, sdl::GameController>& controllers,
+	                              float delta) override final;
 	virtual void render(float delta) override final;
+	virtual void onQuit() override final;
+	virtual void onResize(vec2 dimensions) override final;
 
 private:
 	// Private members
@@ -39,7 +47,6 @@ private:
 	sdl::Window& mWindow;
 	Assets& mAssets;
 	bool mQuit = false;
-	IScreen* mChangeScreenPtr = nullptr;
 };
 
 

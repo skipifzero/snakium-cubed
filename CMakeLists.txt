@@ -78,7 +78,6 @@ source_group(rendering FILES ${SOURCE_RENDERING_FILES})
 set(SOURCE_SCREENS_FILES
 	${SRC_DIR}/screens/GameScreen.hpp
 	${SRC_DIR}/screens/GameScreen.cpp
-	${SRC_DIR}/screens/IScreen.hpp
 	${SRC_DIR}/screens/MainMenuScreen.hpp
 	${SRC_DIR}/screens/MainMenuScreen.cpp)
 source_group(screens FILES ${SOURCE_SCREENS_FILES})

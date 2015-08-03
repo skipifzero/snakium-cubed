@@ -4,20 +4,25 @@
 
 #include <sfz/GL.hpp>
 #include <sfz/Math.hpp>
+#include <sfz/Screens.hpp>
 
 #include "Assets.hpp"
-#include "screens/IScreen.hpp"
 #include "Camera.hpp"
 #include "GlobalConfig.hpp"
 
 namespace s3 {
 
+using sfz::vec2;
 using sfz::vec3;
 using sfz::vec4;
 using sfz::mat3;
 using sfz::mat4;
 
-class GameScreen final : public IScreen {
+using sfz::ScreenUpdateOp;
+using std::unordered_map;
+using std::vector;
+
+class GameScreen final : public sfz::BaseScreen {
 public:
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -31,10 +36,12 @@ public:
 	// Overriden screen methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	virtual void update(const std::vector<SDL_Event>& events, float delta) override final;
-	virtual IScreen* changeScreen() override final;
-	virtual bool quit() override final;
+	virtual ScreenUpdateOp update(const vector<SDL_Event>& events,
+	                              const unordered_map<int32_t, sdl::GameController>& controllers,
+	                              float delta) override final;
 	virtual void render(float delta) override final;
+	virtual void onQuit() override final;
+	virtual void onResize(vec2 dimensions) override final;
 
 private:
 	// Private members

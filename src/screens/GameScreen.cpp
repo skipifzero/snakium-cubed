@@ -100,27 +100,17 @@ GameScreen::GameScreen(sdl::Window& window, s3::Assets& assets, const ModelConfi
 // GameScreen: Overriden screen methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void GameScreen::update(const std::vector<SDL_Event>& events, float delta)
+ScreenUpdateOp GameScreen::update(const vector<SDL_Event>& events,
+	                              const unordered_map<int32_t, sdl::GameController>& controllers,
+	                              float delta)
 {
 	// Handle input
 	for (const SDL_Event& event : events) {
 		switch (event.type) {
-		case SDL_QUIT:
-			mQuit = true;
-			return;
-		case SDL_WINDOWEVENT:
-			switch (event.window.event) {
-			case SDL_WINDOWEVENT_RESIZED:
-				float w = static_cast<float>(event.window.data1);
-				float h = static_cast<float>(event.window.data2);
-				projMatrix = sfz::glPerspectiveProjectionMatrix(mCam.mFov, w/h, 0.1f, 50.0f);
-			}
-			break;
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
 			case SDLK_ESCAPE:
-				mQuit = true;
-				return;
+				return ScreenUpdateOp{sfz::ScreenUpdateOpType::QUIT_APPLICATION};
 			case SDLK_SPACE:
 				isPaused = !isPaused;
 				break;
@@ -166,20 +156,12 @@ void GameScreen::update(const std::vector<SDL_Event>& events, float delta)
 	}
 
 	// Updating
-	if (isPaused) return;
+	if (isPaused) return ScreenUpdateOp{sfz::ScreenUpdateOpType::NO_OPERATION};
 
 	mModel.update(delta);
 	if (!mModel.mGameOver) mCam.update(mModel, delta);
-}
 
-IScreen* GameScreen::changeScreen()
-{
-	return nullptr;
-}
-
-bool GameScreen::quit()
-{
-	return mQuit;
+	return ScreenUpdateOp{sfz::ScreenUpdateOpType::NO_OPERATION};
 }
 
 void GameScreen::render(float delta)
@@ -331,6 +313,16 @@ void GameScreen::render(float delta)
 
 	// Clean up
 	glUseProgram(0);
+}
+
+void GameScreen::onQuit()
+{
+	// Nothing currently needs to be done
+}
+
+void GameScreen::onResize(vec2 dimensions)
+{
+	projMatrix = sfz::glPerspectiveProjectionMatrix(mCam.mFov, dimensions.x/dimensions.y, 0.1f, 50.0f);
 }
 
 } // namespace s3

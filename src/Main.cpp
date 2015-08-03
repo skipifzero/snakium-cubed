@@ -4,8 +4,10 @@
 #include <chrono>
 #include <memory>
 
-#include "sfz/GL.hpp"
-#include "sfz/Math.hpp"
+#include <sfz/GL.hpp>
+#include <sfz/Math.hpp>
+#include <sfz/Screens.hpp>
+
 #include "Assets.hpp"
 #include "Camera.hpp"
 #include "GameLogic.hpp"
@@ -14,6 +16,9 @@
 #include "Screens.hpp"
 
 #undef main // Remove SDL hack until we can get it to compile properly
+
+using std::shared_ptr;
+
 
 float calculateDelta() noexcept
 {
@@ -85,38 +90,10 @@ int main()
 
 	s3::Assets assets;
 
-	//std::unique_ptr<s3::IScreen> currentScreen{new s3::GameScreen{window, assets, globalConfig.mModelConfig}};
-
-	std::unique_ptr<s3::IScreen> currentScreen{new s3::MainMenuScreen{window, assets}};
-
 	// Game loop
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	bool running = true;
-	float delta = calculateDelta(); // Call calculateDelta() here to initialize counting.
-	std::vector<SDL_Event> events;
-
-	while (running) {
-		delta = calculateDelta();
-
-		pollEvents(events);
-
-		currentScreen->update(events, delta);
-		s3::IScreen* newScreen = currentScreen->changeScreen();
-		if (newScreen != nullptr) {
-			currentScreen = std::unique_ptr<s3::IScreen>{newScreen};
-			continue;
-		}
-		if (currentScreen->quit()) running = false;
-		currentScreen->render(delta);
-
-		SDL_GL_SwapWindow(window.mPtr);
-
-		// Hack that silences OpenGL warnings from SDL_GL_SwapWindow() on MSVC12 for some reason.
-		int val; SDL_GL_GetAttribute(SDL_GL_DOUBLEBUFFER, &val); 
-
-		checkGLErrorsMessage("^^^ Above errors likely caused by game loop.");
-	}
+	sfz::runGameLoop(window, std::shared_ptr<sfz::BaseScreen>{new s3::MainMenuScreen{window, assets}});
 
 	return 0;
 }
