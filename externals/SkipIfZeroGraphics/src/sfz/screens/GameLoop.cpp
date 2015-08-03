@@ -71,7 +71,7 @@ void runGameLoop(sdl::Window& window, shared_ptr<BaseScreen> currentScreen)
 	while (true) {
 		// Calculate delta
 		delta = calculateDelta(previousTime);
-		delta = std::max(delta, 0.25f);
+		delta = std::min(delta, 0.25f);
 
 		// Process events
 		events.clear();
