@@ -99,6 +99,7 @@ set(SOURCE_SCREENS_FILES
 	${INCLUDE_DIR}/sfz/screens/BaseScreen.hpp
 	${INCLUDE_DIR}/sfz/screens/GameLoop.hpp
 	 ${SOURCE_DIR}/sfz/screens/GameLoop.cpp)
+source_group(screens FILES ${SOURCE_SCREENS_FILES})
 
 set(SOURCE_ALL_FILES
 	${SOURCE_BASE_FILES}
