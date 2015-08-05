@@ -110,7 +110,7 @@ ScreenUpdateOp GameScreen::update(const vector<SDL_Event>& events,
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
 			case SDLK_ESCAPE:
-				return ScreenUpdateOp{sfz::ScreenUpdateOpType::QUIT_APPLICATION};
+				return sfz::SCREEN_QUIT;
 			case SDLK_SPACE:
 				isPaused = !isPaused;
 				break;
@@ -156,12 +156,12 @@ ScreenUpdateOp GameScreen::update(const vector<SDL_Event>& events,
 	}
 
 	// Updating
-	if (isPaused) return ScreenUpdateOp{sfz::ScreenUpdateOpType::NO_OPERATION};
+	if (isPaused) return sfz::SCREEN_NO_OP;
 
 	mModel.update(delta);
 	if (!mModel.mGameOver) mCam.update(mModel, delta);
 
-	return ScreenUpdateOp{sfz::ScreenUpdateOpType::NO_OPERATION};
+	return sfz::SCREEN_NO_OP;
 }
 
 void GameScreen::render(float delta)
