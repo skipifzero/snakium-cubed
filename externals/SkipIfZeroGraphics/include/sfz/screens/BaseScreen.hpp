@@ -43,6 +43,10 @@ struct ScreenUpdateOp final {
 	shared_ptr<BaseScreen> newScreen;
 };
 
+const ScreenUpdateOp SCREEN_NO_OP{ScreenUpdateOpType::NO_OPERATION};
+const ScreenUpdateOp SCREEN_QUIT{ScreenUpdateOpType::QUIT_APPLICATION};
+const ScreenUpdateOp SCREEN_REINIT_CONTROLLERS{ScreenUpdateOpType::REINITIALIZE_CONTROLLERS};
+
 // BaseScreen
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
