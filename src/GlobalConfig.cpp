@@ -2,7 +2,7 @@
 
 namespace s3 {
 
-namespace {
+/*namespace {
 
 using namespace boost::property_tree;
 
@@ -154,6 +154,33 @@ void GlobalConfig::save() noexcept
 	} catch (...) {
 		std::cerr << "Failed to write user .ini at " << userIniPath() << std::endl;
 	}
+}*/
+
+void GlobalConfig::load() noexcept
+{
+	// [Graphics]
+	mFullscreen = true;
+	mWindowResolutionX = 800;
+	mWindowResolutionY = 800;
+	mVSync = true;
+	mMSAA = 16;
+	mTransparentCube = true;
+
+	// [GameSettings]
+	mModelConfig.gridWidth = 3;
+	mModelConfig.tilesPerSecond = 2.3f;
+	mModelConfig.hasSpeedIncrease = true;
+	mModelConfig.speedIncreasePerObject = 0.025f;
+	mModelConfig.pointsPerObject = 8;
+	mModelConfig.hasBonus = true;
+	mModelConfig.bonusFrequency = 8;
+	mModelConfig.bonusDuration = 16;
+	mModelConfig.pointsPerBonusObject = 32;
+}
+
+void GlobalConfig::save() noexcept
+{
+
 }
 
 } // namespace s3

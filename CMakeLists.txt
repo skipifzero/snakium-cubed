@@ -31,15 +31,10 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 # SkipIfZero Graphics
 add_subdirectory(${EXTERNALS_DIR}/SkipIfZeroGraphics)
 
-# Boost
-find_package(Boost REQUIRED COMPONENTS filesystem system)
-link_directories(${Boost_LIBRARY_DIR})
-
 # Include directories
 include_directories(
 	${INCLUDE_DIR}
 	${SFZ_GRAPHICS_INCLUDE_DIRS}
-	${Boost_INCLUDE_DIRS}
 )
 
 # Source files
@@ -96,7 +91,6 @@ target_link_libraries(
 	snakium-cubed
 
 	${SFZ_GRAPHICS_LIBRARIES}
-	${Boost_LIBRARIES}
 )
 
 # Specifies directory where generated binary and assets will be placed.
