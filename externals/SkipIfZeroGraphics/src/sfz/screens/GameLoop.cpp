@@ -64,6 +64,7 @@ void runGameLoop(sdl::Window& window, shared_ptr<BaseScreen> currentScreen)
 	float delta = calculateDelta(previousTime);
 
 	// Initialize SDL events
+	SDL_GameControllerEventState(SDL_ENABLE);
 	vector<SDL_Event> events;
 	vector<SDL_Event> controllerEvents;
 	SDL_Event event;
