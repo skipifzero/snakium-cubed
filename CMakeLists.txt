@@ -1,32 +1,30 @@
 cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 project("snakium-cubed")
 
+# Sets build type to release if no build type is specified in a single-configuration generator.
+if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Release)
+endif(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+
 # Compiler flags
 if(MSVC)
 	# MSVC flags
-	#set(cpp_compiler_flags "/Wall /EHsc /O2")
-	set(cpp_compiler_flags "/O2")
-else() # Assume we're compiling with CLANG or GCC if not MSVC.
-	# GCC and Clang flags
-	set(cpp_compiler_flags "-Wall -Wextra -Wno-c++11-extensions -std=c++11 -O3")
-	set(c_compiler_flags "-Wall -Wextra -std=c11 -O3")
+	set(CMAKE_CXX_FLAGS "/Wall /Zi /EHsc /wd4514 /wd4668 /wd4710 /wd4711 /wd4820")
+	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/O2 /DEBUG /DSFZ_NO_DEBUG")
+	set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DSFZ_NO_DEBUG")
+	set(CMAKE_CXX_FLAGS_DEBUG  "/Od /DEBUG")
+else()
+	# GCC / Clang flags
+	set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-c++11-extensions -std=c++11 -pthread")
+	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -ffast-math -g -DSFZ_NO_DEBUG")
+	set(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math -DSFZ_NO_DEBUG")
+	set(CMAKE_CXX_FLAGS_DEBUG  "-O0 -g")
 endif()
-
-# Sets the specified compiler flags, will only set the first time cmake configures project.
-if (NOT S3_CONFIGURED_ONCE)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${cpp_compiler_flags}" 
-	    CACHE STRING "Flags used by the compiler during all build types." FORCE)
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${c_compiler_flags}"
-	    CACHE STRING "Flags used by the compiler during all build types." FORCE)
-endif ()
 
 # Directories
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(INCLUDE_DIR ${SRC_DIR})
 set(EXTERNALS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externals)
-
-# Adds our cmake modules to module path.
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
 # SkipIfZero Graphics
 add_subdirectory(${EXTERNALS_DIR}/SkipIfZeroGraphics)
@@ -107,22 +105,13 @@ endif()
 
 # MSVC specific file copying
 if(MSVC)
-
 	# Assets folder
 	file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
 	file(COPY assets DESTINATION ${CMAKE_BINARY_DIR}/Debug)
 	file(COPY assets DESTINATION ${CMAKE_BINARY_DIR}/Release)
 
 	# Runtime DLLs
-	file(COPY RuntimeDLLs/msvc12_x64_debug/boost_filesystem-vc120-mt-gd-1_57.dll DESTINATION ${CMAKE_BINARY_DIR})
-	file(COPY RuntimeDLLs/msvc12_x64_debug/boost_system-vc120-mt-gd-1_57.dll DESTINATION ${CMAKE_BINARY_DIR})
 	file(COPY RuntimeDLLs/msvc12_x64_debug/SDL2.dll DESTINATION ${CMAKE_BINARY_DIR})
 
-	file(COPY RuntimeDLLs/msvc12_x64_release/boost_filesystem-vc120-mt-1_57.dll DESTINATION ${CMAKE_BINARY_DIR})
-	file(COPY RuntimeDLLs/msvc12_x64_release/boost_system-vc120-mt-1_57.dll DESTINATION ${CMAKE_BINARY_DIR})
 	file(COPY RuntimeDLLs/msvc12_x64_release/SDL2.dll DESTINATION ${CMAKE_BINARY_DIR})
-
 endif()
-
-# Sets flag that ensures some variables are only set once.
-set(S3_CONFIGURED_ONCE TRUE CACHE INTERNAL "A flag showing that CMake has configured at least once.")

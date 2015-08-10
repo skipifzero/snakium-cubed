@@ -159,7 +159,7 @@ void GlobalConfig::save() noexcept
 void GlobalConfig::load() noexcept
 {
 	// [Graphics]
-	mFullscreen = true;
+	mFullscreen = false;
 	mWindowResolutionX = 800;
 	mWindowResolutionY = 800;
 	mVSync = true;

@@ -1,1 +1,0 @@
-´FindSDL2.cmake´ and ´FindSDL2_image.cmake´ taken from ´https://github.com/Twinklebear/TwinklebearDev-Lessons/tree/master/cmake´ at 2014-11-11. Part of a series of tutorials: ´http://www.willusher.io/sdl2%20tutorials/2014/03/06/lesson-0-cmake/´.
