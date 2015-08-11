@@ -44,6 +44,8 @@ set(SOURCE_BASE_FILES
 	${SRC_DIR}/GameLogic.hpp
 	${SRC_DIR}/GlobalConfig.hpp
 	${SRC_DIR}/GlobalConfig.cpp
+	${SRC_DIR}/IniParser.hpp
+	${SRC_DIR}/IniParser.cpp
 	${SRC_DIR}/Main.cpp
 	${SRC_DIR}/Rendering.hpp
 	${SRC_DIR}/Screens.hpp)

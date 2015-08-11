@@ -1,5 +1,11 @@
 #include "GlobalConfig.hpp"
 
+#include <iostream>
+#include <string>
+#include <exception> // std::terminate()
+
+#include <sfz/SDL.hpp>
+
 namespace s3 {
 
 /*namespace {
