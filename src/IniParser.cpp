@@ -1,7 +1,7 @@
 #include "IniParser.hpp"
 
 #include <cctype> // std::tolower()
-#include <cstdio>
+#include <fstream>
 #include <vector>
 
 namespace sfz {
@@ -20,12 +20,16 @@ static void toLowerCase(string& str) noexcept
 
 static bool readFile(const string& path, vector<string>& lines) noexcept
 {
-	std::FILE* file = std::fopen(path.c_str(), "r");
-	if (file == NULL) return false;
+	std::ifstream file{path};
+	if (!file.is_open()) return false;
+	std::string str;
 
-	// TODO: Implement
-
-	return false;
+	while (std::getline(file, str)) {
+		if (str == "") continue;
+		if (str[0] == ';') continue; // Remove comments
+		lines.push_back(str);
+	}
+	return true;
 }
 
 // IniParser: Constructors & destructors
@@ -41,12 +45,35 @@ IniParser::IniParser(const string& path) noexcept
 
 bool IniParser::load() noexcept
 {
+	mIniTree.clear();
+
 	vector<string> lines;
 	if (!readFile(mPath, lines)) return false;
 
-	// TODO: Implement
+	string currentSection = "";
+	for (size_t i = 0; i < lines.size(); ++i) {
 
-	return false;
+		// Check if new section
+		size_t sectLoc = lines[i].find_first_of("[");
+		if (sectLoc != lines[i].npos) {
+			size_t endLoc = lines[i].find_first_of("]");
+			if (endLoc == lines[i].npos) return false;
+			if (sectLoc >= endLoc) return false;
+			currentSection = lines[i].substr(sectLoc+1, endLoc-sectLoc-1);
+			mIniTree.emplace(std::make_pair(currentSection, unordered_map<string, string>{}));
+			continue;
+		}
+
+		// Add item to tree
+		size_t delimLoc = lines[i].find_first_of("=");
+		if (delimLoc == lines[i].npos) return false;
+		if (delimLoc == 0) return false;
+		if (delimLoc+1 == lines[i].size()) return false;
+		mIniTree[currentSection][lines[i].substr(0, delimLoc)] =
+		     lines[i].substr(delimLoc+1, lines[i].size()-delimLoc+1);
+	}
+
+	return true;
 }
 
 bool IniParser::save() noexcept
@@ -55,7 +82,7 @@ bool IniParser::save() noexcept
 	return false;
 }
 
-// IniParser: Getters
+// IniParser: Info about a specific item
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 bool IniParser::itemExists(const string& section, const string& key) const noexcept
@@ -66,7 +93,56 @@ bool IniParser::itemExists(const string& section, const string& key) const noexc
 	if (keyItr == sectionItr->second.end()) return false;
 	return true;
 }
-	
+
+bool IniParser::itemIsBool(const string& section, const string& key) const noexcept
+{
+	auto sectionItr = mIniTree.find(section);
+	if (sectionItr == mIniTree.end()) return false;
+	auto keyItr = sectionItr->second.find(key);
+	if (keyItr == sectionItr->second.end()) return false;
+
+	string val = keyItr->second;
+	toLowerCase(val);
+	return val == "true" || val == "false"
+	    || val == "on" || val == "off"
+	    || val == "1" || val == "0";
+}
+
+bool IniParser::itemIsInt(const string& section, const string& key) const noexcept
+{
+	auto sectionItr = mIniTree.find(section);
+	if (sectionItr == mIniTree.end()) return false;
+	auto keyItr = sectionItr->second.find(key);
+	if (keyItr == sectionItr->second.end()) return false;
+
+	string val = keyItr->second;
+	try {
+		std::stoi(val);
+		return true;
+	} catch (...) {
+		return false;
+	}
+}
+
+bool IniParser::itemIsFloat(const string& section, const string& key) const noexcept
+{
+	auto sectionItr = mIniTree.find(section);
+	if (sectionItr == mIniTree.end()) return false;
+	auto keyItr = sectionItr->second.find(key);
+	if (keyItr == sectionItr->second.end()) return false;
+
+	string val = keyItr->second;
+	try {
+		std::stof(val);
+		return true;
+	} catch (...) {
+		return false;
+	}
+}
+
+// IniParser: Getters
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
 string IniParser::getString(const string& section, const string& key,
                             const string& defaultValue) const noexcept
 {

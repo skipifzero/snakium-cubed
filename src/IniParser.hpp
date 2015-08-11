@@ -34,22 +34,28 @@ public:
 	bool load() noexcept;
 	bool save() noexcept;
 
-	// Getters
+	// Info about a specific item
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	bool itemExists(const string& section, const string& key) const noexcept;
-	
+	bool itemIsBool(const string& section, const string& key) const noexcept;
+	bool itemIsInt(const string& section, const string& key) const noexcept;
+	bool itemIsFloat(const string& section, const string& key) const noexcept;
+
+	// Getters
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
 	string getString(const string& section, const string& key,
-	                 const string& defaultValue) const noexcept;
+	                 const string& defaultValue = "") const noexcept;
 
 	bool getBool(const string& section, const string& key,
-	             bool defaultValue) const noexcept;
+	             bool defaultValue = false) const noexcept;
 
 	int32_t getInt(const string& section, const string& key,
-	               int32_t defaultValue) const noexcept;
+	               int32_t defaultValue = 0) const noexcept;
 
 	float getFloat(const string& section, const string& key,
-	               float defaultValue) const noexcept;
+	               float defaultValue = 0.0f) const noexcept;
 
 	// Setters
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
