@@ -62,14 +62,14 @@ int main()
 
 	sdl::Session sdlSession{{sdl::InitFlags::EVENTS, sdl::InitFlags::VIDEO}};
 
-	if (globalConfig.mMSAA > 0) {
+	if (globalConfig.msaa > 0) {
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, globalConfig.mMSAA);
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, globalConfig.msaa);
 	}
 
-	sdl::Window window{"snakium³", globalConfig.mWindowResolutionX, globalConfig.mWindowResolutionY,
+	sdl::Window window{"snakium³", globalConfig.windowResolutionX, globalConfig.windowResolutionY,
 	     {sdl::WindowFlags::OPENGL, sdl::WindowFlags::RESIZABLE, sdl::WindowFlags::ALLOW_HIGHDPI,
-	      globalConfig.mFullscreen ? sdl::WindowFlags::FULLSCREEN_DESKTOP : sdl::WindowFlags::OPENGL}};
+	      globalConfig.fullscreen ? sdl::WindowFlags::FULLSCREEN_DESKTOP : sdl::WindowFlags::OPENGL}};
 
 	gl::Context glContext{window.mPtr, 3, 3, gl::GLContextProfile::CORE};
 
@@ -83,7 +83,7 @@ int main()
 	checkGLErrorsMessage("^^^ Above errors caused by glewInit().");
 
 	// Enable/disable vsync
-	if (!globalConfig.mVSync) SDL_GL_SetSwapInterval(0);
+	if (!globalConfig.vsync) SDL_GL_SetSwapInterval(0);
 
 	// Init variables
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

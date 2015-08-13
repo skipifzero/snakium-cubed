@@ -30,7 +30,7 @@ ScreenUpdateOp MainMenuScreen::update(const vector<SDL_Event>& events,
 			}
 			break;
 		case SDL_KEYUP:
-			return ScreenUpdateOp{sfz::ScreenUpdateOpType::SWITCH_SCREEN, shared_ptr<BaseScreen>{new GameScreen{mWindow, mAssets, mCfg.mModelConfig}}};
+			return ScreenUpdateOp{sfz::ScreenUpdateOpType::SWITCH_SCREEN, shared_ptr<BaseScreen>{new GameScreen{mWindow, mAssets, mCfg.modelConfig}}};
 		}
 	}
 

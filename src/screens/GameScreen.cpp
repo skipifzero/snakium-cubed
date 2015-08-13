@@ -94,7 +94,7 @@ GameScreen::GameScreen(sdl::Window& window, s3::Assets& assets, const ModelConfi
 	float aspect = static_cast<float>(window.width()) / static_cast<float>(window.height());
 	projMatrix = sfz::glPerspectiveProjectionMatrix(mCam.mFov, aspect, 0.1f, 50.0f);
 
-	isTransparent = mCfg.mTransparentCube;
+	isTransparent = mCfg.transparentCube;
 }
 
 // GameScreen: Overriden screen methods
@@ -148,7 +148,7 @@ ScreenUpdateOp GameScreen::update(const vector<SDL_Event>& events,
 			switch (event.key.keysym.sym) {
 			case 'z':
 			case 'Z':
-				isTransparent = mCfg.mTransparentCube;
+				isTransparent = mCfg.transparentCube;
 				break;
 			}
 			break;

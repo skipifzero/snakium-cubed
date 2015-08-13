@@ -1,5 +1,7 @@
 #include "IniParser.hpp"
 
+#include "sfz/Assert.hpp"
+
 #include <cctype> // std::tolower()
 #include <fstream>
 #include <vector>
@@ -213,6 +215,47 @@ void IniParser::setInt(const string& section, const string& key, int32_t value) 
 void IniParser::setFloat(const string& section, const string& key, float value) noexcept
 {
 	this->setString(section, key, std::to_string(value));
+}
+
+// Sanitizers
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+void IniParser::sanitizeString(const string& section, const string& key,
+                               const string& defaultValue) noexcept
+{
+	if (!this->itemExists(section, key)) this->setString(section, key, defaultValue);
+}
+
+void IniParser::sanitizeBool(const string& section, const string& key,
+                             bool defaultValue) noexcept
+{
+	if (!this->itemIsBool(section, key)) this->setBool(section, key, defaultValue);
+}
+
+void IniParser::sanitizeInt(const string& section, const string& key,
+                            int32_t defaultValue, int32_t minValue, int32_t maxValue) noexcept
+{
+	sfz_assert_debug(minValue <= maxValue);
+	if (!this->itemIsInt(section, key)) {
+		this->setInt(section, key, defaultValue);
+		return;
+	}
+	int32_t value = this->getInt(section, key);
+	if (value > maxValue) this->setInt(section, key, maxValue);
+	else if (value < minValue) this->setInt(section, key, minValue);
+}
+
+void IniParser::sanitizeFloat(const string& section, const string& key,
+                              float defaultValue, float minValue, float maxValue) noexcept
+{
+	sfz_assert_debug(minValue <= maxValue);
+	if (!this->itemIsFloat(section, key)) {
+		this->setFloat(section, key, defaultValue);
+		return;
+	}
+	float value = this->getFloat(section, key);
+	if (value > maxValue) this->setFloat(section, key, maxValue);
+	else if (value < minValue) this->setFloat(section, key, minValue);
 }
 
 } // namespace sfz

@@ -3,12 +3,14 @@
 #define SFZ_INI_PARSER_HPP
 
 #include <cstdint>
+#include <limits>
 #include <string>
 #include <unordered_map>
 
 namespace sfz {
 
 using std::int32_t;
+using std::numeric_limits;
 using std::string;
 using std::unordered_map;
 
@@ -21,9 +23,9 @@ public:
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	IniParser() = delete;
-	IniParser(const IniParser&) = delete;
-	IniParser& operator= (const IniParser&) = delete;
+	IniParser() = default;
+	IniParser(const IniParser&) = default;
+	IniParser& operator= (const IniParser&) = default;
 	~IniParser() noexcept = default;
 
 	IniParser(const string& path) noexcept;
@@ -64,6 +66,25 @@ public:
 	void setBool(const string& section, const string& key, bool value) noexcept;
 	void setInt(const string& section, const string& key, int32_t value) noexcept;
 	void setFloat(const string& section, const string& key, float value) noexcept;
+
+	// Sanitizers
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	void sanitizeString(const string& section, const string& key,
+	                    const string& defaultValue = "") noexcept;
+
+	void sanitizeBool(const string& section, const string& key,
+	                  bool defaultValue = false) noexcept;
+
+	void sanitizeInt(const string& section, const string& key,
+	                 int32_t defaultValue = 0,
+	                 int32_t minValue = numeric_limits<int32_t>::min(),
+	                 int32_t maxValue = numeric_limits<int32_t>::max()) noexcept;
+
+	void sanitizeFloat(const string& section, const string& key,
+	                   float defaultValue = 0.0f,
+	                   float minValue = numeric_limits<float>::min(),
+	                   float maxValue = numeric_limits<float>::max()) noexcept;
 
 private:
 	string mPath;
