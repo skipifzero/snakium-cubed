@@ -20,20 +20,6 @@ static void toLowerCase(string& str) noexcept
 	}
 }
 
-static bool readFile(const string& path, vector<string>& lines) noexcept
-{
-	std::ifstream file{path};
-	if (!file.is_open()) return false;
-	std::string str;
-
-	while (std::getline(file, str)) {
-		if (str == "") continue;
-		if (str[0] == ';') continue; // Remove comments
-		lines.push_back(str);
-	}
-	return true;
-}
-
 // IniParser: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -47,32 +33,34 @@ IniParser::IniParser(const string& path) noexcept
 
 bool IniParser::load() noexcept
 {
+	std::ifstream file{mPath};
+	if (!file.is_open()) return false;
+
 	mIniTree.clear();
 
-	vector<string> lines;
-	if (!readFile(mPath, lines)) return false;
-
-	string currentSection = "";
-	for (size_t i = 0; i < lines.size(); ++i) {
-
+	std::string str;
+	std::string currentSection = "";
+	while (std::getline(file, str)) {
+		if (str == "") continue;
+		if (str[0] == ';') continue; // Remove comments
+		
 		// Check if new section
-		size_t sectLoc = lines[i].find_first_of("[");
-		if (sectLoc != lines[i].npos) {
-			size_t endLoc = lines[i].find_first_of("]");
-			if (endLoc == lines[i].npos) return false;
+		size_t sectLoc = str.find_first_of("[");
+		if (sectLoc != str.npos) {
+			size_t endLoc = str.find_first_of("]");
+			if (endLoc == str.npos) return false;
 			if (sectLoc >= endLoc) return false;
-			currentSection = lines[i].substr(sectLoc+1, endLoc-sectLoc-1);
+			currentSection = str.substr(sectLoc+1, endLoc-sectLoc-1);
 			mIniTree.emplace(std::make_pair(currentSection, unordered_map<string, string>{}));
 			continue;
 		}
 
 		// Add item to tree
-		size_t delimLoc = lines[i].find_first_of("=");
-		if (delimLoc == lines[i].npos) return false;
+		size_t delimLoc = str.find_first_of("=");
+		if (delimLoc == str.npos) return false;
 		if (delimLoc == 0) return false;
-		if (delimLoc+1 == lines[i].size()) return false;
-		mIniTree[currentSection][lines[i].substr(0, delimLoc)] =
-		     lines[i].substr(delimLoc+1, lines[i].size()-delimLoc+1);
+		if (delimLoc+1 == str.size()) return false;
+		mIniTree[currentSection][str.substr(0, delimLoc)] = str.substr(delimLoc+1, str.size()-delimLoc+1);
 	}
 
 	return true;
@@ -80,8 +68,28 @@ bool IniParser::load() noexcept
 
 bool IniParser::save() noexcept
 {
-	// TODO: Implement
-	return false;
+	std::ofstream file{mPath, std::ofstream::out | std::ofstream::trunc}; // Clears previous file
+	if (!file.is_open()) return false;
+
+	auto globalItr = mIniTree.find("");
+	if (globalItr != mIniTree.end()) {
+		for (auto& keyPair : globalItr->second) {
+			file << keyPair.first << "=" << keyPair.second << "\n";
+		}
+		file << "\n";
+	}
+
+	for (auto& sectionPair : mIniTree) {
+		if (sectionPair.first == "") continue;
+		file << "[" << sectionPair.first << "]" << "\n";
+		for (auto& keyPair : sectionPair.second) {
+			file << keyPair.first << "=" << keyPair.second << "\n";
+		}
+		file << "\n";
+	}
+
+	file.flush();
+	return true;
 }
 
 // IniParser: Info about a specific item
