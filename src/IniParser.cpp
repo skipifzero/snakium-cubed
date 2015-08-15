@@ -2,6 +2,7 @@
 
 #include "sfz/Assert.hpp"
 
+#include <algorithm>
 #include <cctype> // std::tolower()
 #include <fstream>
 #include <vector>
@@ -71,10 +72,18 @@ bool IniParser::save() noexcept
 	std::ofstream file{mPath, std::ofstream::out | std::ofstream::trunc}; // Clears previous file
 	if (!file.is_open()) return false;
 
+	vector<string> items;
+
 	auto globalItr = mIniTree.find("");
 	if (globalItr != mIniTree.end()) {
+		items.clear();
 		for (auto& keyPair : globalItr->second) {
-			file << keyPair.first << "=" << keyPair.second << "\n";
+			items.push_back(keyPair.first + "=" + keyPair.second + "\n");
+		}
+		std::sort(items.begin(), items.end());
+
+		for (auto& str : items) {
+			file << str;
 		}
 		file << "\n";
 	}
@@ -82,8 +91,15 @@ bool IniParser::save() noexcept
 	for (auto& sectionPair : mIniTree) {
 		if (sectionPair.first == "") continue;
 		file << "[" << sectionPair.first << "]" << "\n";
+		
+		items.clear();
 		for (auto& keyPair : sectionPair.second) {
-			file << keyPair.first << "=" << keyPair.second << "\n";
+			items.push_back(keyPair.first + "=" + keyPair.second + "\n");
+		}
+		std::sort(items.begin(), items.end());
+
+		for (auto& str : items) {
+			file << str;
 		}
 		file << "\n";
 	}
