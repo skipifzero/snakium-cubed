@@ -4,15 +4,15 @@
 
 #include <cstdint>
 #include <limits>
+#include <map>
 #include <string>
-#include <unordered_map>
 
 namespace sfz {
 
 using std::int32_t;
 using std::numeric_limits;
 using std::string;
-using std::unordered_map;
+using std::map;
 
 // IniParser class
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -88,7 +88,7 @@ public:
 
 private:
 	string mPath;
-	unordered_map<string,unordered_map<string,string>> mIniTree;
+	map<string,map<string,string>> mIniTree;
 };
 
 } // namespace sfz

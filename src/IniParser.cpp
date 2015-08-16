@@ -5,11 +5,8 @@
 #include <algorithm>
 #include <cctype> // std::tolower()
 #include <fstream>
-#include <vector>
 
 namespace sfz {
-
-using std::vector;
 
 // Static functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -52,7 +49,7 @@ bool IniParser::load() noexcept
 			if (endLoc == str.npos) return false;
 			if (sectLoc >= endLoc) return false;
 			currentSection = str.substr(sectLoc+1, endLoc-sectLoc-1);
-			mIniTree.emplace(std::make_pair(currentSection, unordered_map<string, string>{}));
+			mIniTree.emplace(std::make_pair(currentSection, map<string,string>{}));
 			continue;
 		}
 
@@ -69,37 +66,31 @@ bool IniParser::load() noexcept
 
 bool IniParser::save() noexcept
 {
-	std::ofstream file{mPath, std::ofstream::out | std::ofstream::trunc}; // Clears previous file
+	// Check if current file is correct
+	IniParser oldFileParser = *this;
+	oldFileParser.load();
+	if (mIniTree == oldFileParser.mIniTree) return true;
+
+	// Opens the file and clears it
+	std::ofstream file{mPath, std::ofstream::out | std::ofstream::trunc};
 	if (!file.is_open()) return false;
 
-	vector<string> items;
-
+	// Adds the global items first
 	auto globalItr = mIniTree.find("");
 	if (globalItr != mIniTree.end()) {
-		items.clear();
 		for (auto& keyPair : globalItr->second) {
-			items.push_back(keyPair.first + "=" + keyPair.second + "\n");
-		}
-		std::sort(items.begin(), items.end());
-
-		for (auto& str : items) {
-			file << str;
+			file << keyPair.first << "=" << keyPair.second << "\n";
 		}
 		file << "\n";
 	}
 
+	// Adds the rest of the sections and items
 	for (auto& sectionPair : mIniTree) {
 		if (sectionPair.first == "") continue;
 		file << "[" << sectionPair.first << "]" << "\n";
 		
-		items.clear();
 		for (auto& keyPair : sectionPair.second) {
-			items.push_back(keyPair.first + "=" + keyPair.second + "\n");
-		}
-		std::sort(items.begin(), items.end());
-
-		for (auto& str : items) {
-			file << str;
+			file << keyPair.first << "=" << keyPair.second << "\n";
 		}
 		file << "\n";
 	}
