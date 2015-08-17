@@ -54,7 +54,7 @@ private:
 	bool isTransparent = false;
 	bool isPaused = false;
 
-	GlobalConfig mCfg;
+	GlobalConfig& mCfg = GlobalConfig::INSTANCE();
 	sdl::Window& mWindow;
 	Assets& mAssets;
 	Model mModel;

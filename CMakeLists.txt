@@ -44,8 +44,8 @@ set(SOURCE_BASE_FILES
 	${SRC_DIR}/GameLogic.hpp
 	${SRC_DIR}/GlobalConfig.hpp
 	${SRC_DIR}/GlobalConfig.cpp
-	${SRC_DIR}/IniParser.hpp
-	${SRC_DIR}/IniParser.cpp
+	${SRC_DIR}/sfz/IniParser.hpp
+	${SRC_DIR}/sfz/IniParser.cpp
 	${SRC_DIR}/Main.cpp
 	${SRC_DIR}/Rendering.hpp
 	${SRC_DIR}/Screens.hpp)
@@ -113,7 +113,7 @@ if(MSVC)
 	file(COPY assets DESTINATION ${CMAKE_BINARY_DIR}/Release)
 
 	# Runtime DLLs
-	file(COPY RuntimeDLLs/msvc12_x64_debug/SDL2.dll DESTINATION ${CMAKE_BINARY_DIR})
-
-	file(COPY RuntimeDLLs/msvc12_x64_release/SDL2.dll DESTINATION ${CMAKE_BINARY_DIR})
+	file(COPY RuntimeDLLs/SDL2.dll DESTINATION ${CMAKE_BINARY_DIR})
+	file(COPY RuntimeDLLs/SDL2.dll DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+	file(COPY RuntimeDLLs/SDL2.dll DESTINATION ${CMAKE_BINARY_DIR}/Release)
 endif()

@@ -4,7 +4,7 @@
 
 #include <cstdint> // uint16_t
 
-#include "IniParser.hpp"
+#include <sfz/IniParser.hpp>
 
 #include "gamelogic/ModelConfig.hpp"
 
@@ -17,6 +17,11 @@ using std::uint16_t;
 
 class GlobalConfig {
 public:
+	// Singleton instance
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	static GlobalConfig& INSTANCE() noexcept;
+
 	// Public members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -27,7 +32,14 @@ public:
 	uint16_t msaa;
 	bool transparentCube;
 	
-	// Constructors & destructors
+	// Loading and saving to file
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	void load() noexcept;
+	void save() noexcept;
+
+private:
+	// Private constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	GlobalConfig(const GlobalConfig&) = default;
@@ -36,13 +48,9 @@ public:
 
 	GlobalConfig() noexcept;
 
-	// Loading and saving to file
+	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	void load() noexcept;
-	void save() noexcept;
-
-private:
 	sfz::IniParser mIniParser;
 };
 

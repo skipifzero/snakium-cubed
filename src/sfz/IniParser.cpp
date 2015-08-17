@@ -1,4 +1,4 @@
-#include "IniParser.hpp"
+#include "sfz/IniParser.hpp"
 
 #include "sfz/Assert.hpp"
 
@@ -235,42 +235,52 @@ void IniParser::setFloat(const string& section, const string& key, float value) 
 // Sanitizers
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void IniParser::sanitizeString(const string& section, const string& key,
-                               const string& defaultValue) noexcept
+string IniParser::sanitizeString(const string& section, const string& key,
+                                 const string& defaultValue) noexcept
 {
-	if (!this->itemExists(section, key)) this->setString(section, key, defaultValue);
+	if (!this->itemExists(section, key)) {
+		this->setString(section, key, defaultValue);
+		return defaultValue;
+	}
+	return this->getString(section, key);
 }
 
-void IniParser::sanitizeBool(const string& section, const string& key,
+bool IniParser::sanitizeBool(const string& section, const string& key,
                              bool defaultValue) noexcept
 {
-	if (!this->itemIsBool(section, key)) this->setBool(section, key, defaultValue);
+	if (!this->itemIsBool(section, key)) {
+		this->setBool(section, key, defaultValue);
+		return defaultValue;
+	}
+	return this->getBool(section, key);
 }
 
-void IniParser::sanitizeInt(const string& section, const string& key,
-                            int32_t defaultValue, int32_t minValue, int32_t maxValue) noexcept
+int32_t IniParser::sanitizeInt(const string& section, const string& key,
+                               int32_t defaultValue, int32_t minValue, int32_t maxValue) noexcept
 {
 	sfz_assert_debug(minValue <= maxValue);
 	if (!this->itemIsInt(section, key)) {
 		this->setInt(section, key, defaultValue);
-		return;
+		return defaultValue;
 	}
 	int32_t value = this->getInt(section, key);
 	if (value > maxValue) this->setInt(section, key, maxValue);
 	else if (value < minValue) this->setInt(section, key, minValue);
+	return this->getInt(section, key);
 }
 
-void IniParser::sanitizeFloat(const string& section, const string& key,
-                              float defaultValue, float minValue, float maxValue) noexcept
+float IniParser::sanitizeFloat(const string& section, const string& key,
+                               float defaultValue, float minValue, float maxValue) noexcept
 {
 	sfz_assert_debug(minValue <= maxValue);
 	if (!this->itemIsFloat(section, key)) {
 		this->setFloat(section, key, defaultValue);
-		return;
+		return defaultValue;
 	}
 	float value = this->getFloat(section, key);
 	if (value > maxValue) this->setFloat(section, key, maxValue);
 	else if (value < minValue) this->setFloat(section, key, minValue);
+	return this->getFloat(section, key);
 }
 
 } // namespace sfz

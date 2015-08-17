@@ -88,7 +88,6 @@ GameScreen::GameScreen(sdl::Window& window, s3::Assets& assets, const ModelConfi
 	mAssets{assets},
 	mModel{modelCfg}
 {
-	mCfg.load();
 	mShaderProgram = s3::compileStandardShaderProgram();
 
 	float aspect = static_cast<float>(window.width()) / static_cast<float>(window.height());

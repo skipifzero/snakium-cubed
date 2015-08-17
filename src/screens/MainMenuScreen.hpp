@@ -43,7 +43,7 @@ private:
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	GlobalConfig mCfg;
+	GlobalConfig& mCfg = GlobalConfig::INSTANCE();
 	sdl::Window& mWindow;
 	Assets& mAssets;
 	bool mQuit = false;

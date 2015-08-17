@@ -9,9 +9,7 @@ MainMenuScreen::MainMenuScreen(sdl::Window& window, Assets& assets) noexcept
 :
 	mWindow{window},
 	mAssets{assets}
-{
-	mCfg.load();
-}
+{ }
 
 // MainMenuScreen: Overriden screen methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

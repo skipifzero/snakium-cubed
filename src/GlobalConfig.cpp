@@ -7,8 +7,6 @@
 #include <sfz/SDL.hpp>
 #include <sfz/util/IO.hpp>
 
-#include "IniParser.hpp"
-
 namespace s3 {
 
 using std::string;
@@ -28,35 +26,14 @@ static const string& userIniPath() noexcept
 	return USER_INI_PATH;
 }
 
-static void sanitizeIniParser(sfz::IniParser& ip) noexcept
-{
-	// [Graphics]
-	ip.sanitizeBool("Graphics", "bFullscreen", false);
-	ip.sanitizeInt("Graphics", "iWindowResolutionX", 800, 64, 8192);
-	ip.sanitizeInt("Graphics", "iWindowResolutionY", 800, 64, 8192);
-	ip.sanitizeBool("Graphics", "bVSync", true);
-	ip.sanitizeInt("Graphics", "iMSAA", 4, 0, 32);
-	ip.sanitizeBool("Graphics", "bTransparentCube", true);
-
-	// [GameSettings]
-	ip.sanitizeInt("GameSettings", "iGridWidth", 3, 2, 128);;
-	ip.sanitizeFloat("GameSettings", "fTilesPerSecond", 2.25f, 0.05f, 60.0f);
-	ip.sanitizeBool("GameSettings", "bHasSpeedIncrease", true);
-	ip.sanitizeFloat("GameSettings", "fSpeedIncreasePerObject", 0.025f, 0.001f, 60.0f);
-	ip.sanitizeInt("GameSettings", "iPointsPerObject", 8, 0, 4096);
-	ip.sanitizeBool("GameSettings", "bHasBonus", true);
-	ip.sanitizeInt("GameSettings", "iBonusFrequency", 8, 1, 1024);
-	ip.sanitizeInt("GameSettings", "iBonusDuration", 32, 0, 4096);
-	ip.sanitizeInt("GameSettings", "iPointsPerBonusObject", 32, 32, 4096);
-}
-
-// GlobalConfig: Constructors & destructors
+// GlobalConfig: Singleton instance
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-GlobalConfig::GlobalConfig() noexcept
-:
-	mIniParser{userIniPath()}
-{ }
+GlobalConfig& GlobalConfig::INSTANCE() noexcept
+{
+	static GlobalConfig cfg;
+	return cfg;
+}
 
 // GlobalConfig: Loading and saving to file
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -78,52 +55,65 @@ void GlobalConfig::load() noexcept
 		std::terminate();
 	}
 
-	sanitizeIniParser(mIniParser);
-
-	// [Graphics]
-	fullscreen = mIniParser.getBool("Graphics", "bFullscreen");
-	windowResolutionX = mIniParser.getInt("Graphics", "iWindowResolutionX");
-	windowResolutionY = mIniParser.getInt("Graphics", "iWindowResolutionY");
-	vsync = mIniParser.getBool("Graphics", "bVSync");
-	msaa = mIniParser.getInt("Graphics", "iMSAA");
-	transparentCube = mIniParser.getBool("Graphics", "bTransparentCube");
-
+	sfz::IniParser& ip = mIniParser;
+	
 	// [GameSettings]
-	modelConfig.gridWidth = mIniParser.getInt("GameSettings", "iGridWidth");
-	modelConfig.tilesPerSecond = mIniParser.getFloat("GameSettings", "fTilesPerSecond");
-	modelConfig.hasSpeedIncrease = mIniParser.getBool("GameSettings", "bHasSpeedIncrease");
-	modelConfig.speedIncreasePerObject = mIniParser.getFloat("GameSettings", "fSpeedIncreasePerObject");
-	modelConfig.pointsPerObject = mIniParser.getInt("GameSettings", "iPointsPerObject");
-	modelConfig.hasBonus = mIniParser.getBool("GameSettings", "bHasBonus");
-	modelConfig.bonusFrequency = mIniParser.getInt("GameSettings", "iBonusFrequency");
-	modelConfig.bonusDuration = mIniParser.getInt("GameSettings", "iBonusDuration");
-	modelConfig.pointsPerBonusObject = mIniParser.getInt("GameSettings", "iPointsPerBonusObject");
+	ModelConfig& mc = modelConfig;
+	static const string gsStr = "GameSettings";
+	mc.hasBonus =               ip.sanitizeBool(gsStr, "bHasBonus", true);
+	mc.hasSpeedIncrease =       ip.sanitizeBool(gsStr, "bHasSpeedIncrease", true);
+	mc.speedIncreasePerObject = ip.sanitizeFloat(gsStr, "fSpeedIncreasePerObject", 0.025f, 0.001f, 60.0f);
+	mc.tilesPerSecond =         ip.sanitizeFloat(gsStr, "fTilesPerSecond", 2.25f, 0.05f, 60.0f);
+	mc.gridWidth =              ip.sanitizeInt(gsStr, "iGridWidth", 3, 2, 128);;
+	mc.bonusDuration =          ip.sanitizeInt(gsStr, "iBonusDuration", 32, 0, 4096);
+	mc.bonusFrequency =         ip.sanitizeInt(gsStr, "iBonusFrequency", 8, 1, 1024);
+	mc.pointsPerBonusObject =   ip.sanitizeInt(gsStr, "iPointsPerBonusObject", 32, 32, 4096);
+	mc.pointsPerObject =        ip.sanitizeInt(gsStr, "iPointsPerObject", 8, 0, 4096);
+	
+	// [Graphics]
+	static const string grStr = "Graphics";
+	fullscreen =        ip.sanitizeBool(grStr, "bFullscreen", false);
+	transparentCube =   ip.sanitizeBool(grStr, "bTransparentCube", true);
+	vsync =             ip.sanitizeBool(grStr, "bVSync", true);
+	msaa =              ip.sanitizeInt(grStr, "iMSAA", 4, 0, 32);
+	windowResolutionX = ip.sanitizeInt(grStr, "iWindowResolutionX", 800, 64, 8192);
+	windowResolutionY = ip.sanitizeInt(grStr, "iWindowResolutionY", 800, 64, 8192);
 }
 
 void GlobalConfig::save() noexcept
 {
-	// [Graphics]
-	mIniParser.setBool("Graphics", "bFullscreen", fullscreen);
-	mIniParser.setInt("Graphics", "iWindowResolutionX", windowResolutionX);
-	mIniParser.setInt("Graphics", "iWindowResolutionY", windowResolutionY);
-	mIniParser.setBool("Graphics", "bVSync", vsync);
-	mIniParser.setInt("Graphics", "iMSAA", msaa);
-	mIniParser.setBool("Graphics", "bTransparentCube", transparentCube);
-
 	// [GameSettings]
-	mIniParser.setInt("GameSettings", "iGridWidth", modelConfig.gridWidth);
-	mIniParser.setFloat("GameSettings", "fTilesPerSecond", modelConfig.tilesPerSecond);
-	mIniParser.setBool("GameSettings", "bHasSpeedIncrease", modelConfig.hasSpeedIncrease);
-	mIniParser.setFloat("GameSettings", "fSpeedIncreasePerObject", modelConfig.speedIncreasePerObject);
-	mIniParser.setInt("GameSettings", "iPointsPerObject", modelConfig.pointsPerObject);
-	mIniParser.setBool("GameSettings", "bHasBonus", modelConfig.hasBonus);
-	mIniParser.setInt("GameSettings", "iBonusFrequency", modelConfig.bonusFrequency);
-	mIniParser.setInt("GameSettings", "iBonusDuration", modelConfig.bonusDuration);
-	mIniParser.setInt("GameSettings", "iPointsPerBonusObject", modelConfig.pointsPerBonusObject);
+	static const string gsStr = "GameSettings";
+	mIniParser.setBool(gsStr, "bHasBonus", modelConfig.hasBonus);
+	mIniParser.setBool(gsStr, "bHasSpeedIncrease", modelConfig.hasSpeedIncrease);
+	mIniParser.setInt(gsStr, "iGridWidth", modelConfig.gridWidth);
+	mIniParser.setFloat(gsStr, "fSpeedIncreasePerObject", modelConfig.speedIncreasePerObject);
+	mIniParser.setFloat(gsStr, "fTilesPerSecond", modelConfig.tilesPerSecond);
+	mIniParser.setInt(gsStr, "iBonusDuration", modelConfig.bonusDuration);
+	mIniParser.setInt(gsStr, "iBonusFrequency", modelConfig.bonusFrequency);
+	mIniParser.setInt(gsStr, "iPointsPerBonusObject", modelConfig.pointsPerBonusObject);
+	mIniParser.setInt(gsStr, "iPointsPerObject", modelConfig.pointsPerObject);
+
+	// [Graphics]
+	static const string grStr = "Graphics";
+	mIniParser.setBool(grStr, "bFullscreen", fullscreen);
+	mIniParser.setBool(grStr, "bTransparentCube", transparentCube);
+	mIniParser.setBool(grStr, "bVSync", vsync);
+	mIniParser.setInt(grStr, "iMSAA", msaa);
+	mIniParser.setInt(grStr, "iWindowResolutionX", windowResolutionX);
+	mIniParser.setInt(grStr, "iWindowResolutionY", windowResolutionY);
 
 	if (!mIniParser.save()) {
 		std::cerr << "Couldn't save config.ini at: " << userIniPath() << std::endl;
 	}
 }
+
+// GlobalConfig: Private constructors & destructors
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+GlobalConfig::GlobalConfig() noexcept
+:
+	mIniParser{ userIniPath() }
+{ }
 
 } // namespace s3

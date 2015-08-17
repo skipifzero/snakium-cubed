@@ -70,21 +70,21 @@ public:
 	// Sanitizers
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	void sanitizeString(const string& section, const string& key,
-	                    const string& defaultValue = "") noexcept;
+	string sanitizeString(const string& section, const string& key,
+	                      const string& defaultValue = "") noexcept;
 
-	void sanitizeBool(const string& section, const string& key,
+	bool sanitizeBool(const string& section, const string& key,
 	                  bool defaultValue = false) noexcept;
 
-	void sanitizeInt(const string& section, const string& key,
-	                 int32_t defaultValue = 0,
-	                 int32_t minValue = numeric_limits<int32_t>::min(),
-	                 int32_t maxValue = numeric_limits<int32_t>::max()) noexcept;
+	int32_t sanitizeInt(const string& section, const string& key,
+	                    int32_t defaultValue = 0,
+	                    int32_t minValue = numeric_limits<int32_t>::min(),
+	                    int32_t maxValue = numeric_limits<int32_t>::max()) noexcept;
 
-	void sanitizeFloat(const string& section, const string& key,
-	                   float defaultValue = 0.0f,
-	                   float minValue = numeric_limits<float>::min(),
-	                   float maxValue = numeric_limits<float>::max()) noexcept;
+	float sanitizeFloat(const string& section, const string& key,
+	                    float defaultValue = 0.0f,
+	                    float minValue = numeric_limits<float>::min(),
+	                    float maxValue = numeric_limits<float>::max()) noexcept;
 
 private:
 	string mPath;

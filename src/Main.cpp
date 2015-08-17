@@ -19,7 +19,6 @@
 
 using std::shared_ptr;
 
-
 float calculateDelta() noexcept
 {
 	static std::chrono::high_resolution_clock::time_point previousTime, currentTime;
@@ -53,7 +52,8 @@ int main()
 {
 	// Init global config variable
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-	s3::GlobalConfig globalConfig;
+	
+	s3::GlobalConfig& globalConfig = s3::GlobalConfig::INSTANCE();
 	globalConfig.load();
 	globalConfig.save(); // Save the sanitized values to avoid user confusion.
 
