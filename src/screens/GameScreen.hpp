@@ -9,6 +9,7 @@
 #include "Assets.hpp"
 #include "Camera.hpp"
 #include "GlobalConfig.hpp"
+#include "screens/MainMenuScreen.hpp"
 
 namespace s3 {
 

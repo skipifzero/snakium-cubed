@@ -109,7 +109,8 @@ ScreenUpdateOp GameScreen::update(const vector<SDL_Event>& events,
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
 			case SDLK_ESCAPE:
-				return sfz::SCREEN_QUIT;
+				return sfz::ScreenUpdateOp{sfz::ScreenUpdateOpType::SWITCH_SCREEN,
+				          std::unique_ptr<sfz::BaseScreen>{new MainMenuScreen{mWindow, mAssets}}};
 			case SDLK_SPACE:
 				isPaused = !isPaused;
 				break;

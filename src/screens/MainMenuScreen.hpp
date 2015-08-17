@@ -13,13 +13,16 @@
 
 namespace s3 {
 
-using std::shared_ptr;
-
 using sfz::ScreenUpdateOp;
+using sfz::vec2;
+using sfz::vec3;
+
+using std::shared_ptr;
+using std::unordered_map;
+using std::vector;
 
 class MainMenuScreen : public sfz::BaseScreen {
 public:
-
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -48,7 +51,6 @@ private:
 	Assets& mAssets;
 	bool mQuit = false;
 };
-
 
 } // namespace s3
 

@@ -67,7 +67,55 @@ Assets::Assets() noexcept
 	OBJECT{snakeTexturePath() + "object_128.png"},
 	BONUS_OBJECT{snakeTexturePath() + "bonus_object_128.png"},
 	FILLED{snakeTexturePath() + "filled_64.png"},
-	TILE_FACE{snakeTexturePath() + "tile_face_128.png"}
+	TILE_FACE{snakeTexturePath() + "tile_face_128.png"},
+
+	ATLAS_128{snakeTexturePath(), {
+		"head_d2u_f1_128.png",
+		"head_d2u_f2_128.png",
+		"pre_head_d2u_f1_128.png",
+		"pre_head_d2u_dig_f1_128.png",
+		"pre_head_d2r_f1_128.png",
+		"pre_head_d2r_dig_f1_128.png",
+
+		"dead_pre_head_d2u_f1_128.png",
+		"dead_pre_head_d2u_dig_f1_128.png",
+		"dead_pre_head_d2r_f1_128.png",
+		"dead_pre_head_d2r_dig_f1_128.png",
+
+		"body_d2u_128.png",
+		"body_d2u_dig_128.png",
+		"body_d2r_128.png",
+		"body_d2r_dig_128.png",
+
+		"tail_d2u_f1_128.png",
+		"tail_d2u_f2_128.png",
+		"tail_d2u_dig_f1_128.png",
+		"tail_d2u_dig_f2_128.png",
+		"tail_d2r_f1_128.png",
+		"tail_d2r_f2_128.png",
+		"tail_d2r_dig_f1_128.png",
+		"tail_d2r_dig_f2_128.png",
+
+		"button_left_128.png",
+		"button_left_touched_128.png",
+		"button_left_disabled_128.png",
+		"button_middle_touched_128.png",
+		"button_right_128.png",
+		"button_right_touched_128.png",
+		"button_right_disabled_128.png",
+
+		"object_128.png",
+		"bonus_object_128.png",
+		"filled_64.png",
+		"tile_face_128.png"
+
+	}},
+	ATLAS_1024{assetsPath() + "1024pix/", {
+		"coffer_logo_1024x256.png",
+		"skipifzero_logo_1024x256.png",
+		"skipifzero_snakium_logo_1024x256.png",
+		"snakium_ascii_logo_1024x256.png"
+	}}
 {
 	// Do nothing.
 }
