@@ -54,7 +54,52 @@ struct Assets final {
 	            FILLED,
 	            TILE_FACE;
 	
-	gl::TexturePacker ATLAS_128, ATLAS_1024;
+	gl::TexturePacker ATLAS_128;
+	gl::TextureRegion HEAD_D2U_F1_REG,
+	                  HEAD_D2U_F2_REG,
+
+	                  PRE_HEAD_D2U_F1_REG,
+	                  PRE_HEAD_D2U_DIG_F1_REG,
+	                  PRE_HEAD_D2R_F1_REG,
+	                  PRE_HEAD_D2R_DIG_F1_REG,
+
+	                  DEAD_PRE_HEAD_D2U_F1_REG,
+	                  DEAD_PRE_HEAD_D2U_DIG_F1_REG,
+	                  DEAD_PRE_HEAD_D2R_F1_REG,
+	                  DEAD_PRE_HEAD_D2R_DIG_F1_REG,
+
+	                  BODY_D2U_REG,
+	                  BODY_D2U_DIG_REG,
+	                  BODY_D2R_REG,
+	                  BODY_D2R_DIG_REG,
+
+	                  TAIL_D2U_F1_REG,
+	                  TAIL_D2U_F2_REG,
+	                  TAIL_D2U_DIG_F1_REG,
+	                  TAIL_D2U_DIG_F2_REG,
+	                  TAIL_D2R_F1_REG,
+	                  TAIL_D2R_F2_REG,
+	                  TAIL_D2R_DIG_F1_REG,
+	                  TAIL_D2R_DIG_F2_REG,
+
+	                  BUTTON_LEFT_REG,
+	                  BUTTON_LEFT_TOUCHED_REG,
+	                  BUTTON_LEFT_DISABLED_REG,
+	                  BUTTON_MIDDLE_TOUCHED_REG,
+	                  BUTTON_RIGHT_REG,
+	                  BUTTON_RIGHT_TOUCHED_REG,
+	                  BUTTON_RIGHT_DISABLED_REG,
+
+	                  OBJECT_REG,
+	                  BONUS_OBJECT_REG,
+	                  FILLED_REG,
+	                  TILE_FACE_REG;
+
+	gl::TexturePacker ATLAS_1024;
+	gl::TextureRegion SNAKIUM_LOGO_REG,
+	                  SKIPIFZERO_LOGO_REG,
+	                  SKIPIFZERO_LOGO_SNAKIUM_VER_REG,
+	                  COFFER_LOGO_REG;
 
 	Assets() noexcept;
 	~Assets() noexcept = default;

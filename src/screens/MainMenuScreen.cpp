@@ -53,7 +53,7 @@ void MainMenuScreen::render(float delta)
 	gl::SpriteBatch& sb = mAssets.mSpriteBatch;
 	sb.begin(vec2{50.0f, 50.0f}, vec2{100.0f, 100.0f});
 
-	sb.draw(vec2{50.0f, 50.0f}, vec2{100.0f, 25.0f}, *mAssets.ATLAS_1024.textureRegion("snakium_ascii_logo_1024x256.png"));
+	sb.draw(vec2{50.0f, 50.0f}, vec2{100.0f, 25.0f}, mAssets.SNAKIUM_LOGO_REG);
 
 	sb.end(0, mWindow.drawableDimensions(), mAssets.ATLAS_1024.texture());
 }
