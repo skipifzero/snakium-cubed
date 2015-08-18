@@ -74,7 +74,8 @@ set(SOURCE_SCREENS_FILES
 	${SRC_DIR}/screens/GameScreen.hpp
 	${SRC_DIR}/screens/GameScreen.cpp
 	${SRC_DIR}/screens/MainMenuScreen.hpp
-	${SRC_DIR}/screens/MainMenuScreen.cpp)
+	${SRC_DIR}/screens/MainMenuScreen.cpp
+	${SRC_DIR}/screens/ScreenMenuConstants.hpp)
 source_group(screens FILES ${SOURCE_SCREENS_FILES})
 
 set(SOURCE_ALL_FILES

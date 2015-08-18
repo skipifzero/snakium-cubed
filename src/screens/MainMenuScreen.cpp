@@ -40,6 +40,8 @@ void MainMenuScreen::render(float delta)
 {
 	const vec2 drawableDim = mWindow.drawableDimensions();
 	const float aspect = drawableDim.x/drawableDim.y;
+	const vec2 guiDim = screens::guiDimensions(drawableDim);
+	const vec2 guiOffs = screens::guiOffset(guiDim);
 
 	// Clearing screen
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -51,11 +53,16 @@ void MainMenuScreen::render(float delta)
 
 	// Rendering.. something
 	gl::SpriteBatch& sb = mAssets.mSpriteBatch;
-	sb.begin(vec2{50.0f, 50.0f}, vec2{100.0f, 100.0f});
+	sb.begin(guiOffs + (guiDim/2.0f), guiDim);
 
-	sb.draw(vec2{50.0f, 50.0f}, vec2{100.0f, 25.0f}, mAssets.SNAKIUM_LOGO_REG);
+	sb.draw(vec2{50.0f, screens::MIN_DRAWABLE.y-15.0f}, vec2{80.0f, 20.0f}, mAssets.SNAKIUM_LOGO_REG);
 
-	sb.end(0, mWindow.drawableDimensions(), mAssets.ATLAS_1024.texture());
+	sb.end(0, drawableDim, mAssets.ATLAS_1024.texture());
+
+
+	sb.begin(guiOffs + (guiDim/2.0f), guiDim);
+	sb.draw(screens::MIN_DRAWABLE/2.0f, screens::MIN_DRAWABLE, mAssets.TILE_FACE_REG);
+	sb.end(0, drawableDim, mAssets.ATLAS_128.texture());
 }
 
 void MainMenuScreen::onQuit()

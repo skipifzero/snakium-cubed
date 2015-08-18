@@ -1,7 +1,6 @@
 #include <iostream>
 #include <exception> // std::terminate()
 #include <string>
-#include <chrono>
 #include <memory>
 
 #include <sfz/GL.hpp>
@@ -19,33 +18,9 @@
 
 using std::shared_ptr;
 
-float calculateDelta() noexcept
-{
-	static std::chrono::high_resolution_clock::time_point previousTime, currentTime;
-
-	previousTime = currentTime;
-	currentTime = std::chrono::high_resolution_clock::now();
-
-	using FloatSecondDuration = std::chrono::duration<float>;
-	return std::chrono::duration_cast<FloatSecondDuration>(currentTime - previousTime).count();
-}
-
 void checkGLErrorsMessage(const std::string& msg) noexcept
 {
 	if (gl::checkAllGLErrors()) std::cerr << msg << std::endl;
-}
-
-void pollEvents(std::vector<SDL_Event>& events)
-{
-	events.clear();
-	SDL_Event event;
-	while (SDL_PollEvent(&event) != 0) {
-		switch (event.type) {
-		default:
-			events.push_back(event);
-			break;
-		}
-	}
 }
 
 int main()
@@ -53,23 +28,23 @@ int main()
 	// Init global config variable
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	
-	s3::GlobalConfig& globalConfig = s3::GlobalConfig::INSTANCE();
-	globalConfig.load();
-	globalConfig.save(); // Save the sanitized values to avoid user confusion.
+	s3::GlobalConfig& cfg = s3::GlobalConfig::INSTANCE();
+	cfg.load();
+	cfg.save(); // Save the sanitized values to avoid user confusion.
 
 	// Init libraries and stuff
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	sdl::Session sdlSession{{sdl::InitFlags::EVENTS, sdl::InitFlags::VIDEO}};
 
-	if (globalConfig.msaa > 0) {
+	if (cfg.msaa > 0) {
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, globalConfig.msaa);
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, cfg.msaa);
 	}
 
-	sdl::Window window{"snakium³", globalConfig.windowResolutionX, globalConfig.windowResolutionY,
+	sdl::Window window{"snakium³", cfg.windowResolutionX, cfg.windowResolutionY,
 	     {sdl::WindowFlags::OPENGL, sdl::WindowFlags::RESIZABLE, sdl::WindowFlags::ALLOW_HIGHDPI,
-	      globalConfig.fullscreen ? sdl::WindowFlags::FULLSCREEN_DESKTOP : sdl::WindowFlags::OPENGL}};
+	      cfg.fullscreen ? sdl::WindowFlags::FULLSCREEN_DESKTOP : sdl::WindowFlags::OPENGL}};
 
 	gl::Context glContext{window.mPtr, 3, 3, gl::GLContextProfile::CORE};
 
@@ -83,7 +58,7 @@ int main()
 	checkGLErrorsMessage("^^^ Above errors caused by glewInit().");
 
 	// Enable/disable vsync
-	if (!globalConfig.vsync) SDL_GL_SetSwapInterval(0);
+	if (!cfg.vsync) SDL_GL_SetSwapInterval(0);
 
 	// Init variables
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

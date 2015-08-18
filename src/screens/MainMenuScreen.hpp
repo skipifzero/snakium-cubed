@@ -10,6 +10,7 @@
 #include "Assets.hpp"
 #include "GlobalConfig.hpp"
 #include "screens/GameScreen.hpp"
+#include "screens/ScreenMenuConstants.hpp"
 
 namespace s3 {
 
