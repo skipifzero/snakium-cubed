@@ -39,16 +39,22 @@ include_directories(
 set(SOURCE_BASE_FILES
 	${SRC_DIR}/Assets.hpp
 	${SRC_DIR}/Assets.cpp
+	${SRC_DIR}/Button.hpp
+	${SRC_DIR}/Button.cpp
 	${SRC_DIR}/Camera.hpp
 	${SRC_DIR}/Camera.cpp
 	${SRC_DIR}/GameLogic.hpp
 	${SRC_DIR}/GlobalConfig.hpp
 	${SRC_DIR}/GlobalConfig.cpp
-	${SRC_DIR}/sfz/IniParser.hpp
-	${SRC_DIR}/sfz/IniParser.cpp
 	${SRC_DIR}/Main.cpp
 	${SRC_DIR}/Rendering.hpp
-	${SRC_DIR}/Screens.hpp)
+	${SRC_DIR}/Screens.hpp
+	${SRC_DIR}/sfz/IniParser.hpp
+	${SRC_DIR}/sfz/IniParser.cpp
+	${SRC_DIR}/sfz/Circle.hpp
+	${SRC_DIR}/sfz/Circle.inl
+	${SRC_DIR}/sfz/Rectangle.hpp
+	${SRC_DIR}/sfz/Rectangle.inl)
 source_group(snakium_cubed_root FILES ${SOURCE_BASE_FILES})
 
 set(SOURCE_GAMELOGIC_FILES

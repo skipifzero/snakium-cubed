@@ -18,13 +18,12 @@ ScreenUpdateOp MainMenuScreen::update(const vector<SDL_Event>& events,
 	                              const unordered_map<int32_t, sdl::GameController>& controllers,
 	                              float delta)
 {
-
 	// Handle input
 	for (const SDL_Event& event : events) {
 		switch (event.type) {
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
-			case SDLK_ESCAPE: return ScreenUpdateOp{sfz::ScreenUpdateOpType::QUIT_APPLICATION};
+			case SDLK_ESCAPE: return sfz::SCREEN_QUIT;
 			default:
 				return ScreenUpdateOp{sfz::ScreenUpdateOpType::SWITCH_SCREEN,
 				    shared_ptr<BaseScreen>{new GameScreen{mWindow, mAssets, mCfg.modelConfig}}};
@@ -33,7 +32,7 @@ ScreenUpdateOp MainMenuScreen::update(const vector<SDL_Event>& events,
 		}
 	}
 
-	return ScreenUpdateOp{sfz::ScreenUpdateOpType::NO_OPERATION};
+	return sfz::SCREEN_NO_OP;
 }
 
 void MainMenuScreen::render(float delta)
@@ -51,18 +50,20 @@ void MainMenuScreen::render(float delta)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	// Rendering.. something
+
 	gl::SpriteBatch& sb = mAssets.mSpriteBatch;
-	sb.begin(guiOffs + (guiDim/2.0f), guiDim);
 
-	sb.draw(vec2{50.0f, screens::MIN_DRAWABLE.y-15.0f}, vec2{80.0f, 20.0f}, mAssets.SNAKIUM_LOGO_REG);
-
-	sb.end(0, drawableDim, mAssets.ATLAS_1024.texture());
-
-
+	// Rendering temporary background
 	sb.begin(guiOffs + (guiDim/2.0f), guiDim);
 	sb.draw(screens::MIN_DRAWABLE/2.0f, screens::MIN_DRAWABLE, mAssets.TILE_FACE_REG);
 	sb.end(0, drawableDim, mAssets.ATLAS_128.texture());
+
+	sb.begin(guiOffs + (guiDim/2.0f), guiDim);
+	sb.draw(vec2{50.0f, screens::MIN_DRAWABLE.y-15.0f}, vec2{80.0f, 20.0f}, mAssets.SNAKIUM_LOGO_REG);
+	sb.end(0, drawableDim, mAssets.ATLAS_1024.texture());
+
+
+	
 }
 
 void MainMenuScreen::onQuit()
