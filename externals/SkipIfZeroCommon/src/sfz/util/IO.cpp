@@ -1,6 +1,7 @@
 #include "sfz/util/IO.hpp"
 #include "sfz/Assert.hpp"
 
+#include <cstdlib>
 #include <cstdio> // fopen, fwrite, BUFSIZ
 #include <cstdint>
 
@@ -32,7 +33,7 @@ const std::string& myDocumentsPath() noexcept
 		if (result != S_OK) sfz_error("Could not retrieve MyDocuments path.");
 		return std::string{tempPath};
 #else
-		return std::string{"~"};
+		return std::getenv("HOME");
 #endif
 	}();
 	return path;
