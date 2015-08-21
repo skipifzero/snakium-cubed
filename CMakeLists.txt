@@ -48,13 +48,7 @@ set(SOURCE_BASE_FILES
 	${SRC_DIR}/GlobalConfig.cpp
 	${SRC_DIR}/Main.cpp
 	${SRC_DIR}/Rendering.hpp
-	${SRC_DIR}/Screens.hpp
-	${SRC_DIR}/sfz/IniParser.hpp
-	${SRC_DIR}/sfz/IniParser.cpp
-	${SRC_DIR}/sfz/Circle.hpp
-	${SRC_DIR}/sfz/Circle.inl
-	${SRC_DIR}/sfz/Rectangle.hpp
-	${SRC_DIR}/sfz/Rectangle.inl)
+	${SRC_DIR}/Screens.hpp)
 source_group(snakium_cubed_root FILES ${SOURCE_BASE_FILES})
 
 set(SOURCE_GAMELOGIC_FILES
@@ -84,11 +78,21 @@ set(SOURCE_SCREENS_FILES
 	${SRC_DIR}/screens/ScreenMenuConstants.hpp)
 source_group(screens FILES ${SOURCE_SCREENS_FILES})
 
+set(SOURCE_SFZ_TEMP_FILES
+	${SRC_DIR}/sfz/util/IniParser.hpp
+	${SRC_DIR}/sfz/util/IniParser.cpp
+	${SRC_DIR}/sfz/geometry/Circle.hpp
+	${SRC_DIR}/sfz/geometry/Circle.inl
+	${SRC_DIR}/sfz/geometry/Rectangle.hpp
+	${SRC_DIR}/sfz/geometry/Rectangle.inl)
+source_group(sfz_temp FILES ${SOURCE_SFZ_TEMP_FILES})
+
 set(SOURCE_ALL_FILES
 	${SOURCE_BASE_FILES}
 	${SOURCE_GAMELOGIC_FILES}
 	${SOURCE_RENDERING_FILES}
-	${SOURCE_SCREENS_FILES})
+	${SOURCE_SCREENS_FILES}
+	${SOURCE_SFZ_TEMP_FILES})
 
 # Main executable
 add_executable(snakium-cubed ${SOURCE_ALL_FILES})

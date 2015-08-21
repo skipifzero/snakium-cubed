@@ -1,50 +1,46 @@
 #pragma once
-#ifndef SFZ_GEOMETRY_CIRCLE_HPP
-#define SFZ_GEOMETRY_CIRCLE_HPP
+#ifndef SFZ_GEOMETRY_RECTANGLE_HPP
+#define SFZ_GEOMETRY_RECTANGLE_HPP
 
 #include <functional> // std::hash
 #include <string>
+#include <iostream> // ostream
 #include <cmath> // std::abs
-#include <cassert>
-#include "sfz/math/MathConstants.hpp"
 #include "sfz/math/Vector.hpp"
 
-// Forward declares Rectangle, is included after complete declaration of Circle.
-namespace sfz { class Rectangle; }
+// Forward declares Circle, is included after complete declaration of Rectangle.
+namespace sfz { struct Circle; }
 
 namespace sfz {
 
 /**
- * @brief A POD class representing a Circle.
+ * @brief A POD class representing a Rectangle.
  * @author Peter Hillerström <peter@hstroem.se>
  */
-struct Circle final {
+struct Rectangle final {
 	
 	// Public members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	vec2 pos;
-	float radius;
+	vec2 pos, dim;
 
 	// Constructors and destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	inline Circle() noexcept = default;
-	inline Circle(const Circle&) noexcept = default;
-	inline Circle& operator= (const Circle&) noexcept = default;
-	inline ~Circle() noexcept = default;
+	inline Rectangle() noexcept = default;
+	inline Rectangle(const Rectangle&) noexcept = default;
+	inline Rectangle& operator= (const Rectangle&) noexcept = default;
+	inline ~Rectangle() noexcept = default;
 
-	inline Circle(vec2 pos, float radius) noexcept;
-	inline Circle(float x, float y, float radius) noexcept;
+	inline Rectangle(vec2 position, vec2 dimensions) noexcept;
+	inline Rectangle(float x, float y, float width, float height) noexcept;
 
 	// Public member functions
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	inline bool overlap(vec2 point) const noexcept;
-	inline bool overlap(const Circle& circle) const noexcept;
 	inline bool overlap(const Rectangle& rect) const noexcept;
-	inline float area() const noexcept;
-	inline float circumference() const noexcept;
+	inline bool overlap(const Circle& circle) const noexcept;
 
 	inline size_t hash() const noexcept;
 	inline std::string to_string() const noexcept;
@@ -52,28 +48,28 @@ struct Circle final {
 	// Comparison operators
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	inline bool operator== (const Circle& other) const noexcept;
-	inline bool operator!= (const Circle& other) const noexcept;
+	inline bool operator== (const Rectangle& other) const noexcept;
+	inline bool operator!= (const Rectangle& other) const noexcept;
 };
 
 // Free (non-member) operators
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-template<typename T>
-inline std::ostream& operator<< (std::ostream& ostream, const Circle circle) noexcept;
+inline std::ostream& operator<< (std::ostream& ostream, const Rectangle rect) noexcept;
 
 } // namespace sfz
 
-// Specializations of standard library for sfz::Circle
+// Specializations of standard library for sfz::Rectangle
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 namespace std {
 
-struct hash<sfz::Circle> {
-	inline size_t operator() (const sfz::Circle& circle) const noexcept;
+template<>
+struct hash<sfz::Rectangle> {
+	inline size_t operator() (const sfz::Rectangle& rect) const noexcept;
 };
 
 } // namespace std
 
-#include "sfz/Rectangle.hpp"
-#include "Circle.inl"
+#include "sfz/geometry/Circle.hpp"
+#include "sfz/geometry/Rectangle.inl"
 #endif

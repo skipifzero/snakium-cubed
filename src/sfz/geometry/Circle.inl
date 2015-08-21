@@ -23,7 +23,7 @@ inline bool Circle::overlap(vec2 point) const noexcept
 	// If the length from this circles center to the specified point is shorter than or equal to
 	// the radius then this Circle overlaps the point. Both sides of the equation is squared to
 	// avoid somewhat expensive sqrt() function.
-	return squaredNorm(point - pos) <= (radius*radius);
+	return squaredLength(point - pos) <= (radius*radius);
 }
 
 inline bool Circle::overlap(const Circle& circle) const noexcept
@@ -31,7 +31,7 @@ inline bool Circle::overlap(const Circle& circle) const noexcept
 	// If the length between the center of the two circles is less than or equal to the the sum of
 	// the circle's radiuses they overlap. Both sides of the equation is squared to avoid somewhat 
 	// expensive sqrt() function.
-	float distSquared = squaredNorm(circle.pos - pos);
+	float distSquared = squaredLength(circle.pos - pos);
 	float radiusSum = std::abs(radius) + std::abs(circle.radius);
 	return distSquared <= (radiusSum * radiusSum);
 }
@@ -39,16 +39,6 @@ inline bool Circle::overlap(const Circle& circle) const noexcept
 inline bool Circle::overlap(const Rectangle& rect) const noexcept
 {
 	return rect.overlap(*this);
-}
-
-inline float Circle::area() const noexcept
-{
-	return static_cast<T>(g_PI_DOUBLE)*radius*radius;
-}
-
-inline float Circle::circumference() const noexcept
-{
-	return static_cast<T>(2)*static_cast<T>(g_PI_DOUBLE)*std::abs(mRad);
 }
 
 inline size_t Circle::hash() const noexcept
@@ -79,7 +69,7 @@ inline std::string Circle::to_string() const noexcept
 
 inline bool Circle::operator== (const Circle& other) const noexcept
 {
-	return pos == other.pos && radius == other.rad;
+	return pos == other.pos && radius == other.radius;
 }
 
 inline bool Circle::operator!= (const Circle& other) const noexcept

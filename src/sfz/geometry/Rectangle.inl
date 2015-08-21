@@ -77,16 +77,6 @@ inline bool Rectangle::overlap(const Circle& circle) const noexcept
 	return squaredLength(vec2{closestX,closestY} - circle.pos) <= (circle.radius*circle.radius);
 }
 
-inline float Rectangle::area() const noexcept
-{
-	return std::abs(dim.x)*std::abs(dim.y);
-}
-
-inline float Rectangle::circumference() const noexcept
-{
-	return std::abs(dim.x)*2 + std::abs(dim.y)*2;
-}
-
 inline size_t Rectangle::hash() const noexcept
 {
 	std::hash<float> hasher;

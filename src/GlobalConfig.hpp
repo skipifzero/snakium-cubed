@@ -4,7 +4,7 @@
 
 #include <cstdint> // uint16_t
 
-#include <sfz/IniParser.hpp>
+#include <sfz/util/IniParser.hpp>
 
 #include "gamelogic/ModelConfig.hpp"
 

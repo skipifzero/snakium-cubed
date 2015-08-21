@@ -1,6 +1,6 @@
 #pragma once
-#ifndef SFZ_INI_PARSER_HPP
-#define SFZ_INI_PARSER_HPP
+#ifndef SFZ_UTIL_INI_PARSER_HPP
+#define SFZ_UTIL_INI_PARSER_HPP
 
 #include <cstdint>
 #include <limits>
