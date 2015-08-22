@@ -2,13 +2,39 @@
 
 namespace s3 {
 
+static void renderButton(Assets& assets, const sfz::Button& b) noexcept
+{
+	sfz::TextureRegion* leftRegion = &assets.BUTTON_LEFT_REG;
+	sfz::TextureRegion* midRegion = nullptr;
+	sfz::TextureRegion* rightRegion = &assets.BUTTON_RIGHT_REG;
+
+	if (!b.isEnabled()) {
+		leftRegion = &assets.BUTTON_LEFT_DISABLED_REG;
+		rightRegion = &assets.BUTTON_RIGHT_DISABLED_REG;
+	} else if (b.isSelected()) {
+		leftRegion = &assets.BUTTON_LEFT_TOUCHED_REG;
+		midRegion = &assets.BUTTON_MIDDLE_TOUCHED_REG;
+		rightRegion = &assets.BUTTON_RIGHT_TOUCHED_REG;
+	}
+
+	auto& sb = assets.mSpriteBatch;
+	const auto& r = b.rect();
+	sb.draw(r.pos - vec2{r.dim.x/2.0f, 0.0f}, vec2{r.dim.y}, *leftRegion);
+	if (midRegion != nullptr) {
+		sb.draw(r.pos, vec2{r.dim.x - r.dim.y, r.dim.y}, *midRegion);
+	}
+	sb.draw(r.pos + vec2{r.dim.x/2.0f, 0.0f}, vec2{r.dim.y}, *rightRegion);
+}
+
 // MainMenuScreen: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 MainMenuScreen::MainMenuScreen(sdl::Window& window, Assets& assets) noexcept
 :
 	mWindow{window},
-	mAssets{assets}
+	mAssets{assets},
+	mNewGameButton{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, 80.0f, 60.0f, 20.0f}, "New Game"},
+	mQuitButton{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, 50.0, 60.0f, 20.0f}, "Quit", [](auto& b) {b.disable();}}
 { }
 
 // MainMenuScreen: Overriden screen methods
@@ -61,6 +87,22 @@ void MainMenuScreen::render(float delta)
 	sb.begin(guiOffs + (guiDim/2.0f), guiDim);
 	sb.draw(vec2{50.0f, screens::MIN_DRAWABLE.y-15.0f}, vec2{80.0f, 20.0f}, mAssets.SNAKIUM_LOGO_REG);
 	sb.end(0, drawableDim, mAssets.ATLAS_1024.texture());
+
+
+	// Button temp
+	//sfz::Button b{sfz::Rectangle{40.0f, 40.0f, 40.0f, 20.0f}, [](auto) { std::cout << "Button clicked!\n"; }};
+	//const sfz::Rectangle& r1 = b.rect();
+	sb.begin(guiOffs + (guiDim/2.0f), guiDim);
+	//sb.draw(r1.pos, r1.dim, mAssets.TILE_FACE_REG);
+
+	renderButton(mAssets, mNewGameButton);
+	renderButton(mAssets, mQuitButton);
+
+	//sb.draw(r1.pos - vec2{r1.dim.x/2.0f, 0.0f}, vec2{r1.dim.y}, mAssets.BUTTON_LEFT_TOUCHED_REG);
+	//sb.draw(r1.pos, vec2{r1.dim.x - r1.dim.y, r1.dim.y}, mAssets.BUTTON_MIDDLE_TOUCHED_REG);
+	//sb.draw(r1.pos + vec2{r1.dim.x/2.0f, 0.0f}, vec2{r1.dim.y}, mAssets.BUTTON_RIGHT_TOUCHED_REG);
+
+	sb.end(0, drawableDim, mAssets.ATLAS_128.texture());
 
 
 	

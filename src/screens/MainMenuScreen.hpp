@@ -6,6 +6,7 @@
 
 #include <sfz/GL.hpp>
 #include <sfz/Screens.hpp>
+#include <sfz/GUI.hpp>
 
 #include "Assets.hpp"
 #include "GlobalConfig.hpp"
@@ -51,6 +52,8 @@ private:
 	sdl::Window& mWindow;
 	Assets& mAssets;
 	bool mQuit = false;
+
+	sfz::Button mNewGameButton, mQuitButton;
 };
 
 } // namespace s3
