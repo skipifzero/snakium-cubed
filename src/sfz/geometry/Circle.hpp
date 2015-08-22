@@ -8,9 +8,6 @@
 #include "sfz/math/MathConstants.hpp"
 #include "sfz/math/Vector.hpp"
 
-// Forward declares Rectangle, is included after complete declaration of Circle.
-namespace sfz { struct Rectangle; }
-
 namespace sfz {
 
 /**
@@ -38,10 +35,6 @@ struct Circle final {
 
 	// Public member functions
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	inline bool overlap(vec2 point) const noexcept;
-	inline bool overlap(const Circle& circle) const noexcept;
-	inline bool overlap(const Rectangle& rect) const noexcept;
 
 	inline size_t hash() const noexcept;
 	inline std::string to_string() const noexcept;
@@ -71,7 +64,5 @@ struct hash<sfz::Circle> {
 };
 
 } // namespace std
-
-#include "sfz/geometry/Rectangle.hpp"
 #include "sfz/geometry/Circle.inl"
 #endif

@@ -18,65 +18,6 @@ inline Rectangle::Rectangle(float x, float y, float width, float height) noexcep
 // Public member functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-inline bool Rectangle::overlap(vec2 point) const noexcept
-{
-	float rectXLeft = pos.x - std::abs(dim.x/2.0f);
-	float rectXRight = rectXLeft + std::abs(dim.x);
-	float rectYBottom = pos.y - std::abs(dim.y/2.0f);
-	float rectYTop = rectYBottom + std::abs(dim.y);
-
-	return rectXLeft <= point.x && rectXRight >= point.x &&
-	       rectYBottom <= point.y && rectYTop >= point.y;
-}
-
-inline bool Rectangle::overlap(const Rectangle& rect) const noexcept
-{
-	float thisXLeft = pos.x - std::abs(dim.x/2.0f);
-	float thisXRight = thisXLeft + std::abs(dim.x);
-	float thisYBottom = pos.y - std::abs(dim.y/2.0f);
-	float thisYTop = thisYBottom + std::abs(dim.y);
-
-	float otherXLeft = rect.pos.x - std::abs(rect.dim.x/2.0f);
-	float otherXRight = otherXLeft + std::abs(rect.dim.x);
-	float otherYBottom = rect.pos.y - std::abs(rect.dim.y/2.0f);
-	float otherYTop = otherYBottom + std::abs(rect.dim.y);
-
-	return thisXLeft   <= otherXRight &&
-	       thisXRight  >= otherXLeft &&
-	       thisYBottom <= otherYTop &&
-	       thisYTop    >= otherYBottom;
-}
-
-inline bool Rectangle::overlap(const Circle& circle) const noexcept
-{
-	float rectXLeft = pos.x - std::abs(dim.x/2.0f);
-	float rectXRight = rectXLeft + std::abs(dim.x);
-	float rectYBottom = pos.y - std::abs(dim.y/2.0f);
-	float rectYTop = rectYBottom + std::abs(dim.y);
-
-	// If the length between the center of the circle and the closest point on the rectangle is
-	// less than or equal to the circles radius they overlap. Both sides of the equation is 
-	// squared to avoid somewhat expensive sqrt() function. 
-	float closestX = circle.pos.x;
-	float closestY = circle.pos.y;
-	
-	if (circle.pos.x <= rectXLeft) {
-		closestX = rectXLeft;
-	} 
-	else if (circle.pos.x >= rectXRight) {
-		closestX = rectXRight;
-	}
-	
-	if (circle.pos.y <= rectYBottom) {
-		closestY = rectYBottom;
-	}
-	else if (circle.pos.y >= rectYTop) {
-		closestY = rectYTop;
-	}
-	
-	return squaredLength(vec2{closestX,closestY} - circle.pos) <= (circle.radius*circle.radius);
-}
-
 inline size_t Rectangle::hash() const noexcept
 {
 	std::hash<float> hasher;
