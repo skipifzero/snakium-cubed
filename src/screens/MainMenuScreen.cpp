@@ -58,6 +58,25 @@ ScreenUpdateOp MainMenuScreen::update(const vector<SDL_Event>& events,
 		}
 	}
 
+
+	int mouseX, mouseY;
+	bool mouseClicked = SDL_GetMouseState(&mouseX, &mouseY) & SDL_BUTTON(SDL_BUTTON_LEFT);
+	
+
+	vec2 drawableDim = mWindow.drawableDimensions();
+	vec2 guiDim = screens::guiDimensions(drawableDim);
+	vec2 guiOffs = screens::guiOffset(guiDim);
+	float scale = guiDim.x / drawableDim.x;
+
+	vec2 mousePos{(float)mouseX, (float)mouseY};
+	mousePos.y = mWindow.dimensions().y - mousePos.y;
+	mousePos *= scale;
+	mousePos = guiOffs + mousePos;
+ 	
+	mNewGameButton.update(mousePos, mouseClicked);
+	mQuitButton.update(mousePos, mouseClicked);
+	std::cout << "Mousepos: " << vec2{mousePos} << std::endl;
+
 	return sfz::SCREEN_NO_OP;
 }
 
