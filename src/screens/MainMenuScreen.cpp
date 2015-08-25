@@ -26,6 +26,30 @@ static void renderButton(Assets& assets, const sfz::Button& b) noexcept
 	sb.draw(r.pos + vec2{r.dim.x/2.0f, 0.0f}, vec2{r.dim.y}, *rightRegion);
 }
 
+struct MouseInfo {
+	vec2 pos;
+	bool leftClick;
+};
+
+static MouseInfo getMouseInfo(const sdl::Window& window) noexcept
+{
+	vec2 drawableDim = window.drawableDimensions();
+	vec2 windowDim = window.dimensions();
+	vec2 guiDim = screens::guiDimensions(drawableDim);
+	vec2 guiOffs = screens::guiOffset(guiDim);
+	float scale = guiDim.x / windowDim.x;
+
+	int mouseX, mouseY;
+	MouseInfo temp;
+	temp.leftClick = SDL_GetMouseState(&mouseX, &mouseY) & SDL_BUTTON(SDL_BUTTON_LEFT);
+	temp.pos = vec2{(float)mouseX, (float)mouseY};
+	temp.pos.y = windowDim.y - temp.pos.y;
+	temp.pos *= scale;
+	temp.pos = guiOffs + temp.pos;
+
+	return temp;
+}
+
 // MainMenuScreen: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -34,7 +58,7 @@ MainMenuScreen::MainMenuScreen(sdl::Window& window, Assets& assets) noexcept
 	mWindow{window},
 	mAssets{assets},
 	mNewGameButton{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, 80.0f, 60.0f, 20.0f}, "New Game"},
-	mQuitButton{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, 50.0, 60.0f, 20.0f}, "Quit", [](auto& b) {b.disable();}}
+	mQuitButton{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, 50.0, 60.0f, 20.0f}, "Quit", [](sfz::Button& b) {b.disable();}}
 { }
 
 // MainMenuScreen: Overriden screen methods
@@ -59,23 +83,9 @@ ScreenUpdateOp MainMenuScreen::update(const vector<SDL_Event>& events,
 	}
 
 
-	int mouseX, mouseY;
-	bool mouseClicked = SDL_GetMouseState(&mouseX, &mouseY) & SDL_BUTTON(SDL_BUTTON_LEFT);
-	
-
-	vec2 drawableDim = mWindow.drawableDimensions();
-	vec2 guiDim = screens::guiDimensions(drawableDim);
-	vec2 guiOffs = screens::guiOffset(guiDim);
-	float scale = guiDim.x / drawableDim.x;
-
-	vec2 mousePos{(float)mouseX, (float)mouseY};
-	mousePos.y = mWindow.dimensions().y - mousePos.y;
-	mousePos *= scale;
-	mousePos = guiOffs + mousePos;
- 	
-	mNewGameButton.update(mousePos, mouseClicked);
-	mQuitButton.update(mousePos, mouseClicked);
-	std::cout << "Mousepos: " << vec2{mousePos} << std::endl;
+	auto mouseInfo = getMouseInfo(mWindow);
+	mNewGameButton.update(mouseInfo.pos, mouseInfo.leftClick);
+	mQuitButton.update(mouseInfo.pos, mouseInfo.leftClick);
 
 	return sfz::SCREEN_NO_OP;
 }
