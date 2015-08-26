@@ -19,8 +19,8 @@ using sfz::vec4;
 using sfz::mat3;
 using sfz::mat4;
 
-using sfz::ScreenUpdateOp;
-using std::unordered_map;
+using sfz::UpdateOp;
+using sfz::UpdateState;
 using std::vector;
 
 class GameScreen final : public sfz::BaseScreen {
@@ -37,12 +37,10 @@ public:
 	// Overriden screen methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	virtual ScreenUpdateOp update(const vector<SDL_Event>& events,
-	                              const unordered_map<int32_t, sdl::GameController>& controllers,
-	                              float delta) override final;
-	virtual void render(float delta) override final;
+	virtual UpdateOp update(const UpdateState& state) override final;
+	virtual void render(const UpdateState& state) override final;
 	virtual void onQuit() override final;
-	virtual void onResize(vec2 dimensions) override final;
+	virtual void onResize(vec2 dimensions, vec2 drawableDimensions) override final;
 
 private:
 	// Private members

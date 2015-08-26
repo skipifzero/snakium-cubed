@@ -26,30 +26,6 @@ static void renderButton(Assets& assets, const sfz::Button& b) noexcept
 	sb.draw(r.pos + vec2{r.dim.x/2.0f, 0.0f}, vec2{r.dim.y}, *rightRegion);
 }
 
-struct MouseInfo {
-	vec2 pos;
-	bool leftClick;
-};
-
-static MouseInfo getMouseInfo(const sdl::Window& window) noexcept
-{
-	vec2 drawableDim = window.drawableDimensions();
-	vec2 windowDim = window.dimensions();
-	vec2 guiDim = screens::guiDimensions(drawableDim);
-	vec2 guiOffs = screens::guiOffset(guiDim);
-	float scale = guiDim.x / windowDim.x;
-
-	int mouseX, mouseY;
-	MouseInfo temp;
-	temp.leftClick = SDL_GetMouseState(&mouseX, &mouseY) & SDL_BUTTON(SDL_BUTTON_LEFT);
-	temp.pos = vec2{(float)mouseX, (float)mouseY};
-	temp.pos.y = windowDim.y - temp.pos.y;
-	temp.pos *= scale;
-	temp.pos = guiOffs + temp.pos;
-
-	return temp;
-}
-
 // MainMenuScreen: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -64,33 +40,35 @@ MainMenuScreen::MainMenuScreen(sdl::Window& window, Assets& assets) noexcept
 // MainMenuScreen: Overriden screen methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-ScreenUpdateOp MainMenuScreen::update(const vector<SDL_Event>& events,
-	                              const unordered_map<int32_t, sdl::GameController>& controllers,
-	                              float delta)
+UpdateOp MainMenuScreen::update(const UpdateState& state)
 {
 	// Handle input
-	for (const SDL_Event& event : events) {
+	for (const SDL_Event& event : state.events) {
 		switch (event.type) {
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
 			case SDLK_ESCAPE: return sfz::SCREEN_QUIT;
 			default:
-				return ScreenUpdateOp{sfz::ScreenUpdateOpType::SWITCH_SCREEN,
+				return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 				    shared_ptr<BaseScreen>{new GameScreen{mWindow, mAssets, mCfg.modelConfig}}};
 			}
 			break;
 		}
 	}
 
+	const vec2 drawableDim = mWindow.drawableDimensions();
+	const vec2 guiDim = screens::guiDimensions(drawableDim);
+	const vec2 guiOffs = screens::guiOffset(guiDim);
 
-	auto mouseInfo = getMouseInfo(mWindow);
-	mNewGameButton.update(mouseInfo.pos, mouseInfo.leftClick);
-	mQuitButton.update(mouseInfo.pos, mouseInfo.leftClick);
+	auto scaledMouse = state.rawMouse.scaleMouse(guiDim, guiOffs);
+	mNewGameButton.update(scaledMouse.position, scaledMouse.leftButton == sdl::ButtonState::UP);
+	mQuitButton.update(scaledMouse.position, scaledMouse.leftButton == sdl::ButtonState::UP);
 
 	return sfz::SCREEN_NO_OP;
 }
 
-void MainMenuScreen::render(float delta)
+
+void MainMenuScreen::render(const UpdateState& state)
 {
 	const vec2 drawableDim = mWindow.drawableDimensions();
 	const float aspect = drawableDim.x/drawableDim.y;
@@ -141,7 +119,7 @@ void MainMenuScreen::onQuit()
 {
 }
 
-void MainMenuScreen::onResize(vec2 dimensions)
+void MainMenuScreen::onResize(vec2 dimensions, vec2 drawableDimensions)
 {
 }
 

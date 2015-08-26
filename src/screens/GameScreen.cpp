@@ -99,17 +99,17 @@ GameScreen::GameScreen(sdl::Window& window, s3::Assets& assets, const ModelConfi
 // GameScreen: Overriden screen methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-ScreenUpdateOp GameScreen::update(const vector<SDL_Event>& events,
-	                              const unordered_map<int32_t, sdl::GameController>& controllers,
-	                              float delta)
+UpdateOp GameScreen::update(const UpdateState& state)
 {
+	const float delta = state.delta;
+
 	// Handle input
-	for (const SDL_Event& event : events) {
+	for (const SDL_Event& event : state.events) {
 		switch (event.type) {
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
 			case SDLK_ESCAPE:
-				return sfz::ScreenUpdateOp{sfz::ScreenUpdateOpType::SWITCH_SCREEN,
+				return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 				          std::unique_ptr<sfz::BaseScreen>{new MainMenuScreen{mWindow, mAssets}}};
 			case SDLK_SPACE:
 				isPaused = !isPaused;
@@ -164,7 +164,7 @@ ScreenUpdateOp GameScreen::update(const vector<SDL_Event>& events,
 	return sfz::SCREEN_NO_OP;
 }
 
-void GameScreen::render(float delta)
+void GameScreen::render(const UpdateState& state)
 {
 	static s3::TileObject tile{false, false};
 	static s3::TileObject xFlippedTile{true, false};
@@ -320,7 +320,7 @@ void GameScreen::onQuit()
 	// Nothing currently needs to be done
 }
 
-void GameScreen::onResize(vec2 dimensions)
+void GameScreen::onResize(vec2 dimensions, vec2 drawableDimensions)
 {
 	projMatrix = sfz::glPerspectiveProjectionMatrix(mCam.mFov, dimensions.x/dimensions.y, 0.1f, 50.0f);
 }
