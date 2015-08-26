@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "sfz/sdl/GameController.hpp"
+#include "sfz/sdl/Mouse.hpp"
 #include "sfz/math/Vector.hpp"
 
 namespace sfz {
@@ -19,33 +20,49 @@ using std::vector;
 
 class BaseScreen; // Forward declaration for ScreenUpdateOp
 
-// ScreenUpdateOp
+// UpdateOp
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-enum class ScreenUpdateOpType {
-	NO_OPERATION,
+enum class UpdateOpType {
+	NO_OP,
 	SWITCH_SCREEN,
-	QUIT_APPLICATION,
-	REINITIALIZE_CONTROLLERS
+	QUIT,
+	REINIT_CONTROLLERS
 };
 
-struct ScreenUpdateOp final {
-	ScreenUpdateOp() noexcept = default;
-	ScreenUpdateOp(const ScreenUpdateOp&) noexcept = default;
-	ScreenUpdateOp& operator= (const ScreenUpdateOp&) noexcept = default;
-	inline ScreenUpdateOp(ScreenUpdateOpType type, shared_ptr<BaseScreen> screen = nullptr) noexcept
+struct UpdateOp final {
+	UpdateOp() noexcept = default;
+	UpdateOp(const UpdateOp&) noexcept = default;
+	UpdateOp& operator= (const UpdateOp&) noexcept = default;
+	inline UpdateOp(UpdateOpType type, shared_ptr<BaseScreen> screen = nullptr) noexcept
 	:
 		type{type},
 		newScreen{screen}
 	{ }
 
-	ScreenUpdateOpType type;
+	UpdateOpType type;
 	shared_ptr<BaseScreen> newScreen;
 };
 
-const ScreenUpdateOp SCREEN_NO_OP{ScreenUpdateOpType::NO_OPERATION};
-const ScreenUpdateOp SCREEN_QUIT{ScreenUpdateOpType::QUIT_APPLICATION};
-const ScreenUpdateOp SCREEN_REINIT_CONTROLLERS{ScreenUpdateOpType::REINITIALIZE_CONTROLLERS};
+const UpdateOp SCREEN_NO_OP{UpdateOpType::NO_OP};
+const UpdateOp SCREEN_QUIT{UpdateOpType::QUIT};
+const UpdateOp SCREEN_REINIT_CONTROLLERS{UpdateOpType::REINIT_CONTROLLERS};
+
+// UpdateState
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+struct UpdateState final {
+	UpdateState() = default;
+	UpdateState(const UpdateState&) = delete;
+	UpdateState& operator= (const UpdateState&) = delete;
+
+	vector<SDL_Event> events;
+	vector<SDL_Event> controllerEvents;
+	vector<SDL_Event> mouseEvents;
+	unordered_map<int32_t, sdl::GameController> controllers;
+	sdl::Mouse rawMouse;
+	float delta;
+};
 
 // BaseScreen
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -54,17 +71,15 @@ class BaseScreen {
 public:
 	virtual ~BaseScreen() = default;
 
-	virtual ScreenUpdateOp update(const vector<SDL_Event>& events,
-	                              const unordered_map<int32_t, sdl::GameController>& controllers,
-	                              float delta) = 0;
-	virtual void render(float delta) = 0;
+	virtual UpdateOp update(const UpdateState& state) = 0;
+	virtual void render(const UpdateState& state) = 0;
 
 	virtual void onQuit();
-	virtual void onResize(vec2 dimensions);
+	virtual void onResize(vec2 windowDimensions, vec2 drawableDimensions);
 };
 
 inline void BaseScreen::onQuit() { /* Default empty implementation. */ }
-inline void BaseScreen::onResize(vec2) { /* Default empty implementation. */ }
+inline void BaseScreen::onResize(vec2, vec2) { /* Default empty implementation. */ }
 
 } // namespace sfz
 

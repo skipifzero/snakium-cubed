@@ -87,8 +87,11 @@ set(SOURCE_GL_FILES
 source_group(gl FILES ${SOURCE_GL_FILES})
 
 set(SOURCE_SDL_FILES
+	${INCLUDE_DIR}/sfz/sdl/ButtonState.hpp
 	${INCLUDE_DIR}/sfz/sdl/GameController.hpp
 	 ${SOURCE_DIR}/sfz/sdl/GameController.cpp
+	${INCLUDE_DIR}/sfz/sdl/Mouse.hpp
+	 ${SOURCE_DIR}/sfz/sdl/Mouse.cpp
 	${INCLUDE_DIR}/sfz/sdl/Session.hpp
 	 ${SOURCE_DIR}/sfz/sdl/Session.cpp
 	${INCLUDE_DIR}/sfz/sdl/Window.hpp
