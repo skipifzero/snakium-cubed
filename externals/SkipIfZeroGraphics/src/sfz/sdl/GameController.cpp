@@ -7,7 +7,7 @@ namespace sdl {
 // Anonymous functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-static Button* buttonPtr(GameController& c, uint8_t sdlButton)
+static ButtonState* buttonPtr(GameController& c, uint8_t sdlButton)
 {
 	switch (static_cast<SDL_GameControllerButton>(sdlButton)) {
 	case SDL_CONTROLLER_BUTTON_A: return &c.a;
@@ -112,6 +112,15 @@ GameController::~GameController() noexcept
 // Update functions to update GameController struct
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+/** Starts the update process, should be called once before updateEvent() each frame. */
+static void updateStart(GameController& controller) noexcept;
+
+/** Updates state with an SDL Event, should be called once for each event after updateStart(). */
+static void updateProcessEvent(GameController& controller, const SDL_Event& event) noexcept;
+
+/** Finishes the update process, should be called once after all events have been processed. */
+static void updateFinish(GameController& controller) noexcept;
+
 void update(unordered_map<int32_t,GameController>& controllers, const vector<SDL_Event>& events) noexcept
 {
 	for (auto& c : controllers) updateStart(std::get<1>(c));
@@ -119,7 +128,7 @@ void update(unordered_map<int32_t,GameController>& controllers, const vector<SDL
 	for (const SDL_Event& event : events) {
 		switch (event.type) {
 		case SDL_CONTROLLERDEVICEADDED:
-			// which is the device index in this context
+			// 'which' is the device index in this context
 			{
 				GameController c{event.cdevice.which};
 				if (c.id() == -1) break;
@@ -128,7 +137,7 @@ void update(unordered_map<int32_t,GameController>& controllers, const vector<SDL
 			}
 			break;
 		case SDL_CONTROLLERDEVICEREMOVED:
-			// which is the joystick id in this context
+			// 'which' is the joystick id in this context
 			if (controllers.find(event.cdevice.which) != controllers.end()) {
 				controllers.erase(event.cdevice.which);
 			}
@@ -148,77 +157,81 @@ void update(unordered_map<int32_t,GameController>& controllers, const vector<SDL
 				updateProcessEvent(controllers[event.caxis.which], event);
 			}
 			break;
+
+		default:
+			// Do nothing
+			break;
 		}
 	}
 
 	for (auto& c : controllers) updateFinish(std::get<1>(c));
 }
 
-void updateStart(GameController& c) noexcept
+static void updateStart(GameController& c) noexcept
 {
 	// Changes previous DOWN state to HELD state.
 
-	if (c.a == Button::DOWN) c.a = Button::HELD;
-	if (c.b == Button::DOWN) c.b = Button::HELD;
-	if (c.x == Button::DOWN) c.x = Button::HELD;
-	if (c.y == Button::DOWN) c.y = Button::HELD;
+	if (c.a == ButtonState::DOWN) c.a = ButtonState::HELD;
+	if (c.b == ButtonState::DOWN) c.b = ButtonState::HELD;
+	if (c.x == ButtonState::DOWN) c.x = ButtonState::HELD;
+	if (c.y == ButtonState::DOWN) c.y = ButtonState::HELD;
 
-	if (c.leftShoulder == Button::DOWN) c.leftShoulder = Button::HELD;
-	if (c.rightShoulder == Button::DOWN) c.rightShoulder = Button::HELD;
-	if (c.leftStickButton == Button::DOWN) c.leftStickButton = Button::HELD;
-	if (c.rightStickButton == Button::DOWN) c.rightStickButton = Button::HELD;
+	if (c.leftShoulder == ButtonState::DOWN) c.leftShoulder = ButtonState::HELD;
+	if (c.rightShoulder == ButtonState::DOWN) c.rightShoulder = ButtonState::HELD;
+	if (c.leftStickButton == ButtonState::DOWN) c.leftStickButton = ButtonState::HELD;
+	if (c.rightStickButton == ButtonState::DOWN) c.rightStickButton = ButtonState::HELD;
 
-	if (c.padUp == Button::DOWN) c.padUp = Button::HELD;
-	if (c.padDown == Button::DOWN) c.padDown = Button::HELD;
-	if (c.padLeft == Button::DOWN) c.padLeft = Button::HELD;
-	if (c.padRight == Button::DOWN) c.padRight = Button::HELD;
+	if (c.padUp == ButtonState::DOWN) c.padUp = ButtonState::HELD;
+	if (c.padDown == ButtonState::DOWN) c.padDown = ButtonState::HELD;
+	if (c.padLeft == ButtonState::DOWN) c.padLeft = ButtonState::HELD;
+	if (c.padRight == ButtonState::DOWN) c.padRight = ButtonState::HELD;
 
-	if (c.start == Button::DOWN) c.start = Button::HELD;
-	if (c.back == Button::DOWN) c.back = Button::HELD;
-	if (c.guide == Button::DOWN) c.guide = Button::HELD;
+	if (c.start == ButtonState::DOWN) c.start = ButtonState::HELD;
+	if (c.back == ButtonState::DOWN) c.back = ButtonState::HELD;
+	if (c.guide == ButtonState::DOWN) c.guide = ButtonState::HELD;
 
 	// Changes previous UP state to NOT_PRESSED state.
 
-	if (c.a == Button::UP) c.a = Button::NOT_PRESSED;
-	if (c.b == Button::UP) c.b = Button::NOT_PRESSED;
-	if (c.x == Button::UP) c.x = Button::NOT_PRESSED;
-	if (c.y == Button::UP) c.y = Button::NOT_PRESSED;
+	if (c.a == ButtonState::UP) c.a = ButtonState::NOT_PRESSED;
+	if (c.b == ButtonState::UP) c.b = ButtonState::NOT_PRESSED;
+	if (c.x == ButtonState::UP) c.x = ButtonState::NOT_PRESSED;
+	if (c.y == ButtonState::UP) c.y = ButtonState::NOT_PRESSED;
 
-	if (c.leftShoulder == Button::UP) c.leftShoulder = Button::NOT_PRESSED;
-	if (c.rightShoulder == Button::UP) c.rightShoulder = Button::NOT_PRESSED;
-	if (c.leftStickButton == Button::UP) c.leftStickButton = Button::NOT_PRESSED;
-	if (c.rightStickButton == Button::UP) c.rightStickButton = Button::NOT_PRESSED;
+	if (c.leftShoulder == ButtonState::UP) c.leftShoulder = ButtonState::NOT_PRESSED;
+	if (c.rightShoulder == ButtonState::UP) c.rightShoulder = ButtonState::NOT_PRESSED;
+	if (c.leftStickButton == ButtonState::UP) c.leftStickButton = ButtonState::NOT_PRESSED;
+	if (c.rightStickButton == ButtonState::UP) c.rightStickButton = ButtonState::NOT_PRESSED;
 
-	if (c.padUp == Button::UP) c.padUp = Button::NOT_PRESSED;
-	if (c.padDown == Button::UP) c.padDown = Button::NOT_PRESSED;
-	if (c.padLeft == Button::UP) c.padLeft = Button::NOT_PRESSED;
-	if (c.padRight == Button::UP) c.padRight = Button::NOT_PRESSED;
+	if (c.padUp == ButtonState::UP) c.padUp = ButtonState::NOT_PRESSED;
+	if (c.padDown == ButtonState::UP) c.padDown = ButtonState::NOT_PRESSED;
+	if (c.padLeft == ButtonState::UP) c.padLeft = ButtonState::NOT_PRESSED;
+	if (c.padRight == ButtonState::UP) c.padRight = ButtonState::NOT_PRESSED;
 
-	if (c.start == Button::UP) c.start = Button::NOT_PRESSED;
-	if (c.back == Button::UP) c.back = Button::NOT_PRESSED;
-	if (c.guide == Button::UP) c.guide = Button::NOT_PRESSED;
+	if (c.start == ButtonState::UP) c.start = ButtonState::NOT_PRESSED;
+	if (c.back == ButtonState::UP) c.back = ButtonState::NOT_PRESSED;
+	if (c.guide == ButtonState::UP) c.guide = ButtonState::NOT_PRESSED;
 }
 
-void updateProcessEvent(GameController& controller, const SDL_Event& event) noexcept
+static void updateProcessEvent(GameController& controller, const SDL_Event& event) noexcept
 {
 	const float AXIS_MAX = 32766.0f; // Actual range [-32768, 32767]
 	const float TRIGGER_MAX = 32766.0f; // Actual range [0, 32767]
 
-	Button* ptr = nullptr;
+	ButtonState* ptr = nullptr;
 	switch (event.type) {
 	case SDL_CONTROLLERBUTTONDOWN:
 		/*std::cout << "Button down (" << event.cbutton.which << "): " << (int)event.cbutton.button << ", name: "
 					  << SDL_GameControllerGetStringForButton((SDL_GameControllerButton)event.cbutton.button)
 					  << std::endl;*/
 		ptr = buttonPtr(controller, event.cbutton.button);
-		if (ptr != nullptr) *ptr = Button::DOWN;
+		if (ptr != nullptr) *ptr = ButtonState::DOWN;
 		break;
 	case SDL_CONTROLLERBUTTONUP:
 		/*std::cout << "Button up (" << event.cbutton.which << "): " << (int)event.cbutton.button << ", name: "
 					  << SDL_GameControllerGetStringForButton((SDL_GameControllerButton)event.cbutton.button)
 					  << std::endl;*/
 		ptr = buttonPtr(controller, event.cbutton.button);
-		if (ptr != nullptr) *ptr = Button::UP;
+		if (ptr != nullptr) *ptr = ButtonState::UP;
 		break;
 	case SDL_CONTROLLERAXISMOTION:
 		/*std::cout << "Axis " << (int)event.caxis.axis << ", name: "
@@ -256,7 +269,7 @@ void updateProcessEvent(GameController& controller, const SDL_Event& event) noex
 	}
 }
 
-void updateFinish(GameController& controller) noexcept
+static void updateFinish(GameController& controller) noexcept
 {
 	// Deadzone checks
 	if (sfz::length(controller.leftStick) < controller.stickDeadzone) {

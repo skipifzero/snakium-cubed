@@ -55,28 +55,27 @@ static void initControllers(unordered_map<int32_t, sdl::GameController>& control
 
 void runGameLoop(sdl::Window& window, shared_ptr<BaseScreen> currentScreen)
 {
+	UpdateState state;
+
 	// Initialize controllers
-	unordered_map<int32_t, sdl::GameController> controllers;
-	initControllers(controllers);
+	initControllers(state.controllers);
 
 	// Initialize time delta
 	time_point previousTime;
-	float delta = calculateDelta(previousTime);
+	state.delta = calculateDelta(previousTime);
 
 	// Initialize SDL events
 	SDL_GameControllerEventState(SDL_ENABLE);
-	vector<SDL_Event> events;
-	vector<SDL_Event> controllerEvents;
 	SDL_Event event;
 
 	while (true) {
 		// Calculate delta
-		delta = calculateDelta(previousTime);
-		delta = std::min(delta, 0.25f);
+		state.delta = std::min(calculateDelta(previousTime), 0.2f);
 
 		// Process events
-		events.clear();
-		controllerEvents.clear();
+		state.events.clear();
+		state.controllerEvents.clear();
+		state.mouseEvents.clear();
 		while (SDL_PollEvent(&event) != 0) {
 			switch (event.type) {
 
@@ -87,11 +86,10 @@ void runGameLoop(sdl::Window& window, shared_ptr<BaseScreen> currentScreen)
 			case SDL_WINDOWEVENT:
 				switch (event.window.event) {
 				case SDL_WINDOWEVENT_RESIZED:
-					currentScreen->onResize(vec2{(float)event.window.data1,
-					                             (float)event.window.data1});
+					currentScreen->onResize(window.dimensions(), window.drawableDimensions());
 					break;
 				default:
-					events.push_back(event);
+					state.events.push_back(event);
 					break;
 				}
 				break;
@@ -103,41 +101,52 @@ void runGameLoop(sdl::Window& window, shared_ptr<BaseScreen> currentScreen)
 			case SDL_CONTROLLERBUTTONDOWN:
 			case SDL_CONTROLLERBUTTONUP:
 			case SDL_CONTROLLERAXISMOTION:
-				controllerEvents.push_back(event);
+				state.controllerEvents.push_back(event);
+				break;
+
+			// Mouse events
+			case SDL_MOUSEMOTION:
+			case SDL_MOUSEBUTTONDOWN:
+			case SDL_MOUSEBUTTONUP:
+			case SDL_MOUSEWHEEL:
+				state.mouseEvents.push_back(event);
 				break;
 
 			default:
-				events.push_back(event);
+				state.events.push_back(event);
 				break;
 			}
 		}
 
 		// Updates controllers
-		update(controllers, controllerEvents);
+		update(state.controllers, state.controllerEvents);
+
+		// Updates mouse
+		state.rawMouse.update(window, state.mouseEvents);
 
 		// Update current screen
-		ScreenUpdateOp op = currentScreen->update(events, controllers, delta);
+		UpdateOp op = currentScreen->update(state);
 
 		// Perform eventual operations requested by screen update
 		switch (op.type) {
-		case ScreenUpdateOpType::SWITCH_SCREEN:
+		case UpdateOpType::SWITCH_SCREEN:
 			currentScreen = op.newScreen;
 			continue;
-		case ScreenUpdateOpType::QUIT_APPLICATION:
+		case UpdateOpType::QUIT:
 			currentScreen->onQuit();
 			return;
-		case ScreenUpdateOpType::REINITIALIZE_CONTROLLERS:
-			initControllers(controllers);
+		case UpdateOpType::REINIT_CONTROLLERS:
+			initControllers(state.controllers);
 			continue;
 
-		case ScreenUpdateOpType::NO_OPERATION:
+		case UpdateOpType::NO_OP:
 		default:
 			// Do nothing
 			break;
 		}
 
 		// Render current screen
-		currentScreen->render(delta);
+		currentScreen->render(state);
 
 		SDL_GL_SwapWindow(window.mPtr);
 	}
