@@ -110,8 +110,8 @@ const gl::Texture& Assets::getTileTexture(SnakeTile *tilePtr, float progress, bo
 
 Assets::Assets() noexcept
 :
-	mSpriteBatch{3000},
-	mFontRenderer{assetsPath() + "fonts/SourceCodePro-Regular.ttf", 1024, 1024, 74.0f, 3000},
+	spriteBatch{3000},
+	fontRenderer{assetsPath() + "fonts/SourceCodePro-Regular.ttf", 1024, 1024, 74.0f, 3000},
 
 	HEAD_D2U_F1{snakeTexturePath() + "head_d2u_f1_128.png"},
 	HEAD_D2U_F2{snakeTexturePath() + "head_d2u_f2_128.png"},

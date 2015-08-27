@@ -72,33 +72,21 @@ void MainMenuScreen::render(const UpdateState& state)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	gl::SpriteBatch& sb = assets.spriteBatch;
 
-	gl::SpriteBatch& sb = assets.mSpriteBatch;
-
-	// Rendering temporary background
+	// Render temporary background
 	sb.begin(guiOffs + (guiDim/2.0f), guiDim);
 	sb.draw(screens::MIN_DRAWABLE/2.0f, screens::MIN_DRAWABLE, assets.TILE_FACE_REG);
 	sb.end(0, drawableDim, assets.ATLAS_128.texture());
 
+	// Render logo
 	sb.begin(guiOffs + (guiDim/2.0f), guiDim);
-	sb.draw(vec2{50.0f, screens::MIN_DRAWABLE.y-15.0f}, vec2{80.0f, 20.0f}, assets.SNAKIUM_LOGO_REG);
+	sb.draw(vec2{ 50.0f, screens::MIN_DRAWABLE.y-15.0f }, vec2{ 80.0f, 20.0f }, assets.SNAKIUM_LOGO_REG);
 	sb.end(0, drawableDim, assets.ATLAS_1024.texture());
 
-
-	// Button temp
-	//sfz::Button b{sfz::Rectangle{40.0f, 40.0f, 40.0f, 20.0f}, [](auto) { std::cout << "Button clicked!\n"; }};
-	//const sfz::Rectangle& r1 = b.rect();
-	sb.begin(guiOffs + (guiDim/2.0f), guiDim);
-	//sb.draw(r1.pos, r1.dim, mAssets.TILE_FACE_REG);
-
-	renderButton(mNewGameButton);
-	renderButton(mQuitButton);
-
-	//sb.draw(r1.pos - vec2{r1.dim.x/2.0f, 0.0f}, vec2{r1.dim.y}, mAssets.BUTTON_LEFT_TOUCHED_REG);
-	//sb.draw(r1.pos, vec2{r1.dim.x - r1.dim.y, r1.dim.y}, mAssets.BUTTON_MIDDLE_TOUCHED_REG);
-	//sb.draw(r1.pos + vec2{r1.dim.x/2.0f, 0.0f}, vec2{r1.dim.y}, mAssets.BUTTON_RIGHT_TOUCHED_REG);
-
-	sb.end(0, drawableDim, assets.ATLAS_128.texture());	
+	// Render buttons
+	renderButton(mNewGameButton, drawableDim, guiDim, guiOffs);
+	renderButton(mQuitButton, drawableDim, guiDim, guiOffs);
 }
 
 } // namespace s3

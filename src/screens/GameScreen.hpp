@@ -48,9 +48,9 @@ private:
 	unsigned int mShaderProgram;
 	Camera mCam;
 
-	mat4 projMatrix;
-	bool isTransparent = false;
-	bool isPaused = false;
+	mat4 mProjMatrix;
+	bool mIsTransparent = false;
+	bool mIsPaused = false;
 };
 
 } // namespace s3

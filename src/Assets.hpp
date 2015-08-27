@@ -22,8 +22,8 @@ public:
 	// Public members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	gl::SpriteBatch mSpriteBatch;
-	gl::FontRenderer mFontRenderer;
+	gl::SpriteBatch spriteBatch;
+	gl::FontRenderer fontRenderer;
 
 	gl::Texture HEAD_D2U_F1,
 	            HEAD_D2U_F2,
