@@ -37,8 +37,6 @@ include_directories(
 
 # Source files
 set(SOURCE_BASE_FILES
-	${SRC_DIR}/Assets.hpp
-	${SRC_DIR}/Assets.cpp
 	${SRC_DIR}/Camera.hpp
 	${SRC_DIR}/Camera.cpp
 	${SRC_DIR}/GameLogic.hpp
@@ -62,6 +60,8 @@ set(SOURCE_GAMELOGIC_FILES
 source_group(gamelogic FILES ${SOURCE_GAMELOGIC_FILES})
 
 set(SOURCE_RENDERING_FILES
+	${SRC_DIR}/rendering/Assets.hpp
+	${SRC_DIR}/rendering/Assets.cpp
 	${SRC_DIR}/rendering/GUIRendering.hpp
 	${SRC_DIR}/rendering/GUIRendering.cpp
 	${SRC_DIR}/rendering/S3Shaders.hpp

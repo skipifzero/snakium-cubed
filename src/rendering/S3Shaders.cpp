@@ -1,8 +1,10 @@
 #include "S3Shaders.hpp"
 
+#include <sfz/GL.hpp>
+
 namespace s3 {
 
-GLuint compileStandardShaderProgram() noexcept
+unsigned int compileStandardShaderProgram() noexcept
 {
 	GLuint vertexShader = gl::compileVertexShader(R"(
 		#version 330

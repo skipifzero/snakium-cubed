@@ -1,5 +1,7 @@
 #include "TileObject.hpp"
 
+#include "sfz/GL.hpp"
+
 namespace s3 {
 
 TileObject::TileObject(bool xFlipped, bool yFlipped) noexcept

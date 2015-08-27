@@ -2,10 +2,7 @@
 #ifndef S3_ASSETS_HPP
 #define S3_ASSETS_HPP
 
-#include <sfz/SDL.hpp>
 #include <sfz/GL.hpp>
-#include <string>
-#include "GameLogic.hpp"
 
 namespace s3 {
 
@@ -111,11 +108,6 @@ public:
 	                  SKIPIFZERO_LOGO_REG,
 	                  SKIPIFZERO_LOGO_SNAKIUM_VER_REG,
 	                  COFFER_LOGO_REG;
-
-	// Public methods
-	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	const gl::Texture& getTileTexture(SnakeTile* tilePtr, float progress, bool gameOver) const noexcept;
 
 private:
 	// Private constructors & destructors

@@ -2,8 +2,6 @@
 #ifndef SNAKIUM_CUBED_SHADERS_HPP
 #define SNAKIUM_CUBED_SHADERS_HPP
 
-#include "sfz/GL.hpp"
-
 namespace s3 {
 
 /**
@@ -13,7 +11,7 @@ namespace s3 {
  * one object file and not the whole Main.cpp when shaders are changed.
  */
 
-GLuint compileStandardShaderProgram() noexcept;
+unsigned int compileStandardShaderProgram() noexcept;
 
 } // namespace s3
 #endif

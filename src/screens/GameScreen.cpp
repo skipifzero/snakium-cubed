@@ -2,7 +2,6 @@
 
 #include <sfz/GL.hpp>
 
-#include "Assets.hpp"
 #include "GameLogic.hpp"
 #include "GlobalConfig.hpp"
 #include "Rendering.hpp"
@@ -12,6 +11,77 @@ namespace s3 {
 
 // Static functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+static const gl::Texture& getTileTexture(SnakeTile *tilePtr, float progress, bool gameOver) noexcept
+{
+	Assets& assets = Assets::INSTANCE();
+
+	bool isTurn = s3::isTurn(tilePtr->from(), tilePtr->to());
+
+	switch (tilePtr->type()) {
+	case s3::TileType::EMPTY: return assets.TILE_FACE;
+	case s3::TileType::OBJECT: return assets.OBJECT;
+	case s3::TileType::BONUS_OBJECT: return assets.BONUS_OBJECT;
+
+	case s3::TileType::HEAD:
+		if (progress <= 0.5f) { // Frame 1
+			return assets.HEAD_D2U_F1;
+		}
+		else { // Frame 2
+			return assets.HEAD_D2U_F2;
+		}
+	case s3::TileType::PRE_HEAD:
+		if (progress <= 0.5f) { // Frame 1
+			if (!isTurn) return !gameOver ? assets.PRE_HEAD_D2U_F1 : assets.DEAD_PRE_HEAD_D2U_F1;
+			else return !gameOver ? assets.PRE_HEAD_D2R_F1 : assets.DEAD_PRE_HEAD_D2R_F1;
+		}
+		else { // Frame 2
+			if (!isTurn) return assets.BODY_D2U;
+			else return assets.BODY_D2R;
+		}
+	case s3::TileType::BODY:
+		if (!isTurn) return assets.BODY_D2U;
+		else return assets.BODY_D2R;
+	case s3::TileType::TAIL:
+		if (progress <= 0.5f) { // Frame 1
+			if (!isTurn) return assets.TAIL_D2U_F1;
+			else return assets.TAIL_D2R_F1;
+		}
+		else { // Frame 2
+			if (!isTurn) return assets.TAIL_D2U_F2;
+			else return assets.TAIL_D2R_F2;
+		}
+
+	case s3::TileType::HEAD_DIGESTING:
+		if (progress <= 0.5f) { // Frame 1
+			return assets.HEAD_D2U_F1;
+		}
+		else { // Frame 2
+			return assets.HEAD_D2U_F2;
+		}
+	case s3::TileType::PRE_HEAD_DIGESTING:
+		if (progress <= 0.5f) { // Frame 1
+			if (!isTurn) return !gameOver ? assets.PRE_HEAD_D2U_DIG_F1 : assets.DEAD_PRE_HEAD_D2U_DIG_F1;
+			else return !gameOver ? assets.PRE_HEAD_D2R_DIG_F1 : assets.DEAD_PRE_HEAD_D2R_DIG_F1;
+		}
+		else { // Frame 2
+			if (!isTurn) return assets.BODY_D2U_DIG;
+			else return assets.BODY_D2R_DIG;
+		}
+	case s3::TileType::BODY_DIGESTING:
+		if (!isTurn) return assets.BODY_D2U_DIG;
+		else return assets.BODY_D2R_DIG;
+	case s3::TileType::TAIL_DIGESTING:
+		if (progress <= 0.5f) { // Frame 1
+			if (!isTurn) return assets.TAIL_D2U_DIG_F1;
+			else return assets.TAIL_D2R_DIG_F1;
+		}
+		else { // Frame 2
+			if (!isTurn) return assets.TAIL_D2U_DIG_F2;
+			else return assets.TAIL_D2R_DIG_F2;
+		}
+	}
+}
 
 static float getTileAngleRad(Direction3D side, Direction2D from) noexcept
 {
@@ -239,7 +309,7 @@ void GameScreen::render(const UpdateState& state)
 				translation(transform, translation(transform) + snakeFloatVec);
 				gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
 				glBindTexture(GL_TEXTURE_2D,
-				     assets.getTileTexture(tilePtr, mModel.mProgress, mModel.mGameOver).mHandle);
+				     getTileTexture(tilePtr, mModel.mProgress, mModel.mGameOver).mHandle);
 				if (isLeftTurn(tilePtr->from(), tilePtr->to())) mXFlippedTile.render();
 				else mTile.render();
 			}
@@ -257,7 +327,7 @@ void GameScreen::render(const UpdateState& state)
 					translation(transform, tilePosToVector(mModel, tilePos) + snakeFloatVec);
 					gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
 					glBindTexture(GL_TEXTURE_2D,
-					     assets.getTileTexture(tilePtr, mModel.mProgress, mModel.mGameOver).mHandle);
+					     getTileTexture(tilePtr, mModel.mProgress, mModel.mGameOver).mHandle);
 					if (isLeftTurn(tilePtr->from(), tilePtr->to())) mXFlippedTile.render();
 					else mTile.render();
 				}
@@ -287,7 +357,7 @@ void GameScreen::render(const UpdateState& state)
 		// Render dead head
 		gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
 		glBindTexture(GL_TEXTURE_2D,
-		   assets.getTileTexture(deadHeadPtr, mModel.mProgress, mModel.mGameOver).mHandle);
+		     getTileTexture(deadHeadPtr, mModel.mProgress, mModel.mGameOver).mHandle);
 		if (isLeftTurn(deadHeadPtr->from(), deadHeadPtr->to())) mXFlippedTile.render();
 		else mTile.render();
 	}
