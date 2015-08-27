@@ -1,7 +1,12 @@
 #include "screens/GameScreen.hpp"
 
+#include <sfz/GL.hpp>
+
+#include "Assets.hpp"
 #include "GameLogic.hpp"
+#include "GlobalConfig.hpp"
 #include "Rendering.hpp"
+#include "screens/MainMenuScreen.hpp"
 
 namespace s3 {
 
@@ -82,18 +87,19 @@ sfz::mat4 tileSpaceRotation(s3::Direction3D side) noexcept
 // GameScreen: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-GameScreen::GameScreen(sdl::Window& window, s3::Assets& assets, const ModelConfig& modelCfg) noexcept
+GameScreen::GameScreen(sdl::Window& window, const ModelConfig& modelCfg) noexcept
 :
 	mWindow{window},
-	mAssets{assets},
-	mModel{modelCfg}
+	mModel{modelCfg},
+	mTile{false, false},
+	mXFlippedTile{true, false}
 {
 	mShaderProgram = s3::compileStandardShaderProgram();
 
 	float aspect = static_cast<float>(window.width()) / static_cast<float>(window.height());
 	projMatrix = sfz::glPerspectiveProjectionMatrix(mCam.mFov, aspect, 0.1f, 50.0f);
 
-	isTransparent = mCfg.transparentCube;
+	isTransparent = GlobalConfig::INSTANCE().transparentCube;
 }
 
 // GameScreen: Overriden screen methods
@@ -102,6 +108,7 @@ GameScreen::GameScreen(sdl::Window& window, s3::Assets& assets, const ModelConfi
 UpdateOp GameScreen::update(const UpdateState& state)
 {
 	const float delta = state.delta;
+	GlobalConfig& cfg = GlobalConfig::INSTANCE();
 
 	// Handle input
 	for (const SDL_Event& event : state.events) {
@@ -110,7 +117,7 @@ UpdateOp GameScreen::update(const UpdateState& state)
 			switch (event.key.keysym.sym) {
 			case SDLK_ESCAPE:
 				return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-				          std::unique_ptr<sfz::BaseScreen>{new MainMenuScreen{mWindow, mAssets}}};
+				          std::unique_ptr<sfz::BaseScreen>{new MainMenuScreen{mWindow}}};
 			case SDLK_SPACE:
 				isPaused = !isPaused;
 				break;
@@ -148,7 +155,7 @@ UpdateOp GameScreen::update(const UpdateState& state)
 			switch (event.key.keysym.sym) {
 			case 'z':
 			case 'Z':
-				isTransparent = mCfg.transparentCube;
+				isTransparent = cfg.transparentCube;
 				break;
 			}
 			break;
@@ -166,8 +173,7 @@ UpdateOp GameScreen::update(const UpdateState& state)
 
 void GameScreen::render(const UpdateState& state)
 {
-	static s3::TileObject tile{false, false};
-	static s3::TileObject xFlippedTile{true, false};
+	Assets& assets = Assets::INSTANCE();
 
 	//glClearDepth(1.0f);
 	glDepthFunc(GL_LESS);
@@ -226,8 +232,8 @@ void GameScreen::render(const UpdateState& state)
 				// Render tile face
 				translation(transform, tilePosToVector(mModel, tilePos));
 				gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
-				glBindTexture(GL_TEXTURE_2D, mAssets.TILE_FACE.mHandle);
-				tile.render();
+				glBindTexture(GL_TEXTURE_2D, assets.TILE_FACE.mHandle);
+				mTile.render();
 
 				// Render snake sprite for non-empty tiles
 				if(tilePtr->type() == s3::TileType::EMPTY) continue;
@@ -236,9 +242,9 @@ void GameScreen::render(const UpdateState& state)
 				translation(transform, translation(transform) + snakeFloatVec);
 				gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
 				glBindTexture(GL_TEXTURE_2D,
-				     mAssets.getTileTexture(tilePtr, mModel.mProgress, mModel.mGameOver).mHandle);
-				if (isLeftTurn(tilePtr->from(), tilePtr->to())) xFlippedTile.render();
-				else tile.render();
+				     assets.getTileTexture(tilePtr, mModel.mProgress, mModel.mGameOver).mHandle);
+				if (isLeftTurn(tilePtr->from(), tilePtr->to())) mXFlippedTile.render();
+				else mTile.render();
 			}
 		} else {
 			for (size_t i = 0; i < tilesPerSide; i++) {
@@ -254,16 +260,16 @@ void GameScreen::render(const UpdateState& state)
 					translation(transform, tilePosToVector(mModel, tilePos) + snakeFloatVec);
 					gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
 					glBindTexture(GL_TEXTURE_2D,
-					     mAssets.getTileTexture(tilePtr, mModel.mProgress, mModel.mGameOver).mHandle);
-					if (isLeftTurn(tilePtr->from(), tilePtr->to())) xFlippedTile.render();
-					else tile.render();
+					     assets.getTileTexture(tilePtr, mModel.mProgress, mModel.mGameOver).mHandle);
+					if (isLeftTurn(tilePtr->from(), tilePtr->to())) mXFlippedTile.render();
+					else mTile.render();
 				}
 
 				// Render tile face
 				translation(transform, tilePosToVector(mModel, tilePos));
 				gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
-				glBindTexture(GL_TEXTURE_2D, mAssets.TILE_FACE.mHandle);
-				tile.render();
+				glBindTexture(GL_TEXTURE_2D, assets.TILE_FACE.mHandle);
+				mTile.render();
 			}
 		}
 	}
@@ -284,12 +290,12 @@ void GameScreen::render(const UpdateState& state)
 		// Render dead head
 		gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
 		glBindTexture(GL_TEXTURE_2D,
-		   mAssets.getTileTexture(deadHeadPtr, mModel.mProgress, mModel.mGameOver).mHandle);
-		if (isLeftTurn(deadHeadPtr->from(), deadHeadPtr->to())) xFlippedTile.render();
-		else tile.render();
+		   assets.getTileTexture(deadHeadPtr, mModel.mProgress, mModel.mGameOver).mHandle);
+		if (isLeftTurn(deadHeadPtr->from(), deadHeadPtr->to())) mXFlippedTile.render();
+		else mTile.render();
 	}
 
-	gl::FontRenderer& font = mAssets.mFontRenderer;
+	gl::FontRenderer& font = assets.mFontRenderer;
 
 	font.verticalAlign(gl::VerticalAlign::TOP);
 	font.horizontalAlign(gl::HorizontalAlign::LEFT);
@@ -313,11 +319,6 @@ void GameScreen::render(const UpdateState& state)
 
 	// Clean up
 	glUseProgram(0);
-}
-
-void GameScreen::onQuit()
-{
-	// Nothing currently needs to be done
 }
 
 void GameScreen::onResize(vec2 dimensions, vec2 drawableDimensions)

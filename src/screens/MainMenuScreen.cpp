@@ -1,38 +1,23 @@
 #include "screens/MainMenuScreen.hpp"
 
+#include <memory>
+
+#include <sfz/GL.hpp>
+
+#include "Assets.hpp"
+#include "GlobalConfig.hpp"
+#include "rendering/GUIRendering.hpp"
+#include "screens/GameScreen.hpp"
+#include "screens/ScreenMenuConstants.hpp"
+
 namespace s3 {
-
-static void renderButton(Assets& assets, const sfz::Button& b) noexcept
-{
-	sfz::TextureRegion* leftRegion = &assets.BUTTON_LEFT_REG;
-	sfz::TextureRegion* midRegion = nullptr;
-	sfz::TextureRegion* rightRegion = &assets.BUTTON_RIGHT_REG;
-
-	if (!b.isEnabled()) {
-		leftRegion = &assets.BUTTON_LEFT_DISABLED_REG;
-		rightRegion = &assets.BUTTON_RIGHT_DISABLED_REG;
-	} else if (b.isSelected()) {
-		leftRegion = &assets.BUTTON_LEFT_TOUCHED_REG;
-		midRegion = &assets.BUTTON_MIDDLE_TOUCHED_REG;
-		rightRegion = &assets.BUTTON_RIGHT_TOUCHED_REG;
-	}
-
-	auto& sb = assets.mSpriteBatch;
-	const auto& r = b.rect();
-	sb.draw(r.pos - vec2{r.dim.x/2.0f, 0.0f}, vec2{r.dim.y}, *leftRegion);
-	if (midRegion != nullptr) {
-		sb.draw(r.pos, vec2{r.dim.x - r.dim.y, r.dim.y}, *midRegion);
-	}
-	sb.draw(r.pos + vec2{r.dim.x/2.0f, 0.0f}, vec2{r.dim.y}, *rightRegion);
-}
 
 // MainMenuScreen: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-MainMenuScreen::MainMenuScreen(sdl::Window& window, Assets& assets) noexcept
+MainMenuScreen::MainMenuScreen(sdl::Window& window) noexcept
 :
 	mWindow{window},
-	mAssets{assets},
 	mNewGameButton{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, 80.0f, 60.0f, 20.0f}, "New Game"},
 	mQuitButton{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, 50.0, 60.0f, 20.0f}, "Quit", [](sfz::Button& b) {b.disable();}}
 { }
@@ -42,6 +27,9 @@ MainMenuScreen::MainMenuScreen(sdl::Window& window, Assets& assets) noexcept
 
 UpdateOp MainMenuScreen::update(const UpdateState& state)
 {
+	Assets& assets = Assets::INSTANCE();
+	GlobalConfig& cfg = GlobalConfig::INSTANCE();
+
 	// Handle input
 	for (const SDL_Event& event : state.events) {
 		switch (event.type) {
@@ -50,7 +38,7 @@ UpdateOp MainMenuScreen::update(const UpdateState& state)
 			case SDLK_ESCAPE: return sfz::SCREEN_QUIT;
 			default:
 				return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-				    shared_ptr<BaseScreen>{new GameScreen{mWindow, mAssets, mCfg.modelConfig}}};
+				    std::shared_ptr<BaseScreen>{new GameScreen{mWindow, cfg.modelConfig}}};
 			}
 			break;
 		}
@@ -67,9 +55,10 @@ UpdateOp MainMenuScreen::update(const UpdateState& state)
 	return sfz::SCREEN_NO_OP;
 }
 
-
 void MainMenuScreen::render(const UpdateState& state)
 {
+	Assets& assets = Assets::INSTANCE();
+
 	const vec2 drawableDim = mWindow.drawableDimensions();
 	const float aspect = drawableDim.x/drawableDim.y;
 	const vec2 guiDim = screens::guiDimensions(drawableDim);
@@ -84,16 +73,16 @@ void MainMenuScreen::render(const UpdateState& state)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
-	gl::SpriteBatch& sb = mAssets.mSpriteBatch;
+	gl::SpriteBatch& sb = assets.mSpriteBatch;
 
 	// Rendering temporary background
 	sb.begin(guiOffs + (guiDim/2.0f), guiDim);
-	sb.draw(screens::MIN_DRAWABLE/2.0f, screens::MIN_DRAWABLE, mAssets.TILE_FACE_REG);
-	sb.end(0, drawableDim, mAssets.ATLAS_128.texture());
+	sb.draw(screens::MIN_DRAWABLE/2.0f, screens::MIN_DRAWABLE, assets.TILE_FACE_REG);
+	sb.end(0, drawableDim, assets.ATLAS_128.texture());
 
 	sb.begin(guiOffs + (guiDim/2.0f), guiDim);
-	sb.draw(vec2{50.0f, screens::MIN_DRAWABLE.y-15.0f}, vec2{80.0f, 20.0f}, mAssets.SNAKIUM_LOGO_REG);
-	sb.end(0, drawableDim, mAssets.ATLAS_1024.texture());
+	sb.draw(vec2{50.0f, screens::MIN_DRAWABLE.y-15.0f}, vec2{80.0f, 20.0f}, assets.SNAKIUM_LOGO_REG);
+	sb.end(0, drawableDim, assets.ATLAS_1024.texture());
 
 
 	// Button temp
@@ -102,25 +91,14 @@ void MainMenuScreen::render(const UpdateState& state)
 	sb.begin(guiOffs + (guiDim/2.0f), guiDim);
 	//sb.draw(r1.pos, r1.dim, mAssets.TILE_FACE_REG);
 
-	renderButton(mAssets, mNewGameButton);
-	renderButton(mAssets, mQuitButton);
+	renderButton(mNewGameButton);
+	renderButton(mQuitButton);
 
 	//sb.draw(r1.pos - vec2{r1.dim.x/2.0f, 0.0f}, vec2{r1.dim.y}, mAssets.BUTTON_LEFT_TOUCHED_REG);
 	//sb.draw(r1.pos, vec2{r1.dim.x - r1.dim.y, r1.dim.y}, mAssets.BUTTON_MIDDLE_TOUCHED_REG);
 	//sb.draw(r1.pos + vec2{r1.dim.x/2.0f, 0.0f}, vec2{r1.dim.y}, mAssets.BUTTON_RIGHT_TOUCHED_REG);
 
-	sb.end(0, drawableDim, mAssets.ATLAS_128.texture());
-
-
-	
-}
-
-void MainMenuScreen::onQuit()
-{
-}
-
-void MainMenuScreen::onResize(vec2 dimensions, vec2 drawableDimensions)
-{
+	sb.end(0, drawableDim, assets.ATLAS_128.texture());	
 }
 
 } // namespace s3

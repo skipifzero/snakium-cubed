@@ -24,6 +24,90 @@ const std::string& snakeTexturePath() noexcept
 
 } // anonymous namespace
 
+// Assets: Singleton instance
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+Assets& Assets::INSTANCE() noexcept
+{
+	static Assets instance;
+	return instance;
+}
+
+// Assets: Public methods
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+const gl::Texture& Assets::getTileTexture(SnakeTile *tilePtr, float progress, bool gameOver) const noexcept
+{
+	bool isTurn = s3::isTurn(tilePtr->from(), tilePtr->to());
+
+	switch (tilePtr->type()) {
+	case s3::TileType::EMPTY: return TILE_FACE;
+	case s3::TileType::OBJECT: return OBJECT;
+	case s3::TileType::BONUS_OBJECT: return BONUS_OBJECT;
+
+	case s3::TileType::HEAD:
+		if (progress <= 0.5f) { // Frame 1
+			return HEAD_D2U_F1;
+		}
+		else { // Frame 2
+			return HEAD_D2U_F2;
+		}
+	case s3::TileType::PRE_HEAD:
+		if (progress <= 0.5f) { // Frame 1
+			if (!isTurn) return !gameOver ? PRE_HEAD_D2U_F1 : DEAD_PRE_HEAD_D2U_F1;
+			else return !gameOver ? PRE_HEAD_D2R_F1 : DEAD_PRE_HEAD_D2R_F1;
+		}
+		else { // Frame 2
+			if (!isTurn) return BODY_D2U;
+			else return BODY_D2R;
+		}
+	case s3::TileType::BODY:
+		if (!isTurn) return BODY_D2U;
+		else return BODY_D2R;
+	case s3::TileType::TAIL:
+		if (progress <= 0.5f) { // Frame 1
+			if (!isTurn) return TAIL_D2U_F1;
+			else return TAIL_D2R_F1;
+		}
+		else { // Frame 2
+			if (!isTurn) return TAIL_D2U_F2;
+			else return TAIL_D2R_F2;
+		}
+
+	case s3::TileType::HEAD_DIGESTING:
+		if (progress <= 0.5f) { // Frame 1
+			return HEAD_D2U_F1;
+		}
+		else { // Frame 2
+			return HEAD_D2U_F2;
+		}
+	case s3::TileType::PRE_HEAD_DIGESTING:
+		if (progress <= 0.5f) { // Frame 1
+			if (!isTurn) return !gameOver ? PRE_HEAD_D2U_DIG_F1 : DEAD_PRE_HEAD_D2U_DIG_F1;
+			else return !gameOver ? PRE_HEAD_D2R_DIG_F1 : DEAD_PRE_HEAD_D2R_DIG_F1;
+		}
+		else { // Frame 2
+			if (!isTurn) return BODY_D2U_DIG;
+			else return BODY_D2R_DIG;
+		}
+	case s3::TileType::BODY_DIGESTING:
+		if (!isTurn) return BODY_D2U_DIG;
+		else return BODY_D2R_DIG;
+	case s3::TileType::TAIL_DIGESTING:
+		if (progress <= 0.5f) { // Frame 1
+			if (!isTurn) return TAIL_D2U_DIG_F1;
+			else return TAIL_D2R_DIG_F1;
+		}
+		else { // Frame 2
+			if (!isTurn) return TAIL_D2U_DIG_F2;
+			else return TAIL_D2R_DIG_F2;
+		}
+	}
+}
+
+// Assets: Private constructors & destructors
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
 Assets::Assets() noexcept
 :
 	mSpriteBatch{3000},
@@ -161,68 +245,5 @@ Assets::Assets() noexcept
 	SKIPIFZERO_LOGO_SNAKIUM_VER_REG{*ATLAS_1024.textureRegion("skipifzero_snakium_logo_1024x256.png")},
 	COFFER_LOGO_REG{*ATLAS_1024.textureRegion("coffer_logo_1024x256.png")}
 { }
-
-const gl::Texture& Assets::getTileTexture(SnakeTile *tilePtr, float progress, bool gameOver) const noexcept
-{
-	bool isTurn = s3::isTurn(tilePtr->from(), tilePtr->to());
-
-	switch (tilePtr->type()) {
-	case s3::TileType::EMPTY: return TILE_FACE;
-	case s3::TileType::OBJECT: return OBJECT;
-	case s3::TileType::BONUS_OBJECT: return BONUS_OBJECT;
-
-	case s3::TileType::HEAD:
-		if (progress <= 0.5f) { // Frame 1
-			return HEAD_D2U_F1;
-		} else { // Frame 2
-			return HEAD_D2U_F2;
-		}
-	case s3::TileType::PRE_HEAD:
-		if (progress <= 0.5f) { // Frame 1
-			if (!isTurn) return !gameOver ? PRE_HEAD_D2U_F1 : DEAD_PRE_HEAD_D2U_F1;
-			else return !gameOver ? PRE_HEAD_D2R_F1 : DEAD_PRE_HEAD_D2R_F1;
-		} else { // Frame 2
-			if (!isTurn) return BODY_D2U;
-			else return BODY_D2R;
-		}
-	case s3::TileType::BODY:
-		if (!isTurn) return BODY_D2U;
-		else return BODY_D2R;
-	case s3::TileType::TAIL:
-		if (progress <= 0.5f) { // Frame 1
-			if (!isTurn) return TAIL_D2U_F1;
-			else return TAIL_D2R_F1;
-		} else { // Frame 2
-			if (!isTurn) return TAIL_D2U_F2;
-			else return TAIL_D2R_F2;
-		}
-
-	case s3::TileType::HEAD_DIGESTING:
-		if (progress <= 0.5f) { // Frame 1
-			return HEAD_D2U_F1;
-		} else { // Frame 2
-			return HEAD_D2U_F2;
-		}
-	case s3::TileType::PRE_HEAD_DIGESTING:
-		if (progress <= 0.5f) { // Frame 1
-			if (!isTurn) return !gameOver ? PRE_HEAD_D2U_DIG_F1 : DEAD_PRE_HEAD_D2U_DIG_F1;
-			else return !gameOver ? PRE_HEAD_D2R_DIG_F1 : DEAD_PRE_HEAD_D2R_DIG_F1;
-		} else { // Frame 2
-			if (!isTurn) return BODY_D2U_DIG;
-			else return BODY_D2R_DIG;
-		}
-	case s3::TileType::BODY_DIGESTING:
-		if (!isTurn) return BODY_D2U_DIG;
-		else return BODY_D2R_DIG;
-	case s3::TileType::TAIL_DIGESTING:
-		if (progress <= 0.5f) { // Frame 1
-			if (!isTurn) return TAIL_D2U_DIG_F1;
-			else return TAIL_D2R_DIG_F1;
-		} else { // Frame 2
-			if (!isTurn) return TAIL_D2U_DIG_F2;
-			else return TAIL_D2R_DIG_F2;
-		}
-	}
-}
 
 } // namespace s3

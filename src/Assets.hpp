@@ -9,7 +9,18 @@
 
 namespace s3 {
 
-struct Assets final {
+// Assets class
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+class Assets final {
+public:
+	// Singleton instance
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	static Assets& INSTANCE() noexcept;
+
+	// Public members
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	gl::SpriteBatch mSpriteBatch;
 	gl::FontRenderer mFontRenderer;
@@ -101,12 +112,19 @@ struct Assets final {
 	                  SKIPIFZERO_LOGO_SNAKIUM_VER_REG,
 	                  COFFER_LOGO_REG;
 
-	Assets() noexcept;
-	~Assets() noexcept = default;
+	// Public methods
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	const gl::Texture& getTileTexture(SnakeTile* tilePtr, float progress, bool gameOver) const noexcept;
+
+private:
+	// Private constructors & destructors
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
 	Assets(const Assets&) = delete;
 	Assets& operator= (const Assets&) = delete;
 
-	const gl::Texture& getTileTexture(SnakeTile* tilePtr, float progress, bool gameOver) const noexcept;
+	Assets() noexcept;
 };
 
 } // namespace s3

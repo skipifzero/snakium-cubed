@@ -6,8 +6,8 @@
 #include <sfz/GL.hpp>
 #include <sfz/Math.hpp>
 #include <sfz/Screens.hpp>
+#include <sfz/SDL.hpp>
 
-#include "Assets.hpp"
 #include "Camera.hpp"
 #include "GameLogic.hpp"
 #include "GlobalConfig.hpp"
@@ -15,8 +15,6 @@
 #include "Screens.hpp"
 
 #undef main // Remove SDL hack until we can get it to compile properly
-
-using std::shared_ptr;
 
 void checkGLErrorsMessage(const std::string& msg) noexcept
 {
@@ -60,15 +58,10 @@ int main()
 	// Enable/disable vsync
 	if (!cfg.vsync) SDL_GL_SetSwapInterval(0);
 
-	// Init variables
-	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	s3::Assets assets;
-
 	// Game loop
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	sfz::runGameLoop(window, std::shared_ptr<sfz::BaseScreen>{new s3::MainMenuScreen{window, assets}});
+	sfz::runGameLoop(window, std::shared_ptr<sfz::BaseScreen>{new s3::MainMenuScreen{window}});
 
 	return 0;
 }

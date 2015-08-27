@@ -2,26 +2,22 @@
 #ifndef S3_SCREENS_GAME_SCREEN_HPP
 #define S3_SCREENS_GAME_SCREEN_HPP
 
-#include <sfz/GL.hpp>
 #include <sfz/Math.hpp>
 #include <sfz/Screens.hpp>
 
-#include "Assets.hpp"
 #include "Camera.hpp"
-#include "GlobalConfig.hpp"
-#include "screens/MainMenuScreen.hpp"
+#include "rendering/TileObject.hpp"
 
 namespace s3 {
+
+using sfz::UpdateOp;
+using sfz::UpdateState;
 
 using sfz::vec2;
 using sfz::vec3;
 using sfz::vec4;
 using sfz::mat3;
 using sfz::mat4;
-
-using sfz::UpdateOp;
-using sfz::UpdateState;
-using std::vector;
 
 class GameScreen final : public sfz::BaseScreen {
 public:
@@ -31,7 +27,7 @@ public:
 	GameScreen() noexcept = delete;
 	GameScreen& operator= (const GameScreen&) noexcept = delete;
 
-	GameScreen(sdl::Window& window, Assets& assets, const ModelConfig& modelCfg) noexcept;
+	GameScreen(sdl::Window& window, const ModelConfig& modelCfg) noexcept;
 	~GameScreen() noexcept = default;
 
 	// Overriden screen methods
@@ -39,27 +35,22 @@ public:
 
 	virtual UpdateOp update(const UpdateState& state) override final;
 	virtual void render(const UpdateState& state) override final;
-	virtual void onQuit() override final;
 	virtual void onResize(vec2 dimensions, vec2 drawableDimensions) override final;
 
 private:
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	GLuint mShaderProgram;
+	sdl::Window& mWindow;
+	Model mModel;
+	TileObject mTile, mXFlippedTile;
+
+	unsigned int mShaderProgram;
 	Camera mCam;
 
 	mat4 projMatrix;
 	bool isTransparent = false;
 	bool isPaused = false;
-
-	GlobalConfig& mCfg = GlobalConfig::INSTANCE();
-	sdl::Window& mWindow;
-	Assets& mAssets;
-	Model mModel;
-
-
-	bool mQuit = false;
 };
 
 } // namespace s3

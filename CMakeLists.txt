@@ -62,6 +62,8 @@ set(SOURCE_GAMELOGIC_FILES
 source_group(gamelogic FILES ${SOURCE_GAMELOGIC_FILES})
 
 set(SOURCE_RENDERING_FILES
+	${SRC_DIR}/rendering/GUIRendering.hpp
+	${SRC_DIR}/rendering/GUIRendering.cpp
 	${SRC_DIR}/rendering/S3Shaders.hpp
 	${SRC_DIR}/rendering/S3Shaders.cpp
 	${SRC_DIR}/rendering/TileObject.hpp
