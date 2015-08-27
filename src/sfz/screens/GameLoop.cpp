@@ -7,8 +7,9 @@
 #include <unordered_map>
 #include <vector>
 
-#include "sfz/sdl/GameController.hpp"
+#include "sfz/gl/Utils.hpp"
 #include "sfz/math/Vector.hpp"
+#include "sfz/sdl/GameController.hpp"
 
 namespace sfz {
 
@@ -55,7 +56,7 @@ static void initControllers(unordered_map<int32_t, sdl::GameController>& control
 
 void runGameLoop(sdl::Window& window, shared_ptr<BaseScreen> currentScreen)
 {
-	UpdateState state;
+	UpdateState state{window};
 
 	// Initialize controllers
 	initControllers(state.controllers);
@@ -126,6 +127,9 @@ void runGameLoop(sdl::Window& window, shared_ptr<BaseScreen> currentScreen)
 
 		// Update current screen
 		UpdateOp op = currentScreen->update(state);
+		if (gl::checkAllGLErrors()) {
+			std::cerr << "^^^ Above errors likely caused by 'update()' of current screen.\n";
+		}
 
 		// Perform eventual operations requested by screen update
 		switch (op.type) {
@@ -147,8 +151,13 @@ void runGameLoop(sdl::Window& window, shared_ptr<BaseScreen> currentScreen)
 
 		// Render current screen
 		currentScreen->render(state);
+		if (gl::checkAllGLErrors()) {
+			std::cerr << "^^^ Above errors likely caused by 'render()' of current screen.\n";
+		}
 
 		SDL_GL_SwapWindow(window.mPtr);
+		// Hack that silences OpenGL warnings from SDL_GL_SwapWindow() on MSVC for some reason.
+		int val; SDL_GL_GetAttribute(SDL_GL_DOUBLEBUFFER, &val);
 	}
 }
 
