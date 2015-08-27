@@ -17,11 +17,11 @@ public:
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	MainMenuScreen() noexcept = delete;
-	MainMenuScreen& operator= (const MainMenuScreen&) noexcept = delete;
-
-	MainMenuScreen(sdl::Window& window) noexcept;
+	MainMenuScreen(const MainMenuScreen&) = delete;
+	MainMenuScreen& operator= (const MainMenuScreen&) = delete;
 	~MainMenuScreen() noexcept = default;
+
+	MainMenuScreen() noexcept;
 
 	// Overriden screen methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -33,7 +33,6 @@ private:
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	sdl::Window& mWindow;
 	sfz::Button mNewGameButton, mQuitButton;
 };
 

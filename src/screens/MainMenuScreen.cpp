@@ -15,9 +15,8 @@ namespace s3 {
 // MainMenuScreen: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-MainMenuScreen::MainMenuScreen(sdl::Window& window) noexcept
+MainMenuScreen::MainMenuScreen() noexcept
 :
-	mWindow{window},
 	mNewGameButton{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, 80.0f, 60.0f, 20.0f}, "New Game"},
 	mQuitButton{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, 50.0, 60.0f, 20.0f}, "Quit", [](sfz::Button& b) {b.disable();}}
 { }
@@ -38,13 +37,13 @@ UpdateOp MainMenuScreen::update(const UpdateState& state)
 			case SDLK_ESCAPE: return sfz::SCREEN_QUIT;
 			default:
 				return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-				    std::shared_ptr<BaseScreen>{new GameScreen{mWindow, cfg.modelConfig}}};
+				    std::shared_ptr<BaseScreen>{new GameScreen{state.window, cfg.modelConfig}}};
 			}
 			break;
 		}
 	}
 
-	const vec2 drawableDim = mWindow.drawableDimensions();
+	const vec2 drawableDim = state.window.drawableDimensions();
 	const vec2 guiDim = screens::guiDimensions(drawableDim);
 	const vec2 guiOffs = screens::guiOffset(guiDim);
 
@@ -59,7 +58,7 @@ void MainMenuScreen::render(const UpdateState& state)
 {
 	Assets& assets = Assets::INSTANCE();
 
-	const vec2 drawableDim = mWindow.drawableDimensions();
+	const vec2 drawableDim = state.window.drawableDimensions();
 	const float aspect = drawableDim.x/drawableDim.y;
 	const vec2 guiDim = screens::guiDimensions(drawableDim);
 	const vec2 guiOffs = screens::guiOffset(guiDim);

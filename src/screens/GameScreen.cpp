@@ -184,7 +184,7 @@ UpdateOp GameScreen::update(const UpdateState& state)
 			switch (event.key.keysym.sym) {
 			case SDLK_ESCAPE:
 				return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-				          std::unique_ptr<sfz::BaseScreen>{new MainMenuScreen{mWindow}}};
+				          std::shared_ptr<sfz::BaseScreen>{new MainMenuScreen{}}};
 			case SDLK_SPACE:
 				mIsPaused = !mIsPaused;
 				break;
