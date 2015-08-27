@@ -9,6 +9,7 @@
 
 #include "sfz/sdl/GameController.hpp"
 #include "sfz/sdl/Mouse.hpp"
+#include "sfz/sdl/Window.hpp"
 #include "sfz/math/Vector.hpp"
 
 namespace sfz {
@@ -52,10 +53,12 @@ const UpdateOp SCREEN_REINIT_CONTROLLERS{UpdateOpType::REINIT_CONTROLLERS};
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 struct UpdateState final {
-	UpdateState() = default;
+	UpdateState() = delete;
 	UpdateState(const UpdateState&) = delete;
 	UpdateState& operator= (const UpdateState&) = delete;
+	inline UpdateState(sdl::Window& window) noexcept : window{window} { }
 
+	sdl::Window& window;
 	vector<SDL_Event> events;
 	vector<SDL_Event> controllerEvents;
 	vector<SDL_Event> mouseEvents;
