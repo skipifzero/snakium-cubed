@@ -5,12 +5,39 @@
 #include <string>
 
 #include "sfz/geometry/Rectangle.hpp"
+#include "sfz/gui/BaseItem.hpp"
 
-namespace sfz {
+namespace gui {
 
 using std::string;
 
-// Button
+class Button final : public BaseItem {
+public:
+	// Constructors & destructors
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	Button() = delete;
+	Button(const Button&) = delete;
+	Button& operator= (const Button&) = delete;
+
+	Button(void(*activateFuncPtr)(Button&) = nullptr) noexcept;
+	Button(const string& text, void(*activateFuncPtr)(Button&) = nullptr) noexcept;
+
+	// Public methods overriden from BaseItem
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	virtual void updatePointer(vec2 pointerPos, sdl::ButtonState pointerState) override final;
+	virtual void updateKey(KeyInput key) override final;
+	virtual void draw(vec2 drawableDim, vec2 camPos, vec2 camDim) override final;
+
+	// Public members
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	string mText;
+	void(*mActivateFuncPtr)(Button& ref) = nullptr;
+};
+
+/*// Button
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 class Button {
@@ -59,7 +86,7 @@ private:
 	bool mSelected = false;
 	bool mActivated = false;
 	
-};
+};*/
 
 } // namespace sfz
 #endif

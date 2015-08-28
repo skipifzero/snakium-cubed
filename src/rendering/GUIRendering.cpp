@@ -7,7 +7,7 @@
 
 namespace s3 {
 
-void renderButton(const Button& b, vec2 drawableDim, vec2 guiDim, vec2 guiOffs) noexcept
+/*void renderButton(const Button& b, vec2 drawableDim, vec2 guiDim, vec2 guiOffs) noexcept
 {
 	Assets& assets = Assets::INSTANCE();
 	gl::SpriteBatch& sb = assets.spriteBatch;
@@ -60,6 +60,6 @@ void renderButton(const Button& b, vec2 drawableDim, vec2 guiDim, vec2 guiOffs) 
 	font.begin(guiOffs + (guiDim/2.0f), guiDim);
 	font.write(vec2{r.pos.x, r.pos.y - yAlignOffset}, size, b.text());
 	font.end(0, drawableDim, fgColor);
-}
+}*/
 
 } // namespace s3

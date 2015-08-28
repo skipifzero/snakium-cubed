@@ -12,6 +12,8 @@
 
 namespace s3 {
 
+using std::shared_ptr;
+
 // MainMenuScreen: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -20,7 +22,11 @@ MainMenuScreen::MainMenuScreen() noexcept
 	//mNewGameButton{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, 80.0f, 60.0f, 20.0f}, "New Game"},
 	//mQuitButton{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, 50.0, 60.0f, 20.0f}, "Quit", [](sfz::Button& b) {b.disable();}}
 	mGuiSystem{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, (screens::MIN_DRAWABLE.y-30.0f)/2.0f, screens::MIN_DRAWABLE.x, screens::MIN_DRAWABLE.y-30.0f}}
-{ }
+{
+	mGuiSystem.addItem(shared_ptr<gui::BaseItem>{new gui::Button{"Button1", [](gui::Button& ref) { ref.mText = ref.mText + "h"; }}}, vec2{screens::MIN_DRAWABLE.x, 15.0f});
+	mGuiSystem.addSpacing(10.0f);
+	mGuiSystem.addItem(shared_ptr<gui::BaseItem>{new gui::Button{"Button2", [](gui::Button& ref) { ref.mText = ref.mText + "h"; }}}, vec2{80.0f, 30.0f});
+}
 
 // MainMenuScreen: Overriden screen methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -40,7 +46,7 @@ UpdateOp MainMenuScreen::update(const UpdateState& state)
 			case SDLK_ESCAPE: return sfz::SCREEN_QUIT;
 			default:
 				return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-				    std::shared_ptr<BaseScreen>{new GameScreen{state.window, cfg.modelConfig}}};
+				    shared_ptr<BaseScreen>{new GameScreen{state.window, cfg.modelConfig}}};
 			}
 			break;
 		case SDL_KEYUP:
@@ -86,6 +92,7 @@ UpdateOp MainMenuScreen::update(const UpdateState& state)
 	gui::InputData data;
 	data.pointerPos = scaledMouse.position;
 	data.pointerState = scaledMouse.leftButton;
+	data.scrollWheel = scaledMouse.wheel;
 	data.key = guiKeyInput;
 	mGuiSystem.update(data);
 
@@ -121,7 +128,7 @@ void MainMenuScreen::render(const UpdateState& state)
 	sb.draw(vec2{50.0f, screens::MIN_DRAWABLE.y-15.0f}, vec2{80.0f, 20.0f}, assets.SNAKIUM_LOGO_REG);
 	sb.end(0, drawableDim, assets.ATLAS_1024.texture());
 
-	mGuiSystem.draw(drawableDim, guiDim, guiOffs);
+	mGuiSystem.draw(drawableDim, guiOffs + (guiDim/2.0f), guiDim);
 
 	// Render buttons
 	//renderButton(mNewGameButton, drawableDim, guiDim, guiOffs);

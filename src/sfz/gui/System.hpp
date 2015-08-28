@@ -5,38 +5,23 @@
 #include <memory>
 #include <vector>
 
-#include <sfz/geometry/Rectangle.hpp>
-#include <sfz/math/Vector.hpp>
-#include <sfz/sdl/ButtonState.hpp>
+#include "sfz/geometry/Rectangle.hpp"
+#include "sfz/gl/Alignment.hpp"
+#include "sfz/math/Vector.hpp"
+#include "sfz/sdl/ButtonState.hpp"
 
-#include <sfz/gui/BaseItem.hpp>
+#include "sfz/gui/BaseItem.hpp"
+#include "sfz/gui/InputData.hpp"
 
 namespace gui {
+
+using gl::HorizontalAlign;
 
 using sfz::Rectangle;
 using sfz::vec2;
 
 using std::shared_ptr;
 using std::vector;
-
-// InputData struct
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-enum class KeyInput {
-	NONE,
-	UP,
-	DOWN,
-	LEFT,
-	RIGHT,
-	ACTIVATE
-	// TODO: CANCEL?
-};
-
-struct InputData {
-	vec2 pointerPos; // Pointer pos in the same coordinate system as SystemRoot
-	sdl::ButtonState pointerState;
-	KeyInput key;
-};
 
 // System class
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -55,8 +40,12 @@ public:
 	// Public methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+	bool addItem(shared_ptr<BaseItem> item, vec2 dim,
+	             HorizontalAlign hAlign = HorizontalAlign::CENTER) noexcept;
+	bool addSpacing(float amount) noexcept;
+
 	void update(InputData data);
-	void draw(vec2 drawableDim, vec2 guiDim, vec2 guiOffs);
+	void draw(vec2 drawableDim, vec2 camPos, vec2 camDim);
 
 	// Getters
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -69,8 +58,7 @@ private:
 
 	Rectangle mBounds;
 	vector<shared_ptr<BaseItem>> mItems;
-	
-	float mItamHeight, mPadding;
+	vec2 mNextItemTopPos;
 };
 
 } // namespace gui

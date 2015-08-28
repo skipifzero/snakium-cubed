@@ -7,7 +7,7 @@
 
 namespace s3 {
 
-using sfz::Button;
+using gui::Button;
 using sfz::vec2;
 using sfz::vec3;
 using sfz::vec4;
