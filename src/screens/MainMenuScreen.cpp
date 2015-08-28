@@ -17,8 +17,9 @@ namespace s3 {
 
 MainMenuScreen::MainMenuScreen() noexcept
 :
-	mNewGameButton{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, 80.0f, 60.0f, 20.0f}, "New Game"},
-	mQuitButton{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, 50.0, 60.0f, 20.0f}, "Quit", [](sfz::Button& b) {b.disable();}}
+	//mNewGameButton{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, 80.0f, 60.0f, 20.0f}, "New Game"},
+	//mQuitButton{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, 50.0, 60.0f, 20.0f}, "Quit", [](sfz::Button& b) {b.disable();}}
+	mGuiSystem{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, (screens::MIN_DRAWABLE.y-30.0f)/2.0f, screens::MIN_DRAWABLE.x, screens::MIN_DRAWABLE.y-30.0f}}
 { }
 
 // MainMenuScreen: Overriden screen methods
@@ -28,6 +29,8 @@ UpdateOp MainMenuScreen::update(const UpdateState& state)
 {
 	Assets& assets = Assets::INSTANCE();
 	GlobalConfig& cfg = GlobalConfig::INSTANCE();
+
+	gui::KeyInput guiKeyInput = gui::KeyInput::NONE;
 
 	// Handle input
 	for (const SDL_Event& event : state.events) {
@@ -40,6 +43,33 @@ UpdateOp MainMenuScreen::update(const UpdateState& state)
 				    std::shared_ptr<BaseScreen>{new GameScreen{state.window, cfg.modelConfig}}};
 			}
 			break;
+		case SDL_KEYUP:
+			switch (event.key.keysym.sym) {
+			case SDLK_UP:
+			case 'w':
+			case 'W':
+				guiKeyInput = gui::KeyInput::UP;
+				break;
+			case SDLK_DOWN:
+			case 's':
+			case 'S':
+				guiKeyInput = gui::KeyInput::DOWN;
+				break;
+			case SDLK_LEFT:
+			case 'a':
+			case 'A':
+				guiKeyInput = gui::KeyInput::LEFT;
+				break;
+			case SDLK_RIGHT:
+			case 'd':
+			case 'D':
+				guiKeyInput = gui::KeyInput::DOWN;
+				break;
+			case SDLK_RETURN:
+			case SDLK_SPACE:
+				guiKeyInput = gui::KeyInput::ACTIVATE;
+				break;
+			}
 		}
 	}
 
@@ -48,8 +78,16 @@ UpdateOp MainMenuScreen::update(const UpdateState& state)
 	const vec2 guiOffs = screens::guiOffset(guiDim);
 
 	auto scaledMouse = state.rawMouse.scaleMouse(guiDim, guiOffs);
-	mNewGameButton.update(scaledMouse.position, scaledMouse.leftButton == sdl::ButtonState::UP);
-	mQuitButton.update(scaledMouse.position, scaledMouse.leftButton == sdl::ButtonState::UP);
+	//mNewGameButton.update(scaledMouse.position, scaledMouse.leftButton == sdl::ButtonState::UP);
+	//mQuitButton.update(scaledMouse.position, scaledMouse.leftButton == sdl::ButtonState::UP);
+
+
+	// GUI system temp
+	gui::InputData data;
+	data.pointerPos = scaledMouse.position;
+	data.pointerState = scaledMouse.leftButton;
+	data.key = guiKeyInput;
+	mGuiSystem.update(data);
 
 	return sfz::SCREEN_NO_OP;
 }
@@ -74,18 +112,20 @@ void MainMenuScreen::render(const UpdateState& state)
 	gl::SpriteBatch& sb = assets.spriteBatch;
 
 	// Render temporary background
-	sb.begin(guiOffs + (guiDim/2.0f), guiDim);
+	/*sb.begin(guiOffs + (guiDim/2.0f), guiDim);
 	sb.draw(screens::MIN_DRAWABLE/2.0f, screens::MIN_DRAWABLE, assets.TILE_FACE_REG);
-	sb.end(0, drawableDim, assets.ATLAS_128.texture());
+	sb.end(0, drawableDim, assets.ATLAS_128.texture());*/
 
 	// Render logo
 	sb.begin(guiOffs + (guiDim/2.0f), guiDim);
-	sb.draw(vec2{ 50.0f, screens::MIN_DRAWABLE.y-15.0f }, vec2{ 80.0f, 20.0f }, assets.SNAKIUM_LOGO_REG);
+	sb.draw(vec2{50.0f, screens::MIN_DRAWABLE.y-15.0f}, vec2{80.0f, 20.0f}, assets.SNAKIUM_LOGO_REG);
 	sb.end(0, drawableDim, assets.ATLAS_1024.texture());
 
+	mGuiSystem.draw(drawableDim, guiDim, guiOffs);
+
 	// Render buttons
-	renderButton(mNewGameButton, drawableDim, guiDim, guiOffs);
-	renderButton(mQuitButton, drawableDim, guiDim, guiOffs);
+	//renderButton(mNewGameButton, drawableDim, guiDim, guiOffs);
+	//renderButton(mQuitButton, drawableDim, guiDim, guiOffs);
 }
 
 } // namespace s3

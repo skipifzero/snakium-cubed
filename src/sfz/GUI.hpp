@@ -4,4 +4,6 @@
 
 #include "sfz/gui/Button.hpp"
 
+#include "sfz/gui/System.hpp"
+
 #endif

@@ -87,19 +87,26 @@ set(SOURCE_SFZ_TEMP_FILES
 	${SRC_DIR}/sfz/geometry/Circle.hpp
 	${SRC_DIR}/sfz/geometry/Circle.inl
 	${SRC_DIR}/sfz/geometry/Rectangle.hpp
-	${SRC_DIR}/sfz/geometry/Rectangle.inl
-	
-	${SRC_DIR}/sfz/GUI.hpp
-	${SRC_DIR}/sfz/gui/Button.hpp
-	${SRC_DIR}/sfz/gui/Button.cpp)
+	${SRC_DIR}/sfz/geometry/Rectangle.inl)
 source_group(sfz_temp FILES ${SOURCE_SFZ_TEMP_FILES})
+
+set(SOURCE_SFZ_GUI_TEMP_FILES
+	${SRC_DIR}/sfz/GUI.hpp
+	${SRC_DIR}/sfz/gui/BaseItem.hpp
+	${SRC_DIR}/sfz/gui/BaseItem.cpp
+	${SRC_DIR}/sfz/gui/Button.hpp
+	${SRC_DIR}/sfz/gui/Button.cpp
+	${SRC_DIR}/sfz/gui/System.hpp
+	${SRC_DIR}/sfz/gui/System.cpp)
+source_group(sfz_gui_temp FILES ${SOURCE_SFZ_GUI_TEMP_FILES})
 
 set(SOURCE_ALL_FILES
 	${SOURCE_BASE_FILES}
 	${SOURCE_GAMELOGIC_FILES}
 	${SOURCE_RENDERING_FILES}
 	${SOURCE_SCREENS_FILES}
-	${SOURCE_SFZ_TEMP_FILES})
+	${SOURCE_SFZ_TEMP_FILES}
+	${SOURCE_SFZ_GUI_TEMP_FILES})
 
 # Main executable
 add_executable(snakium-cubed ${SOURCE_ALL_FILES})
