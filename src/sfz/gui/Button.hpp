@@ -26,9 +26,11 @@ public:
 	// Public methods overriden from BaseItem
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	virtual void updatePointer(vec2 pointerPos, sdl::ButtonState pointerState) override final;
-	virtual void updateKey(KeyInput key) override final;
+	virtual bool update(vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel) override final;
+	virtual KeyInput update(KeyInput key) override final;
+	virtual void deselect() override final;
 	virtual void draw(vec2 drawableDim, vec2 camPos, vec2 camDim) override final;
+	virtual void move(vec2 diff) override final;
 
 	// Public members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

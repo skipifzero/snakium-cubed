@@ -20,6 +20,7 @@ enum class KeyInput {
 };
 
 struct InputData {
+	bool pointerMoved;
 	vec2 pointerPos; // Pointer pos in the same coordinate system as SystemRoot
 	sdl::ButtonState pointerState;
 	vec2 scrollWheel;

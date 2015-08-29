@@ -22,9 +22,11 @@ public:
 	// Public methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	virtual void updatePointer(vec2 pointerPos, sdl::ButtonState pointerState) = 0;
-	virtual void updateKey(KeyInput key) = 0;
+	virtual bool update(vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel) = 0;
+	virtual KeyInput update(KeyInput key) = 0;
+	virtual void deselect() = 0;
 	virtual void draw(vec2 drawableDim, vec2 camPos, vec2 camDim) = 0;
+	virtual void move(vec2 diff) = 0;
 
 	// Getters
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -36,6 +38,7 @@ protected:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	
 	Rectangle mBounds;
+	bool mSelected = false;
 };	
 
 } // namespace gui

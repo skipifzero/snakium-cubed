@@ -93,7 +93,6 @@ source_group(sfz_temp FILES ${SOURCE_SFZ_TEMP_FILES})
 set(SOURCE_SFZ_GUI_TEMP_FILES
 	${SRC_DIR}/sfz/GUI.hpp
 	${SRC_DIR}/sfz/gui/BaseItem.hpp
-	${SRC_DIR}/sfz/gui/BaseItem.cpp
 	${SRC_DIR}/sfz/gui/Button.hpp
 	${SRC_DIR}/sfz/gui/Button.cpp
 	${SRC_DIR}/sfz/gui/InputData.hpp

@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "sfz/geometry/Intersection2D.hpp"
+
 #include "rendering/Assets.hpp" // TODO: Hilariously unportable include, remove later
 
 namespace gui {
@@ -54,6 +56,55 @@ bool System::addSpacing(float amount) noexcept
 
 void System::update(InputData data)
 {
+	// Gamepad/keys input
+	if (data.key != KeyInput::NONE) {
+
+		if (mCurrentSelectedIndex == -1) {
+			if (mItems.size() == 0) return;
+			mCurrentSelectedIndex = 0;
+			KeyInput inp = data.key;
+			while (inp != KeyInput::NONE) {
+				inp = mItems[mCurrentSelectedIndex]->update(inp);
+				if (inp == KeyInput::DOWN) {
+					mCurrentSelectedIndex += 1;
+					if (mCurrentSelectedIndex >= mItems.size()) mCurrentSelectedIndex = 0;
+				}
+			}
+			return;
+		}
+
+		KeyInput inp = data.key;
+		while (inp != KeyInput::NONE) {
+			inp = mItems[mCurrentSelectedIndex]->update(inp);
+			if (inp == KeyInput::DOWN) {
+				mCurrentSelectedIndex += 1;
+				if (mCurrentSelectedIndex >= mItems.size()) mCurrentSelectedIndex = 0;
+			}
+			else if (inp == KeyInput::UP) {
+				mCurrentSelectedIndex -= 1;
+				if (mCurrentSelectedIndex < 0) mCurrentSelectedIndex = mItems.size()-1;
+			}
+		}
+
+		return;
+	}
+
+	// Mouse/touch input
+	if (data.pointerMoved || data.pointerState != sdl::ButtonState::NOT_PRESSED) {
+
+		for (size_t i = 0; i < mItems.size(); ++i) {
+			if (sfz::pointInside(mItems[i]->mBounds, data.pointerPos)) {
+				bool success = mItems[i]->update(data.pointerPos, data.pointerState, data.scrollWheel);
+				if (success) {
+					if (mCurrentSelectedIndex != -1 && mCurrentSelectedIndex != i) {
+						mItems[mCurrentSelectedIndex]->deselect();
+					}
+					mCurrentSelectedIndex = i;
+				}
+				return;
+			}
+		}
+	}
 }
 
 void System::draw(vec2 drawableDim, vec2 camPos, vec2 camDim)

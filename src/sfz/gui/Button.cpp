@@ -24,14 +24,36 @@ Button::Button(const string& text, void(*activateFuncPtr)(Button&)) noexcept
 // Button: Public methods overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void Button::updatePointer(vec2 pointerPos, sdl::ButtonState pointerState)
+bool Button::update(vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel)
 {
-
+	mSelected = true;
+	if (pointerState == sdl::ButtonState::UP) {
+		if (mActivateFuncPtr != nullptr) mActivateFuncPtr(*this);
+	}
+	return true;
 }
 
-void Button::updateKey(KeyInput key)
+KeyInput Button::update(KeyInput key)
 {
+	if (mSelected) {
+		if (key == KeyInput::ACTIVATE) {
+			if (mActivateFuncPtr != nullptr) mActivateFuncPtr(*this);
+			return KeyInput::NONE;
+		}
+		else if (key == KeyInput::DOWN || key == KeyInput::UP) {
+			mSelected = false;
+			return key;
+		}
+	}
+	if (key == KeyInput::DOWN || key == KeyInput::UP) {
+		mSelected = true;
+	}
+	return KeyInput::NONE;
+}
 
+void Button::deselect()
+{
+	mSelected = false;
 }
 
 void Button::draw(vec2 drawableDim, vec2 camPos, vec2 camDim)
@@ -54,7 +76,12 @@ void Button::draw(vec2 drawableDim, vec2 camPos, vec2 camDim)
 	// Render button text
 	font.begin(camPos, camDim);
 	font.write(vec2{mBounds.pos.x, mBounds.pos.y - yAlignOffset}, size, mText);
-	font.end(0, drawableDim, sfz::vec4{1.0f});
+	font.end(0, drawableDim, mSelected ? sfz::vec4{1.0f, 0.0f, 0.0f, 1.0f} : sfz::vec4{1.0f});
+}
+
+void Button::move(vec2 diff)
+{
+	mBounds.pos += diff;
 }
 
 /*// Button: Constructors & destructors

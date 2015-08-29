@@ -59,6 +59,7 @@ private:
 	Rectangle mBounds;
 	vector<shared_ptr<BaseItem>> mItems;
 	vec2 mNextItemTopPos;
+	int mCurrentSelectedIndex = -1;
 };
 
 } // namespace gui

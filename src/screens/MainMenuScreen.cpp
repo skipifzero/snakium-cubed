@@ -41,16 +41,9 @@ UpdateOp MainMenuScreen::update(const UpdateState& state)
 	// Handle input
 	for (const SDL_Event& event : state.events) {
 		switch (event.type) {
-		case SDL_KEYDOWN:
-			switch (event.key.keysym.sym) {
-			case SDLK_ESCAPE: return sfz::SCREEN_QUIT;
-			default:
-				return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-				    shared_ptr<BaseScreen>{new GameScreen{state.window, cfg.modelConfig}}};
-			}
-			break;
 		case SDL_KEYUP:
 			switch (event.key.keysym.sym) {
+			case SDLK_ESCAPE: return sfz::SCREEN_QUIT;
 			case SDLK_UP:
 			case 'w':
 			case 'W':
@@ -75,6 +68,11 @@ UpdateOp MainMenuScreen::update(const UpdateState& state)
 			case SDLK_SPACE:
 				guiKeyInput = gui::KeyInput::ACTIVATE;
 				break;
+
+			case 'n':
+			case 'N':
+				return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+					shared_ptr<BaseScreen>{new GameScreen{state.window, cfg.modelConfig}}};
 			}
 		}
 	}
@@ -90,6 +88,7 @@ UpdateOp MainMenuScreen::update(const UpdateState& state)
 
 	// GUI system temp
 	gui::InputData data;
+	data.pointerMoved = scaledMouse.motion != vec2{0.0f, 0.0f};
 	data.pointerPos = scaledMouse.position;
 	data.pointerState = scaledMouse.leftButton;
 	data.scrollWheel = scaledMouse.wheel;
