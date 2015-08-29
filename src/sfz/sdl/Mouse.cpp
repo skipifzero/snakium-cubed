@@ -82,7 +82,7 @@ Mouse Mouse::scaleMouse(vec2 guiDim, vec2 guiOffs) const noexcept
 {
 	Mouse temp = *this;
 	temp.position = guiOffs + (temp.position * guiDim.x);
-	temp.motion = temp.position * guiDim.x;
+	temp.motion = temp.motion * guiDim.x;
 	return temp;
 }
 
