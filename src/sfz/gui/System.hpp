@@ -53,6 +53,12 @@ public:
 	inline const Rectangle& bounds() const noexcept { return mBounds; }
 
 private:
+	// Private methods
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	bool selectNextItemDown() noexcept;
+	bool selectNextItemUp() noexcept;
+
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

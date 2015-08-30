@@ -11,49 +11,48 @@ namespace gui {
 
 Button::Button(void(*activateFuncPtr)(Button&)) noexcept
 :
-	mText{""},
-	mActivateFuncPtr{activateFuncPtr}
+	text{""},
+	activateFuncPtr{activateFuncPtr}
 { }
 
 Button::Button(const string& text, void(*activateFuncPtr)(Button&)) noexcept
 :
-	mText{text},
-	mActivateFuncPtr{activateFuncPtr}
+	text{text},
+	activateFuncPtr{activateFuncPtr}
 { }
 
-// Button: Public methods overriden from BaseItem
+// Button: Virtual methods overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool Button::update(vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel)
+bool Button::update(vec2 pointerPos, sdl::ButtonState pointerState, vec2)
 {
-	mSelected = true;
-	if (pointerState == sdl::ButtonState::UP) {
-		if (mActivateFuncPtr != nullptr) mActivateFuncPtr(*this);
+	if (!mEnabled) return false;
+	mSelected = sfz::pointInside(bounds, pointerPos);
+	if (pointerState == sdl::ButtonState::UP && activateFuncPtr != nullptr) {
+		activateFuncPtr(*this);
 	}
-	return true;
+	return mSelected;
 }
 
 KeyInput Button::update(KeyInput key)
 {
+	if (!mEnabled) return key;
 	if (mSelected) {
 		if (key == KeyInput::ACTIVATE) {
-			if (mActivateFuncPtr != nullptr) mActivateFuncPtr(*this);
+			if (activateFuncPtr != nullptr) activateFuncPtr(*this);
 			return KeyInput::NONE;
 		}
 		else if (key == KeyInput::DOWN || key == KeyInput::UP) {
 			mSelected = false;
 			return key;
 		}
+		return KeyInput::NONE;
+	} else {
+		if (key == KeyInput::DOWN || key == KeyInput::UP) {
+			mSelected = true;
+		}
+		return KeyInput::NONE;
 	}
-	if (key == KeyInput::DOWN || key == KeyInput::UP) {
-		mSelected = true;
-	}
-	return KeyInput::NONE;
-}
-
-void Button::deselect()
-{
-	mSelected = false;
 }
 
 void Button::draw(vec2 drawableDim, vec2 camPos, vec2 camDim)
@@ -62,7 +61,7 @@ void Button::draw(vec2 drawableDim, vec2 camPos, vec2 camDim)
 	auto& sb = assets.spriteBatch;
 	auto& font = assets.fontRenderer;
 
-	sb.begin(camPos, camDim);
+	/*sb.begin(camPos, camDim);
 	sb.draw(mBounds.pos, mBounds.dim, assets.TILE_FACE_REG);
 	sb.end(0, drawableDim, assets.ATLAS_128.texture());
 
@@ -76,51 +75,95 @@ void Button::draw(vec2 drawableDim, vec2 camPos, vec2 camDim)
 	// Render button text
 	font.begin(camPos, camDim);
 	font.write(vec2{mBounds.pos.x, mBounds.pos.y - yAlignOffset}, size, mText);
-	font.end(0, drawableDim, mSelected ? sfz::vec4{1.0f, 0.0f, 0.0f, 1.0f} : sfz::vec4{1.0f});
+	font.end(0, drawableDim, mSelected ? sfz::vec4{1.0f, 0.0f, 0.0f, 1.0f} : sfz::vec4{1.0f});*/
+
+	using sfz::vec4;
+	auto& b = *this;
+
+	// Select the correct texture regions and font colors
+	sfz::TextureRegion* leftRegion = &assets.BUTTON_LEFT_REG;
+	sfz::TextureRegion* midRegion = nullptr;
+	sfz::TextureRegion* rightRegion = &assets.BUTTON_RIGHT_REG;
+	vec4 fgColor{0.84f, 1.0f, 0.84f, 1.0f};
+	vec4 bgColor{0.37f, 0.72f, 0.37f, 1.0f};
+
+	if (!b.isEnabled()) {
+		leftRegion = &assets.BUTTON_LEFT_DISABLED_REG;
+		rightRegion = &assets.BUTTON_RIGHT_DISABLED_REG;
+		fgColor = vec4{0.80f, 0.80f, 0.80f, 1.0f};
+		bgColor = vec4{0.80f, 0.80f, 0.80f, 0.5f};
+	}
+	else if (b.isSelected()) {
+		leftRegion = &assets.BUTTON_LEFT_TOUCHED_REG;
+		midRegion = &assets.BUTTON_MIDDLE_TOUCHED_REG;
+		rightRegion = &assets.BUTTON_RIGHT_TOUCHED_REG;
+		fgColor = vec4{0.0f, 0.0f, 0.0f, 1.0f};
+		bgColor = vec4{0.0f, 0.0f, 0.0f, 0.5f};
+	}
+
+	// Render the button
+	sb.begin(camPos, camDim);
+	const auto& r = b.bounds;
+	sb.draw(r.pos - vec2{r.dim.x/2.0f, 0.0f}, vec2{r.dim.y}, *leftRegion);
+	if (midRegion != nullptr) {
+		sb.draw(r.pos, vec2{r.dim.x - 0.975f*r.dim.y, r.dim.y}, *midRegion);
+	}
+	sb.draw(r.pos + vec2{r.dim.x/2.0f, 0.0f}, vec2{r.dim.y}, *rightRegion);
+	sb.end(0, drawableDim, assets.ATLAS_128.texture());
+
+	// Font rendering preparations
+	font.horizontalAlign(gl::HorizontalAlign::CENTER);
+	font.verticalAlign(gl::VerticalAlign::BOTTOM);
+	const float size = 0.6f * r.dim.y;
+	const float yAlignOffset = (r.dim.y/2.0f)*0.3f;
+	const float bgXAlignOffset = size * 0.035f;
+
+	// Render button text
+	// Font shadow
+	font.begin(camPos, camDim);
+	font.write(vec2{r.pos.x + bgXAlignOffset, r.pos.y - yAlignOffset}, size, b.text);
+	font.end(0, drawableDim, bgColor);
+	// Font foreground
+	font.begin(camPos, camDim);
+	font.write(vec2{r.pos.x, r.pos.y - yAlignOffset}, size, b.text);
+	font.end(0, drawableDim, fgColor);
 }
 
 void Button::move(vec2 diff)
 {
-	mBounds.pos += diff;
+	bounds.pos += diff;
 }
 
-/*// Button: Constructors & destructors
+// Button: Virtual getters overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Button::Button(const Rectangle& rect, void(*funcPtr)(Button&)) noexcept
-:
-	mRect{rect},
-	mText{""},
-	mFuncPtr{mFuncPtr}
-{ }
-
-Button::Button(const Rectangle& rect, const string& text, void(*funcPtr)(Button&)) noexcept
-:
-	mRect{rect},
-	mText{text},
-	mFuncPtr{funcPtr}
-{ }
-
-// Button: Public methods
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-bool Button::update(vec2 mousePos, bool clicked) noexcept
+bool Button::isSelected() const
 {
-	// If button is disabled it is neither selected or activated
-	if (!mEnabled) {
-		mSelected = false;
-		mActivated = false;
-		return false;
-	}
+	return mSelected;
+}
 
-	// Checks if button is selected by mouse hoovering
-	mSelected = pointInside(mRect, mousePos);
+bool Button::isEnabled() const
+{
+	return mEnabled;
+}
 
-	// Checks if button is activated by clicking
-	mActivated = mSelected && clicked;
-	if (mActivated && mFuncPtr != nullptr) mFuncPtr(*this);
+// Button: Virtual setters overriden from BaseItem
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	return mActivated;
-}*/
+void Button::deselect()
+{
+	mSelected = false;
+}
+
+void Button::enable()
+{
+	mEnabled = true;
+}
+
+void Button::disable()
+{
+	mEnabled = false;
+	mSelected = false;
+}
 
 } // namespace gui

@@ -16,7 +16,6 @@ enum class KeyInput {
 	LEFT,
 	RIGHT,
 	ACTIVATE
-	// TODO: CANCEL?
 };
 
 struct InputData {

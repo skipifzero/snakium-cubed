@@ -19,26 +19,31 @@ class BaseItem {
 public:
 	friend class System;
 
-	// Public methods
+	// Virtual methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	virtual bool update(vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel) = 0;
 	virtual KeyInput update(KeyInput key) = 0;
-	virtual void deselect() = 0;
 	virtual void draw(vec2 drawableDim, vec2 camPos, vec2 camDim) = 0;
 	virtual void move(vec2 diff) = 0;
-
-	// Getters
+	
+	// Virtual getters
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	inline const Rectangle& bounds() const noexcept { return mBounds; }
+	virtual bool isSelected() const = 0;
+	virtual bool isEnabled() const = 0;
 
-protected:
-	// Protected members
+	// Virtual setters
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	virtual void deselect() = 0;
+	virtual void enable() = 0;
+	virtual void disable() = 0;
+
+	// Public members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	
-	Rectangle mBounds;
-	bool mSelected = false;
+	Rectangle bounds;
 };	
 
 } // namespace gui

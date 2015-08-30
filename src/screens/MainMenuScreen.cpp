@@ -23,9 +23,11 @@ MainMenuScreen::MainMenuScreen() noexcept
 	//mQuitButton{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, 50.0, 60.0f, 20.0f}, "Quit", [](sfz::Button& b) {b.disable();}}
 	mGuiSystem{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, (screens::MIN_DRAWABLE.y-30.0f)/2.0f, screens::MIN_DRAWABLE.x, screens::MIN_DRAWABLE.y-30.0f}}
 {
-	mGuiSystem.addItem(shared_ptr<gui::BaseItem>{new gui::Button{"Button1", [](gui::Button& ref) { ref.mText = ref.mText + "h"; }}}, vec2{screens::MIN_DRAWABLE.x, 15.0f});
+	mGuiSystem.addItem(shared_ptr<gui::BaseItem>{new gui::Button{"Button1", [](gui::Button& ref) { if (ref.isEnabled()) ref.disable(); else ref.enable(); }}}, vec2{screens::MIN_DRAWABLE.x, 15.0f});
 	mGuiSystem.addSpacing(10.0f);
-	mGuiSystem.addItem(shared_ptr<gui::BaseItem>{new gui::Button{"Button2", [](gui::Button& ref) { ref.mText = ref.mText + "h"; }}}, vec2{80.0f, 30.0f});
+	mGuiSystem.addItem(shared_ptr<gui::BaseItem>{new gui::Button{"Button2", [](gui::Button& ref) { if (ref.isEnabled()) ref.disable(); else ref.enable(); }}}, vec2{60.0f, 20.0f});
+	mGuiSystem.addSpacing(10.0f);
+	mGuiSystem.addItem(shared_ptr<gui::BaseItem>{new gui::Button{"Button3", [](gui::Button& ref) { if (ref.isEnabled()) ref.disable(); else ref.enable(); }}}, vec2{60.0f, 20.0f});
 }
 
 // MainMenuScreen: Overriden screen methods
