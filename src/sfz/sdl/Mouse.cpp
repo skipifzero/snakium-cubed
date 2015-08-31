@@ -78,11 +78,11 @@ void Mouse::update(const Window& window, const vector<SDL_Event>& events) noexce
 	position = vec2{(float)mouseX, (float)(window.height() - mouseY)} * scale;
 }
 
-Mouse Mouse::scaleMouse(vec2 guiDim, vec2 guiOffs) const noexcept
+Mouse Mouse::scaleMouse(vec2 camPos, vec2 camDim) const noexcept
 {
 	Mouse temp = *this;
-	temp.position = guiOffs + (temp.position * guiDim.x);
-	temp.motion = temp.motion * guiDim.x;
+	temp.position = camPos - (camDim/2.0f) + (temp.position * camDim.x);
+	temp.motion = temp.motion * camDim.x;
 	return temp;
 }
 

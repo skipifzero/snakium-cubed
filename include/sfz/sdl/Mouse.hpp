@@ -47,7 +47,7 @@ struct Mouse final {
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	void update(const Window& window, const vector<SDL_Event>& events) noexcept;
-	Mouse scaleMouse(vec2 guiDim, vec2 guiOffs) const noexcept;
+	Mouse scaleMouse(vec2 camPos, vec2 camDim) const noexcept;
 };
 
 } // namespace sdl
