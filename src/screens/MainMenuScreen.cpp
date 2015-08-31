@@ -85,7 +85,7 @@ UpdateOp MainMenuScreen::update(const UpdateState& state)
 	const vec2 guiDim = screens::guiDimensions(drawableDim);
 	const vec2 guiOffs = screens::guiOffset(guiDim);
 
-	auto scaledMouse = state.rawMouse.scaleMouse(guiDim, guiOffs);
+	auto scaledMouse = state.rawMouse.scaleMouse(guiOffs + (guiDim/2.0f), guiDim);
 
 	// GUI system temp
 	gui::InputData data;

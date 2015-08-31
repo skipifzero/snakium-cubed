@@ -1,25 +1,27 @@
 #pragma once
-#ifndef SFZ_GUI_BUTTON_HPP
-#define SFZ_GUI_BUTTON_HPP
+#ifndef SFZ_GUI_TEXT_ITEM_HPP
+#define SFZ_GUI_TEXT_ITEM_HPP
 
 #include <string>
 
 #include "sfz/gui/BaseItem.hpp"
+#include "sfz/gl/Alignment.hpp"
 
 namespace gui {
 
+using gl::HorizontalAlign;
 using std::string;
 
-class Button final : public BaseItem {
+class TextItem final : public BaseItem {
 public:
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	Button(const Button&) = default;
-	Button& operator= (const Button&) = default;
+	TextItem() noexcept = delete;
+	TextItem(const TextItem&) noexcept = delete;
+	TextItem& operator= (const TextItem&) noexcept = delete;
 
-	Button(void(*activateFuncPtr)(Button&) = nullptr) noexcept;
-	Button(const string& text, void(*activateFuncPtr)(Button&) = nullptr) noexcept;
+	TextItem(const string& text, HorizontalAlign hAlign = HorizontalAlign::CENTER) noexcept;
 
 	// Virtual methods overriden from BaseItem
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -46,14 +48,7 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	string text;
-	void(*activateFuncPtr)(Button& ref) = nullptr;
-
-private:
-	// Private members
-	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	bool mSelected = false;
-	bool mEnabled = true;
+	HorizontalAlign hAlign;
 };
 
 } // namespace gui

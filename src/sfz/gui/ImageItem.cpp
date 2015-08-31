@@ -10,7 +10,7 @@ namespace gui {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 ImageItem::ImageItem(sfz::TextureRegion imageRegion, unsigned int texture,
-                     gl::HorizontalAlign hAlign, vec2 imageScale) noexcept
+                     HorizontalAlign hAlign, vec2 imageScale) noexcept
 :
 	imageRegion{imageRegion},
 	texture{texture},
@@ -49,13 +49,13 @@ void ImageItem::draw(unsigned int fbo, vec2 drawableDim, vec2 camPos, vec2 camDi
 	}
 	vec2 pos;
 	switch (hAlign) {
-	case gl::HorizontalAlign::LEFT:
+	case HorizontalAlign::LEFT:
 		pos = vec2{bounds.pos.x - (bounds.dim.x/2.0f) + (resizedImageDim.x/2.0f), bounds.pos.y};
 		break;
-	case gl::HorizontalAlign::CENTER:
+	case HorizontalAlign::CENTER:
 		pos = bounds.pos;
 		break;
-	case gl::HorizontalAlign::RIGHT:
+	case HorizontalAlign::RIGHT:
 		pos = vec2{bounds.pos.x + (bounds.dim.x/2.0f) - (resizedImageDim.x/2.0f), bounds.pos.y};
 		break;
 	}

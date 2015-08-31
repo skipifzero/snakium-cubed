@@ -9,6 +9,8 @@
 
 namespace gui {
 
+using gl::HorizontalAlign;
+
 class ImageItem final : public BaseItem {
 public:
 	// Constructors & destructors
@@ -19,7 +21,7 @@ public:
 	ImageItem& operator= (const ImageItem&) noexcept = delete;
 
 	ImageItem(sfz::TextureRegion imageRegion, unsigned int texture,
-	          gl::HorizontalAlign hAlign = gl::HorizontalAlign::CENTER,
+	          HorizontalAlign hAlign = HorizontalAlign::CENTER,
 	          vec2 imageScale = vec2{1.0f, 1.0f}) noexcept;
 
 	// Virtual methods overriden from BaseItem
@@ -48,7 +50,7 @@ public:
 	
 	sfz::TextureRegion imageRegion;
 	unsigned int texture;
-	gl::HorizontalAlign hAlign;
+	HorizontalAlign hAlign;
 	vec2 imageScale;
 };
 
