@@ -1,26 +1,26 @@
 #pragma once
-#ifndef SFZ_GUI_BUTTON_HPP
-#define SFZ_GUI_BUTTON_HPP
-
-#include <string>
+#ifndef SFZ_GUI_IMAGE_ITEM_HPP
+#define SFZ_GUI_IMAGE_ITEM_HPP
 
 #include "sfz/gui/BaseItem.hpp"
 
+#include "sfz/gl/Alignment.hpp"
+#include "sfz/gl/TextureRegion.hpp"
+
 namespace gui {
 
-using std::string;
-
-class Button final : public BaseItem {
+class ImageItem final : public BaseItem {
 public:
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	//Button() = default;
-	Button(const Button&) = default;
-	Button& operator= (const Button&) = default;
+	ImageItem() noexcept = delete;
+	ImageItem(const ImageItem&) noexcept = delete;
+	ImageItem& operator= (const ImageItem&) noexcept = delete;
 
-	Button(void(*activateFuncPtr)(Button&) = nullptr) noexcept;
-	Button(const string& text, void(*activateFuncPtr)(Button&) = nullptr) noexcept;
+	ImageItem(sfz::TextureRegion imageRegion, unsigned int texture,
+	          gl::HorizontalAlign hAlign = gl::HorizontalAlign::CENTER,
+	          vec2 imageScale = vec2{1.0f, 1.0f}) noexcept;
 
 	// Virtual methods overriden from BaseItem
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -45,16 +45,11 @@ public:
 
 	// Public members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	string text;
-	void(*activateFuncPtr)(Button& ref) = nullptr;
-
-private:
-	// Private members
-	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	bool mSelected = false;
-	bool mEnabled = true;
+	
+	sfz::TextureRegion imageRegion;
+	unsigned int texture;
+	gl::HorizontalAlign hAlign;
+	vec2 imageScale;
 };
 
 } // namespace gui

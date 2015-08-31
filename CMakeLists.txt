@@ -95,6 +95,8 @@ set(SOURCE_SFZ_GUI_TEMP_FILES
 	${SRC_DIR}/sfz/gui/BaseItem.hpp
 	${SRC_DIR}/sfz/gui/Button.hpp
 	${SRC_DIR}/sfz/gui/Button.cpp
+	${SRC_DIR}/sfz/gui/ImageItem.hpp
+	${SRC_DIR}/sfz/gui/ImageItem.cpp
 	${SRC_DIR}/sfz/gui/InputData.hpp
 	${SRC_DIR}/sfz/gui/System.hpp
 	${SRC_DIR}/sfz/gui/System.cpp)

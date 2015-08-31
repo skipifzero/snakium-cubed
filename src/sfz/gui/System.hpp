@@ -33,7 +33,7 @@ public:
 
 	System() = delete;
 	System(const System&) = delete;
-	System& operator= (const System) = delete;
+	System& operator= (const System&) = delete;
 
 	System(const Rectangle& bounds);
 
@@ -45,7 +45,7 @@ public:
 	bool addSpacing(float amount) noexcept;
 
 	void update(InputData data);
-	void draw(vec2 drawableDim, vec2 camPos, vec2 camDim);
+	void draw(unsigned int fbo, vec2 drawableDim, vec2 camPos, vec2 camDim);
 
 	// Getters
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

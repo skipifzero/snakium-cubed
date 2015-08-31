@@ -33,8 +33,8 @@ private:
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	//sfz::Button mNewGameButton, mQuitButton;
 	gui::System mGuiSystem;
+	UpdateOp mUpdateOp = sfz::SCREEN_NO_OP;
 };
 
 } // namespace s3

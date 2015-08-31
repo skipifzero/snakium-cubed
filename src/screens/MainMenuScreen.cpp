@@ -19,15 +19,17 @@ using std::shared_ptr;
 
 MainMenuScreen::MainMenuScreen() noexcept
 :
-	//mNewGameButton{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, 80.0f, 60.0f, 20.0f}, "New Game"},
-	//mQuitButton{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, 50.0, 60.0f, 20.0f}, "Quit", [](sfz::Button& b) {b.disable();}}
-	mGuiSystem{sfz::Rectangle{screens::MIN_DRAWABLE.x/2.0f, (screens::MIN_DRAWABLE.y-30.0f)/2.0f, screens::MIN_DRAWABLE.x, screens::MIN_DRAWABLE.y-30.0f}}
+	mGuiSystem{sfz::Rectangle{screens::MIN_DRAWABLE/2.0f, screens::MIN_DRAWABLE}}
 {
-	mGuiSystem.addItem(shared_ptr<gui::BaseItem>{new gui::Button{"Button1", [](gui::Button& ref) { if (ref.isEnabled()) ref.disable(); else ref.enable(); }}}, vec2{screens::MIN_DRAWABLE.x, 15.0f});
+	auto& a = Assets::INSTANCE();
+
+	mGuiSystem.addItem(shared_ptr<gui::BaseItem>{new gui::ImageItem{a.SNAKIUM_LOGO_REG, a.ATLAS_1024.texture()}}, vec2{screens::MIN_DRAWABLE.x, 30.0f});
 	mGuiSystem.addSpacing(10.0f);
-	mGuiSystem.addItem(shared_ptr<gui::BaseItem>{new gui::Button{"Button2", [](gui::Button& ref) { if (ref.isEnabled()) ref.disable(); else ref.enable(); }}}, vec2{60.0f, 20.0f});
-	mGuiSystem.addSpacing(10.0f);
-	mGuiSystem.addItem(shared_ptr<gui::BaseItem>{new gui::Button{"Button3", [](gui::Button& ref) { if (ref.isEnabled()) ref.disable(); else ref.enable(); }}}, vec2{60.0f, 20.0f});
+	mGuiSystem.addItem(shared_ptr<gui::BaseItem>{new gui::Button{"Button1", [](gui::Button& ref) { if (ref.isEnabled()) ref.disable(); else ref.enable(); }}}, vec2{60.0f, 15.0f});
+	mGuiSystem.addSpacing(6.0f);
+	mGuiSystem.addItem(shared_ptr<gui::BaseItem>{new gui::Button{"Button2", [](gui::Button& ref) { if (ref.isEnabled()) ref.disable(); else ref.enable(); }}}, vec2{60.0f, 15.0f});
+	mGuiSystem.addSpacing(6.0f);
+	mGuiSystem.addItem(shared_ptr<gui::BaseItem>{new gui::Button{"Button3", [](gui::Button& ref) { if (ref.isEnabled()) ref.disable(); else ref.enable(); }}}, vec2{60.0f, 15.0f});
 }
 
 // MainMenuScreen: Overriden screen methods
@@ -84,9 +86,6 @@ UpdateOp MainMenuScreen::update(const UpdateState& state)
 	const vec2 guiOffs = screens::guiOffset(guiDim);
 
 	auto scaledMouse = state.rawMouse.scaleMouse(guiDim, guiOffs);
-	//mNewGameButton.update(scaledMouse.position, scaledMouse.leftButton == sdl::ButtonState::UP);
-	//mQuitButton.update(scaledMouse.position, scaledMouse.leftButton == sdl::ButtonState::UP);
-
 
 	// GUI system temp
 	gui::InputData data;
@@ -97,18 +96,11 @@ UpdateOp MainMenuScreen::update(const UpdateState& state)
 	data.key = guiKeyInput;
 	mGuiSystem.update(data);
 
-	return sfz::SCREEN_NO_OP;
+	return mUpdateOp;
 }
 
 void MainMenuScreen::render(const UpdateState& state)
 {
-	Assets& assets = Assets::INSTANCE();
-
-	const vec2 drawableDim = state.window.drawableDimensions();
-	const float aspect = drawableDim.x/drawableDim.y;
-	const vec2 guiDim = screens::guiDimensions(drawableDim);
-	const vec2 guiOffs = screens::guiOffset(guiDim);
-
 	// Clearing screen
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -117,23 +109,13 @@ void MainMenuScreen::render(const UpdateState& state)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	gl::SpriteBatch& sb = assets.spriteBatch;
+	// Sizes
+	const vec2 drawableDim = state.window.drawableDimensions();
+	const vec2 guiDim = screens::guiDimensions(drawableDim);
+	const vec2 guiOffs = screens::guiOffset(guiDim);
 
-	// Render temporary background
-	/*sb.begin(guiOffs + (guiDim/2.0f), guiDim);
-	sb.draw(screens::MIN_DRAWABLE/2.0f, screens::MIN_DRAWABLE, assets.TILE_FACE_REG);
-	sb.end(0, drawableDim, assets.ATLAS_128.texture());*/
-
-	// Render logo
-	sb.begin(guiOffs + (guiDim/2.0f), guiDim);
-	sb.draw(vec2{50.0f, screens::MIN_DRAWABLE.y-15.0f}, vec2{80.0f, 20.0f}, assets.SNAKIUM_LOGO_REG);
-	sb.end(0, drawableDim, assets.ATLAS_1024.texture());
-
-	mGuiSystem.draw(drawableDim, guiOffs + (guiDim/2.0f), guiDim);
-
-	// Render buttons
-	//renderButton(mNewGameButton, drawableDim, guiDim, guiOffs);
-	//renderButton(mQuitButton, drawableDim, guiDim, guiOffs);
+	// Draw GUI
+	mGuiSystem.draw(0, drawableDim, guiOffs + (guiDim/2.0f), guiDim);
 }
 
 } // namespace s3

@@ -55,7 +55,7 @@ KeyInput Button::update(KeyInput key)
 	}
 }
 
-void Button::draw(vec2 drawableDim, vec2 camPos, vec2 camDim)
+void Button::draw(unsigned int fbo, vec2 drawableDim, vec2 camPos, vec2 camDim)
 {
 	auto& assets = s3::Assets::INSTANCE();
 	auto& sb = assets.spriteBatch;
@@ -109,7 +109,7 @@ void Button::draw(vec2 drawableDim, vec2 camPos, vec2 camDim)
 		sb.draw(r.pos, vec2{r.dim.x - 0.975f*r.dim.y, r.dim.y}, *midRegion);
 	}
 	sb.draw(r.pos + vec2{r.dim.x/2.0f, 0.0f}, vec2{r.dim.y}, *rightRegion);
-	sb.end(0, drawableDim, assets.ATLAS_128.texture());
+	sb.end(fbo, drawableDim, assets.ATLAS_128.texture());
 
 	// Font rendering preparations
 	font.horizontalAlign(gl::HorizontalAlign::CENTER);
@@ -122,11 +122,11 @@ void Button::draw(vec2 drawableDim, vec2 camPos, vec2 camDim)
 	// Font shadow
 	font.begin(camPos, camDim);
 	font.write(vec2{r.pos.x + bgXAlignOffset, r.pos.y - yAlignOffset}, size, b.text);
-	font.end(0, drawableDim, bgColor);
+	font.end(fbo, drawableDim, bgColor);
 	// Font foreground
 	font.begin(camPos, camDim);
 	font.write(vec2{r.pos.x, r.pos.y - yAlignOffset}, size, b.text);
-	font.end(0, drawableDim, fgColor);
+	font.end(fbo, drawableDim, fgColor);
 }
 
 void Button::move(vec2 diff)

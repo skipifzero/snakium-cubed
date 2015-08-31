@@ -24,7 +24,7 @@ public:
 
 	virtual bool update(vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel) = 0;
 	virtual KeyInput update(KeyInput key) = 0;
-	virtual void draw(vec2 drawableDim, vec2 camPos, vec2 camDim) = 0;
+	virtual void draw(unsigned int fbo, vec2 drawableDim, vec2 camPos, vec2 camDim) = 0;
 	virtual void move(vec2 diff) = 0;
 	
 	// Virtual getters

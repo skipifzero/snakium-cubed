@@ -139,16 +139,16 @@ void System::update(InputData data)
 	}
 }
 
-void System::draw(vec2 drawableDim, vec2 camPos, vec2 camDim)
+void System::draw(unsigned int fbo, vec2 drawableDim, vec2 camPos, vec2 camDim)
 {
 	auto& assets = s3::Assets::INSTANCE();
 	auto& sb = assets.spriteBatch;
 
 	sb.begin(camPos, camDim);
 	sb.draw(mBounds.pos, mBounds.dim, assets.TILE_FACE_REG);
-	sb.end(0, drawableDim, assets.ATLAS_128.texture());
+	sb.end(fbo, drawableDim, assets.ATLAS_128.texture());
 
-	for (auto& m : mItems) m->draw(drawableDim, camPos, camDim);
+	for (auto& m : mItems) m->draw(fbo, drawableDim, camPos, camDim);
 }
 
 // System: Private methods
