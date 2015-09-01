@@ -36,24 +36,37 @@ MainMenuScreen::MainMenuScreen() noexcept
 
 	auto& a = Assets::INSTANCE();
 
+	vector<shared_ptr<BaseItem>> buttons;
+	buttons.emplace_back(new Button{"Continue", [](Button& ref) {
+		
+	}});
+	buttons.back()->disable();
+	buttons.emplace_back(new Button{"New Game", [this](Button& ref) {
+		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+		       shared_ptr<BaseScreen>{new GameScreen{GlobalConfig::INSTANCE().modelConfig}}};
+	}});
+	buttons.emplace_back(new Button{"High Scores", [](Button& ref) {
+		
+	}});
+	buttons.back()->disable();
+	buttons.emplace_back(new Button{"Options", [](Button& ref) {
+		
+	}});
+	buttons.back()->disable();
+	buttons.emplace_back(new Button{"About", [](Button& ref) {
+		
+	}});
+	buttons.back()->disable();
+	buttons.emplace_back(new Button{"Exit", [this](Button& ref) {
+		this->mUpdateOp = sfz::SCREEN_QUIT;
+	}});
+
 	mGuiSystem.addItem(shared_ptr<BaseItem>{new ImageItem{a.SNAKIUM_LOGO_REG, a.ATLAS_1024.texture()}}, vec2{menuDim.x, logoHeight});
 	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new Button{"Continue", [](Button& ref) { }}}, buttonDim);
-	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new Button("New Game", [this](Button& ref) {
-		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN, shared_ptr<BaseScreen>{new GameScreen{GlobalConfig::INSTANCE().modelConfig}}};
-	})}, buttonDim);
-	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new Button{"High Scores", [](Button& ref) {}}}, buttonDim);
-	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new Button{"Options", [](Button& ref) { }}}, buttonDim);
-	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new Button{"About", [](Button& ref) {}}}, buttonDim);
-	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new Button("Exit", [this](Button& ref) {
-		this->mUpdateOp = sfz::SCREEN_QUIT;
-	})}, buttonDim);
-	mGuiSystem.addSpacing(spacing);
+	for (auto& button : buttons) {
+		mGuiSystem.addItem(button, buttonDim);
+		mGuiSystem.addSpacing(spacing);
+	}
 	mGuiSystem.addItem(shared_ptr<BaseItem>{new ImageItem{a.SKIPIFZERO_LOGO_SNAKIUM_VER_REG, a.ATLAS_1024.texture()}}, vec2{menuDim.x, copyLogoHeight});
 }
 
