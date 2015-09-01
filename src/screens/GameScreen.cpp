@@ -154,18 +154,13 @@ static mat4 tileSpaceRotation(Direction3D side) noexcept
 // GameScreen: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-GameScreen::GameScreen(sdl::Window& window, const ModelConfig& modelCfg) noexcept
+GameScreen::GameScreen(const ModelConfig& modelCfg) noexcept
 :
-	mWindow{window},
 	mModel{modelCfg},
 	mTile{false, false},
 	mXFlippedTile{true, false}
 {
 	mShaderProgram = s3::compileStandardShaderProgram();
-
-	float aspect = static_cast<float>(window.width()) / static_cast<float>(window.height());
-	mProjMatrix = sfz::glPerspectiveProjectionMatrix(mCam.mFov, aspect, 0.1f, 50.0f);
-
 	mIsTransparent = GlobalConfig::INSTANCE().transparentCube;
 }
 
@@ -240,6 +235,9 @@ UpdateOp GameScreen::update(const UpdateState& state)
 
 void GameScreen::render(const UpdateState& state)
 {
+	float aspect = (float)state.window.width() / (float)state.window.height();
+	mProjMatrix = sfz::glPerspectiveProjectionMatrix(mCam.mFov, aspect, 0.1f, 50.0f);
+
 	Assets& assets = Assets::INSTANCE();
 
 	//glClearDepth(1.0f);
@@ -258,7 +256,7 @@ void GameScreen::render(const UpdateState& state)
 	if (mIsTransparent) glDisable(GL_CULL_FACE);
 	else glEnable(GL_CULL_FACE);
 
-	glViewport(0, 0, mWindow.drawableWidth(), mWindow.drawableHeight());
+	glViewport(0, 0, state.window.drawableWidth(), state.window.drawableHeight());
 
 	glUseProgram(mShaderProgram);
 
@@ -367,21 +365,21 @@ void GameScreen::render(const UpdateState& state)
 	font.verticalAlign(gl::VerticalAlign::TOP);
 	font.horizontalAlign(gl::HorizontalAlign::LEFT);
 
-	font.begin(mWindow.drawableDimensions()/2.0f, mWindow.drawableDimensions());
+	font.begin(state.window.drawableDimensions()/2.0f, state.window.drawableDimensions());
 
-	font.write(sfz::vec2{0.0f, (float)mWindow.drawableHeight()}, 64.0f, "Score: " + std::to_string(mModel.mScore));
+	font.write(sfz::vec2{0.0f, (float)state.window.drawableHeight()}, 64.0f, "Score: " + std::to_string(mModel.mScore));
 
-	font.end(0, mWindow.drawableDimensions(), sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+	font.end(0, state.window.drawableDimensions(), sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
 
 	if (mModel.mGameOver) {
 		font.verticalAlign(gl::VerticalAlign::MIDDLE);
 		font.horizontalAlign(gl::HorizontalAlign::CENTER);
 
-		font.begin(mWindow.drawableDimensions()/2.0f, mWindow.drawableDimensions());
+		font.begin(state.window.drawableDimensions()/2.0f, state.window.drawableDimensions());
 
-		font.write(mWindow.drawableDimensions()/2.0f, 160.0f, "Game Over");
+		font.write(state.window.drawableDimensions()/2.0f, 160.0f, "Game Over");
 
-		font.end(0, mWindow.drawableDimensions(), sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+		font.end(0, state.window.drawableDimensions(), sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
 	}
 
 	// Clean up

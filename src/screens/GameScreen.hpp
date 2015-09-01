@@ -27,7 +27,7 @@ public:
 	GameScreen() noexcept = delete;
 	GameScreen& operator= (const GameScreen&) noexcept = delete;
 
-	GameScreen(sdl::Window& window, const ModelConfig& modelCfg) noexcept;
+	GameScreen(const ModelConfig& modelCfg) noexcept;
 	~GameScreen() noexcept = default;
 
 	// Overriden screen methods
@@ -41,7 +41,6 @@ private:
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	sdl::Window& mWindow;
 	Model mModel;
 	TileObject mTile, mXFlippedTile;
 

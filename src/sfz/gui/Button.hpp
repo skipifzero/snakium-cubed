@@ -2,12 +2,14 @@
 #ifndef SFZ_GUI_BUTTON_HPP
 #define SFZ_GUI_BUTTON_HPP
 
+#include <functional>
 #include <string>
 
 #include "sfz/gui/BaseItem.hpp"
 
 namespace gui {
 
+using std::function;
 using std::string;
 
 class Button final : public BaseItem {
@@ -15,11 +17,12 @@ public:
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+	Button() = default;
 	Button(const Button&) = default;
 	Button& operator= (const Button&) = default;
 
-	Button(void(*activateFuncPtr)(Button&) = nullptr) noexcept;
-	Button(const string& text, void(*activateFuncPtr)(Button&) = nullptr) noexcept;
+	Button(const function<void(Button&)>& activateFunc) noexcept;
+	Button(const string& text, const function<void(Button&)>& activateFunc);
 
 	// Virtual methods overriden from BaseItem
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -46,7 +49,7 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	string text;
-	void(*activateFuncPtr)(Button& ref) = nullptr;
+	function<void(Button&)> activateFunc = nullptr;
 
 private:
 	// Private members

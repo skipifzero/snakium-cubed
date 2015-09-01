@@ -9,16 +9,16 @@ namespace gui {
 // Button: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Button::Button(void(*activateFuncPtr)(Button&)) noexcept
+Button::Button(const function<void(Button&)>& activateFunc) noexcept
 :
 	text{""},
-	activateFuncPtr{activateFuncPtr}
+	activateFunc{activateFunc}
 { }
 
-Button::Button(const string& text, void(*activateFuncPtr)(Button&)) noexcept
+Button::Button(const string& text, const function<void(Button&)>& activateFunc)
 :
 	text{text},
-	activateFuncPtr{activateFuncPtr}
+	activateFunc{activateFunc}
 { }
 
 // Button: Virtual methods overriden from BaseItem
@@ -28,8 +28,8 @@ bool Button::update(vec2 pointerPos, sdl::ButtonState pointerState, vec2)
 {
 	if (!mEnabled) return false;
 	mSelected = sfz::pointInside(bounds, pointerPos);
-	if (pointerState == sdl::ButtonState::UP && activateFuncPtr != nullptr) {
-		activateFuncPtr(*this);
+	if (pointerState == sdl::ButtonState::UP) {
+		if (activateFunc) activateFunc(*this);
 	}
 	return mSelected;
 }
@@ -39,7 +39,7 @@ KeyInput Button::update(KeyInput key)
 	if (!mEnabled) return key;
 	if (mSelected) {
 		if (key == KeyInput::ACTIVATE) {
-			if (activateFuncPtr != nullptr) activateFuncPtr(*this);
+			if (activateFunc) activateFunc(*this);
 			return KeyInput::NONE;
 		}
 		else if (key == KeyInput::DOWN || key == KeyInput::UP) {
