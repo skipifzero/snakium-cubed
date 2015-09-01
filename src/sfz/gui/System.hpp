@@ -51,6 +51,7 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	
 	inline const Rectangle& bounds() const noexcept { return mBounds; }
+	inline vector<shared_ptr<BaseItem>>& items() noexcept { return mItems; }
 
 private:
 	// Private methods

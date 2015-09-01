@@ -75,6 +75,8 @@ set(SOURCE_SCREENS_FILES
 	${SRC_DIR}/screens/GameScreen.cpp
 	${SRC_DIR}/screens/MainMenuScreen.hpp
 	${SRC_DIR}/screens/MainMenuScreen.cpp
+	${SRC_DIR}/screens/OptionsScreen.hpp
+	${SRC_DIR}/screens/OptionsScreen.cpp
 	${SRC_DIR}/screens/ScreenMenuConstants.hpp)
 source_group(screens FILES ${SOURCE_SCREENS_FILES})
 
@@ -98,6 +100,8 @@ set(SOURCE_SFZ_GUI_TEMP_FILES
 	${SRC_DIR}/sfz/gui/ImageItem.hpp
 	${SRC_DIR}/sfz/gui/ImageItem.cpp
 	${SRC_DIR}/sfz/gui/InputData.hpp
+	${SRC_DIR}/sfz/gui/ScrollListContainer.hpp
+	${SRC_DIR}/sfz/gui/ScrollListContainer.cpp
 	${SRC_DIR}/sfz/gui/System.hpp
 	${SRC_DIR}/sfz/gui/System.cpp
 	${SRC_DIR}/sfz/gui/TextItem.hpp

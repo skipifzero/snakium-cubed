@@ -141,13 +141,6 @@ void System::update(InputData data)
 
 void System::draw(unsigned int fbo, vec2 drawableDim, vec2 camPos, vec2 camDim)
 {
-	auto& assets = s3::Assets::INSTANCE();
-	auto& sb = assets.spriteBatch;
-
-	sb.begin(camPos, camDim);
-	sb.draw(mBounds.pos, mBounds.dim, assets.TILE_FACE_REG);
-	sb.end(fbo, drawableDim, assets.ATLAS_128.texture());
-
 	for (auto& m : mItems) m->draw(fbo, drawableDim, camPos, camDim);
 }
 

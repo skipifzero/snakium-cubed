@@ -1,4 +1,4 @@
-#include "screens/MainMenuScreen.hpp"
+#include "screens/OptionsScreen.hpp"
 
 #include <memory>
 
@@ -8,71 +8,47 @@
 #include "rendering/Assets.hpp"
 #include "rendering/GUIRendering.hpp"
 #include "screens/GameScreen.hpp"
-#include "screens/OptionsScreen.hpp"
+#include "screens/MainMenuScreen.hpp"
 #include "screens/ScreenMenuConstants.hpp"
 
 namespace s3 {
 
 using std::shared_ptr;
 
-// MainMenuScreen: Constructors & destructors
+// OptionsScreen: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-MainMenuScreen::MainMenuScreen() noexcept
+OptionsScreen::OptionsScreen() noexcept
 :
 	mGuiSystem{sfz::Rectangle{screens::MIN_DRAWABLE/2.0f, screens::MIN_DRAWABLE}}
 {
 	using namespace gui;
 
 	const vec2 menuDim = vec2{screens::MIN_DRAWABLE.x-0.1f, screens::MIN_DRAWABLE.y-0.1f};
-	float spacing = 4.0f;
+	float spacing = 5.0f;
+	float titleHeight = 20.0f;
 	float buttonWidth = menuDim.x * 0.5f;
-	float logoHeight = 30.0f;
-	float copyLogoHeight = 10.0f;
-	float numButtons = 6.0f;
-	float buttonHeight = (menuDim.y - logoHeight - copyLogoHeight - ((numButtons+1.0f)*spacing))/numButtons;
-	vec2 buttonDim{buttonWidth, buttonHeight};
+	float buttonHeight = 7.5f;
+	float scrollListHeight = menuDim.y - titleHeight - buttonHeight - 3.0f*spacing;
 
-	auto& a = Assets::INSTANCE();
-
-	vector<shared_ptr<BaseItem>> buttons;
-	buttons.emplace_back(new Button{"Continue", [](Button& ref) {
-		
-	}});
-	buttons.back()->disable();
-	buttons.emplace_back(new Button{"New Game", [this](Button& ref) {
-		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-		       shared_ptr<BaseScreen>{new GameScreen{GlobalConfig::INSTANCE().modelConfig}}};
-	}});
-	buttons.emplace_back(new Button{"High Scores", [](Button& ref) {
-		
-	}});
-	buttons.back()->disable();
-	buttons.emplace_back(new Button{"Options", [this](Button& ref) {
-		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-		                           shared_ptr<BaseScreen>{new OptionsScreen{}}};
-	}});
-	buttons.emplace_back(new Button{"About", [](Button& ref) {
-		
-	}});
-	buttons.back()->disable();
-	buttons.emplace_back(new Button{"Exit", [this](Button& ref) {
-		this->mUpdateOp = sfz::SCREEN_QUIT;
-	}});
-
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new ImageItem{a.SNAKIUM_LOGO_REG, a.ATLAS_1024.texture()}}, vec2{menuDim.x, logoHeight});
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Options"}}, vec2{menuDim.x, titleHeight});
 	mGuiSystem.addSpacing(spacing);
-	for (auto& button : buttons) {
-		mGuiSystem.addItem(button, buttonDim);
-		mGuiSystem.addSpacing(spacing);
-	}
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new ImageItem{a.SKIPIFZERO_LOGO_SNAKIUM_VER_REG, a.ATLAS_1024.texture()}}, vec2{menuDim.x, copyLogoHeight});
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new ScrollListContainer{}}, vec2{menuDim.x, scrollListHeight});
+	ScrollListContainer& scrollList = *(ScrollListContainer*)mGuiSystem.items().back().get();
+
+
+
+	mGuiSystem.addSpacing(spacing);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new Button{"Back", [this](Button& ref) {
+		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+		                           shared_ptr<BaseScreen>{new MainMenuScreen{}}};
+	}}}, vec2{buttonWidth, buttonHeight});
 }
 
-// MainMenuScreen: Overriden screen methods
+// OptionsScreen: Overriden screen methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-UpdateOp MainMenuScreen::update(const UpdateState& state)
+UpdateOp OptionsScreen::update(const UpdateState& state)
 {
 	Assets& assets = Assets::INSTANCE();
 	GlobalConfig& cfg = GlobalConfig::INSTANCE();
@@ -84,7 +60,8 @@ UpdateOp MainMenuScreen::update(const UpdateState& state)
 		switch (event.type) {
 		case SDL_KEYUP:
 			switch (event.key.keysym.sym) {
-			//case SDLK_ESCAPE: return sfz::SCREEN_QUIT;
+			case SDLK_ESCAPE: return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+			                                  shared_ptr<BaseScreen>{new MainMenuScreen{}}};
 			case SDLK_UP:
 			case 'w':
 			case 'W':
@@ -131,7 +108,7 @@ UpdateOp MainMenuScreen::update(const UpdateState& state)
 	return mUpdateOp;
 }
 
-void MainMenuScreen::render(const UpdateState& state)
+void OptionsScreen::render(const UpdateState& state)
 {
 	// Clearing screen
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -145,6 +122,11 @@ void MainMenuScreen::render(const UpdateState& state)
 	const vec2 drawableDim = state.window.drawableDimensions();
 	const vec2 guiDim = screens::guiDimensions(drawableDim);
 	const vec2 guiOffs = screens::guiOffset(guiDim);
+
+	auto& sb = Assets::INSTANCE().spriteBatch;
+	sb.begin(guiOffs + (guiDim/2.0f), guiDim);
+	sb.draw(mGuiSystem.bounds().pos, mGuiSystem.bounds().dim, Assets::INSTANCE().TILE_FACE_REG);
+	sb.end(0, drawableDim, Assets::INSTANCE().ATLAS_128.texture());
 
 	// Draw GUI
 	mGuiSystem.draw(0, drawableDim, guiOffs + (guiDim/2.0f), guiDim);

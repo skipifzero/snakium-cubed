@@ -6,5 +6,6 @@
 #include "screens/GameScreen.hpp"
 #include "screens/MainMenuScreen.hpp"
 #include "screens/ScreenMenuConstants.hpp"
+#include "screens/OptionsScreen.hpp"
 
 #endif
