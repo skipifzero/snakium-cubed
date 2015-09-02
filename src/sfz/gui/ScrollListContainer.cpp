@@ -6,11 +6,64 @@
 
 namespace gui {
 
+// Static functions & variables
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+static const vec2 UNINITIALIZED_POS{-999.0f, -999.0f};
+
+
 // ScrollListContainer: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 ScrollListContainer::ScrollListContainer() noexcept
+:
+	mNextItemTopPos{UNINITIALIZED_POS}
 { }
+
+
+// ScrollListContainer: Public methods
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+bool ScrollListContainer::addItem(shared_ptr<BaseItem> item, vec2 dim,
+                                   HorizontalAlign hAlign) noexcept
+{
+	if (mNextItemTopPos == UNINITIALIZED_POS) {
+		mNextItemTopPos = vec2{bounds.pos.x, bounds.pos.y + (bounds.dim.y/2.0f)};
+	}
+
+	if (((mNextItemTopPos.y - dim.y) < (bounds.pos.y - (bounds.dim.y/2.0f))) ||
+	    (dim.x > bounds.dim.x)) {
+		std::cerr << "gui::System: Cannot add item, out of bounds.\n";
+		return false;
+	}
+	item->bounds.dim = dim;
+	if (hAlign == HorizontalAlign::CENTER) {
+		item->bounds.pos = vec2{mNextItemTopPos.x, mNextItemTopPos.y - (dim.y/2.0f)};
+	} else if (hAlign == HorizontalAlign::LEFT) {
+		item->bounds.pos = vec2{mNextItemTopPos.x - (bounds.dim.x/2.0f) + (dim.x/2.0f),
+		                        mNextItemTopPos.y - (dim.y/2.0f)};
+	} else if (hAlign == HorizontalAlign::RIGHT) {
+		item->bounds.pos = vec2{mNextItemTopPos.x + (bounds.dim.x/2.0f) - (dim.x/2.0f),
+		                        mNextItemTopPos.y - (dim.y/2.0f)};
+	}
+	mNextItemTopPos.y -= dim.y;
+	items.push_back(item);
+	return true;
+}
+
+bool ScrollListContainer::addSpacing(float amount) noexcept
+{
+	if (mNextItemTopPos == UNINITIALIZED_POS) {
+		mNextItemTopPos = vec2{bounds.pos.x, bounds.pos.y + (bounds.dim.y/2.0f)};
+	}
+
+	if ((mNextItemTopPos.y - amount) < (bounds.pos.y - (bounds.dim.y/2.0f))) {
+		std::cerr << "gui::System: Cannot add spacing, out of bounds.\n";
+		return false;
+	}
+	mNextItemTopPos.y -= amount;
+	return true;
+}
 
 // ScrollListContainer: Virtual methods overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -27,33 +80,7 @@ KeyInput ScrollListContainer::update(KeyInput key)
 
 void ScrollListContainer::draw(unsigned int fbo, vec2 drawableDim, vec2 camPos, vec2 camDim)
 {
-	auto& font = s3::Assets::INSTANCE().fontRenderer;
-
-	auto& sb = s3::Assets::INSTANCE().spriteBatch;
-
-	sb.begin(camPos, camDim);
-	sb.draw(bounds.pos, bounds.dim, s3::Assets::INSTANCE().TILE_FACE_REG);
-	sb.end(fbo, drawableDim, s3::Assets::INSTANCE().ATLAS_128.texture());
-
-	float stringWidth = font.measureStringWidth(bounds.dim.y, text);
-	vec2 pos;
-	switch (hAlign) {
-	case HorizontalAlign::LEFT:
-		pos = vec2{bounds.pos.x - (bounds.dim.x/2.0f), bounds.pos.y};
-		break;
-	case HorizontalAlign::CENTER:
-		pos = bounds.pos;
-		break;
-	case HorizontalAlign::RIGHT:
-		pos = vec2{bounds.pos.x + (bounds.dim.x/2.0f), bounds.pos.y};
-		break;
-	}
-
-	font.horizontalAlign(hAlign);
-	font.verticalAlign(gl::VerticalAlign::MIDDLE);
-	font.begin(camPos, camDim);
-	font.write(pos, bounds.dim.y, text);
-	font.end(fbo, drawableDim, sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+	for (auto& m : items) m->draw(fbo, drawableDim, camPos, camDim);
 }
 
 void ScrollListContainer::move(vec2 diff)
@@ -66,12 +93,12 @@ void ScrollListContainer::move(vec2 diff)
 
 bool ScrollListContainer::isSelected() const
 {
-	return false;
+	return mSelected;
 }
 
 bool ScrollListContainer::isEnabled() const
 {
-	return false;
+	return mEnabled;
 }
 
 // ScrollListContainer: Virtual setters overriden from BaseItem
@@ -79,17 +106,17 @@ bool ScrollListContainer::isEnabled() const
 
 void ScrollListContainer::deselect()
 {
-	// Nothing to do
+	mSelected = false;
 }
 
 void ScrollListContainer::enable()
 {
-	sfz_assert_debug(false);
+	mEnabled = true;
 }
 
 void ScrollListContainer::disable()
 {
-	sfz_assert_debug(false);
+	mEnabled = false;
 }
 
 } // namespace gui

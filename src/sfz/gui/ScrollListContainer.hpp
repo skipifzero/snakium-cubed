@@ -2,7 +2,8 @@
 #ifndef SFZ_GUI_SCROLL_LIST_CONTAINER_HPP
 #define SFZ_GUI_SCROLL_LIST_CONTAINER_HPP
 
-#include <string>
+#include <memory>
+#include <vector>
 
 #include "sfz/gui/BaseItem.hpp"
 #include "sfz/gl/Alignment.hpp"
@@ -10,17 +11,26 @@
 namespace gui {
 
 using gl::HorizontalAlign;
-using std::string;
+using std::shared_ptr;
+using std::vector;
 
 class ScrollListContainer final : public BaseItem {
 public:
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	ScrollListContainer(const ScrollListContainer&) noexcept = delete;
-	ScrollListContainer& operator= (const ScrollListContainer&) noexcept = delete;
+	ScrollListContainer(const ScrollListContainer&) = default;
+	ScrollListContainer& operator= (const ScrollListContainer&) = default;
 
 	ScrollListContainer() noexcept;
+
+	// Public methods
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	bool addItem(shared_ptr<BaseItem> item, vec2 dim,
+	             HorizontalAlign hAlign = HorizontalAlign::CENTER) noexcept;
+	bool addSpacing(float amount) noexcept;
+	
 
 	// Virtual methods overriden from BaseItem
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -46,8 +56,16 @@ public:
 	// Public members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	string text;
-	HorizontalAlign hAlign;
+	vector<shared_ptr<BaseItem>> items;
+
+private:
+	// Private members
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	bool mSelected = false;
+	bool mEnabled = true;
+	vec2 mNextItemTopPos;
+	int mCurrentSelectedIndex = -1;
 };
 
 } // namespace gui

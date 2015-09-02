@@ -28,18 +28,34 @@ OptionsScreen::OptionsScreen() noexcept
 	float spacing = 5.0f;
 	float titleHeight = 20.0f;
 	float buttonWidth = menuDim.x * 0.5f;
-	float buttonHeight = 7.5f;
+	float buttonHeight = 9.0f;
 	float scrollListHeight = menuDim.y - titleHeight - buttonHeight - 3.0f*spacing;
 
 	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Options"}}, vec2{menuDim.x, titleHeight});
 	mGuiSystem.addSpacing(spacing);
 	mGuiSystem.addItem(shared_ptr<BaseItem>{new ScrollListContainer{}}, vec2{menuDim.x, scrollListHeight});
+	
 	ScrollListContainer& scrollList = *(ScrollListContainer*)mGuiSystem.items().back().get();
-
+	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 1", [](Button& ref) {
+		ref.disable();
+	}}}, vec2{buttonWidth, buttonHeight});
+	scrollList.addSpacing(spacing);
+	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 2", [](Button& ref) {
+		ref.disable();
+	}}}, vec2{buttonWidth, buttonHeight});
+	scrollList.addSpacing(spacing);
+	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 3", [](Button& ref) {
+		ref.disable();
+	}}}, vec2{buttonWidth, buttonHeight});
+	scrollList.addSpacing(spacing);
+	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 4", [](Button& ref) {
+		ref.disable();
+	}}}, vec2{buttonWidth, buttonHeight});
+	scrollList.addSpacing(spacing);
 
 
 	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new Button{"Back", [this](Button& ref) {
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new Button{"Back", [this](Button&) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                           shared_ptr<BaseScreen>{new MainMenuScreen{}}};
 	}}}, vec2{buttonWidth, buttonHeight});

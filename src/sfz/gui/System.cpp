@@ -103,7 +103,7 @@ void System::update(InputData data)
 	// Mouse/touch input
 	if (data.pointerMoved || data.pointerState != sdl::ButtonState::NOT_PRESSED) {
 
-		for (size_t i = 0; i < mItems.size(); ++i) {
+		for (int i = 0; i < (int)mItems.size(); ++i) {
 
 			// Skip checking disabled items
 			if (!mItems[i]->isEnabled()) continue;
@@ -158,9 +158,9 @@ bool System::selectNextItemDown() noexcept
 	}
 
 	mCurrentSelectedIndex += 1;
-	if (mCurrentSelectedIndex >= mItems.size()) mCurrentSelectedIndex = 0;
+	if (mCurrentSelectedIndex >= (int)mItems.size()) mCurrentSelectedIndex = 0;
 
-	for (int i = 0; i < mItems.size(); ++i) {
+	for (int i = 0; i < (int)mItems.size(); ++i) {
 		
 		if (mItems[mCurrentSelectedIndex]->isEnabled()) {
 			if (mItems[mCurrentSelectedIndex]->update(KeyInput::DOWN) == KeyInput::NONE) {
@@ -169,7 +169,7 @@ bool System::selectNextItemDown() noexcept
 		}
 
 		mCurrentSelectedIndex += 1;
-		if (mCurrentSelectedIndex >= mItems.size()) mCurrentSelectedIndex = 0;
+		if (mCurrentSelectedIndex >= (int)mItems.size()) mCurrentSelectedIndex = 0;
 	}
 
 	return mCurrentSelectedIndex = -1;
@@ -190,7 +190,7 @@ bool System::selectNextItemUp() noexcept
 	mCurrentSelectedIndex -= 1;
 	if (mCurrentSelectedIndex < 0) mCurrentSelectedIndex = mItems.size() - 1;
 
-	for (int i = 0; i < mItems.size(); ++i) {
+	for (int i = 0; i < (int)mItems.size(); ++i) {
 
 		if (mItems[mCurrentSelectedIndex]->isEnabled()) {
 			if (mItems[mCurrentSelectedIndex]->update(KeyInput::UP) == KeyInput::NONE) {
