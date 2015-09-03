@@ -106,6 +106,8 @@ UpdateOp OptionsScreen::update(const UpdateState& state)
 		}
 	}
 
+	std::cout << "scrollWheel: " << state.rawMouse.wheel << std::endl;
+
 	const vec2 drawableDim = state.window.drawableDimensions();
 	const vec2 guiDim = screens::guiDimensions(drawableDim);
 	const vec2 guiOffs = screens::guiOffset(guiDim);
@@ -114,8 +116,8 @@ UpdateOp OptionsScreen::update(const UpdateState& state)
 
 	// GUI system temp
 	gui::InputData data;
-	data.pointerMoved = scaledMouse.motion != vec2{0.0f, 0.0f};
 	data.pointerPos = scaledMouse.position;
+	data.pointerMotion = scaledMouse.motion;
 	data.pointerState = scaledMouse.leftButton;
 	data.scrollWheel = scaledMouse.wheel;
 	data.key = guiKeyInput;

@@ -59,6 +59,12 @@ public:
 	vector<shared_ptr<BaseItem>> items;
 
 private:
+	// Private methods
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	bool selectNextItemDown() noexcept;
+	bool selectNextItemUp() noexcept;
+
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

@@ -15,9 +15,7 @@ System::System(const Rectangle& bounds)
 :
 	mBounds{bounds},
 	mNextItemTopPos{bounds.pos.x, bounds.pos.y + (bounds.dim.y/2.0f)}
-{
-	
-}
+{ }
 
 // System: Public methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -101,7 +99,8 @@ void System::update(InputData data)
 	}
 
 	// Mouse/touch input
-	if (data.pointerMoved || data.pointerState != sdl::ButtonState::NOT_PRESSED) {
+	if (data.pointerMotion != vec2{0.0f} || data.scrollWheel != vec2{0.0f}
+	    || data.pointerState != sdl::ButtonState::NOT_PRESSED) {
 
 		for (int i = 0; i < (int)mItems.size(); ++i) {
 
@@ -150,6 +149,8 @@ void System::draw(unsigned int fbo, vec2 drawableDim, vec2 camPos, vec2 camDim)
 bool System::selectNextItemDown() noexcept
 {
 	if (mItems.size() == 0) return false;
+
+	// TODO: Reconsider if this is even a good idea
 	if (mCurrentSelectedIndex != -1) {
 		if (mItems[mCurrentSelectedIndex]->isEnabled() &&
 		    mItems[mCurrentSelectedIndex]->isSelected()) {
@@ -172,13 +173,15 @@ bool System::selectNextItemDown() noexcept
 		if (mCurrentSelectedIndex >= (int)mItems.size()) mCurrentSelectedIndex = 0;
 	}
 
-	return mCurrentSelectedIndex = -1;
+	mCurrentSelectedIndex = -1;
 	return false;
 }
 
 bool System::selectNextItemUp() noexcept
 {
 	if (mItems.size() == 0) return false;
+
+	// TODO: Reconsider if this is even a good idea
 	if (mCurrentSelectedIndex != -1) {
 		if (mItems[mCurrentSelectedIndex]->isEnabled() &&
 			mItems[mCurrentSelectedIndex]->isSelected()) {
@@ -202,7 +205,7 @@ bool System::selectNextItemUp() noexcept
 		if (mCurrentSelectedIndex < 0) mCurrentSelectedIndex = mItems.size() - 1;
 	}
 
-	return mCurrentSelectedIndex = -1;
+	mCurrentSelectedIndex = -1;
 	return false;
 }
 

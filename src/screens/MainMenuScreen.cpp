@@ -121,8 +121,8 @@ UpdateOp MainMenuScreen::update(const UpdateState& state)
 
 	// GUI system temp
 	gui::InputData data;
-	data.pointerMoved = scaledMouse.motion != vec2{0.0f, 0.0f};
 	data.pointerPos = scaledMouse.position;
+	data.pointerMotion = scaledMouse.motion;
 	data.pointerState = scaledMouse.leftButton;
 	data.scrollWheel = scaledMouse.wheel;
 	data.key = guiKeyInput;
