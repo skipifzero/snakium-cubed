@@ -77,7 +77,9 @@ set(SOURCE_SCREENS_FILES
 	${SRC_DIR}/screens/MainMenuScreen.cpp
 	${SRC_DIR}/screens/OptionsScreen.hpp
 	${SRC_DIR}/screens/OptionsScreen.cpp
-	${SRC_DIR}/screens/ScreenMenuConstants.hpp)
+	${SRC_DIR}/screens/ScreenMenuConstants.hpp
+	${SRC_DIR}/screens/ScreenUtils.hpp
+	${SRC_DIR}/screens/ScreenUtils.cpp)
 source_group(screens FILES ${SOURCE_SCREENS_FILES})
 
 set(SOURCE_SFZ_TEMP_FILES

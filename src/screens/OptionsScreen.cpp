@@ -10,6 +10,7 @@
 #include "screens/GameScreen.hpp"
 #include "screens/MainMenuScreen.hpp"
 #include "screens/ScreenMenuConstants.hpp"
+#include "screens/ScreenUtils.hpp"
 
 namespace s3 {
 
@@ -66,61 +67,36 @@ OptionsScreen::OptionsScreen() noexcept
 
 UpdateOp OptionsScreen::update(const UpdateState& state)
 {
-	Assets& assets = Assets::INSTANCE();
-	GlobalConfig& cfg = GlobalConfig::INSTANCE();
-
-	gui::KeyInput guiKeyInput = gui::KeyInput::NONE;
-
 	// Handle input
 	for (const SDL_Event& event : state.events) {
 		switch (event.type) {
 		case SDL_KEYUP:
 			switch (event.key.keysym.sym) {
-			case SDLK_ESCAPE: return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-			                                  shared_ptr<BaseScreen>{new MainMenuScreen{}}};
-			case SDLK_UP:
-			case 'w':
-			case 'W':
-				guiKeyInput = gui::KeyInput::UP;
-				break;
-			case SDLK_DOWN:
-			case 's':
-			case 'S':
-				guiKeyInput = gui::KeyInput::DOWN;
-				break;
-			case SDLK_LEFT:
-			case 'a':
-			case 'A':
-				guiKeyInput = gui::KeyInput::LEFT;
-				break;
-			case SDLK_RIGHT:
-			case 'd':
-			case 'D':
-				guiKeyInput = gui::KeyInput::DOWN;
-				break;
-			case SDLK_RETURN:
-			case SDLK_SPACE:
-				guiKeyInput = gui::KeyInput::ACTIVATE;
-				break;
+			case SDLK_ESCAPE: 
+			case SDLK_BACKSPACE:
+				return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+				                shared_ptr<BaseScreen>{new MainMenuScreen{}}};
 			}
 		}
 	}
-
-	std::cout << "scrollWheel: " << state.rawMouse.wheel << std::endl;
 
 	const vec2 drawableDim = state.window.drawableDimensions();
 	const vec2 guiDim = screens::guiDimensions(drawableDim);
 	const vec2 guiOffs = screens::guiOffset(guiDim);
 
-	auto scaledMouse = state.rawMouse.scaleMouse(guiOffs + (guiDim/2.0f), guiDim);
-
-	// GUI system temp
-	gui::InputData data;
-	data.pointerPos = scaledMouse.position;
-	data.pointerMotion = scaledMouse.motion;
-	data.pointerState = scaledMouse.leftButton;
-	data.scrollWheel = scaledMouse.wheel;
-	data.key = guiKeyInput;
+	int32_t ctrlId = getFirstController(state);
+	auto& ctrlItr = state.controllers.find(ctrlId);
+	if (ctrlItr != state.controllers.end()) {
+		auto& ctrl = ctrlItr->second;
+		if (ctrl.b == sdl::ButtonState::UP) {
+			return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+			                shared_ptr<BaseScreen>{new MainMenuScreen{}}};
+		} else if (ctrl.back == sdl::ButtonState::UP) {
+			return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+			                shared_ptr<BaseScreen>{new MainMenuScreen{}}};
+		}
+	}
+	gui::InputData data = inputDataFromUpdateState(state, guiOffs + (guiDim/2.0f), guiDim, ctrlId);
 	mGuiSystem.update(data);
 
 	return mUpdateOp;

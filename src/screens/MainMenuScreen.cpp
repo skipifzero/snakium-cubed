@@ -10,6 +10,7 @@
 #include "screens/GameScreen.hpp"
 #include "screens/OptionsScreen.hpp"
 #include "screens/ScreenMenuConstants.hpp"
+#include "screens/ScreenUtils.hpp"
 
 namespace s3 {
 
@@ -74,58 +75,22 @@ MainMenuScreen::MainMenuScreen() noexcept
 
 UpdateOp MainMenuScreen::update(const UpdateState& state)
 {
-	Assets& assets = Assets::INSTANCE();
-	GlobalConfig& cfg = GlobalConfig::INSTANCE();
-
-	gui::KeyInput guiKeyInput = gui::KeyInput::NONE;
-
 	// Handle input
-	for (const SDL_Event& event : state.events) {
+	/*for (const SDL_Event& event : state.events) {
 		switch (event.type) {
 		case SDL_KEYUP:
 			switch (event.key.keysym.sym) {
-			//case SDLK_ESCAPE: return sfz::SCREEN_QUIT;
-			case SDLK_UP:
-			case 'w':
-			case 'W':
-				guiKeyInput = gui::KeyInput::UP;
-				break;
-			case SDLK_DOWN:
-			case 's':
-			case 'S':
-				guiKeyInput = gui::KeyInput::DOWN;
-				break;
-			case SDLK_LEFT:
-			case 'a':
-			case 'A':
-				guiKeyInput = gui::KeyInput::LEFT;
-				break;
-			case SDLK_RIGHT:
-			case 'd':
-			case 'D':
-				guiKeyInput = gui::KeyInput::DOWN;
-				break;
-			case SDLK_RETURN:
-			case SDLK_SPACE:
-				guiKeyInput = gui::KeyInput::ACTIVATE;
-				break;
+			case SDLK_ESCAPE: return sfz::SCREEN_QUIT;
 			}
 		}
-	}
+	}*/
 
 	const vec2 drawableDim = state.window.drawableDimensions();
 	const vec2 guiDim = screens::guiDimensions(drawableDim);
 	const vec2 guiOffs = screens::guiOffset(guiDim);
 
-	auto scaledMouse = state.rawMouse.scaleMouse(guiOffs + (guiDim/2.0f), guiDim);
-
-	// GUI system temp
-	gui::InputData data;
-	data.pointerPos = scaledMouse.position;
-	data.pointerMotion = scaledMouse.motion;
-	data.pointerState = scaledMouse.leftButton;
-	data.scrollWheel = scaledMouse.wheel;
-	data.key = guiKeyInput;
+	int32_t ctrlId = getFirstController(state);
+	gui::InputData data = inputDataFromUpdateState(state, guiOffs + (guiDim/2.0f), guiDim, ctrlId);
 	mGuiSystem.update(data);
 
 	return mUpdateOp;

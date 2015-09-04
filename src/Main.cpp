@@ -23,6 +23,8 @@ void checkGLErrorsMessage(const std::string& msg) noexcept
 
 int main()
 {
+	using namespace sdl;
+
 	// Init global config variable
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	
@@ -33,16 +35,16 @@ int main()
 	// Init libraries and stuff
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	sdl::Session sdlSession{{sdl::InitFlags::EVENTS, sdl::InitFlags::VIDEO}};
+	Session sdlSession{{InitFlags::EVENTS, InitFlags::VIDEO, InitFlags::GAMECONTROLLER}};
 
 	if (cfg.msaa > 0) {
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, cfg.msaa);
 	}
 
-	sdl::Window window{"snakium³", cfg.windowResolutionX, cfg.windowResolutionY,
-	     {sdl::WindowFlags::OPENGL, sdl::WindowFlags::RESIZABLE, sdl::WindowFlags::ALLOW_HIGHDPI,
-	      cfg.fullscreen ? sdl::WindowFlags::FULLSCREEN_DESKTOP : sdl::WindowFlags::OPENGL}};
+	Window window{"snakium³", cfg.windowResolutionX, cfg.windowResolutionY,
+	     {WindowFlags::OPENGL, WindowFlags::RESIZABLE, WindowFlags::ALLOW_HIGHDPI,
+	      cfg.fullscreen ? WindowFlags::FULLSCREEN_DESKTOP : WindowFlags::OPENGL}};
 
 	gl::Context glContext{window.mPtr, 3, 3, gl::GLContextProfile::CORE};
 
