@@ -70,6 +70,42 @@ static int32_t getJoystickId(SDL_GameController* ptr) noexcept
 	return id;
 }
 
+// GameController: Public methods
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+
+GameControllerState GameController::state() const noexcept {
+	GameControllerState copy;
+
+	copy.a = this->a;
+	copy.b = this->b;
+	copy.x = this->x;
+	copy.y = this->y;
+
+	copy.stickDeadzone = this->stickDeadzone;
+	copy.triggerDeadzone = this->triggerDeadzone;
+
+	copy.leftStick = this->leftStick;
+	copy.rightStick = this->rightStick;
+	copy.leftStickButton = this->leftStickButton;
+	copy.rightStickButton = this->rightStickButton;
+
+	copy.leftShoulder = this->leftShoulder;
+	copy.rightShoulder = this->rightShoulder;
+	copy.leftTrigger = this->leftTrigger;
+	copy.rightTrigger = this->rightTrigger;
+
+	copy.padUp = this->padUp;
+	copy.padDown = this->padDown;
+	copy.padLeft = this->padLeft;
+	copy.padRight = this->padRight;
+
+	copy.start = this->start;
+	copy.back = this->back;
+	copy.guide = this->guide;
+
+	return copy;
+}
+
 // GameController: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

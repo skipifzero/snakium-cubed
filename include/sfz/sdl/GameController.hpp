@@ -18,15 +18,8 @@ using sfz::vec2;
 using std::unordered_map;
 using std::vector;
 
-/** Class representing the state of a GameController at a given point in time. */
-class GameController final {
-public:
-	// Public members
-	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	inline SDL_GameController* gameControllerPtr() const noexcept { return mGameControllerPtr; }
-	inline int32_t id() const noexcept { return mID; } // Unique static identifier
-
+/** Struct used for representing the state of a GameController at a given point in time. */
+struct GameControllerState {
 	ButtonState a = ButtonState::NOT_PRESSED;
 	ButtonState b = ButtonState::NOT_PRESSED;
 	ButtonState x = ButtonState::NOT_PRESSED;
@@ -53,6 +46,21 @@ public:
 	ButtonState start = ButtonState::NOT_PRESSED;
 	ButtonState back = ButtonState::NOT_PRESSED;
 	ButtonState guide = ButtonState::NOT_PRESSED;
+};
+
+/** Class used for manageing an SDL GameController and its state. */
+class GameController final : public GameControllerState {
+public:
+	// Getters
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	inline SDL_GameController* gameControllerPtr() const noexcept { return mGameControllerPtr; }
+	inline int32_t id() const noexcept { return mID; } // Unique static identifier
+
+	// Public methods
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	GameControllerState state() const noexcept;
 
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

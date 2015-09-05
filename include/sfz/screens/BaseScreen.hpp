@@ -63,6 +63,7 @@ struct UpdateState final {
 	vector<SDL_Event> controllerEvents;
 	vector<SDL_Event> mouseEvents;
 	unordered_map<int32_t, sdl::GameController> controllers;
+	unordered_map<int32_t, sdl::GameControllerState> controllersLastFrameState;
 	sdl::Mouse rawMouse;
 	float delta;
 };
