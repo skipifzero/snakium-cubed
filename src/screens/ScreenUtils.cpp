@@ -56,10 +56,31 @@ gui::InputData inputDataFromUpdateState(const sfz::UpdateState& state,
 	data.scrollWheel = scaledMouse.wheel;
 
 	// Controller
-	std::cout << "state.controllers : " << state.controllers.size() << std::endl;
 	auto& ctrlItr = state.controllers.find(ctrlId);
-	if (ctrlItr != state.controllers.end()) {
+	auto& lastCtrlItr = state.controllersLastFrameState.find(ctrlId);
+	if (ctrlItr != state.controllers.end() && lastCtrlItr != state.controllersLastFrameState.end()) {
 		auto& ctrl = ctrlItr->second;
+		auto& lastCtrl = lastCtrlItr->second;
+
+		// Left stick (pad emulation)
+		if (sfz::length(ctrl.leftStick) > 0.8f && sfz::length(lastCtrl.leftStick) < 0.8f) {
+			float leftAngle = sfz::angle(ctrl.leftStick);
+			const float PIdiv4 = sfz::PI()/4.0f;
+			if ((PIdiv4) < leftAngle && leftAngle < (3.0f*PIdiv4)) { // UP
+				data.key = gui::KeyInput::UP;
+			} else if ((3.0f*PIdiv4) < leftAngle && leftAngle < (5.0f*PIdiv4)) { // LEFT
+				data.key = gui::KeyInput::LEFT;
+			} else if ((5.0f*PIdiv4) < leftAngle && leftAngle < (7.0f*PIdiv4)) { // DOWN
+				data.key = gui::KeyInput::DOWN;
+			} else if (leftAngle < (PIdiv4) || (7.0f*PIdiv4) < leftAngle) { // RIGHT
+				data.key = gui::KeyInput::RIGHT;
+			}
+		}
+
+		/*// Right stick (scroll wheel emulation)
+		if (data.scrollWheel == vec2{0.0f}) {
+			data.scrollWheel = ctrl.rightStick;
+		}*/
 
 		if (ctrl.padUp == sdl::ButtonState::UP) {
 			data.key = gui::KeyInput::UP;
