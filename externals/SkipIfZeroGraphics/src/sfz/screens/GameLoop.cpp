@@ -120,6 +120,10 @@ void runGameLoop(sdl::Window& window, shared_ptr<BaseScreen> currentScreen)
 		}
 
 		// Updates controllers
+		state.controllersLastFrameState.clear();
+		for (auto& pair : state.controllers) {
+			state.controllersLastFrameState[pair.first] = pair.second.state();
+		}
 		update(state.controllers, state.controllerEvents);
 
 		// Updates mouse
