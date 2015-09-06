@@ -33,9 +33,8 @@ bool ScrollListContainer::addItem(shared_ptr<BaseItem> item, vec2 dim,
 		mNextItemTopPos = vec2{bounds.pos.x, bounds.pos.y + (bounds.dim.y/2.0f)};
 	}
 
-	if (((mNextItemTopPos.y - dim.y) < (bounds.pos.y - (bounds.dim.y/2.0f))) ||
-	    (dim.x > bounds.dim.x)) {
-		std::cerr << "gui::System: Cannot add item, out of bounds.\n";
+	if (dim.x > bounds.dim.x) {
+		std::cerr << "gui::System: Cannot add item, too wide.\n";
 		return false;
 	}
 	item->bounds.dim = dim;
@@ -57,11 +56,6 @@ bool ScrollListContainer::addSpacing(float amount) noexcept
 {
 	if (mNextItemTopPos == UNINITIALIZED_POS) {
 		mNextItemTopPos = vec2{bounds.pos.x, bounds.pos.y + (bounds.dim.y/2.0f)};
-	}
-
-	if ((mNextItemTopPos.y - amount) < (bounds.pos.y - (bounds.dim.y/2.0f))) {
-		std::cerr << "gui::System: Cannot add spacing, out of bounds.\n";
-		return false;
 	}
 
 	mNextItemTopPos.y -= amount;
@@ -138,7 +132,15 @@ KeyInput ScrollListContainer::update(KeyInput key)
 
 void ScrollListContainer::draw(unsigned int fbo, vec2 drawableDim, vec2 camPos, vec2 camDim)
 {
-	for (auto& i : items) i->draw(fbo, drawableDim, camPos, camDim);
+	const float boundsYBottom = bounds.pos.y - (bounds.dim.y/2.0f);
+	const float boundsYTop = boundsYBottom + bounds.dim.y;
+	for (auto& i : items) {
+		const float itemYBottom = i->bounds.pos.y - (i->bounds.dim.y/2.0f);
+		const float itemYTop = itemYBottom + i->bounds.dim.y;
+		if (boundsYBottom <= itemYBottom && itemYTop <= boundsYTop) {
+			i->draw(fbo, drawableDim, camPos, camDim);
+		}
+	}
 }
 
 void ScrollListContainer::move(vec2 diff)

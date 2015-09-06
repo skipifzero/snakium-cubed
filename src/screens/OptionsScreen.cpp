@@ -53,6 +53,38 @@ OptionsScreen::OptionsScreen() noexcept
 		ref.disable();
 	}}}, vec2{buttonWidth, buttonHeight});
 	scrollList.addSpacing(spacing);
+	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 5", [](Button& ref) {
+		ref.disable();
+	}}}, vec2{buttonWidth, buttonHeight});
+	scrollList.addSpacing(spacing);
+	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 6", [](Button& ref) {
+		ref.disable();
+	}}}, vec2{buttonWidth, buttonHeight});
+	scrollList.addSpacing(spacing);
+	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 7", [](Button& ref) {
+		ref.disable();
+	}}}, vec2{buttonWidth, buttonHeight});
+	scrollList.addSpacing(spacing);
+	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 8", [](Button& ref) {
+		ref.disable();
+	}}}, vec2{buttonWidth, buttonHeight});
+	scrollList.addSpacing(spacing);
+	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 9", [](Button& ref) {
+		ref.disable();
+	}}}, vec2{buttonWidth, buttonHeight});
+	scrollList.addSpacing(spacing);
+	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 10", [](Button& ref) {
+		ref.disable();
+	}}}, vec2{buttonWidth, buttonHeight});
+	scrollList.addSpacing(spacing);
+	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 11", [](Button& ref) {
+		ref.disable();
+	}}}, vec2{buttonWidth, buttonHeight});
+	scrollList.addSpacing(spacing);
+	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 12", [](Button& ref) {
+		ref.disable();
+	}}}, vec2{buttonWidth, buttonHeight});
+	scrollList.addSpacing(spacing);
 
 
 	mGuiSystem.addSpacing(spacing);
