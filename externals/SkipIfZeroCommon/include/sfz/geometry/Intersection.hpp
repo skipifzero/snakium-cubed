@@ -2,10 +2,17 @@
 #ifndef SFZ_GEOMETRY_COLLISION_DETECTION_HPP
 #define SFZ_GEOMETRY_COLLISION_DETECTION_HPP
 
-#include "sfz/geometry/AABB.hpp"
-#include "sfz/geometry/OBB.hpp"
-#include "sfz/geometry/Plane.hpp"
-#include "sfz/geometry/Sphere.hpp"
+#include "sfz/math/Vector.hpp"
+
+// Forward declares geometry primitives
+namespace sfz {
+	class AABB;
+	struct AABB2D;
+	struct Circle;
+	class OBB;
+	class Plane;
+	class Sphere;
+}
 
 namespace sfz {
 
@@ -16,12 +23,24 @@ bool pointInside(const AABB& box, const vec3& point) noexcept;
 bool pointInside(const OBB& box, const vec3& point) noexcept;
 bool pointInside(const Sphere& sphere, const vec3& point) noexcept;
 
+bool pointInside(const Circle& circle, vec2 point) noexcept;
+bool pointInside(const AABB2D& rect, vec2 point) noexcept;
+
 // Primitive vs primitive tests (same type)
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 bool intersects(const AABB& boxA, const AABB& boxB) noexcept;
 bool intersects(const OBB& boxA, const OBB& boxB) noexcept;
 bool intersects(const Sphere& sphereA, const Sphere& sphereB) noexcept;
+
+bool overlaps(const Circle& lhs, const Circle& rhs) noexcept;
+bool overlaps(const AABB2D& lhs, const AABB2D& rhs) noexcept;
+
+// AABB2D & Circle tests
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+bool overlaps(const Circle& circle, const AABB2D& rect) noexcept;
+bool overlaps(const AABB2D& rect, const Circle& circle) noexcept;
 
 // Plane & AABB tests
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

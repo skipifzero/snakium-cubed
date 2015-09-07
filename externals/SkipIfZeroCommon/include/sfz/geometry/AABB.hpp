@@ -35,7 +35,7 @@ public:
 	inline size_t hash() const noexcept;
 	inline std::string to_string() const noexcept;
 
-	// Public getters/setters
+	// Public getters
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	inline vec3 min() const noexcept { return mMin; }
@@ -49,6 +49,9 @@ public:
 	inline float halfXExtent() const noexcept { return xExtent() / 2.0f; }
 	inline float halfYExtent() const noexcept { return yExtent() / 2.0f; }
 	inline float halfZExtent() const noexcept { return zExtent() / 2.0f; }
+
+	// Public setters
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	inline void min(const vec3& newMin) noexcept { mMin = newMin; }
 	inline void max(const vec3& newMax) noexcept { mMax = newMax; }
