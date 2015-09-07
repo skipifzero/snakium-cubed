@@ -1,34 +1,37 @@
 #include "sfz/geometry/Intersection.hpp"
 
+#include "sfz/geometry/AABB.hpp"
+#include "sfz/geometry/AABB2D.hpp"
+#include "sfz/geometry/Circle.hpp"
+#include "sfz/geometry/OBB.hpp"
+#include "sfz/geometry/Plane.hpp"
+#include "sfz/geometry/Sphere.hpp"
+
 namespace sfz {
 
-// Anonymous functions
+// Static functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-namespace {
-
-bool intersectsPlane(const Plane& plane, const vec3& position, float projectedRadius) noexcept
+static bool intersectsPlane(const Plane& plane, const vec3& position, float projectedRadius) noexcept
 {
 	// Part of plane SAT algorithm from Real-Time Collision Detection
 	float dist = plane.signedDistance(position);
 	return std::abs(dist) <= projectedRadius;
 }
 
-bool abovePlane(const Plane& plane, const vec3& position, float projectedRadius) noexcept
+static bool abovePlane(const Plane& plane, const vec3& position, float projectedRadius) noexcept
 {
 	// Part of plane SAT algorithm from Real-Time Collision Detection
 	float dist = plane.signedDistance(position);
 	return dist >= (-projectedRadius);
 }
 
-bool belowPlane(const Plane& plane, const vec3& position, float projectedRadius) noexcept
+static bool belowPlane(const Plane& plane, const vec3& position, float projectedRadius) noexcept
 {
 	// Part of plane SAT algorithm from Real-Time Collision Detection
 	float dist = plane.signedDistance(position);
 	return dist <= projectedRadius;
 }
-
-} // anonymous namespace
 
 // Point inside primitive tests
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -58,6 +61,20 @@ bool pointInside(const Sphere& sphere, const vec3& point) noexcept
 {
 	const vec3 distToPoint = point - sphere.position();
 	return squaredLength(distToPoint) < sphere.radius() * sphere.radius();
+}
+
+bool pointInside(const Circle& circle, vec2 point) noexcept
+{
+	// If the length from the circles center to the specified point is shorter than or equal to
+	// the radius then the Circle overlaps the point. Both sides of the equation is squared to
+	// avoid somewhat expensive sqrt() function.
+	return squaredLength(point - circle.pos) <= (circle.radius*circle.radius);
+}
+
+bool pointInside(const AABB2D& rect, vec2 point) noexcept
+{
+	return rect.min.x <= point.x && point.x <= rect.max.x &&
+	       rect.min.y <= point.y && point.y <= rect.max.y;
 }
 
 // Primitive vs primitive tests (same type)
@@ -91,7 +108,7 @@ bool intersects(const OBB& a, const OBB& b) noexcept
 	}
 
 	// Compute common subexpressions, epsilon term to counteract arithmetic errors
-	static const float EPSILON = 0.00001f;
+	const float EPSILON = 0.00001f;
 	mat3 AbsR;
 	for (size_t i = 0; i < 3; i++) {
 		for (size_t j = 0; j < 3; j++) {
@@ -175,6 +192,58 @@ bool intersects(const Sphere& sphereA, const Sphere& sphereB) noexcept
 	const float radiusSum = sphereA.radius() + sphereB.radius();
 	const float squaredRadiusSum = radiusSum * radiusSum;
 	return squaredDist <= squaredRadiusSum;
+}
+
+bool overlaps(const Circle& lhs, const Circle& rhs) noexcept
+{
+	// If the length between the center of the two circles is less than or equal to the the sum of
+	// the circle's radiuses they overlap. Both sides of the equation is squared to avoid somewhat 
+	// expensive sqrt() function.
+	float distSquared = squaredLength(lhs.pos - rhs.pos);
+	float radiusSum = lhs.radius + rhs.radius;
+	return distSquared <= (radiusSum * radiusSum);
+}
+
+bool overlaps(const AABB2D& lhs, const AABB2D& rhs) noexcept
+{
+	return lhs.min.x <= rhs.max.x &&
+	       lhs.max.x >= rhs.min.x &&
+	       lhs.min.y <= rhs.max.y &&
+	       lhs.max.y >= rhs.min.y;
+}
+
+// AABB2D & Circle tests
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+bool overlaps(const Circle& circle, const AABB2D& rect) noexcept
+{
+	// If the length between the center of the circle and the closest point on the rectangle is
+	// less than or equal to the circles radius they overlap. Both sides of the equation is 
+	// squared to avoid somewhat expensive sqrt() function. 
+	float closestX = circle.pos.x;
+	float closestY = circle.pos.y;
+	
+	// TODO: These can be optimized with min/max.
+	if (circle.pos.x <= rect.min.x) {
+		closestX = rect.min.x;
+	} 
+	else if (circle.pos.x >= rect.max.x) {
+		closestX = rect.max.x;
+	}
+	
+	if (circle.pos.y <= rect.min.y) {
+		closestY = rect.min.y;
+	}
+	else if (circle.pos.y >= rect.max.y) {
+		closestY = rect.max.y;
+	}
+	
+	return squaredLength(vec2{closestX,closestY} - circle.pos) <= (circle.radius*circle.radius);
+}
+
+bool overlaps(const AABB2D& rect, const Circle& circle) noexcept
+{
+	return overlaps(rect, circle);
 }
 
 // Plane & AABB tests
