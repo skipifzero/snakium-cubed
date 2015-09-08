@@ -50,11 +50,6 @@ void TextItem::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D& 
 	font.end(fbo, drawableDim, sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
 }
 
-void TextItem::move(vec2 diff)
-{
-	offset += diff;
-}
-
 // TextItem: Virtual getters overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

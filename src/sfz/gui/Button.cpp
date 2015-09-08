@@ -129,11 +129,6 @@ void Button::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D& ca
 	font.end(fbo, drawableDim, fgColor);
 }
 
-void Button::move(vec2 diff)
-{
-	offset += diff;
-}
-
 // Button: Virtual getters overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

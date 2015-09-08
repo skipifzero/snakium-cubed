@@ -57,11 +57,6 @@ void ImageItem::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D&
 	sb.end(fbo, drawableDim, texture);
 }
 
-void ImageItem::move(vec2 diff)
-{
-	offset += diff;
-}
-
 // ImageItem: Virtual getters overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

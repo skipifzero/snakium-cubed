@@ -62,7 +62,7 @@ bool ScrollListContainer::addSpacing(float amount) noexcept
 
 bool ScrollListContainer::update(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel)
 {
-	for (auto& i : items) i->move(vec2{0.0f, wheel.y*10.0f}); // TODO: Remove hardcoded factor
+	for (auto& i : items) i->offset.y -= wheel.y*10.0f; // TODO: Remove hardcoded factor
 
 	for (int i = 0; i < (int)items.size(); ++i) {
 		
@@ -137,12 +137,6 @@ void ScrollListContainer::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, con
 			i->draw(basePos + offset, fbo, drawableDim, cam);
 		}
 	}
-}
-
-void ScrollListContainer::move(vec2 diff)
-{
-	offset += diff;
-	for (auto& i : items) i->move(diff);
 }
 
 // ScrollListContainer: Virtual getters overriden from BaseItem
