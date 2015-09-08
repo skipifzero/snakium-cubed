@@ -2,16 +2,16 @@
 #ifndef SFZ_GL_FONT_FONT_RENDERER_HPP
 #define SFZ_GL_FONT_FONT_RENDERER_HPP
 
-#include <sfz/Math.hpp>
-#include <sfz/gl/OpenGL.hpp>
-#include <sfz/gl/SpriteBatch.hpp>
-#include <sfz/gl/Alignment.hpp>
+#include "sfz/geometry/AABB2D.hpp"
+#include "sfz/gl/OpenGL.hpp"
+#include "sfz/gl/SpriteBatch.hpp"
+#include "sfz/gl/Alignment.hpp"
+#include "sfz/Math.hpp"
+
 #include <cstddef> // size_t
 #include <cstdint> // uint8_t
 #include <memory>
 #include <string>
-
-
 
 namespace gl {
 
@@ -42,6 +42,7 @@ public:
 	// Public methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+	void begin(const sfz::AABB2D& camera) noexcept;
 	void begin(vec2 cameraPosition, vec2 cameraDimensions) noexcept;
 
 	/** @return The position to write the next char at. */
