@@ -199,10 +199,20 @@ SpriteBatch::~SpriteBatch() noexcept
 // SpriteBatch: Public interface
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+void SpriteBatch::begin(const sfz::AABB2D& camera) noexcept
+{
+	this->begin(camera.position(), camera.dimensions());
+}
+
 void SpriteBatch::begin(vec2 cameraPosition, vec2 cameraDimensions) noexcept
 {
 	mCamProj = sfz::glOrthogonalProjectionMatrix2D(cameraPosition, cameraDimensions);
 	mCurrentDrawCount = 0;
+}
+
+void SpriteBatch::draw(const sfz::AABB2D& rect, const TextureRegion& texRegion) noexcept
+{
+	this->draw(rect.position(), rect.dimensions(), texRegion);
 }
 
 void SpriteBatch::draw(vec2 position, vec2 dimensions, const TextureRegion& texRegion) noexcept

@@ -182,6 +182,11 @@ FontRenderer::~FontRenderer() noexcept
 // FontRenderer: Public methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+void FontRenderer::begin(const sfz::AABB2D& camera) noexcept
+{
+	this->begin(camera.position(), camera.dimensions());
+}
+
 void FontRenderer::begin(vec2 cameraPosition, vec2 cameraDimensions) noexcept
 {
 	mSpriteBatch.begin(cameraPosition, cameraDimensions);

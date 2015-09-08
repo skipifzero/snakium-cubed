@@ -2,9 +2,10 @@
 #ifndef SFZ_GL_SPRITE_BATCH_HPP
 #define SFZ_GL_SPRITE_BATCH_HPP
 
-#include <sfz/Math.hpp>
-#include <sfz/gl/OpenGL.hpp>
-#include <sfz/gl/TextureRegion.hpp>
+#include "sfz/geometry/AABB2D.hpp"
+#include "sfz/gl/OpenGL.hpp"
+#include "sfz/gl/TextureRegion.hpp"
+#include "sfz/Math.hpp"
 
 #include <cstddef> // size_t
 #include <memory>
@@ -48,8 +49,10 @@ public:
 	// Public interface
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+	void begin(const sfz::AABB2D& camera) noexcept;
 	void begin(vec2 cameraPosition, vec2 cameraDimensions) noexcept;
 
+	void draw(const sfz::AABB2D& rect, const TextureRegion& texRegion) noexcept;
 	void draw(vec2 position, vec2 dimensions, const TextureRegion& texRegion) noexcept;
 
 	void draw(vec2 position, vec2 dimensions, float angleRads,
