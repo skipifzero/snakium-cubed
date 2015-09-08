@@ -2,15 +2,19 @@
 #ifndef SFZ_GUI_BASE_ITEM_HPP
 #define SFZ_GUI_BASE_ITEM_HPP
 
-#include "sfz/geometry/Rectangle.hpp"
+#include <cstdint>
+
+#include "sfz/geometry/AABB2D.hpp"
 #include "sfz/math/Vector.hpp"
 #include "sfz/sdl/ButtonState.hpp"
 #include "sfz/gui/InputData.hpp"
 
 namespace gui {
 
-using sfz::Rectangle;
+using sfz::AABB2D;
 using sfz::vec2;
+
+using std::uint32_t;
 
 // BaseItem class
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -22,9 +26,9 @@ public:
 	// Virtual methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	virtual bool update(vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel) = 0;
+	virtual bool update(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel) = 0;
 	virtual KeyInput update(KeyInput key) = 0;
-	virtual void draw(unsigned int fbo, vec2 drawableDim, vec2 camPos, vec2 camDim) = 0;
+	virtual void draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D& cam) = 0;
 	virtual void move(vec2 diff) = 0;
 	
 	// Virtual getters
@@ -43,8 +47,21 @@ public:
 	// Public members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	
-	Rectangle bounds;
-};	
+	vec2 offset, dim;
+
+	// Common inline functions
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	inline AABB2D bounds(vec2 basePos) const noexcept
+	{
+		return AABB2D{basePos + offset, dim};
+	}
+
+	inline AABB2D bounds(const AABB2D& rect) const noexcept
+	{
+		return bounds(rect.position());
+	}
+};
 
 } // namespace gui
 #endif

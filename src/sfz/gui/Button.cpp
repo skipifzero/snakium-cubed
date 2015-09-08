@@ -1,6 +1,6 @@
 #include "sfz/gui/Button.hpp"
 
-#include "sfz/geometry/Intersection2D.hpp"
+#include "sfz/geometry/Intersection.hpp"
 
 #include "rendering/Assets.hpp" // TODO: Hilariously unportable include, remove later
 
@@ -24,10 +24,10 @@ Button::Button(const string& text, const function<void(Button&)>& activateFunc)
 // Button: Virtual methods overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool Button::update(vec2 pointerPos, sdl::ButtonState pointerState, vec2)
+bool Button::update(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel)
 {
 	if (!mEnabled) return false;
-	mSelected = sfz::pointInside(bounds, pointerPos);
+	mSelected = sfz::pointInside(bounds(basePos), pointerPos);
 	if (pointerState == sdl::ButtonState::UP) {
 		if (activateFunc) activateFunc(*this);
 	}
@@ -55,7 +55,7 @@ KeyInput Button::update(KeyInput key)
 	}
 }
 
-void Button::draw(unsigned int fbo, vec2 drawableDim, vec2 camPos, vec2 camDim)
+void Button::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D& cam)
 {
 	auto& assets = s3::Assets::INSTANCE();
 	auto& sb = assets.spriteBatch;
@@ -102,36 +102,36 @@ void Button::draw(unsigned int fbo, vec2 drawableDim, vec2 camPos, vec2 camDim)
 	}
 
 	// Render the button
-	sb.begin(camPos, camDim);
-	const auto& r = b.bounds;
-	sb.draw(r.pos - vec2{r.dim.x/2.0f, 0.0f}, vec2{r.dim.y}, *leftRegion);
+	sb.begin(cam.position(), cam.dimensions());
+	const auto& r = b.bounds(basePos);
+	sb.draw(r.position() - vec2{r.width()/2.0f, 0.0f}, vec2{r.height()}, *leftRegion);
 	if (midRegion != nullptr) {
-		sb.draw(r.pos, vec2{r.dim.x - 0.975f*r.dim.y, r.dim.y}, *midRegion);
+		sb.draw(r.position(), vec2{r.width() - 0.975f*r.height(), r.height()}, *midRegion);
 	}
-	sb.draw(r.pos + vec2{r.dim.x/2.0f, 0.0f}, vec2{r.dim.y}, *rightRegion);
+	sb.draw(r.position() + vec2{r.width()/2.0f, 0.0f}, vec2{r.height()}, *rightRegion);
 	sb.end(fbo, drawableDim, assets.ATLAS_128.texture());
 
 	// Font rendering preparations
 	font.horizontalAlign(gl::HorizontalAlign::CENTER);
 	font.verticalAlign(gl::VerticalAlign::BOTTOM);
-	const float size = 0.6f * r.dim.y;
-	const float yAlignOffset = (r.dim.y/2.0f)*0.3f;
+	const float size = 0.6f * r.height();
+	const float yAlignOffset = (r.height()/2.0f)*0.3f;
 	const float bgXAlignOffset = size * 0.035f;
 
 	// Render button text
 	// Font shadow
-	font.begin(camPos, camDim);
-	font.write(vec2{r.pos.x + bgXAlignOffset, r.pos.y - yAlignOffset}, size, b.text);
+	font.begin(cam.position(), cam.dimensions());
+	font.write(vec2{r.x() + bgXAlignOffset, r.y() - yAlignOffset}, size, b.text);
 	font.end(fbo, drawableDim, bgColor);
 	// Font foreground
-	font.begin(camPos, camDim);
-	font.write(vec2{r.pos.x, r.pos.y - yAlignOffset}, size, b.text);
+	font.begin(cam.position(), cam.dimensions());
+	font.write(vec2{r.x(), r.y() - yAlignOffset}, size, b.text);
 	font.end(fbo, drawableDim, fgColor);
 }
 
 void Button::move(vec2 diff)
 {
-	bounds.pos += diff;
+	offset += diff;
 }
 
 // Button: Virtual getters overriden from BaseItem

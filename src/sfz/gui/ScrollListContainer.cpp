@@ -2,7 +2,7 @@
 
 #include "sfz/Assert.hpp"
 
-#include "sfz/geometry/Intersection2D.hpp"
+#include "sfz/geometry/Intersection.hpp"
 
 #include "rendering/Assets.hpp" // TODO: Hilariously unportable include, remove later
 
@@ -30,24 +30,19 @@ bool ScrollListContainer::addItem(shared_ptr<BaseItem> item, vec2 dim,
                                   HorizontalAlign hAlign) noexcept
 {
 	if (mNextItemTopPos == UNINITIALIZED_POS) {
-		mNextItemTopPos = vec2{bounds.pos.x, bounds.pos.y + (bounds.dim.y/2.0f)};
+		mNextItemTopPos = vec2{offset.x, offset.y + (this->dim.y/2.0f)};
 	}
 
-	if (dim.x > bounds.dim.x) {
+	if (dim.x > dim.x) {
 		std::cerr << "gui::System: Cannot add item, too wide.\n";
 		return false;
 	}
-	item->bounds.dim = dim;
-	if (hAlign == HorizontalAlign::CENTER) {
-		item->bounds.pos = vec2{mNextItemTopPos.x, mNextItemTopPos.y - (dim.y/2.0f)};
-	} else if (hAlign == HorizontalAlign::LEFT) {
-		item->bounds.pos = vec2{mNextItemTopPos.x - (bounds.dim.x/2.0f) + (dim.x/2.0f),
-		                        mNextItemTopPos.y - (dim.y/2.0f)};
-	} else if (hAlign == HorizontalAlign::RIGHT) {
-		item->bounds.pos = vec2{mNextItemTopPos.x + (bounds.dim.x/2.0f) - (dim.x/2.0f),
-		                        mNextItemTopPos.y - (dim.y/2.0f)};
-	}
-	mNextItemTopPos.y -= dim.y;
+	item->dim = dim;
+	mNextItemTopPos.y -= dim.y/2.0f;
+	vec2 itemPos = mNextItemTopPos;
+	itemPos.x += ((float)(int8_t)hAlign)*dim.x/2.0f;
+	item->offset = itemPos - offset;
+	mNextItemTopPos.y -= dim.y/2.0f;
 	items.push_back(item);
 	return true;
 }
@@ -55,7 +50,7 @@ bool ScrollListContainer::addItem(shared_ptr<BaseItem> item, vec2 dim,
 bool ScrollListContainer::addSpacing(float amount) noexcept
 {
 	if (mNextItemTopPos == UNINITIALIZED_POS) {
-		mNextItemTopPos = vec2{bounds.pos.x, bounds.pos.y + (bounds.dim.y/2.0f)};
+		mNextItemTopPos = vec2{offset.x, offset.y + (this->dim.y/2.0f)};
 	}
 
 	mNextItemTopPos.y -= amount;
@@ -65,9 +60,9 @@ bool ScrollListContainer::addSpacing(float amount) noexcept
 // ScrollListContainer: Virtual methods overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool ScrollListContainer::update(vec2 pointerPos, sdl::ButtonState pointerState, vec2 scrollWheel)
+bool ScrollListContainer::update(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel)
 {
-	for (auto& i : items) i->move(vec2{0.0f, scrollWheel.y*10.0f}); // TODO: Remove hardcoded factor
+	for (auto& i : items) i->move(vec2{0.0f, wheel.y*10.0f}); // TODO: Remove hardcoded factor
 
 	for (int i = 0; i < (int)items.size(); ++i) {
 		
@@ -75,10 +70,10 @@ bool ScrollListContainer::update(vec2 pointerPos, sdl::ButtonState pointerState,
 		if (!items[i]->isEnabled()) continue;
 
 		// Check if pointer position is inside item bounds
-		if (sfz::pointInside(items[i]->bounds, pointerPos)) {
+		if (sfz::pointInside(items[i]->bounds(basePos), pointerPos)) {
 
 			// Attempt to update item
-			bool success = items[i]->update(pointerPos, pointerState, scrollWheel);
+			bool success = items[i]->update(basePos + offset, pointerPos, pointerState, wheel);
 
 			if (success) {
 				
@@ -130,22 +125,23 @@ KeyInput ScrollListContainer::update(KeyInput key)
 	return key;
 }
 
-void ScrollListContainer::draw(unsigned int fbo, vec2 drawableDim, vec2 camPos, vec2 camDim)
+void ScrollListContainer::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D& cam)
 {
-	const float boundsYBottom = bounds.pos.y - (bounds.dim.y/2.0f);
-	const float boundsYTop = boundsYBottom + bounds.dim.y;
+	const float boundsYBottom = (basePos.y + offset.y) - (dim.y/2.0f);
+	const float boundsYTop = boundsYBottom + dim.y;
+	const vec2 conBasePos = basePos + offset;
 	for (auto& i : items) {
-		const float itemYBottom = i->bounds.pos.y - (i->bounds.dim.y/2.0f);
-		const float itemYTop = itemYBottom + i->bounds.dim.y;
+		const float itemYBottom = conBasePos.y + i->offset.y - (i->dim.y/2.0f);
+		const float itemYTop = itemYBottom + i->dim.y;
 		if (boundsYBottom <= itemYBottom && itemYTop <= boundsYTop) {
-			i->draw(fbo, drawableDim, camPos, camDim);
+			i->draw(basePos + offset, fbo, drawableDim, cam);
 		}
 	}
 }
 
 void ScrollListContainer::move(vec2 diff)
 {
-	bounds.pos += diff;
+	offset += diff;
 	for (auto& i : items) i->move(diff);
 }
 

@@ -18,7 +18,7 @@ TextItem::TextItem(const string& text, HorizontalAlign hAlign) noexcept
 // TextItem: Virtual methods overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool TextItem::update(vec2 pointerPos, sdl::ButtonState pointerState, vec2)
+bool TextItem::update(vec2, vec2, sdl::ButtonState, vec2)
 {
 	return false;
 }
@@ -28,40 +28,31 @@ KeyInput TextItem::update(KeyInput key)
 	return key;
 }
 
-void TextItem::draw(unsigned int fbo, vec2 drawableDim, vec2 camPos, vec2 camDim)
+void TextItem::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D& cam)
 {
 	auto& font = s3::Assets::INSTANCE().fontRenderer;
 
 	auto& sb = s3::Assets::INSTANCE().spriteBatch;
 
-	sb.begin(camPos, camDim);
-	sb.draw(bounds.pos, bounds.dim, s3::Assets::INSTANCE().TILE_FACE_REG);
+	sb.begin(cam.position(), cam.dimensions());
+	sb.draw(basePos + offset, dim, s3::Assets::INSTANCE().TILE_FACE_REG);
 	sb.end(fbo, drawableDim, s3::Assets::INSTANCE().ATLAS_128.texture());
 
-	float stringWidth = font.measureStringWidth(bounds.dim.y, text);
-	vec2 pos;
-	switch (hAlign) {
-	case HorizontalAlign::LEFT:
-		pos = vec2{bounds.pos.x - (bounds.dim.x/2.0f), bounds.pos.y};
-		break;
-	case HorizontalAlign::CENTER:
-		pos = bounds.pos;
-		break;
-	case HorizontalAlign::RIGHT:
-		pos = vec2{bounds.pos.x + (bounds.dim.x/2.0f), bounds.pos.y};
-		break;
-	}
-
+	float stringWidth = font.measureStringWidth(dim.y, text);
+	vec2 pos = basePos + offset;
+	float alignSign = (float)(int8_t)hAlign;
+	pos.x += (alignSign*(dim.x/2.0f));
+	
 	font.horizontalAlign(hAlign);
 	font.verticalAlign(gl::VerticalAlign::MIDDLE);
-	font.begin(camPos, camDim);
-	font.write(pos, bounds.dim.y, text);
+	font.begin(cam.position(), cam.dimensions());
+	font.write(pos, dim.y, text);
 	font.end(fbo, drawableDim, sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
 }
 
 void TextItem::move(vec2 diff)
 {
-	bounds.pos += diff;
+	offset += diff;
 }
 
 // TextItem: Virtual getters overriden from BaseItem

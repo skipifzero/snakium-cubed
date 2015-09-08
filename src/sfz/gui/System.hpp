@@ -2,10 +2,11 @@
 #ifndef SFZ_GUI_SYSTEM_HPP
 #define SFZ_GUI_SYSTEM_HPP
 
+#include <cstdint>
 #include <memory>
 #include <vector>
 
-#include "sfz/geometry/Rectangle.hpp"
+#include "sfz/geometry/AABB2D.hpp"
 #include "sfz/gl/Alignment.hpp"
 #include "sfz/math/Vector.hpp"
 #include "sfz/sdl/ButtonState.hpp"
@@ -21,6 +22,7 @@ using sfz::Rectangle;
 using sfz::vec2;
 
 using std::shared_ptr;
+using std::uint32_t;
 using std::vector;
 
 // System class
@@ -45,7 +47,7 @@ public:
 	bool addSpacing(float amount) noexcept;
 
 	void update(InputData data);
-	void draw(unsigned int fbo, vec2 drawableDim, vec2 camPos, vec2 camDim);
+	void draw(uint32_t fbo, vec2 drawableDim, const AABB2D& cam);
 
 	// Getters
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

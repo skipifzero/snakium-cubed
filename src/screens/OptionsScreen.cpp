@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include <sfz/geometry/AABB2D.hpp>
 #include <sfz/GL.hpp>
 
 #include "GlobalConfig.hpp"
@@ -151,11 +152,11 @@ void OptionsScreen::render(const UpdateState& state)
 
 	auto& sb = Assets::INSTANCE().spriteBatch;
 	sb.begin(guiOffs + (guiDim/2.0f), guiDim);
-	sb.draw(mGuiSystem.bounds().pos, mGuiSystem.bounds().dim, Assets::INSTANCE().TILE_FACE_REG);
+	sb.draw(mGuiSystem.bounds().position(), mGuiSystem.bounds().dimensions(), Assets::INSTANCE().TILE_FACE_REG);
 	sb.end(0, drawableDim, Assets::INSTANCE().ATLAS_128.texture());
 
 	// Draw GUI
-	mGuiSystem.draw(0, drawableDim, guiOffs + (guiDim/2.0f), guiDim);
+	mGuiSystem.draw(0, drawableDim, sfz::AABB2D{guiOffs + (guiDim/2.0f), guiDim});
 }
 
 } // namespace s3

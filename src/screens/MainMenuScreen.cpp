@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include <sfz/geometry/AABB2D.hpp>
 #include <sfz/GL.hpp>
 
 #include "GlobalConfig.hpp"
@@ -112,7 +113,7 @@ void MainMenuScreen::render(const UpdateState& state)
 	const vec2 guiOffs = screens::guiOffset(guiDim);
 
 	// Draw GUI
-	mGuiSystem.draw(0, drawableDim, guiOffs + (guiDim/2.0f), guiDim);
+	mGuiSystem.draw(0, drawableDim, sfz::AABB2D{guiOffs + (guiDim/2.0f), guiDim});
 }
 
 } // namespace s3

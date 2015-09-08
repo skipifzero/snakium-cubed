@@ -27,9 +27,9 @@ public:
 	// Virtual methods overriden from BaseItem
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	virtual bool update(vec2 pointerPos, sdl::ButtonState pointerState, vec2) override final;
+	virtual bool update(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel) override final;
 	virtual KeyInput update(KeyInput key) override final;
-	virtual void draw(unsigned int fbo, vec2 drawableDim, vec2 camPos, vec2 camDim) override final;
+	virtual void draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D& cam) override final;
 	virtual void move(vec2 diff) override final;
 
 	// Virtual getters overriden from BaseItem

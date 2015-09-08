@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#include "sfz/geometry/Intersection2D.hpp"
+#include "sfz/geometry/Intersection.hpp"
 
 #include "rendering/Assets.hpp" // TODO: Hilariously unportable include, remove later
 
@@ -14,7 +14,7 @@ namespace gui {
 System::System(const Rectangle& bounds)
 :
 	mBounds{bounds},
-	mNextItemTopPos{bounds.pos.x, bounds.pos.y + (bounds.dim.y/2.0f)}
+	mNextItemTopPos{bounds.x(), bounds.max.y}
 { }
 
 // System: Public methods
@@ -22,29 +22,24 @@ System::System(const Rectangle& bounds)
 
 bool System::addItem(shared_ptr<BaseItem> item, vec2 dim, HorizontalAlign hAlign) noexcept
 {
-	if (((mNextItemTopPos.y - dim.y) < (mBounds.pos.y - (mBounds.dim.y/2.0f))) ||
-	    (dim.x > mBounds.dim.x)) {
+	if (((mNextItemTopPos.y - dim.y) < mBounds.min.y) ||
+	    (dim.x > mBounds.width())) {
 		std::cerr << "gui::System: Cannot add item, out of bounds.\n";
 		return false;
 	}
-	item->bounds.dim = dim;
-	if (hAlign == HorizontalAlign::CENTER) {
-		item->bounds.pos = vec2{mNextItemTopPos.x, mNextItemTopPos.y - (dim.y/2.0f)};
-	} else if (hAlign == HorizontalAlign::LEFT) {
-		item->bounds.pos = vec2{mNextItemTopPos.x - (mBounds.dim.x/2.0f) + (dim.x/2.0f),
-		                        mNextItemTopPos.y - (dim.y/2.0f)};
-	} else if (hAlign == HorizontalAlign::RIGHT) {
-		item->bounds.pos = vec2{mNextItemTopPos.x + (mBounds.dim.x/2.0f) - (dim.x/2.0f),
-		                        mNextItemTopPos.y - (dim.y/2.0f)};
-	}
-	mNextItemTopPos.y -= dim.y;
+	item->dim = dim;
+	mNextItemTopPos.y -= dim.y/2.0f;
+	vec2 itemPos = mNextItemTopPos;
+	itemPos.x += ((float)(int8_t)hAlign)*dim.x/2.0f;
+	item->offset = itemPos - mBounds.position();
+	mNextItemTopPos.y -= dim.y/2.0f;
 	mItems.push_back(item);
 	return true;
 }
 
 bool System::addSpacing(float amount) noexcept
 {
-	if ((mNextItemTopPos.y - amount) < (mBounds.pos.y - (mBounds.dim.y/2.0f))) {
+	if ((mNextItemTopPos.y - amount) < mBounds.min.y) {
 		std::cerr << "gui::System: Cannot add spacing, out of bounds.\n";
 		return false;
 	}
@@ -108,10 +103,10 @@ void System::update(InputData data)
 			if (!mItems[i]->isEnabled()) continue;
 			
 			// Check if pointer position is inside item bounds
-			if (sfz::pointInside(mItems[i]->bounds, data.pointerPos)) {
+			if (sfz::pointInside(mItems[i]->bounds(mBounds), data.pointerPos)) {
 				
 				// Attempt to update item
-				bool success = mItems[i]->update(data.pointerPos, data.pointerState, data.scrollWheel);
+				bool success = mItems[i]->update(mBounds.position(), data.pointerPos, data.pointerState, data.scrollWheel);
 
 				if (success) {
 					
@@ -138,9 +133,9 @@ void System::update(InputData data)
 	}
 }
 
-void System::draw(unsigned int fbo, vec2 drawableDim, vec2 camPos, vec2 camDim)
+void System::draw(uint32_t fbo, vec2 drawableDim, const AABB2D& cam)
 {
-	for (auto& m : mItems) m->draw(fbo, drawableDim, camPos, camDim);
+	for (auto& i : mItems) i->draw(mBounds.position(), fbo, drawableDim, cam);
 }
 
 // System: Private methods

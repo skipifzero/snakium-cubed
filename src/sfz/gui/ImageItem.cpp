@@ -21,7 +21,7 @@ ImageItem::ImageItem(sfz::TextureRegion imageRegion, unsigned int texture,
 // ImageItem: Virtual methods overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool ImageItem::update(vec2 pointerPos, sdl::ButtonState pointerState, vec2)
+bool ImageItem::update(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel)
 {
 	return false;
 }
@@ -31,43 +31,35 @@ KeyInput ImageItem::update(KeyInput key)
 	return key;
 }
 
-void ImageItem::draw(unsigned int fbo, vec2 drawableDim, vec2 camPos, vec2 camDim)
+void ImageItem::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D& cam)
 {
 	auto& sb = s3::Assets::INSTANCE().spriteBatch;
 
 	vec2 imageDim = sfz::elemMult(imageRegion.dimensions(), imageScale);
 	float imageAspect = imageDim.x / imageDim.y;
-	float boundsAspect = bounds.dim.x / bounds.dim.y;
+	float boundsAspect = dim.x / dim.y;
 
 	vec2 resizedImageDim;
 	if (imageAspect < boundsAspect) {
-		resizedImageDim.y = bounds.dim.y;
-		resizedImageDim.x = bounds.dim.y * imageAspect;
+		resizedImageDim.y = dim.y;
+		resizedImageDim.x = dim.y * imageAspect;
 	} else {
-		resizedImageDim.x = bounds.dim.x;
-		resizedImageDim.y = bounds.dim.x / imageAspect;
-	}
-	vec2 pos;
-	switch (hAlign) {
-	case HorizontalAlign::LEFT:
-		pos = vec2{bounds.pos.x - (bounds.dim.x/2.0f) + (resizedImageDim.x/2.0f), bounds.pos.y};
-		break;
-	case HorizontalAlign::CENTER:
-		pos = bounds.pos;
-		break;
-	case HorizontalAlign::RIGHT:
-		pos = vec2{bounds.pos.x + (bounds.dim.x/2.0f) - (resizedImageDim.x/2.0f), bounds.pos.y};
-		break;
+		resizedImageDim.x = dim.x;
+		resizedImageDim.y = dim.x / imageAspect;
 	}
 
-	sb.begin(camPos, camDim);
+	vec2 pos = basePos + offset;
+	float alignSign = (float)(int8_t)hAlign;
+	pos.x = pos.x + alignSign*(dim.x/2.0f) - alignSign*(resizedImageDim.x/2.0f);
+
+	sb.begin(cam.position(), cam.dimensions());
 	sb.draw(pos, resizedImageDim, imageRegion);
 	sb.end(fbo, drawableDim, texture);
 }
 
 void ImageItem::move(vec2 diff)
 {
-	bounds.pos += diff;
+	offset += diff;
 }
 
 // ImageItem: Virtual getters overriden from BaseItem
