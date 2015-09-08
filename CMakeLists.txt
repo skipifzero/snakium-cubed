@@ -82,18 +82,6 @@ set(SOURCE_SCREENS_FILES
 	${SRC_DIR}/screens/ScreenUtils.cpp)
 source_group(screens FILES ${SOURCE_SCREENS_FILES})
 
-set(SOURCE_SFZ_TEMP_FILES
-	${SRC_DIR}/sfz/util/IniParser.hpp
-	${SRC_DIR}/sfz/util/IniParser.cpp
-	
-	${SRC_DIR}/sfz/geometry/Intersection2D.hpp
-	${SRC_DIR}/sfz/geometry/Intersection2D.cpp
-	${SRC_DIR}/sfz/geometry/Circle.hpp
-	${SRC_DIR}/sfz/geometry/Circle.inl
-	${SRC_DIR}/sfz/geometry/Rectangle.hpp
-	${SRC_DIR}/sfz/geometry/Rectangle.inl)
-source_group(sfz_temp FILES ${SOURCE_SFZ_TEMP_FILES})
-
 set(SOURCE_SFZ_GUI_TEMP_FILES
 	${SRC_DIR}/sfz/GUI.hpp
 	${SRC_DIR}/sfz/gui/BaseItem.hpp
