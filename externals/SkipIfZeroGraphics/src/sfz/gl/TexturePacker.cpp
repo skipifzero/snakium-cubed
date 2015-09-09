@@ -166,8 +166,8 @@ TexturePacker::TexturePacker(const string& dirPath, const vector<string>& filena
 		SDL_BlitSurface(surfaces[i], NULL, surface, &dstRect);
 
 		// Calculate TextureRegion
-		vec2 min = sfz::elemMult(vec2{(float)(dstRect.x + padding), (float)(dstRect.y + padding)}, texDimInv);
-		vec2 max = sfz::elemMult(vec2{(float)(dstRect.x + dstRect.w - 2*padding), (float)(dstRect.y + dstRect.h - 2*padding)}, texDimInv);
+		vec2 min = vec2{(float)(dstRect.x + padding), (float)(dstRect.y + padding)} * texDimInv;
+		vec2 max = vec2{(float)(dstRect.x + dstRect.w - 2*padding), (float)(dstRect.y + dstRect.h - 2*padding)} * texDimInv;
 		mTextureRegionMap[filenames[i]] = TextureRegion{min, max};
 	}
 
