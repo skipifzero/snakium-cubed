@@ -56,8 +56,8 @@ gui::InputData inputDataFromUpdateState(const sfz::UpdateState& state,
 	data.scrollWheel = scaledMouse.wheel;
 
 	// Controller
-	auto& ctrlItr = state.controllers.find(ctrlId);
-	auto& lastCtrlItr = state.controllersLastFrameState.find(ctrlId);
+	const auto& ctrlItr = state.controllers.find(ctrlId);
+	const auto& lastCtrlItr = state.controllersLastFrameState.find(ctrlId);
 	if (ctrlItr != state.controllers.end() && lastCtrlItr != state.controllersLastFrameState.end()) {
 		auto& ctrl = ctrlItr->second;
 		auto& lastCtrl = lastCtrlItr->second;

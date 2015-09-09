@@ -118,9 +118,9 @@ UpdateOp OptionsScreen::update(const UpdateState& state)
 	const vec2 guiOffs = screens::guiOffset(guiDim);
 
 	int32_t ctrlId = getFirstController(state);
-	auto& ctrlItr = state.controllers.find(ctrlId);
+	const auto& ctrlItr = state.controllers.find(ctrlId);
 	if (ctrlItr != state.controllers.end()) {
-		auto& ctrl = ctrlItr->second;
+		const auto& ctrl = ctrlItr->second;
 		if (ctrl.b == sdl::ButtonState::UP) {
 			return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 			                shared_ptr<BaseScreen>{new MainMenuScreen{}}};
