@@ -35,7 +35,7 @@ void ImageItem::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D&
 {
 	auto& sb = s3::Assets::INSTANCE().spriteBatch;
 
-	vec2 imageDim = sfz::elemMult(imageRegion.dimensions(), imageScale);
+	vec2 imageDim = imageRegion.dimensions() * imageScale;
 	float imageAspect = imageDim.x / imageDim.y;
 	float boundsAspect = dim.x / dim.y;
 
