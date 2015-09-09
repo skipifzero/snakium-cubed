@@ -285,16 +285,6 @@ constexpr Vector<T,3> cross(const Vector<T,3>& left, const Vector<T,3>& right) n
 }
 
 template<typename T, size_t N>
-Vector<T,N> elemMult(const Vector<T,N>& left, const Vector<T,N>& right) noexcept
-{
-	Vector<T,N> result = left;
-	for (size_t i = 0; i < N; ++i) {
-		result.elements[i] *= right.elements[i];
-	}
-	return result;
-}
-
-template<typename T, size_t N>
 T sum(const Vector<T,N>& vector) noexcept
 {
 	T result = T(0);
@@ -390,6 +380,15 @@ Vector<T,N>& operator*= (Vector<T,N>& left, T right) noexcept
 }
 
 template<typename T, size_t N>
+Vector<T,N>& operator*= (Vector<T,N>& left, const Vector<T,N>& right) noexcept
+{
+	for (size_t i = 0; i < N; ++i) {
+		left.elements[i] *= right.elements[i];
+	}
+	return left;
+}
+
+template<typename T, size_t N>
 Vector<T,N>& operator/= (Vector<T,N>& left, T right) noexcept
 {
 	sfz_assert_debug(right != T(0));
@@ -425,6 +424,13 @@ Vector<T,N> operator- (const Vector<T,N>& vector) noexcept
 
 template<typename T, size_t N>
 Vector<T,N> operator* (const Vector<T,N>& left, T right) noexcept
+{
+	Vector<T,N> temp = left;
+	return (temp *= right);
+}
+
+template<typename T, size_t N>
+Vector<T,N> operator* (const Vector<T,N>& left, const Vector<T,N>& right) noexcept
 {
 	Vector<T,N> temp = left;
 	return (temp *= right);

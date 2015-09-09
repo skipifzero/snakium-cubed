@@ -314,6 +314,19 @@ TEST_CASE("Arithmetic operators", "[sfz::Vector]")
 		REQUIRE(v2[1] == -2);
 		REQUIRE(v2[2] == 1);
 	}
+	SECTION("Element-wise multiplication") {
+		auto v3 = v1*v2;
+		REQUIRE(v3[0] == 0);
+		REQUIRE(v3[1] == 4);
+		REQUIRE(v3[2] == 5);
+		// Integrity check of base vectors
+		REQUIRE(v1[0] == 1);
+		REQUIRE(v1[1] == -2);
+		REQUIRE(v1[2] == 5);
+		REQUIRE(v2[0] == 0);
+		REQUIRE(v2[1] == -2);
+		REQUIRE(v2[2] == 1);
+	}
 	SECTION("Division by number") {
 		auto v1 = sfz::Vector<int, 2>{2, -2}/2;
 		REQUIRE(v1[0] == 1);
@@ -336,6 +349,12 @@ TEST_CASE("Arithmetic operators", "[sfz::Vector]")
 		REQUIRE(v1[0] == 3);
 		REQUIRE(v1[1] == -6);
 		REQUIRE(v1[2] == 15);
+	}
+	SECTION("Element-wise multiplication assignment") {
+		v1 *= v2;
+		REQUIRE(v1[0] == 0);
+		REQUIRE(v1[1] == 4);
+		REQUIRE(v1[2] == 5);
 	}
 	SECTION("Division by number assignment") {
 		sfz::Vector<int, 2> v3{2, -2};
@@ -467,26 +486,6 @@ TEST_CASE("Cross product", "[sfz::Vector]")
 		REQUIRE(res2[0] == 0);
 		REQUIRE(res2[1] == 0);
 		REQUIRE(res2[2] == 0);
-	}
-}
-
-TEST_CASE("Element-wise multiplication", "[sfz::Vector]")
-{
-	using sfz::elemMult;
-	sfz::Vector<int, 3> v1{1, 0, -3};
-	sfz::Vector<int, 3> v2{2, 0, 2};
-
-	SECTION("Correctness test") {
-		auto v3 = elemMult(v1, v2);
-		REQUIRE(v3[0] == 2);
-		REQUIRE(v3[1] == 0);
-		REQUIRE(v3[2] == -6);
-	}
-	SECTION("Same vector") {
-		auto v3 = elemMult(v1, v1);
-		REQUIRE(v3[0] == 1);
-		REQUIRE(v3[1] == 0);
-		REQUIRE(v3[2] == 9);
 	}
 }
 
