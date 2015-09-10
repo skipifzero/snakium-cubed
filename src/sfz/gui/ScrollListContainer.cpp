@@ -37,6 +37,7 @@ bool ScrollListContainer::addItem(shared_ptr<BaseItem> item, vec2 dim,
 		std::cerr << "gui::System: Cannot add item, too wide.\n";
 		return false;
 	}
+
 	item->dim = dim;
 	mNextItemTopPos.y -= dim.y/2.0f;
 	vec2 itemPos = mNextItemTopPos;
@@ -44,6 +45,8 @@ bool ScrollListContainer::addItem(shared_ptr<BaseItem> item, vec2 dim,
 	item->offset = itemPos - offset;
 	mNextItemTopPos.y -= dim.y/2.0f;
 	items.push_back(item);
+
+	mMinScrollOffset += dim.y;
 	return true;
 }
 
@@ -54,6 +57,8 @@ bool ScrollListContainer::addSpacing(float amount) noexcept
 	}
 
 	mNextItemTopPos.y -= amount;
+	mMinScrollOffset += amount;
+
 	return true;
 }
 
@@ -62,18 +67,30 @@ bool ScrollListContainer::addSpacing(float amount) noexcept
 
 bool ScrollListContainer::update(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel)
 {
-	for (auto& i : items) i->offset.y -= wheel.y*10.0f; // TODO: Remove hardcoded factor
+	//for (auto& i : items) i->offset.y -= wheel.y*10.0f; // TODO: Remove hardcoded factor
+	mCurrentScrollOffset -= (wheel.y * 10.0f); // TODO: Remove hardcoded factor
+	mCurrentScrollOffset = std::min(mCurrentScrollOffset, mMinScrollOffset - dim.y);
+	mCurrentScrollOffset = std::max(mCurrentScrollOffset, 0.0f);
+
+	const float epsilon = 0.2f;
+	const float boundsYBottom = (basePos.y + offset.y) - (dim.y/2.0f) - epsilon;
+	const float boundsYTop = boundsYBottom + dim.y + 2.0f*epsilon;
+	const vec2 itemBasePos = basePos + offset + vec2{0.0f, mCurrentScrollOffset};
 
 	for (int i = 0; i < (int)items.size(); ++i) {
-		
+
 		// Skip checking disabled items
 		if (!items[i]->isEnabled()) continue;
 
+		const float itemYBottom = itemBasePos.y + items[i]->offset.y - (items[i]->dim.y/2.0f);
+		const float itemYTop = itemYBottom + items[i]->dim.y;
+
 		// Check if pointer position is inside item bounds
-		if (sfz::pointInside(items[i]->bounds(basePos), pointerPos)) {
+		if (boundsYBottom <= itemYBottom && itemYTop <= boundsYTop &&
+		    sfz::pointInside(items[i]->bounds(itemBasePos), pointerPos)) {
 
 			// Attempt to update item
-			bool success = items[i]->update(basePos + offset, pointerPos, pointerState, wheel);
+			bool success = items[i]->update(itemBasePos, pointerPos, pointerState, wheel);
 
 			if (success) {
 				
@@ -127,14 +144,18 @@ KeyInput ScrollListContainer::update(KeyInput key)
 
 void ScrollListContainer::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D& cam)
 {
-	const float boundsYBottom = (basePos.y + offset.y) - (dim.y/2.0f);
-	const float boundsYTop = boundsYBottom + dim.y;
-	const vec2 conBasePos = basePos + offset;
+	const float epsilon = 0.2f;
+	const float boundsYBottom = (basePos.y + offset.y) - (dim.y/2.0f) - epsilon;
+	const float boundsYTop = boundsYBottom + dim.y + 2.0f*epsilon;
+	const vec2 itemBasePos = basePos + offset + vec2{0.0f, mCurrentScrollOffset};
+	
 	for (auto& i : items) {
-		const float itemYBottom = conBasePos.y + i->offset.y - (i->dim.y/2.0f);
+		
+		const float itemYBottom = itemBasePos.y + i->offset.y - (i->dim.y/2.0f);
 		const float itemYTop = itemYBottom + i->dim.y;
+		
 		if (boundsYBottom <= itemYBottom && itemYTop <= boundsYTop) {
-			i->draw(basePos + offset, fbo, drawableDim, cam);
+			i->draw(itemBasePos, fbo, drawableDim, cam);
 		}
 	}
 }
@@ -158,7 +179,6 @@ bool ScrollListContainer::isEnabled() const
 void ScrollListContainer::deselect()
 {
 	mSelected = false;
-	for (auto& i : items) i->deselect();
 }
 
 void ScrollListContainer::enable()
@@ -184,6 +204,19 @@ bool ScrollListContainer::selectNextItemDown() noexcept
 		if (!items[i]->isEnabled()) continue;
 		if (items[i]->update(KeyInput::DOWN) == KeyInput::NONE) {
 			mCurrentSelectedIndex = i;
+
+			// Fix scroll offset
+			const float boundsYBottom = -(dim.y/2.0f);
+			const float boundsYTop = (dim.y/2.0f);
+			const float itemYBottom = items[i]->offset.y + mCurrentScrollOffset - (items[i]->dim.y/2.0f);
+			const float itemYTop = itemYBottom + items[i]->dim.y;
+			if (itemYBottom <= boundsYBottom) {
+				mCurrentScrollOffset += (boundsYBottom - itemYBottom);
+			}
+			if (itemYTop >= boundsYTop) {
+				mCurrentScrollOffset -= (itemYTop - boundsYTop);
+			}
+
 			return true;
 		}
 	}
@@ -202,6 +235,19 @@ bool ScrollListContainer::selectNextItemUp() noexcept
 		if (!items[i]->isEnabled()) continue;
 		if (items[i]->update(KeyInput::DOWN) == KeyInput::NONE) {
 			mCurrentSelectedIndex = i;
+
+			// Fix scroll offset
+			const float boundsYBottom = -(dim.y/2.0f);
+			const float boundsYTop = (dim.y/2.0f);
+			const float itemYBottom = items[i]->offset.y + mCurrentScrollOffset - (items[i]->dim.y/2.0f);
+			const float itemYTop = itemYBottom + items[i]->dim.y;
+			if (itemYBottom <= boundsYBottom) {
+				mCurrentScrollOffset += (boundsYBottom - itemYBottom);
+			}
+			if (itemYTop >= boundsYTop) {
+				mCurrentScrollOffset -= (itemYTop - boundsYTop);
+			}
+
 			return true;
 		}
 	}

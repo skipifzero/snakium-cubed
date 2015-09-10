@@ -85,7 +85,6 @@ OptionsScreen::OptionsScreen() noexcept
 	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 12", [](Button& ref) {
 		ref.disable();
 	}}}, vec2{buttonWidth, buttonHeight});
-	scrollList.addSpacing(spacing);
 
 
 	mGuiSystem.addSpacing(spacing);

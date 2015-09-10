@@ -67,6 +67,9 @@ private:
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+	float mCurrentScrollOffset = 0.0f;
+	float mMinScrollOffset = 0.0f;
+
 	bool mSelected = false;
 	bool mEnabled = true;
 	vec2 mNextItemTopPos;
