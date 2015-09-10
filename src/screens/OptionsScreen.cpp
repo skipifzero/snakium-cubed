@@ -99,36 +99,17 @@ OptionsScreen::OptionsScreen() noexcept
 
 UpdateOp OptionsScreen::update(const UpdateState& state)
 {
-	// Handle input
-	for (const SDL_Event& event : state.events) {
-		switch (event.type) {
-		case SDL_KEYUP:
-			switch (event.key.keysym.sym) {
-			case SDLK_ESCAPE: 
-			case SDLK_BACKSPACE:
-				return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-				                shared_ptr<BaseScreen>{new MainMenuScreen{}}};
-			}
-		}
-	}
-
 	const vec2 drawableDim = state.window.drawableDimensions();
 	const vec2 guiDim = screens::guiDimensions(drawableDim);
 	const vec2 guiOffs = screens::guiOffset(guiDim);
 
 	int32_t ctrlId = getFirstController(state);
-	const auto& ctrlItr = state.controllers.find(ctrlId);
-	if (ctrlItr != state.controllers.end()) {
-		const auto& ctrl = ctrlItr->second;
-		if (ctrl.b == sdl::ButtonState::UP) {
-			return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-			                shared_ptr<BaseScreen>{new MainMenuScreen{}}};
-		} else if (ctrl.back == sdl::ButtonState::UP) {
-			return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-			                shared_ptr<BaseScreen>{new MainMenuScreen{}}};
-		}
+	bool cancelRef;
+	gui::InputData data = inputDataFromUpdateState(state, guiOffs + (guiDim/2.0f), guiDim, ctrlId, &cancelRef);
+	if (cancelRef) {
+		return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+		                shared_ptr<BaseScreen>{new MainMenuScreen{}}};
 	}
-	gui::InputData data = inputDataFromUpdateState(state, guiOffs + (guiDim/2.0f), guiDim, ctrlId);
 	mGuiSystem.update(data);
 
 	return mUpdateOp;

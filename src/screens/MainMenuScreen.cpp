@@ -76,22 +76,14 @@ MainMenuScreen::MainMenuScreen() noexcept
 
 UpdateOp MainMenuScreen::update(const UpdateState& state)
 {
-	// Handle input
-	/*for (const SDL_Event& event : state.events) {
-		switch (event.type) {
-		case SDL_KEYUP:
-			switch (event.key.keysym.sym) {
-			case SDLK_ESCAPE: return sfz::SCREEN_QUIT;
-			}
-		}
-	}*/
-
 	const vec2 drawableDim = state.window.drawableDimensions();
 	const vec2 guiDim = screens::guiDimensions(drawableDim);
 	const vec2 guiOffs = screens::guiOffset(guiDim);
 
 	int32_t ctrlId = getFirstController(state);
-	gui::InputData data = inputDataFromUpdateState(state, guiOffs + (guiDim/2.0f), guiDim, ctrlId);
+	bool cancelRef;
+	gui::InputData data = inputDataFromUpdateState(state, guiOffs + (guiDim/2.0f), guiDim, ctrlId, &cancelRef);
+	if (cancelRef) return sfz::SCREEN_QUIT;
 	mGuiSystem.update(data);
 
 	return mUpdateOp;

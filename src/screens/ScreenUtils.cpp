@@ -10,10 +10,12 @@ int32_t getFirstController(const sfz::UpdateState& state) noexcept
 }
 
 gui::InputData inputDataFromUpdateState(const sfz::UpdateState& state,
-                                        vec2 camPos, vec2 camDim, int32_t ctrlId) noexcept
+                                        vec2 camPos, vec2 camDim, int32_t ctrlId,
+                                        bool* cancelRef) noexcept
 {
 	gui::InputData data;
 	data.key = gui::KeyInput::NONE;
+	if (cancelRef != nullptr) *cancelRef = false;
 
 	// Check for keyboard events
 	for (const SDL_Event& event : state.events) {
@@ -38,11 +40,15 @@ gui::InputData inputDataFromUpdateState(const sfz::UpdateState& state,
 			case SDLK_RIGHT:
 			case 'd':
 			case 'D':
-				data.key = gui::KeyInput::DOWN;
+				data.key = gui::KeyInput::RIGHT;
 				break;
 			case SDLK_RETURN:
 			case SDLK_SPACE:
 				data.key = gui::KeyInput::ACTIVATE;
+				break;
+			case SDLK_ESCAPE:
+			case SDLK_BACKSPACE:
+				if (cancelRef != nullptr) *cancelRef = true;
 				break;
 			}
 		}
@@ -92,6 +98,12 @@ gui::InputData inputDataFromUpdateState(const sfz::UpdateState& state,
 			data.key = gui::KeyInput::RIGHT;
 		} else if (ctrl.a == sdl::ButtonState::UP) {
 			data.key = gui::KeyInput::ACTIVATE;
+		}
+
+		if (ctrl.b == sdl::ButtonState::UP) {
+			if (cancelRef != nullptr) *cancelRef = true;
+		} else if (ctrl.back == sdl::ButtonState::UP) {
+			if (cancelRef != nullptr) *cancelRef = true;
 		}
 	}
 

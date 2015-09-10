@@ -49,10 +49,10 @@ void ImageItem::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D&
 	}
 
 	vec2 pos = basePos + offset;
-	float alignSign = (float)(int8_t)hAlign;
-	pos.x = pos.x + alignSign*(dim.x/2.0f) - alignSign*(resizedImageDim.x/2.0f);
+	float alignSign = (float)((int8_t)hAlign);
+	pos.x = pos.x + (alignSign*dim.x/2.0f) - (alignSign*resizedImageDim.x/2.0);
 
-	sb.begin(cam.position(), cam.dimensions());
+	sb.begin(cam);
 	sb.draw(pos, resizedImageDim, imageRegion);
 	sb.end(fbo, drawableDim, texture);
 }

@@ -16,7 +16,8 @@ using std::int32_t;
 int32_t getFirstController(const sfz::UpdateState& state) noexcept;
 
 gui::InputData inputDataFromUpdateState(const sfz::UpdateState& state,
-                                        vec2 camPos, vec2 camDim, int32_t ctrlId) noexcept;
+                                        vec2 camPos, vec2 camDim, int32_t ctrlId,
+                                        bool* cancelRef = nullptr) noexcept;
 
 } // namespace s3
 #endif
