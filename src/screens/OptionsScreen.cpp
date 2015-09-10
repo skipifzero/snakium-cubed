@@ -30,7 +30,7 @@ OptionsScreen::OptionsScreen() noexcept
 	float spacing = 5.0f;
 	float titleHeight = 20.0f;
 	float buttonWidth = menuDim.x * 0.5f;
-	float buttonHeight = 9.0f;
+	float buttonHeight = 8.5f;
 	float scrollListHeight = menuDim.y - titleHeight - buttonHeight - 3.0f*spacing;
 
 	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Options"}}, vec2{menuDim.x, titleHeight});
@@ -84,6 +84,12 @@ OptionsScreen::OptionsScreen() noexcept
 	scrollList.addSpacing(spacing);
 	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 12", [](Button& ref) {
 		ref.disable();
+	}}}, vec2{buttonWidth, buttonHeight});
+	scrollList.addSpacing(spacing);
+	scrollList.addItem(shared_ptr<BaseItem>{new OnOffSelector{"OnOffSelector", [this]() {
+		return this->testBool;
+	}, [this]() {
+		this->testBool = !this->testBool;
 	}}}, vec2{buttonWidth, buttonHeight});
 
 

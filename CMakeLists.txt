@@ -90,6 +90,8 @@ set(SOURCE_SFZ_GUI_TEMP_FILES
 	${SRC_DIR}/sfz/gui/ImageItem.hpp
 	${SRC_DIR}/sfz/gui/ImageItem.cpp
 	${SRC_DIR}/sfz/gui/InputData.hpp
+	${SRC_DIR}/sfz/gui/OnOffSelector.hpp
+	${SRC_DIR}/sfz/gui/OnOffSelector.cpp
 	${SRC_DIR}/sfz/gui/ScrollListContainer.hpp
 	${SRC_DIR}/sfz/gui/ScrollListContainer.cpp
 	${SRC_DIR}/sfz/gui/System.hpp

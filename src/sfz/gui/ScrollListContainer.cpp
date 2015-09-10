@@ -179,6 +179,7 @@ bool ScrollListContainer::isEnabled() const
 void ScrollListContainer::deselect()
 {
 	mSelected = false;
+	for (auto& i : items) i->deselect();
 }
 
 void ScrollListContainer::enable()
