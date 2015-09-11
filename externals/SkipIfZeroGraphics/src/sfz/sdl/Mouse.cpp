@@ -80,9 +80,15 @@ void Mouse::update(const Window& window, const vector<SDL_Event>& events) noexce
 
 Mouse Mouse::scaleMouse(vec2 camPos, vec2 camDim) const noexcept
 {
+	return this->scaleMouse(AABB2D{camPos, camDim});
+}
+
+Mouse Mouse::scaleMouse(const AABB2D& cam) const noexcept
+{
 	Mouse temp = *this;
-	temp.position = camPos - (camDim/2.0f) + (temp.position * camDim.x);
-	temp.motion = temp.motion * camDim.x;
+	float camWidth = cam.width();
+	temp.position = cam.min + (temp.position * camWidth);
+	temp.motion = temp.motion * camWidth;
 	return temp;
 }
 
