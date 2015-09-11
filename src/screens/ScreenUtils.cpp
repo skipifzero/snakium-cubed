@@ -10,7 +10,7 @@ int32_t getFirstController(const sfz::UpdateState& state) noexcept
 }
 
 gui::InputData inputDataFromUpdateState(const sfz::UpdateState& state,
-                                        vec2 camPos, vec2 camDim, int32_t ctrlId,
+                                        const AABB2D& cam, int32_t ctrlId,
                                         bool* cancelRef) noexcept
 {
 	gui::InputData data;
@@ -55,7 +55,7 @@ gui::InputData inputDataFromUpdateState(const sfz::UpdateState& state,
 	}
 
 	// Mouse
-	auto scaledMouse = state.rawMouse.scaleMouse(camPos, camDim);
+	auto scaledMouse = state.rawMouse.scaleMouse(cam.position(), cam.dimensions());
 	data.pointerPos = scaledMouse.position;
 	data.pointerMotion = scaledMouse.motion;
 	data.pointerState = scaledMouse.leftButton;

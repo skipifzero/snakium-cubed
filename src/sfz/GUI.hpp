@@ -4,6 +4,7 @@
 
 #include "sfz/gui/BaseItem.hpp"
 #include "sfz/gui/Button.hpp"
+#include "sfz/gui/GUIUtils.hpp"
 #include "sfz/gui/ImageItem.hpp"
 #include "sfz/gui/InputData.hpp"
 #include "sfz/gui/OnOffSelector.hpp"

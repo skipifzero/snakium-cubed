@@ -77,12 +77,11 @@ MainMenuScreen::MainMenuScreen() noexcept
 UpdateOp MainMenuScreen::update(const UpdateState& state)
 {
 	const vec2 drawableDim = state.window.drawableDimensions();
-	const vec2 guiDim = screens::guiDimensions(drawableDim);
-	const vec2 guiOffs = screens::guiOffset(guiDim);
+	const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, screens::MIN_DRAWABLE);
 
 	int32_t ctrlId = getFirstController(state);
 	bool cancelRef;
-	gui::InputData data = inputDataFromUpdateState(state, guiOffs + (guiDim/2.0f), guiDim, ctrlId, &cancelRef);
+	gui::InputData data = inputDataFromUpdateState(state, guiCam, ctrlId, &cancelRef);
 	if (cancelRef) return sfz::SCREEN_QUIT;
 	mGuiSystem.update(data);
 
@@ -101,11 +100,10 @@ void MainMenuScreen::render(const UpdateState& state)
 
 	// Sizes
 	const vec2 drawableDim = state.window.drawableDimensions();
-	const vec2 guiDim = screens::guiDimensions(drawableDim);
-	const vec2 guiOffs = screens::guiOffset(guiDim);
+	const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, screens::MIN_DRAWABLE);
 
 	// Draw GUI
-	mGuiSystem.draw(0, drawableDim, sfz::AABB2D{guiOffs + (guiDim/2.0f), guiDim});
+	mGuiSystem.draw(0, drawableDim, guiCam);
 }
 
 } // namespace s3

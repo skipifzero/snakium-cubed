@@ -12,23 +12,6 @@ namespace screens {
 
 const vec2 MIN_DRAWABLE{100.0f, 120.0f};
 
-inline vec2 guiDimensions(vec2 drawableDimensions) noexcept
-{
-	const float minDrawableAspect = MIN_DRAWABLE.x / MIN_DRAWABLE.y;
-	const float drawableAspect = drawableDimensions.x / drawableDimensions.y;
-
-	if (minDrawableAspect > drawableAspect) {
-		return vec2{MIN_DRAWABLE.x, MIN_DRAWABLE.x*(drawableDimensions.y/drawableDimensions.x)};
-	} else {
-		return vec2{MIN_DRAWABLE.y*(drawableDimensions.x/drawableDimensions.y), MIN_DRAWABLE.y};
-	}
-}
-
-inline vec2 guiOffset(vec2 guiDimensions) noexcept
-{
-	return (MIN_DRAWABLE - guiDimensions)/2.0f;
-}
-
 } // namespace screens
 
 } // namespace s3
