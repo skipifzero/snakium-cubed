@@ -42,6 +42,14 @@ KeyInput OnOffSelector::update(KeyInput key)
 		else if (key == KeyInput::DOWN || key == KeyInput::UP) {
 			mSelected = false;
 			return key;
+		} else if (key == KeyInput::LEFT) {
+			bool state = false;
+			if (checkStateFunc) state = checkStateFunc();
+			if (!state && changeStateFunc) changeStateFunc();
+		} else if (key == KeyInput::RIGHT) {
+			bool state = false;
+			if (checkStateFunc) state = checkStateFunc();
+			if (state && changeStateFunc) changeStateFunc();
 		}
 		return KeyInput::NONE;
 	} else {
@@ -84,7 +92,8 @@ void OnOffSelector::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AAB
 	font.write(offPos + vec2{bgXAlignOffset, 0.0f}, size, "Off");
 	font.end(0, drawableDim, vec4{0.0f, 0.0f, 0.0f, 1.0f});
 
-	bool state = checkStateFunc();
+	bool state = false;
+	if (checkStateFunc) state = checkStateFunc();
 
 	// Render button text
 	font.begin(cam);
