@@ -199,7 +199,7 @@ SpriteBatch::~SpriteBatch() noexcept
 // SpriteBatch: Public interface
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void SpriteBatch::begin(const sfz::AABB2D& camera) noexcept
+void SpriteBatch::begin(const AABB2D& camera) noexcept
 {
 	this->begin(camera.position(), camera.dimensions());
 }
@@ -210,7 +210,7 @@ void SpriteBatch::begin(vec2 cameraPosition, vec2 cameraDimensions) noexcept
 	mCurrentDrawCount = 0;
 }
 
-void SpriteBatch::draw(const sfz::AABB2D& rect, const TextureRegion& texRegion) noexcept
+void SpriteBatch::draw(const AABB2D& rect, const TextureRegion& texRegion) noexcept
 {
 	this->draw(rect.position(), rect.dimensions(), texRegion);
 }
@@ -253,7 +253,18 @@ void SpriteBatch::draw(vec2 position, vec2 dimensions, float angleRads,
 
 void SpriteBatch::end(GLuint fbo, vec2 viewportDimensions, GLuint texture) noexcept
 {
+	this->end(fbo, AABB2D{viewportDimensions/2.0f, viewportDimensions}, texture);
+}
+
+void SpriteBatch::end(GLuint fbo, const AABB2D& viewport, GLuint texture) noexcept
+{
 	sfz_assert_debug(mCurrentDrawCount <= mCapacity);
+
+	// Get old values
+	float oldViewport[4];
+	glGetFloatv(GL_VIEWPORT, oldViewport);
+	int oldShader;
+	glGetIntegerv(GL_CURRENT_PROGRAM, &oldShader);
 
 	// Setting up buffers and transferring data.
 	// Uses orpahning, see: https://www.opengl.org/wiki/Buffer_Object_Streaming
@@ -292,7 +303,7 @@ void SpriteBatch::end(GLuint fbo, vec2 viewportDimensions, GLuint texture) noexc
 	// Enabling shader
 	glUseProgram(mShader);
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	glViewport(0, 0, viewportDimensions[0], viewportDimensions[1]);
+	glViewport(viewport.min.x, viewport.min.y, viewport.width(), viewport.height());
 
 	// Uniforms
 	glActiveTexture(GL_TEXTURE0);
@@ -305,8 +316,9 @@ void SpriteBatch::end(GLuint fbo, vec2 viewportDimensions, GLuint texture) noexc
 
 	// Cleanup
 	if (depthTestWasEnabled) glEnable(GL_DEPTH_TEST);
-	glUseProgram(0); // TODO: Store previous program
+	glUseProgram(oldShader);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0); // TODO: Store previous framebuffer
+	glViewport(oldViewport[0], oldViewport[1], oldViewport[2], oldViewport[3]);
 	glVertexAttribDivisor(0, 0);
 	glVertexAttribDivisor(1, 0);
 	glVertexAttribDivisor(2, 0);
@@ -314,6 +326,4 @@ void SpriteBatch::end(GLuint fbo, vec2 viewportDimensions, GLuint texture) noexc
 	glVertexAttribDivisor(4, 0);
 }
 
-
 } // namespace sfz
-

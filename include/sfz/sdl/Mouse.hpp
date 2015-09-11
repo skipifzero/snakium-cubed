@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <SDL.h>
+#include <sfz/geometry/AABB2D.hpp>
 #include <sfz/math/Vector.hpp>
 
 #include "sfz/sdl/ButtonState.hpp"
@@ -14,6 +15,7 @@ namespace sdl {
 
 using std::vector;
 
+using sfz::AABB2D;
 using sfz::vec2;
 
 // Mouse structs
@@ -48,6 +50,7 @@ struct Mouse final {
 
 	void update(const Window& window, const vector<SDL_Event>& events) noexcept;
 	Mouse scaleMouse(vec2 camPos, vec2 camDim) const noexcept;
+	Mouse scaleMouse(const AABB2D& camera) const noexcept;
 };
 
 } // namespace sdl

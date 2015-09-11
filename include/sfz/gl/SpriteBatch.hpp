@@ -12,6 +12,7 @@
 
 namespace gl {
 
+using sfz::AABB2D;
 using sfz::vec2;
 using sfz::vec4;
 using sfz::mat3;
@@ -49,16 +50,18 @@ public:
 	// Public interface
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	void begin(const sfz::AABB2D& camera) noexcept;
+	void begin(const AABB2D& camera) noexcept;
 	void begin(vec2 cameraPosition, vec2 cameraDimensions) noexcept;
 
-	void draw(const sfz::AABB2D& rect, const TextureRegion& texRegion) noexcept;
+	void draw(const AABB2D& rect, const TextureRegion& texRegion) noexcept;
 	void draw(vec2 position, vec2 dimensions, const TextureRegion& texRegion) noexcept;
 
 	void draw(vec2 position, vec2 dimensions, float angleRads,
 	          const TextureRegion& texRegion) noexcept;
 
 	void end(GLuint fbo, vec2 viewportDimensions, GLuint texture) noexcept;
+	/** viewport is in same coordinate system as glViewport() (i.e. (0,0) in lower left corner) */
+	void end(GLuint fbo, const AABB2D& viewport, GLuint texture) noexcept;
 
 	inline GLuint shaderProgram() const noexcept { return mShader; }
 

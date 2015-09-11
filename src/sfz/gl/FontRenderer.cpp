@@ -182,7 +182,7 @@ FontRenderer::~FontRenderer() noexcept
 // FontRenderer: Public methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void FontRenderer::begin(const sfz::AABB2D& camera) noexcept
+void FontRenderer::begin(const AABB2D& camera) noexcept
 {
 	this->begin(camera.position(), camera.dimensions());
 }
@@ -227,9 +227,14 @@ void FontRenderer::writeBitmapFont(vec2 position, vec2 dimensions) noexcept
 
 void FontRenderer::end(GLuint fbo, vec2 viewportDimensions, vec4 textColor) noexcept
 {
+	this->end(fbo, AABB2D{viewportDimensions/2.0f, viewportDimensions}, textColor);
+}
+
+void FontRenderer::end(GLuint fbo, const AABB2D& viewport, vec4 textColor) noexcept
+{
 	glUseProgram(mSpriteBatch.shaderProgram());
 	gl::setUniform(mSpriteBatch.shaderProgram(), "uTextColor", textColor);
-	mSpriteBatch.end(fbo, viewportDimensions, mFontTexture);
+	mSpriteBatch.end(fbo, viewport, mFontTexture);
 }
 
 float FontRenderer::measureStringWidth(float size, const std::string& text) const noexcept
