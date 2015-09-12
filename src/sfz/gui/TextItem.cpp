@@ -28,7 +28,7 @@ KeyInput TextItem::update(KeyInput key)
 	return key;
 }
 
-void TextItem::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D& cam)
+void TextItem::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 {
 	auto& font = s3::Assets::INSTANCE().fontRenderer;
 
@@ -36,7 +36,7 @@ void TextItem::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D& 
 
 	sb.begin(cam.position(), cam.dimensions());
 	sb.draw(basePos + offset, dim, s3::Assets::INSTANCE().TILE_FACE_REG);
-	sb.end(fbo, drawableDim, s3::Assets::INSTANCE().ATLAS_128.texture());
+	sb.end(fbo, viewport, s3::Assets::INSTANCE().ATLAS_128.texture());
 
 	float stringWidth = font.measureStringWidth(dim.y, text);
 	vec2 pos = basePos + offset;
@@ -47,7 +47,7 @@ void TextItem::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D& 
 	font.verticalAlign(gl::VerticalAlign::MIDDLE);
 	font.begin(cam.position(), cam.dimensions());
 	font.write(pos, dim.y, text);
-	font.end(fbo, drawableDim, sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+	font.end(fbo, viewport, sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
 }
 
 // TextItem: Virtual getters overriden from BaseItem

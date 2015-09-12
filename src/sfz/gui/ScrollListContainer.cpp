@@ -142,7 +142,7 @@ KeyInput ScrollListContainer::update(KeyInput key)
 	return key;
 }
 
-void ScrollListContainer::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D& cam)
+void ScrollListContainer::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 {
 	const float epsilon = 0.2f;
 	const float boundsYBottom = (basePos.y + offset.y) - (dim.y/2.0f) - epsilon;
@@ -155,7 +155,7 @@ void ScrollListContainer::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, con
 		const float itemYTop = itemYBottom + i->dim.y;
 		
 		if (boundsYBottom <= itemYBottom && itemYTop <= boundsYTop) {
-			i->draw(itemBasePos, fbo, drawableDim, cam);
+			i->draw(itemBasePos, fbo, viewport, cam);
 		}
 	}
 }

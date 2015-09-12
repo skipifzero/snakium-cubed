@@ -55,7 +55,8 @@ KeyInput Button::update(KeyInput key)
 	}
 }
 
-void Button::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D& cam)
+
+void Button::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 {
 	auto& assets = s3::Assets::INSTANCE();
 	auto& sb = assets.spriteBatch;
@@ -109,7 +110,7 @@ void Button::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D& ca
 		sb.draw(r.position(), vec2{r.width() - 0.975f*r.height(), r.height()}, *midRegion);
 	}
 	sb.draw(r.position() + vec2{r.width()/2.0f, 0.0f}, vec2{r.height()}, *rightRegion);
-	sb.end(fbo, drawableDim, assets.ATLAS_128.texture());
+	sb.end(fbo, viewport, assets.ATLAS_128.texture());
 
 	// Font rendering preparations
 	font.horizontalAlign(gl::HorizontalAlign::CENTER);
@@ -122,11 +123,11 @@ void Button::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D& ca
 	// Font shadow
 	font.begin(cam.position(), cam.dimensions());
 	font.write(vec2{r.x() + bgXAlignOffset, r.y() - yAlignOffset}, size, b.text);
-	font.end(fbo, drawableDim, bgColor);
+	font.end(fbo, viewport, bgColor);
 	// Font foreground
 	font.begin(cam.position(), cam.dimensions());
 	font.write(vec2{r.x(), r.y() - yAlignOffset}, size, b.text);
-	font.end(fbo, drawableDim, fgColor);
+	font.end(fbo, viewport, fgColor);
 }
 
 // Button: Virtual getters overriden from BaseItem

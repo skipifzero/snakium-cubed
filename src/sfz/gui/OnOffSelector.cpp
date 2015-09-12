@@ -60,7 +60,7 @@ KeyInput OnOffSelector::update(KeyInput key)
 	}
 }
 
-void OnOffSelector::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D& cam)
+void OnOffSelector::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 {
 	using sfz::vec4;
 
@@ -70,7 +70,7 @@ void OnOffSelector::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AAB
 
 	sb.begin(cam);
 	sb.draw(basePos + offset, dim, assets.TILE_FACE_REG);
-	sb.end(0, drawableDim, assets.ATLAS_128.texture());
+	sb.end(fbo, viewport, assets.ATLAS_128.texture());
 
 	// Font rendering preparations
 	font.horizontalAlign(gl::HorizontalAlign::LEFT);
@@ -90,7 +90,7 @@ void OnOffSelector::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AAB
 	font.write(leftMiddlePos + vec2{bgXAlignOffset, 0.0f}, size, text);
 	font.write(onPos + vec2{bgXAlignOffset, 0.0f}, size, "On");
 	font.write(offPos + vec2{bgXAlignOffset, 0.0f}, size, "Off");
-	font.end(0, drawableDim, vec4{0.0f, 0.0f, 0.0f, 1.0f});
+	font.end(fbo, viewport, vec4{0.0f, 0.0f, 0.0f, 1.0f});
 
 	bool state = false;
 	if (checkStateFunc) state = checkStateFunc();
@@ -98,13 +98,13 @@ void OnOffSelector::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AAB
 	// Render button text
 	font.begin(cam);
 	font.write(leftMiddlePos, size, text);
-	font.end(0, drawableDim, mSelected ? vec4{1.0f, 0.0f, 0.0f, 1.0f} : vec4{1.0f});
+	font.end(fbo, viewport, mSelected ? vec4{1.0f, 0.0f, 0.0f, 1.0f} : vec4{1.0f});
 	font.begin(cam);
 	font.write(onPos, size, "On");
-	font.end(0, drawableDim, state ? (mSelected ? vec4{1.0f, 0.0f, 0.0f, 1.0f} : vec4{1.0f}) : vec4{0.5f, 0.5f, 0.5f, 1.0f});
+	font.end(fbo, viewport, state ? (mSelected ? vec4{1.0f, 0.0f, 0.0f, 1.0f} : vec4{1.0f}) : vec4{0.5f, 0.5f, 0.5f, 1.0f});
 	font.begin(cam);
 	font.write(offPos, size, "Off");
-	font.end(0, drawableDim, !state ? (mSelected ? vec4{1.0f, 0.0f, 0.0f, 1.0f} : vec4{1.0f}) : vec4{0.5f, 0.5f, 0.5f, 1.0f});
+	font.end(fbo, viewport, !state ? (mSelected ? vec4{1.0f, 0.0f, 0.0f, 1.0f} : vec4{1.0f}) : vec4{0.5f, 0.5f, 0.5f, 1.0f});
 }
 
 // OnOffSelector: Virtual getters overriden from BaseItem

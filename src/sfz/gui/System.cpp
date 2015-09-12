@@ -11,7 +11,7 @@ namespace gui {
 // System: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-System::System(const Rectangle& bounds)
+System::System(const AABB2D& bounds)
 :
 	mBounds{bounds},
 	mNextItemTopPos{bounds.x(), bounds.max.y}
@@ -133,9 +133,14 @@ void System::update(InputData data)
 	}
 }
 
-void System::draw(uint32_t fbo, vec2 drawableDim, const AABB2D& cam)
+void System::draw(uint32_t fbo, vec2 viewportDim, const AABB2D& cam)
 {
-	for (auto& i : mItems) i->draw(mBounds.position(), fbo, drawableDim, cam);
+	this->draw(fbo, AABB2D{viewportDim/2.0f, viewportDim}, cam);
+}
+
+void System::draw(uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
+{
+	for (auto& i : mItems) i->draw(mBounds.position(), fbo, viewport, cam);
 }
 
 // System: Private methods

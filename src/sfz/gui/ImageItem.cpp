@@ -31,7 +31,7 @@ KeyInput ImageItem::update(KeyInput key)
 	return key;
 }
 
-void ImageItem::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D& cam)
+void ImageItem::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 {
 	auto& sb = s3::Assets::INSTANCE().spriteBatch;
 
@@ -54,7 +54,7 @@ void ImageItem::draw(vec2 basePos, uint32_t fbo, vec2 drawableDim, const AABB2D&
 
 	sb.begin(cam);
 	sb.draw(pos, resizedImageDim, imageRegion);
-	sb.end(fbo, drawableDim, texture);
+	sb.end(fbo, viewport, texture);
 }
 
 // ImageItem: Virtual getters overriden from BaseItem
