@@ -398,6 +398,16 @@ Vector<T,N>& operator/= (Vector<T,N>& left, T right) noexcept
 	return left;
 }
 
+template<typename T, size_t N>
+Vector<T,N>& operator/= (Vector<T,N>& left, const Vector<T,N>& right) noexcept
+{
+	for (size_t i = 0; i < N; ++i) {
+		sfz_assert_debug(right.elements[i] != T(0));
+		left.elements[i] /= right.elements[i];
+	}
+	return left;
+}
+
 // Operators (arithmetic)
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -444,6 +454,13 @@ Vector<T,N> operator* (T left, const Vector<T,N>& right) noexcept
 
 template<typename T, size_t N>
 Vector<T,N> operator/ (const Vector<T,N>& left, T right) noexcept
+{
+	Vector<T,N> temp = left;
+	return (temp /= right);
+}
+
+template<typename T, size_t N>
+Vector<T,N> operator/ (const Vector<T,N>& left, const Vector<T,N>& right) noexcept
 {
 	Vector<T,N> temp = left;
 	return (temp /= right);
