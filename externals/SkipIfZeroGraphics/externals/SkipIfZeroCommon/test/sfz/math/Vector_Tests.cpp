@@ -328,9 +328,15 @@ TEST_CASE("Arithmetic operators", "[sfz::Vector]")
 		REQUIRE(v2[2] == 1);
 	}
 	SECTION("Division by number") {
-		auto v1 = sfz::Vector<int, 2>{2, -2}/2;
+		auto v1 = sfz::Vector<int,2>{2, -2}/2;
 		REQUIRE(v1[0] == 1);
 		REQUIRE(v1[1] == -1);
+	}
+	SECTION("Element-wise division") {
+		auto v3 = v1 / v1;
+		REQUIRE(v3[0] == 1);
+		REQUIRE(v3[1] == 1);
+		REQUIRE(v3[2] == 1);
 	}
 	SECTION("Addition assignment") {
 		v1 += v2;
@@ -361,6 +367,12 @@ TEST_CASE("Arithmetic operators", "[sfz::Vector]")
 		v3 /= 2;
 		REQUIRE(v3[0] == 1);
 		REQUIRE(v3[1] == -1);
+	}
+	SECTION("Element-wise division assignment") {
+		v1 /= v1;
+		REQUIRE(v1[0] == 1);
+		REQUIRE(v1[1] == 1);
+		REQUIRE(v1[2] == 1);
 	}
 }
 
