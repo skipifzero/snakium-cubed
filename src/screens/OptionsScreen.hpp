@@ -34,6 +34,7 @@ private:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	bool testBool; // TODO: REMOVE
+	sfz::AABB2D testBox;
 
 	gui::System mGuiSystem;
 	UpdateOp mUpdateOp = sfz::SCREEN_NO_OP;

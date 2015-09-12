@@ -1,8 +1,8 @@
 #include "sfz/gui/ScrollListContainer.hpp"
 
 #include "sfz/Assert.hpp"
-
 #include "sfz/geometry/Intersection.hpp"
+#include "sfz/gui/GUIUtils.hpp"
 
 #include "rendering/Assets.hpp" // TODO: Hilariously unportable include, remove later
 
@@ -72,22 +72,19 @@ bool ScrollListContainer::update(vec2 basePos, vec2 pointerPos, sdl::ButtonState
 	mCurrentScrollOffset = std::min(mCurrentScrollOffset, mMinScrollOffset - dim.y);
 	mCurrentScrollOffset = std::max(mCurrentScrollOffset, 0.0f);
 
-	const float epsilon = 0.2f;
-	const float boundsYBottom = (basePos.y + offset.y) - (dim.y/2.0f) - epsilon;
-	const float boundsYTop = boundsYBottom + dim.y + 2.0f*epsilon;
 	const vec2 itemBasePos = basePos + offset + vec2{0.0f, mCurrentScrollOffset};
+	const AABB2D thisBounds = this->bounds(basePos);
 
 	for (int i = 0; i < (int)items.size(); ++i) {
 
 		// Skip checking disabled items
 		if (!items[i]->isEnabled()) continue;
 
-		const float itemYBottom = itemBasePos.y + items[i]->offset.y - (items[i]->dim.y/2.0f);
-		const float itemYTop = itemYBottom + items[i]->dim.y;
+		AABB2D itemBounds = items[i]->bounds(itemBasePos);
 
 		// Check if pointer position is inside item bounds
-		if (boundsYBottom <= itemYBottom && itemYTop <= boundsYTop &&
-		    sfz::pointInside(items[i]->bounds(itemBasePos), pointerPos)) {
+		if (sfz::overlaps(thisBounds, itemBounds) &&
+			sfz::pointInside(items[i]->bounds(itemBasePos), pointerPos)) {
 
 			// Attempt to update item
 			bool success = items[i]->update(itemBasePos, pointerPos, pointerState, wheel);
@@ -144,18 +141,14 @@ KeyInput ScrollListContainer::update(KeyInput key)
 
 void ScrollListContainer::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 {
-	const float epsilon = 0.2f;
-	const float boundsYBottom = (basePos.y + offset.y) - (dim.y/2.0f) - epsilon;
-	const float boundsYTop = boundsYBottom + dim.y + 2.0f*epsilon;
 	const vec2 itemBasePos = basePos + offset + vec2{0.0f, mCurrentScrollOffset};
-	
+	AABB2D thisBounds = this->bounds(basePos);
+
 	for (auto& i : items) {
-		
-		const float itemYBottom = itemBasePos.y + i->offset.y - (i->dim.y/2.0f);
-		const float itemYTop = itemYBottom + i->dim.y;
-		
-		if (boundsYBottom <= itemYBottom && itemYTop <= boundsYTop) {
-			i->draw(itemBasePos, fbo, viewport, cam);
+		AABB2D itemBounds = i->bounds(itemBasePos);
+		if (sfz::overlaps(thisBounds, itemBounds)) {
+			AABB2D thisViewport = calculateViewport(viewport, cam, thisBounds);
+			i->draw(itemBasePos, fbo, thisViewport, thisBounds);
 		}
 	}
 }

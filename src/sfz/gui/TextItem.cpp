@@ -34,8 +34,8 @@ void TextItem::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AA
 
 	auto& sb = s3::Assets::INSTANCE().spriteBatch;
 
-	sb.begin(cam.position(), cam.dimensions());
-	sb.draw(basePos + offset, dim, s3::Assets::INSTANCE().TILE_FACE_REG);
+	sb.begin(cam);
+	sb.draw(this->bounds(basePos), s3::Assets::INSTANCE().TILE_FACE_REG);
 	sb.end(fbo, viewport, s3::Assets::INSTANCE().ATLAS_128.texture());
 
 	float stringWidth = font.measureStringWidth(dim.y, text);
@@ -45,7 +45,7 @@ void TextItem::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AA
 	
 	font.horizontalAlign(hAlign);
 	font.verticalAlign(gl::VerticalAlign::MIDDLE);
-	font.begin(cam.position(), cam.dimensions());
+	font.begin(cam);
 	font.write(pos, dim.y, text);
 	font.end(fbo, viewport, sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
 }

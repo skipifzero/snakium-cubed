@@ -92,6 +92,7 @@ OptionsScreen::OptionsScreen() noexcept
 		this->testBool = !this->testBool;
 	}}}, vec2{buttonWidth, buttonHeight});
 
+	testBox = scrollList.bounds(mGuiSystem.bounds().position());
 
 	mGuiSystem.addSpacing(spacing);
 	mGuiSystem.addItem(shared_ptr<BaseItem>{new Button{"Back", [this](Button&) {
@@ -137,6 +138,7 @@ void OptionsScreen::render(const UpdateState& state)
 	auto& sb = Assets::INSTANCE().spriteBatch;
 	sb.begin(guiCam);
 	sb.draw(mGuiSystem.bounds().position(), mGuiSystem.bounds().dimensions(), Assets::INSTANCE().TILE_FACE_REG);
+	sb.draw(testBox, Assets::INSTANCE().TILE_FACE_REG);
 	sb.end(0, drawableDim, Assets::INSTANCE().ATLAS_128.texture());
 
 	// Draw GUI

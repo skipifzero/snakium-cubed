@@ -16,4 +16,15 @@ AABB2D calculateGUICamera(vec2 drawableDim, vec2 minDrawable) noexcept
 	return AABB2D{minDrawable/2.0f, camDim};
 }
 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+AABB2D calculateViewport(const AABB2D& oldViewport, const AABB2D& camera,
+                         const AABB2D& viewportArea) noexcept
+{
+	vec2 dim = (viewportArea.dimensions()/camera.dimensions())*oldViewport.dimensions();
+	vec2 oldToNewCamPos = viewportArea.position() - camera.position();
+	vec2 pos = oldViewport.position() + (oldToNewCamPos/camera.dimensions())*oldViewport.dimensions();
+	return AABB2D{pos, dim};
+}
+
 } // namespace gui
