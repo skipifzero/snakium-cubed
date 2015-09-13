@@ -66,7 +66,7 @@ bool ScrollListContainer::addSpacing(float amount) noexcept
 // ScrollListContainer: Virtual methods overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool ScrollListContainer::update(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel)
+bool ScrollListContainer::input(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel)
 {
 	mCurrentScrollOffset -= (wheel.y * mScrollSpeed);
 	mCurrentScrollOffset = std::min(mCurrentScrollOffset, mMinScrollOffset - dim.y);
@@ -87,7 +87,7 @@ bool ScrollListContainer::update(vec2 basePos, vec2 pointerPos, sdl::ButtonState
 			sfz::pointInside(items[i]->bounds(itemBasePos), pointerPos)) {
 
 			// Attempt to update item
-			bool success = items[i]->update(itemBasePos, pointerPos, pointerState, wheel);
+			bool success = items[i]->input(itemBasePos, pointerPos, pointerState, wheel);
 
 			if (success) {
 				
@@ -114,7 +114,7 @@ bool ScrollListContainer::update(vec2 basePos, vec2 pointerPos, sdl::ButtonState
 	return false;
 }
 
-KeyInput ScrollListContainer::update(KeyInput key)
+KeyInput ScrollListContainer::input(KeyInput key)
 {
 	if (key == KeyInput::DOWN) {
 		if (selectNextItemDown()) return KeyInput::NONE;
@@ -123,7 +123,7 @@ KeyInput ScrollListContainer::update(KeyInput key)
 	}
 
 	if (key == KeyInput::ACTIVATE && mCurrentSelectedIndex != -1) {
-		items[mCurrentSelectedIndex]->update(KeyInput::ACTIVATE);
+		items[mCurrentSelectedIndex]->input(KeyInput::ACTIVATE);
 
 		if (!items[mCurrentSelectedIndex]->isEnabled()) {
 			if (!selectNextItemDown()) return KeyInput::DOWN;
@@ -133,10 +133,15 @@ KeyInput ScrollListContainer::update(KeyInput key)
 	}
 
 	if ((key == KeyInput::LEFT || key == KeyInput::RIGHT) && mCurrentSelectedIndex != -1) {
-		return items[mCurrentSelectedIndex]->update(key);
+		return items[mCurrentSelectedIndex]->input(key);
 	}
 
 	return key;
+}
+
+void ScrollListContainer::update(float delta)
+{
+	for (auto& i : items) i->update(delta);
 }
 
 void ScrollListContainer::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
@@ -196,7 +201,7 @@ bool ScrollListContainer::selectNextItemDown() noexcept
 	for (int i = mCurrentSelectedIndex; i < (int)items.size(); ++i) {
 
 		if (!items[i]->isEnabled()) continue;
-		if (items[i]->update(KeyInput::DOWN) == KeyInput::NONE) {
+		if (items[i]->input(KeyInput::DOWN) == KeyInput::NONE) {
 			mCurrentSelectedIndex = i;
 
 			// Fix scroll offset
@@ -227,7 +232,7 @@ bool ScrollListContainer::selectNextItemUp() noexcept
 	for (int i = mCurrentSelectedIndex; i >= 0; --i) {
 
 		if (!items[i]->isEnabled()) continue;
-		if (items[i]->update(KeyInput::DOWN) == KeyInput::NONE) {
+		if (items[i]->input(KeyInput::DOWN) == KeyInput::NONE) {
 			mCurrentSelectedIndex = i;
 
 			// Fix scroll offset

@@ -26,8 +26,9 @@ public:
 	// Virtual methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	virtual bool update(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel) = 0;
-	virtual KeyInput update(KeyInput key) = 0;
+	virtual bool input(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel) = 0;
+	virtual KeyInput input(KeyInput key) = 0;
+	virtual void update(float delta) = 0;
 	virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam) = 0;
 	
 	// Virtual getters

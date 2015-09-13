@@ -46,7 +46,7 @@ public:
 	             HorizontalAlign hAlign = HorizontalAlign::CENTER) noexcept;
 	bool addSpacing(float amount) noexcept;
 
-	void update(InputData data);
+	void update(InputData data, float delta);
 	void draw(uint32_t fbo, vec2 viewportDim, const AABB2D& cam);
 	void draw(uint32_t fbo, const AABB2D& viewport, const AABB2D& cam);
 

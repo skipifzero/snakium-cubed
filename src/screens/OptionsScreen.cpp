@@ -116,7 +116,7 @@ UpdateOp OptionsScreen::update(const UpdateState& state)
 		return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                shared_ptr<BaseScreen>{new MainMenuScreen{}}};
 	}
-	mGuiSystem.update(data);
+	mGuiSystem.update(data, state.delta);
 
 	return mUpdateOp;
 }

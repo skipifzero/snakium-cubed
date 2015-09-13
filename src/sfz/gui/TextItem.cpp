@@ -18,14 +18,19 @@ TextItem::TextItem(const string& text, HorizontalAlign hAlign) noexcept
 // TextItem: Virtual methods overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool TextItem::update(vec2, vec2, sdl::ButtonState, vec2)
+bool TextItem::input(vec2, vec2, sdl::ButtonState, vec2)
 {
 	return false;
 }
 
-KeyInput TextItem::update(KeyInput key)
+KeyInput TextItem::input(KeyInput key)
 {
 	return key;
+}
+
+void TextItem::update(float delta)
+{
+
 }
 
 void TextItem::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)

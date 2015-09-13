@@ -21,7 +21,7 @@ OnOffSelector::OnOffSelector(const string& text, const function<bool(void)>& che
 // OnOffSelector: Virtual methods overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool OnOffSelector::update(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel)
+bool OnOffSelector::input(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel)
 {
 	if (!mEnabled) return false;
 	mSelected = sfz::pointInside(bounds(basePos), pointerPos);
@@ -31,7 +31,7 @@ bool OnOffSelector::update(vec2 basePos, vec2 pointerPos, sdl::ButtonState point
 	return mSelected;
 }
 
-KeyInput OnOffSelector::update(KeyInput key)
+KeyInput OnOffSelector::input(KeyInput key)
 {
 	if (!mEnabled) return key;
 	if (mSelected) {
@@ -58,6 +58,11 @@ KeyInput OnOffSelector::update(KeyInput key)
 		}
 		return KeyInput::NONE;
 	}
+}
+
+void OnOffSelector::update(float delta)
+{
+
 }
 
 void OnOffSelector::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)

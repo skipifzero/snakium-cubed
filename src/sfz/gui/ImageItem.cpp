@@ -21,14 +21,19 @@ ImageItem::ImageItem(sfz::TextureRegion imageRegion, unsigned int texture,
 // ImageItem: Virtual methods overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool ImageItem::update(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel)
+bool ImageItem::input(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel)
 {
 	return false;
 }
 
-KeyInput ImageItem::update(KeyInput key)
+KeyInput ImageItem::input(KeyInput key)
 {
 	return key;
+}
+
+void ImageItem::update(float delta)
+{
+
 }
 
 void ImageItem::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)

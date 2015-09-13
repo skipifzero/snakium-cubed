@@ -83,7 +83,7 @@ UpdateOp MainMenuScreen::update(const UpdateState& state)
 	bool cancelRef;
 	gui::InputData data = inputDataFromUpdateState(state, guiCam, ctrlId, &cancelRef);
 	if (cancelRef) return sfz::SCREEN_QUIT;
-	mGuiSystem.update(data);
+	mGuiSystem.update(data, state.delta);
 
 	return mUpdateOp;
 }

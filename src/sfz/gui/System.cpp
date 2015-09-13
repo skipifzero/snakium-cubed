@@ -47,8 +47,11 @@ bool System::addSpacing(float amount) noexcept
 	return true;
 }
 
-void System::update(InputData data)
+void System::update(InputData data, float delta)
 {
+	// Update each element with delta
+	for (auto& i : mItems) i->update(delta);
+
 	// Makes sure currently selected is enabled
 	if (mCurrentSelectedIndex != -1) {
 		if (!mItems[mCurrentSelectedIndex]->isEnabled()) {
@@ -72,7 +75,7 @@ void System::update(InputData data)
 		while (inp != KeyInput::NONE) {
 			
 			// Update
-			inp = mItems[mCurrentSelectedIndex]->update(inp);
+			inp = mItems[mCurrentSelectedIndex]->input(inp);
 
 			// Check if item is disabled
 			if (!mItems[mCurrentSelectedIndex]->isEnabled()) {
@@ -106,7 +109,7 @@ void System::update(InputData data)
 			if (sfz::pointInside(mItems[i]->bounds(mBounds), data.pointerPos)) {
 				
 				// Attempt to update item
-				bool success = mItems[i]->update(mBounds.position(), data.pointerPos, data.pointerState, data.scrollWheel);
+				bool success = mItems[i]->input(mBounds.position(), data.pointerPos, data.pointerState, data.scrollWheel);
 
 				if (success) {
 					
@@ -164,7 +167,7 @@ bool System::selectNextItemDown() noexcept
 	for (int i = 0; i < (int)mItems.size(); ++i) {
 		
 		if (mItems[mCurrentSelectedIndex]->isEnabled()) {
-			if (mItems[mCurrentSelectedIndex]->update(KeyInput::DOWN) == KeyInput::NONE) {
+			if (mItems[mCurrentSelectedIndex]->input(KeyInput::DOWN) == KeyInput::NONE) {
 				return true;
 			}
 		}
@@ -196,7 +199,7 @@ bool System::selectNextItemUp() noexcept
 	for (int i = 0; i < (int)mItems.size(); ++i) {
 
 		if (mItems[mCurrentSelectedIndex]->isEnabled()) {
-			if (mItems[mCurrentSelectedIndex]->update(KeyInput::UP) == KeyInput::NONE) {
+			if (mItems[mCurrentSelectedIndex]->input(KeyInput::UP) == KeyInput::NONE) {
 				return true;
 			}
 		}

@@ -24,7 +24,7 @@ Button::Button(const string& text, const function<void(Button&)>& activateFunc)
 // Button: Virtual methods overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool Button::update(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel)
+bool Button::input(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel)
 {
 	if (!mEnabled) return false;
 	mSelected = sfz::pointInside(bounds(basePos), pointerPos);
@@ -34,7 +34,7 @@ bool Button::update(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState
 	return mSelected;
 }
 
-KeyInput Button::update(KeyInput key)
+KeyInput Button::input(KeyInput key)
 {
 	if (!mEnabled) return key;
 	if (mSelected) {
@@ -55,6 +55,10 @@ KeyInput Button::update(KeyInput key)
 	}
 }
 
+void Button::update(float delta)
+{
+
+}
 
 void Button::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 {
