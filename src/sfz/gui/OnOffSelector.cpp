@@ -90,15 +90,15 @@ void OnOffSelector::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, con
 	vec2 offPos = onPos;
 	offPos.x += font.measureStringWidth(size, "On ");
 
+	bool state = false;
+	if (checkStateFunc) state = checkStateFunc();
+
 	// Render font shadow
 	font.begin(cam);
 	font.write(leftMiddlePos + vec2{bgXAlignOffset, 0.0f}, size, text);
-	font.write(onPos + vec2{bgXAlignOffset, 0.0f}, size, "On");
-	font.write(offPos + vec2{bgXAlignOffset, 0.0f}, size, "Off");
+	if (state) font.write(onPos + vec2{bgXAlignOffset, 0.0f}, size, "On");
+	else font.write(offPos + vec2{bgXAlignOffset, 0.0f}, size, "Off");
 	font.end(fbo, viewport, vec4{0.0f, 0.0f, 0.0f, 1.0f});
-
-	bool state = false;
-	if (checkStateFunc) state = checkStateFunc();
 
 	// Render button text
 	font.begin(cam);

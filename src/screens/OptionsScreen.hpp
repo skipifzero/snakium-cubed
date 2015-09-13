@@ -36,6 +36,9 @@ private:
 	bool testBool; // TODO: REMOVE
 	sfz::AABB2D testBox;
 
+	int testInt = 2;
+	std::vector<std::string> strings;
+
 	gui::System mGuiSystem;
 	UpdateOp mUpdateOp = sfz::SCREEN_NO_OP;
 };

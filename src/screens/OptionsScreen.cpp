@@ -91,6 +91,15 @@ OptionsScreen::OptionsScreen() noexcept
 	}, [this]() {
 		this->testBool = !this->testBool;
 	}}}, vec2{buttonWidth, buttonHeight});
+	scrollList.addSpacing(spacing);
+
+	strings = {"320x240", "640x480", "1024x600", "1280x720", "1600x900", "1920x1080", "2560x1440"};
+	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Resolution", strings, [this]() {
+		return this->testInt;
+	}, [this](int choice) {
+		this->testInt = choice;
+	}}}, vec2{buttonWidth, buttonHeight});
+
 
 	testBox = scrollList.bounds(mGuiSystem.bounds().position());
 
