@@ -27,7 +27,7 @@ OptionsScreen::OptionsScreen() noexcept
 	using namespace gui;
 
 	const vec2 menuDim = vec2{screens::MIN_DRAWABLE.x-0.1f, screens::MIN_DRAWABLE.y-0.1f};
-	float spacing = 5.0f;
+	float spacing = 5.5f;
 	float titleHeight = 20.0f;
 	float buttonWidth = menuDim.x * 0.5f;
 	float buttonHeight = 8.5f;
@@ -35,7 +35,7 @@ OptionsScreen::OptionsScreen() noexcept
 
 	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Options"}}, vec2{menuDim.x, titleHeight});
 	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new ScrollListContainer{}}, vec2{menuDim.x, scrollListHeight});
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new ScrollListContainer{7.5f}}, vec2{menuDim.x, scrollListHeight});
 	
 	ScrollListContainer& scrollList = *(ScrollListContainer*)mGuiSystem.items().back().get();
 	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 1", [](Button& ref) {

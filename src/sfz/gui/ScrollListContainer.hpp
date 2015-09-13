@@ -22,7 +22,7 @@ public:
 	ScrollListContainer(const ScrollListContainer&) = default;
 	ScrollListContainer& operator= (const ScrollListContainer&) = default;
 
-	ScrollListContainer() noexcept;
+	ScrollListContainer(float scrollSpeed) noexcept;
 
 	// Public methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -67,6 +67,7 @@ private:
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+	float mScrollSpeed;
 	float mCurrentScrollOffset = 0.0f;
 	float mMinScrollOffset = 0.0f;
 

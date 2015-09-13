@@ -17,8 +17,9 @@ static const vec2 UNINITIALIZED_POS{-999.0f, -999.0f};
 // ScrollListContainer: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-ScrollListContainer::ScrollListContainer() noexcept
+ScrollListContainer::ScrollListContainer(float scrollSpeed) noexcept
 :
+	mScrollSpeed{scrollSpeed},
 	mNextItemTopPos{UNINITIALIZED_POS}
 { }
 
@@ -67,8 +68,7 @@ bool ScrollListContainer::addSpacing(float amount) noexcept
 
 bool ScrollListContainer::update(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel)
 {
-	//for (auto& i : items) i->offset.y -= wheel.y*10.0f; // TODO: Remove hardcoded factor
-	mCurrentScrollOffset -= (wheel.y * 10.0f); // TODO: Remove hardcoded factor
+	mCurrentScrollOffset -= (wheel.y * mScrollSpeed);
 	mCurrentScrollOffset = std::min(mCurrentScrollOffset, mMinScrollOffset - dim.y);
 	mCurrentScrollOffset = std::max(mCurrentScrollOffset, 0.0f);
 
