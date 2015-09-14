@@ -31,7 +31,11 @@ static const string& userIniPath() noexcept
 
 GlobalConfig& GlobalConfig::INSTANCE() noexcept
 {
-	static GlobalConfig cfg;
+	static GlobalConfig cfg = []() {
+		GlobalConfig temp;
+		temp.load();
+		return temp;
+	}();
 	return cfg;
 }
 
@@ -106,6 +110,20 @@ void GlobalConfig::save() noexcept
 	if (!mIniParser.save()) {
 		std::cerr << "Couldn't save config.ini at: " << userIniPath() << std::endl;
 	}
+}
+
+// GlobalConfig: ConfigData getters & setters
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+void GlobalConfig::data(const ConfigData& configData) noexcept
+{
+	this->modelConfig = configData.modelConfig;
+	this->fullscreen = configData.fullscreen;
+	this->windowResolutionX = configData.windowResolutionX;
+	this->windowResolutionY = configData.windowResolutionY;
+	this->vsync = configData.vsync;
+	this->msaa = configData.msaa;
+	this->transparentCube = configData.transparentCube;
 }
 
 // GlobalConfig: Private constructors & destructors

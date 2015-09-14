@@ -66,7 +66,7 @@ Up to date OpenGL drivers are by default not shipped with Windows. As long as yo
 #### Generating Visual Studio solution
 Create a directory called `build` inside the project root directory and then open `cmd` inside this `build` directory. Run the following command:
 
-	cmake .. -G "Visual Studio 12 2013 Win64"
+	cmake .. -G "Visual Studio 14 2015 Win64"
 
 Note that the assets are only copied when CMakeLists.txt is invoked, i.e. not when simply building. If assets are changed they need to be manually copied into the `build` directory (three places, in build root, in `Debug` and in `Release` directories). Alternatively simply delete the `build` directory completely and regenerate the Visual Studio solution.
 

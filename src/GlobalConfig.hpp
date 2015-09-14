@@ -2,7 +2,7 @@
 #ifndef S3_CONFIG_HPP
 #define S3_CONFIG_HPP
 
-#include <cstdint> // uint16_t
+#include <cstdint>
 
 #include <sfz/util/IniParser.hpp>
 
@@ -10,33 +10,41 @@
 
 namespace s3 {
 
-using std::uint16_t;
+using std::int32_t;
+
+// ConfigData struct
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+struct ConfigData {
+	ModelConfig modelConfig;
+	bool fullscreen;
+	int32_t windowResolutionX, windowResolutionY;
+	bool vsync;
+	int32_t msaa;
+	bool transparentCube;
+};
 
 // GlobalConfig class
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-class GlobalConfig {
+class GlobalConfig final : public ConfigData {
 public:
 	// Singleton instance
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	static GlobalConfig& INSTANCE() noexcept;
-
-	// Public members
-	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	ModelConfig modelConfig;
-	bool fullscreen;
-	uint16_t windowResolutionX, windowResolutionY;
-	bool vsync;
-	uint16_t msaa;
-	bool transparentCube;
 	
 	// Loading and saving to file
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	void load() noexcept;
 	void save() noexcept;
+
+	// ConfigData getters & setters
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	inline ConfigData data() const noexcept { return *this; }
+	void data(const ConfigData& configData) noexcept;
 
 private:
 	// Private constructors & destructors
