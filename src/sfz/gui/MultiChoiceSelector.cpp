@@ -30,11 +30,10 @@ bool MultiChoiceSelector::input(vec2 basePos, vec2 pointerPos, sdl::ButtonState 
 	mSelected = sfz::pointInside(bounds(basePos), pointerPos);
 	if (pointerState == sdl::ButtonState::UP) {
 		int currentState = checkStateFunc();
-		if (0 <= currentState && currentState <= choiceNames.size()-1) {
-			int next = currentState + 1;
-			if (next >= choiceNames.size()) next = 0;
-			changeStateFunc(next);
-		}
+		int next = currentState + 1;
+		if (currentState < 0) next = 0;
+		if (next >= choiceNames.size()) next = 0;
+		changeStateFunc(next);
 	}
 	return mSelected;
 	return false;
@@ -57,14 +56,17 @@ KeyInput MultiChoiceSelector::input(KeyInput key)
 			return key;
 		} else if (key == KeyInput::LEFT) {
 			int currentState = checkStateFunc();
-			if (0 < currentState && currentState <= choiceNames.size()-1) {
-				changeStateFunc(currentState - 1);
-			}
+			int next = currentState - 1;
+			if (currentState < 0) next = 0;
+			if (next < 0) next = 0;
+			if (next >= choiceNames.size()) next = choiceNames.size() - 1;
+			if (next != currentState) changeStateFunc(next);
 		} else if (key == KeyInput::RIGHT) {
 			int currentState = checkStateFunc();
-			if (0 <= currentState && currentState < choiceNames.size()-1) {
-				changeStateFunc(currentState + 1);
-			}
+			int next = currentState + 1;
+			if (currentState < 0) next = 0;
+			if (next >= choiceNames.size()) next = choiceNames.size() - 1;
+			if (next != currentState) changeStateFunc(next);
 		}
 		return KeyInput::NONE;
 	} else {
