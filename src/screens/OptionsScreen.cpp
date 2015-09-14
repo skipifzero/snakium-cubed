@@ -22,92 +22,71 @@ using std::shared_ptr;
 
 OptionsScreen::OptionsScreen() noexcept
 :
+	cfgData{GlobalConfig::INSTANCE().data()},
 	mGuiSystem{sfz::Rectangle{screens::MIN_DRAWABLE/2.0f, screens::MIN_DRAWABLE}}
 {
 	using namespace gui;
 
 	const vec2 menuDim = vec2{screens::MIN_DRAWABLE.x-0.1f, screens::MIN_DRAWABLE.y-0.1f};
-	float spacing = 5.5f;
-	float titleHeight = 20.0f;
-	float buttonWidth = menuDim.x * 0.5f;
-	float buttonHeight = 8.5f;
-	float scrollListHeight = menuDim.y - titleHeight - buttonHeight - 3.0f*spacing;
+	const float spacing = 5.5f;
+	const float titleHeight = 20.0f;
+	const vec2 itemDim{menuDim.x * 0.8f, 10.0f};
+	float scrollListHeight = menuDim.y - titleHeight - itemDim.y - 3.0f*spacing;
 
 	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Options"}}, vec2{menuDim.x, titleHeight});
 	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new ScrollListContainer{7.5f}}, vec2{menuDim.x, scrollListHeight});
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new ScrollListContainer{7.5f}},
+	                   vec2{menuDim.x, scrollListHeight});
 	
 	ScrollListContainer& scrollList = *(ScrollListContainer*)mGuiSystem.items().back().get();
-	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 1", [](Button& ref) {
-		ref.disable();
-	}}}, vec2{buttonWidth, buttonHeight});
+	scrollList.addItem(shared_ptr<BaseItem>{new TextItem{"Graphics", HorizontalAlign::LEFT}}, itemDim);
 	scrollList.addSpacing(spacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 2", [](Button& ref) {
-		ref.disable();
-	}}}, vec2{buttonWidth, buttonHeight});
-	scrollList.addSpacing(spacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 3", [](Button& ref) {
-		ref.disable();
-	}}}, vec2{buttonWidth, buttonHeight});
-	scrollList.addSpacing(spacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 4", [](Button& ref) {
-		ref.disable();
-	}}}, vec2{buttonWidth, buttonHeight});
-	scrollList.addSpacing(spacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 5", [](Button& ref) {
-		ref.disable();
-	}}}, vec2{buttonWidth, buttonHeight});
-	scrollList.addSpacing(spacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 6", [](Button& ref) {
-		ref.disable();
-	}}}, vec2{buttonWidth, buttonHeight});
-	scrollList.addSpacing(spacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 7", [](Button& ref) {
-		ref.disable();
-	}}}, vec2{buttonWidth, buttonHeight});
-	scrollList.addSpacing(spacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 8", [](Button& ref) {
-		ref.disable();
-	}}}, vec2{buttonWidth, buttonHeight});
-	scrollList.addSpacing(spacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 9", [](Button& ref) {
-		ref.disable();
-	}}}, vec2{buttonWidth, buttonHeight});
-	scrollList.addSpacing(spacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 10", [](Button& ref) {
-		ref.disable();
-	}}}, vec2{buttonWidth, buttonHeight});
-	scrollList.addSpacing(spacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 11", [](Button& ref) {
-		ref.disable();
-	}}}, vec2{buttonWidth, buttonHeight});
-	scrollList.addSpacing(spacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new Button{"Button 12", [](Button& ref) {
-		ref.disable();
-	}}}, vec2{buttonWidth, buttonHeight});
-	scrollList.addSpacing(spacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new OnOffSelector{"OnOffSelector", [this]() {
-		return this->testBool;
+	scrollList.addItem(shared_ptr<BaseItem>{new OnOffSelector{"Fullscreen", [this]() {
+		return this->cfgData.fullscreen;
 	}, [this]() {
-		this->testBool = !this->testBool;
-	}}}, vec2{buttonWidth, buttonHeight});
+		this->cfgData.fullscreen = !this->cfgData.fullscreen;
+	}}}, itemDim);
+	/*
 	scrollList.addSpacing(spacing);
-
 	strings = {"320x240", "640x480", "1024x600", "1280x720", "1600x900", "1920x1080", "2560x1440"};
 	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Resolution", strings, [this]() {
 		return this->testInt;
 	}, [this](int choice) {
 		this->testInt = choice;
 	}}}, vec2{buttonWidth, buttonHeight});
+	*/
+	scrollList.addSpacing(spacing);
+	scrollList.addItem(shared_ptr<BaseItem>{new OnOffSelector{"VSync", [this]() {
+		return this->cfgData.vsync;
+	}, [this]() {
+		this->cfgData.vsync = !this->cfgData.vsync;
+	}}}, itemDim);
 
-
-	testBox = scrollList.bounds(mGuiSystem.bounds().position());
+	scrollList.addSpacing(spacing);
+	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"MSAA", {"Off", "2x", "4x", "8x", "16x"}, [this]() {
+		switch (this->cfgData.msaa) {
+		case 0: return 0;
+		case 2: return 1;
+		case 4: return 2;
+		case 8: return 3;
+		case 16: return 4;
+		default: return -1;
+		}
+	}, [this](int choice) {
+		switch (choice) {
+		case 0: this->cfgData.msaa = 0; break;
+		case 1: this->cfgData.msaa = 2; break;
+		case 2: this->cfgData.msaa = 4; break;
+		case 3: this->cfgData.msaa = 8; break;
+		case 4: this->cfgData.msaa = 16; break;
+		}
+	}}}, itemDim);
 
 	mGuiSystem.addSpacing(spacing);
 	mGuiSystem.addItem(shared_ptr<BaseItem>{new Button{"Back", [this](Button&) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                           shared_ptr<BaseScreen>{new MainMenuScreen{}}};
-	}}}, vec2{buttonWidth, buttonHeight});
+	}}}, itemDim);
 }
 
 // OptionsScreen: Overriden screen methods
@@ -144,11 +123,11 @@ void OptionsScreen::render(const UpdateState& state)
 	const vec2 drawableDim = state.window.drawableDimensions();
 	const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, screens::MIN_DRAWABLE);
 
-	auto& sb = Assets::INSTANCE().spriteBatch;
+	/*auto& sb = Assets::INSTANCE().spriteBatch;
 	sb.begin(guiCam);
 	sb.draw(mGuiSystem.bounds().position(), mGuiSystem.bounds().dimensions(), Assets::INSTANCE().TILE_FACE_REG);
 	sb.draw(testBox, Assets::INSTANCE().TILE_FACE_REG);
-	sb.end(0, drawableDim, Assets::INSTANCE().ATLAS_128.texture());
+	sb.end(0, drawableDim, Assets::INSTANCE().ATLAS_128.texture());*/
 
 	// Draw GUI
 	mGuiSystem.draw(0, drawableDim, guiCam);

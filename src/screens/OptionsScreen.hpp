@@ -2,8 +2,14 @@
 #ifndef S3_SCREENS_OPTIONS_SCREEN_HPP
 #define S3_SCREENS_OPTIONS_SCREEN_HPP
 
+#include <string>
+#include <vector>
+
+#include <sfz/math/Vector.hpp>
 #include <sfz/Screens.hpp>
 #include <sfz/GUI.hpp>
+
+#include "GlobalConfig.hpp"
 
 namespace s3 {
 
@@ -11,6 +17,9 @@ using sfz::UpdateOp;
 using sfz::UpdateState;
 using sfz::vec2;
 using sfz::vec3;
+
+using std::string;
+using std::vector;
 
 class OptionsScreen : public sfz::BaseScreen {
 public:
@@ -29,15 +38,14 @@ public:
 	virtual UpdateOp update(const UpdateState& state) override final;
 	virtual void render(const UpdateState& state) override final;
 
+	// Public members
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	ConfigData cfgData;
+
 private:
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	bool testBool; // TODO: REMOVE
-	sfz::AABB2D testBox;
-
-	int testInt = 2;
-	std::vector<std::string> strings;
 
 	gui::System mGuiSystem;
 	UpdateOp mUpdateOp = sfz::SCREEN_NO_OP;
