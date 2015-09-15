@@ -13,6 +13,16 @@
 
 #undef main // Remove SDL hack until we can get it to compile properly
 
+sdl::WindowFlags fullscreenFlag(int fullscreenMode)
+{
+	switch (fullscreenMode) {
+	case 0: return sdl::WindowFlags::OPENGL; // Minor hack, works fine as long as we need OpenGL.
+	case 1: return sdl::WindowFlags::FULLSCREEN_DESKTOP;
+	case 2: return sdl::WindowFlags::FULLSCREEN;
+	default: sfz_error("Invalid fullscreen mode.");
+	}
+}
+
 int main()
 {
 	using namespace sdl;
@@ -23,6 +33,15 @@ int main()
 
 	Session sdlSession{{InitFlags::EVENTS, InitFlags::VIDEO, InitFlags::GAMECONTROLLER}};
 
+	const int numDisplays = SDL_GetNumVideoDisplays();
+	if (numDisplays < 0) std::cerr << "SDL_GetNumVideoDisplays() failed: " << SDL_GetError() << std::endl;
+	if (cfg.displayIndex >= numDisplays) {
+		std::cerr << "Display index " << cfg.displayIndex << " is invalid, number of displays is "
+		          << numDisplays << ". Resetting to 0." << std::endl;
+		cfg.displayIndex = 0;
+		cfg.save();
+	}
+
 	if (cfg.msaa > 0) {
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, cfg.msaa);
@@ -30,7 +49,7 @@ int main()
 
 	Window window{"snakium³", cfg.windowResolutionX, cfg.windowResolutionY,
 	     {WindowFlags::OPENGL, WindowFlags::RESIZABLE, WindowFlags::ALLOW_HIGHDPI,
-	      cfg.fullscreen ? WindowFlags::FULLSCREEN_DESKTOP : WindowFlags::OPENGL}};
+	      fullscreenFlag(cfg.fullscreenMode)}};
 
 	gl::Context glContext{window.mPtr, 3, 3, gl::GLContextProfile::CORE};
 

@@ -76,9 +76,10 @@ void GlobalConfig::load() noexcept
 	
 	// [Graphics]
 	static const string grStr = "Graphics";
-	fullscreen =        ip.sanitizeBool(grStr, "bFullscreen", false);
 	transparentCube =   ip.sanitizeBool(grStr, "bTransparentCube", true);
 	vsync =             ip.sanitizeBool(grStr, "bVSync", true);
+	displayIndex =      ip.sanitizeInt(grStr, "iDisplayIndex", 0, 0, 32);
+	fullscreenMode =    ip.sanitizeInt(grStr, "iFullscreenMode", 0, 0, 2);
 	msaa =              ip.sanitizeInt(grStr, "iMSAA", 4, 0, 32);
 	windowResolutionX = ip.sanitizeInt(grStr, "iWindowResolutionX", 800, 64, 8192);
 	windowResolutionY = ip.sanitizeInt(grStr, "iWindowResolutionY", 800, 64, 8192);
@@ -100,9 +101,10 @@ void GlobalConfig::save() noexcept
 
 	// [Graphics]
 	static const string grStr = "Graphics";
-	mIniParser.setBool(grStr, "bFullscreen", fullscreen);
 	mIniParser.setBool(grStr, "bTransparentCube", transparentCube);
 	mIniParser.setBool(grStr, "bVSync", vsync);
+	mIniParser.setInt(grStr, "iDisplayIndex", displayIndex);
+	mIniParser.setInt(grStr, "iFullscreenMode", fullscreenMode);
 	mIniParser.setInt(grStr, "iMSAA", msaa);
 	mIniParser.setInt(grStr, "iWindowResolutionX", windowResolutionX);
 	mIniParser.setInt(grStr, "iWindowResolutionY", windowResolutionY);
@@ -118,7 +120,8 @@ void GlobalConfig::save() noexcept
 void GlobalConfig::data(const ConfigData& configData) noexcept
 {
 	this->modelConfig = configData.modelConfig;
-	this->fullscreen = configData.fullscreen;
+	this->displayIndex = configData.displayIndex;
+	this->fullscreenMode = configData.fullscreenMode;
 	this->windowResolutionX = configData.windowResolutionX;
 	this->windowResolutionY = configData.windowResolutionY;
 	this->vsync = configData.vsync;

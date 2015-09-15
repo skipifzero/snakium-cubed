@@ -16,12 +16,16 @@ using std::int32_t;
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 struct ConfigData {
-	ModelConfig modelConfig;
-	bool fullscreen;
+	// Graphics
+	int32_t displayIndex;
+	int32_t fullscreenMode; // 0 = off, 1 = windowed, 2 = exclusive
 	int32_t windowResolutionX, windowResolutionY;
 	bool vsync;
 	int32_t msaa;
 	bool transparentCube;
+
+	// Game Settings
+	ModelConfig modelConfig;
 };
 
 // GlobalConfig class

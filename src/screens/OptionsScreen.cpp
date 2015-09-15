@@ -26,12 +26,11 @@ struct Resolutions {
 	vector<sfz::vec2i> resolutions;
 };
 
-Resolutions getAvailableResolutions(const ConfigData& data) noexcept
+Resolutions getAvailableResolutions(ConfigData& data) noexcept
 {
 	struct DispMode {
 		string name;
 		sfz::vec2i res;
-		int display;
 	};
 
 	vector<DispMode> dispModes;
@@ -40,21 +39,24 @@ Resolutions getAvailableResolutions(const ConfigData& data) noexcept
 	if (numDisplays < 0) {
 		std::cerr << "SDL_GetNumVideoDisplays() failed: " << SDL_GetError() << std::endl;
 	}
+	if (data.displayIndex >= numDisplays) {
+		std::cerr << "Display index " << data.displayIndex << " is invalid, max is "
+		          << numDisplays << ". Resetting to 0." << std::endl;
+		data.displayIndex = 0;
+	}
 
-	for (int display = 0; display < numDisplays; ++display) {
-		const int numDisplayModes = SDL_GetNumDisplayModes(display);
-		if (numDisplayModes < 0) {
-			std::cerr << "SDL_GetNumDisplayModes failed: " << SDL_GetError() << std::endl;
+	const int numDisplayModes = SDL_GetNumDisplayModes(data.displayIndex);
+	if (numDisplayModes < 0) {
+		std::cerr << "SDL_GetNumDisplayModes failed: " << SDL_GetError() << std::endl;
+	}
+	for (int i = 0; i < numDisplayModes; ++i) {
+		mode = {SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0};
+		if (SDL_GetDisplayMode(data.displayIndex, i, &mode) != 0) {
+			std::cerr << "SDL_GetDisplayMode failed: " << SDL_GetError() << std::endl;
 		}
-		for (int i = 0; i < numDisplayModes; ++i) {
-			mode = {SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0};
-			if (SDL_GetDisplayMode(display, i, &mode) != 0) {
-				std::cerr << "SDL_GetDisplayMode failed: " << SDL_GetError() << std::endl;
-			}
-			dispModes.push_back({std::to_string(mode.w) + "x" + std::to_string(mode.h) + " ("
-								 + std::to_string(display) + ")", sfz::vec2i{mode.w, mode.h},
-			                     display});
-		}
+		std::cout << "DisplayMode: " << mode.w << "x" << mode.h << ", " << mode.refresh_rate << "Hz, PixelFormat: " << mode.format << std::endl;
+		dispModes.push_back({std::to_string(mode.w) + "x" + std::to_string(mode.h),
+		                     sfz::vec2i{mode.w, mode.h}});
 	}
 
 	sfz::vec2i current{data.windowResolutionX, data.windowResolutionY};
@@ -67,8 +69,7 @@ Resolutions getAvailableResolutions(const ConfigData& data) noexcept
 	}
 
 	if (!found) {
-		dispModes.push_back({std::to_string(current.x) + "x" + std::to_string(current.x),
-							 current, -1});
+		dispModes.push_back({std::to_string(current.x) + "x" + std::to_string(current.x),  current});
 	}
 
 	std::sort(dispModes.begin(), dispModes.end(), [](const DispMode& lhs, const DispMode& rhs) {
@@ -117,10 +118,10 @@ OptionsScreen::OptionsScreen() noexcept
 	scrollList.addItem(shared_ptr<BaseItem>{new TextItem{"Graphics", HorizontalAlign::LEFT}}, headingDim);
 
 	scrollList.addSpacing(itemSpacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new OnOffSelector{"Fullscreen", [this]() {
-		return this->cfgData.fullscreen;
-	}, [this]() {
-		this->cfgData.fullscreen = !this->cfgData.fullscreen;
+	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Fullscreen", {"Off", "Windowed", "Exclusive"}, [this]() {
+		return this->cfgData.fullscreenMode;
+	}, [this](int choice) {
+		this->cfgData.fullscreenMode = choice;
 	}, stateAlignOffset}}, itemDim);
 
 	scrollList.addSpacing(itemSpacing);
