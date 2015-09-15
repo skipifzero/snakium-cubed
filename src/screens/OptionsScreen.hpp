@@ -48,6 +48,7 @@ private:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	gui::System mGuiSystem;
+	vector<sfz::vec2i> mResolutions;
 	UpdateOp mUpdateOp = sfz::SCREEN_NO_OP;
 };
 

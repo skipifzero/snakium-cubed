@@ -19,6 +19,7 @@ int main()
 	using std::string;
 
 	s3::GlobalConfig& cfg = s3::GlobalConfig::INSTANCE();
+	cfg.save();
 
 	Session sdlSession{{InitFlags::EVENTS, InitFlags::VIDEO, InitFlags::GAMECONTROLLER}};
 
