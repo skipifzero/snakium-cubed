@@ -21,12 +21,20 @@ using std::shared_ptr;
 // Static functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+static void applyConfig(const ConfigData& newCfg) noexcept
+{
+	auto globalData = GlobalConfig::INSTANCE().data();
+	globalData.modelConfig = newCfg.modelConfig;
+	GlobalConfig::INSTANCE().data(globalData);
+	GlobalConfig::INSTANCE().save();
+}
+
 struct Resolutions {
 	vector<string> names;
 	vector<sfz::vec2i> resolutions;
 };
 
-Resolutions getAvailableResolutions(ConfigData& data) noexcept
+static Resolutions getAvailableResolutions(ConfigData& data) noexcept
 {
 	struct DispMode {
 		string name;
@@ -293,6 +301,7 @@ OptionsScreen::OptionsScreen() noexcept
 
 	mGuiSystem.addSpacing(itemSpacing);
 	mGuiSystem.addItem(shared_ptr<BaseItem>{new Button{"Back", [this](Button&) {
+		applyConfig(this->cfgData);
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                           shared_ptr<BaseScreen>{new MainMenuScreen{}}};
 	}}}, itemDim);
@@ -310,6 +319,7 @@ UpdateOp OptionsScreen::update(const UpdateState& state)
 	bool cancelRef;
 	gui::InputData data = inputDataFromUpdateState(state, guiCam, ctrlId, &cancelRef);
 	if (cancelRef) {
+		applyConfig(cfgData);
 		return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                shared_ptr<BaseScreen>{new MainMenuScreen{}}};
 	}

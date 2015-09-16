@@ -177,9 +177,6 @@ UpdateOp GameScreen::update(const UpdateState& state)
 		switch (event.type) {
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
-			case SDLK_ESCAPE:
-				return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-				          std::shared_ptr<sfz::BaseScreen>{new MainMenuScreen{}}};
 			case SDLK_SPACE:
 				mIsPaused = !mIsPaused;
 				break;
@@ -215,6 +212,9 @@ UpdateOp GameScreen::update(const UpdateState& state)
 			break;
 		case SDL_KEYUP:
 			switch (event.key.keysym.sym) {
+			case SDLK_ESCAPE:
+				return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+				          std::shared_ptr<sfz::BaseScreen>{new MainMenuScreen{}}};
 			case 'z':
 			case 'Z':
 				mIsTransparent = cfg.transparentCube;

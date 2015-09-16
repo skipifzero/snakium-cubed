@@ -68,7 +68,7 @@ private:
 inline SnakeTile* Model::getTilePtr(const Position& pos) const noexcept
 {
 #if 0
-	static const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
+	const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
 	return mTiles + static_cast<uint8_t>(pos.side)*sideSize + pos.e2*mCfg.gridWidth + pos.e1;
 #else
 
@@ -79,7 +79,7 @@ inline SnakeTile* Model::getTilePtr(const Position& pos) const noexcept
 	assert(pos.e2 < mCfg.gridWidth);
 	assert(static_cast<uint8_t>(pos.side) <= 5);
 
-	static const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
+	const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
 	SnakeTile* ptr =  mTiles + static_cast<uint8_t>(pos.side)*sideSize + pos.e2*mCfg.gridWidth + pos.e1;
 
 	assert(ptr < (ptr + mTileCount));
@@ -94,7 +94,7 @@ inline Position Model::getTilePosition(SnakeTile* tilePtr) const noexcept
 	Position pos;
 	size_t length = tilePtr - mTiles;
 
-	static const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
+	const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
 	size_t sideOffset = length % sideSize;
 	pos.side = static_cast<Direction3D>((length-sideOffset)/sideSize);
 
@@ -108,7 +108,7 @@ inline Position Model::getTilePosition(SnakeTile* tilePtr) const noexcept
 
 	assert(length < mTileCount);
 
-	static const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
+	const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
 	size_t sideOffset = length % sideSize;
 	pos.side = static_cast<Direction3D>((length-sideOffset)/sideSize);
 
