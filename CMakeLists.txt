@@ -96,6 +96,8 @@ set(SOURCE_SFZ_GUI_TEMP_FILES
 	${SRC_DIR}/sfz/gui/MultiChoiceSelector.cpp
 	${SRC_DIR}/sfz/gui/OnOffSelector.hpp
 	${SRC_DIR}/sfz/gui/OnOffSelector.cpp
+	${SRC_DIR}/sfz/gui/RenderingSettings.hpp
+	${SRC_DIR}/sfz/gui/RenderingSettings.cpp
 	${SRC_DIR}/sfz/gui/ScrollListContainer.hpp
 	${SRC_DIR}/sfz/gui/ScrollListContainer.cpp
 	${SRC_DIR}/sfz/gui/SideSplitContainer.hpp

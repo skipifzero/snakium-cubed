@@ -1,8 +1,7 @@
 #include "sfz/gui/ImageItem.hpp"
 
 #include "sfz/Assert.hpp"
-
-#include "rendering/Assets.hpp" // TODO: Hilariously unportable include, remove later
+#include "sfz/gui/RenderingSettings.hpp"
 
 namespace gui {
 
@@ -33,33 +32,12 @@ KeyInput ImageItem::input(KeyInput key)
 
 void ImageItem::update(float delta)
 {
-
+	RenderingSettings::INSTANCE().imageItemRenderer->update(delta);
 }
 
 void ImageItem::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 {
-	auto& sb = s3::Assets::INSTANCE().spriteBatch;
-
-	vec2 imageDim = imageRegion.dimensions() * imageScale;
-	float imageAspect = imageDim.x / imageDim.y;
-	float boundsAspect = dim.x / dim.y;
-
-	vec2 resizedImageDim;
-	if (imageAspect < boundsAspect) {
-		resizedImageDim.y = dim.y;
-		resizedImageDim.x = dim.y * imageAspect;
-	} else {
-		resizedImageDim.x = dim.x;
-		resizedImageDim.y = dim.x / imageAspect;
-	}
-
-	vec2 pos = basePos + offset;
-	float alignSign = (float)((int8_t)hAlign);
-	pos.x = pos.x + (alignSign*dim.x/2.0f) - (alignSign*resizedImageDim.x/2.0);
-
-	sb.begin(cam);
-	sb.draw(pos, resizedImageDim, imageRegion);
-	sb.end(fbo, viewport, texture);
+	RenderingSettings::INSTANCE().imageItemRenderer->draw(*this, basePos, fbo, viewport, cam);
 }
 
 // ImageItem: Virtual getters overriden from BaseItem
