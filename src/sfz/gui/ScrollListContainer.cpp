@@ -117,8 +117,10 @@ bool ScrollListContainer::input(vec2 basePos, vec2 pointerPos, sdl::ButtonState 
 KeyInput ScrollListContainer::input(KeyInput key)
 {
 	if (key == KeyInput::DOWN) {
+		if (mCurrentSelectedIndex == -1) mCurrentScrollOffset = 0.0f;
 		if (selectNextItemDown()) return KeyInput::NONE;
 	} else if (key == KeyInput::UP) {
+		if (mCurrentSelectedIndex == -1) mCurrentScrollOffset = mMinScrollOffset - dim.y;
 		if (selectNextItemUp()) return KeyInput::NONE;
 	}
 
