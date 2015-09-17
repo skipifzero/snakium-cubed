@@ -1,9 +1,7 @@
 #include "sfz/gui/MultiChoiceSelector.hpp"
 
 #include "sfz/geometry/Intersection.hpp"
-
-#include "rendering/Assets.hpp" // TODO: Hilariously unportable include, remove later
-
+#include "sfz/gui/RenderingSettings.hpp"
 namespace gui {
 
 // MultiChoiceSelector: Constructors & destructors
@@ -79,66 +77,12 @@ KeyInput MultiChoiceSelector::input(KeyInput key)
 
 void MultiChoiceSelector::update(float delta)
 {
-
+	RenderingSettings::INSTANCE().multiChoiceSelectorRenderer->update(*this, delta);
 }
 
 void MultiChoiceSelector::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 {
-	using sfz::vec4;
-
-	auto& assets = s3::Assets::INSTANCE();
-	auto& sb = assets.spriteBatch;
-	auto& font = assets.fontRenderer;
-
-	sb.begin(cam);
-	sb.draw(basePos + offset, dim, assets.TILE_FACE_REG);
-	sb.end(fbo, viewport, assets.ATLAS_128.texture());
-
-	// Font rendering preparations
-	font.horizontalAlign(gl::HorizontalAlign::LEFT);
-	font.verticalAlign(gl::VerticalAlign::MIDDLE);
-	const float size = 0.6f * dim.y;
-	const float nearbySize = size*0.5f;
-	const float yAlignOffset = (dim.y/2.0f)*0.3f;
-	const float bgXAlignOffset = dim.x * 0.009f;
-
-	const int choice = checkStateFunc();
-	const int len = choiceNames.size();
-	static const string empty = "";
-	const string& choiceLeftStr = (0 <= (choice-1) && (choice-1) < len) ? choiceNames[choice-1] : empty;
-	const string& choiceMidStr = (0 <= (choice) && (choice) < len) ? choiceNames[choice] : empty;
-	const string& choiceRightStr = (0 <= (choice+1) && (choice+1) < len) ? choiceNames[choice+1] : empty;
-
-	vec2 leftMiddlePos = basePos + offset + vec2{-(dim.x/2.0f), yAlignOffset};
-
-	vec2 choiceLeftPos = leftMiddlePos;
-	choiceLeftPos.x += std::max(stateAlignOffset, font.measureStringWidth(size, text + " "));
-	vec2 choiceMidPos = choiceLeftPos;
-	choiceMidPos.x += font.measureStringWidth(nearbySize, choiceLeftStr);
-	vec2 choiceRightPos = choiceMidPos;
-	choiceRightPos.x += font.measureStringWidth(size, choiceMidStr);
-
-	// Render font shadow
-	font.begin(cam);
-	font.write(leftMiddlePos + vec2{bgXAlignOffset, 0.0f}, size, text);
-	//font.write(choiceLeftPos + vec2{bgXAlignOffset, 0.0f}, nearbySize, choiceLeftStr);
-	font.write(choiceMidPos + vec2{bgXAlignOffset, 0.0f}, size, choiceMidStr);
-	//font.write(choiceRightPos + vec2{bgXAlignOffset, 0.0f}, nearbySize, choiceRightStr);
-	font.end(fbo, viewport, vec4{0.0f, 0.0f, 0.0f, 1.0f});
-
-	bool state = false;
-	if (checkStateFunc) state = checkStateFunc();
-
-	// Render button text
-	font.begin(cam);
-	font.write(leftMiddlePos, size, text);
-	font.write(choiceMidPos, size, choiceMidStr);
-	font.end(fbo, viewport, mSelected ? vec4{1.0f, 0.0f, 0.0f, 1.0f} : vec4{1.0f});
-
-	font.begin(cam);
-	font.write(choiceLeftPos, nearbySize, choiceLeftStr);
-	font.write(choiceRightPos, nearbySize, choiceRightStr);
-	font.end(fbo, viewport, vec4{0.5f, 0.5f, 0.5f, 1.0f});
+	RenderingSettings::INSTANCE().multiChoiceSelectorRenderer->draw(*this, basePos, fbo, viewport, cam);
 }
 
 // MultiChoiceSelector: Virtual getters overriden from BaseItem

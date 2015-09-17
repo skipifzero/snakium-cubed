@@ -1,8 +1,7 @@
 #include "sfz/gui/OnOffSelector.hpp"
 
 #include "sfz/geometry/Intersection.hpp"
-
-#include "rendering/Assets.hpp" // TODO: Hilariously unportable include, remove later
+#include "sfz/gui/RenderingSettings.hpp"
 
 namespace gui {
 
@@ -62,54 +61,12 @@ KeyInput OnOffSelector::input(KeyInput key)
 
 void OnOffSelector::update(float delta)
 {
-
+	RenderingSettings::INSTANCE().onOffSelectorRenderer->update(*this, delta);
 }
 
 void OnOffSelector::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 {
-	using sfz::vec4;
-
-	auto& assets = s3::Assets::INSTANCE();
-	auto& sb = assets.spriteBatch;
-	auto& font = assets.fontRenderer;
-
-	sb.begin(cam);
-	sb.draw(basePos + offset, dim, assets.TILE_FACE_REG);
-	sb.end(fbo, viewport, assets.ATLAS_128.texture());
-
-	// Font rendering preparations
-	font.horizontalAlign(gl::HorizontalAlign::LEFT);
-	font.verticalAlign(gl::VerticalAlign::MIDDLE);
-	const float size = 0.6f * dim.y;
-	const float yAlignOffset = (dim.y/2.0f)*0.3f;
-	const float bgXAlignOffset = dim.x * 0.009f;
-
-	vec2 leftMiddlePos = basePos + offset + vec2{-(dim.x/2.0f), yAlignOffset};
-	vec2 onPos = leftMiddlePos;
-	onPos.x += std::max(stateAlignOffset, font.measureStringWidth(size, text + " "));
-	vec2 offPos = onPos;
-	offPos.x += font.measureStringWidth(size, "On ");
-
-	bool state = false;
-	if (checkStateFunc) state = checkStateFunc();
-
-	// Render font shadow
-	font.begin(cam);
-	font.write(leftMiddlePos + vec2{bgXAlignOffset, 0.0f}, size, text);
-	if (state) font.write(onPos + vec2{bgXAlignOffset, 0.0f}, size, "On");
-	else font.write(offPos + vec2{bgXAlignOffset, 0.0f}, size, "Off");
-	font.end(fbo, viewport, vec4{0.0f, 0.0f, 0.0f, 1.0f});
-
-	// Render button text
-	font.begin(cam);
-	font.write(leftMiddlePos, size, text);
-	font.end(fbo, viewport, mSelected ? vec4{1.0f, 0.0f, 0.0f, 1.0f} : vec4{1.0f});
-	font.begin(cam);
-	font.write(onPos, size, "On");
-	font.end(fbo, viewport, state ? (mSelected ? vec4{1.0f, 0.0f, 0.0f, 1.0f} : vec4{1.0f}) : vec4{0.5f, 0.5f, 0.5f, 1.0f});
-	font.begin(cam);
-	font.write(offPos, size, "Off");
-	font.end(fbo, viewport, !state ? (mSelected ? vec4{1.0f, 0.0f, 0.0f, 1.0f} : vec4{1.0f}) : vec4{0.5f, 0.5f, 0.5f, 1.0f});
+	RenderingSettings::INSTANCE().onOffSelectorRenderer->draw(*this, basePos, fbo, viewport, cam);
 }
 
 // OnOffSelector: Virtual getters overriden from BaseItem

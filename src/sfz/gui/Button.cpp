@@ -62,7 +62,7 @@ KeyInput Button::input(KeyInput key)
 
 void Button::update(float delta)
 {
-	RenderingSettings::INSTANCE().buttonRenderer->update(delta);
+	RenderingSettings::INSTANCE().buttonRenderer->update(*this, delta);
 }
 
 void Button::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)

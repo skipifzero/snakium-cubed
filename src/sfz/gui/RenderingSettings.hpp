@@ -18,33 +18,38 @@ using sfz::vec2;
 using std::shared_ptr;
 using std::uint32_t;
 
-// Button Renderer
+// Common rendering interface
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-class Button; // Forward declare Button
-
-class ButtonRenderer {
+template<typename T>
+class ItemRenderer {
 public:
-	virtual void update(float delta) = 0;
-	virtual void draw(const Button& button, vec2 basePos, uint32_t fbo, const AABB2D& viewport,
+	virtual void update(T& item, float delta) = 0;
+	virtual void draw(T& item, vec2 basePos, uint32_t fbo, const AABB2D& viewport,
 	                  const AABB2D& cam) = 0;
 };
 
-shared_ptr<ButtonRenderer> defaultButtonRenderer() noexcept;
-
-// ImageItem Renderer
+// Forward declarations
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-class ImageItem; // Forward declare Button
+class Button;
+class ImageItem;
+class MultiChoiceSelector;
+class OnOffSelector;
+class ScrollListContainer;
+class SideSplitContainer;
+class TextItem;
 
-class ImageItemRenderer {
-public:
-	virtual void update(float delta) = 0;
-	virtual void draw(const ImageItem& imageItem, vec2 basePos, uint32_t fbo,
-	                  const AABB2D& viewport, const AABB2D& cam) = 0;
-};
+// Default renderers
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-shared_ptr<ImageItemRenderer> defaultImageItemRenderer() noexcept;
+shared_ptr<ItemRenderer<Button>> defaultButtonRenderer() noexcept;
+shared_ptr<ItemRenderer<ImageItem>> defaultImageItemRenderer() noexcept;
+shared_ptr<ItemRenderer<MultiChoiceSelector>> defaultMultiChoiceSelectorRenderer() noexcept;
+shared_ptr<ItemRenderer<OnOffSelector>> defaultOnOffSelectorRenderer() noexcept;
+shared_ptr<ItemRenderer<ScrollListContainer>> defaultScrollListContainerRenderer() noexcept;
+shared_ptr<ItemRenderer<SideSplitContainer>> defaultSideSplitContainerRenderer() noexcept;
+shared_ptr<ItemRenderer<TextItem>> defaultTextItemRenderer() noexcept;
 
 // RenderingSettings class
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -64,8 +69,16 @@ public:
 	gl::SpriteBatch* spriteBatchPtr = nullptr;
 
 	// Default renderers
-	shared_ptr<ButtonRenderer> buttonRenderer = defaultButtonRenderer();
-	shared_ptr<ImageItemRenderer> imageItemRenderer = defaultImageItemRenderer();
+	shared_ptr<ItemRenderer<Button>> buttonRenderer = defaultButtonRenderer();
+	shared_ptr<ItemRenderer<ImageItem>> imageItemRenderer = defaultImageItemRenderer();
+	shared_ptr<ItemRenderer<MultiChoiceSelector>> multiChoiceSelectorRenderer = 
+	                                                   defaultMultiChoiceSelectorRenderer();
+	shared_ptr<ItemRenderer<OnOffSelector>> onOffSelectorRenderer = defaultOnOffSelectorRenderer();
+	shared_ptr<ItemRenderer<ScrollListContainer>> scrollListContainerRenderer =
+	                                                   defaultScrollListContainerRenderer();
+	shared_ptr<ItemRenderer<SideSplitContainer>> sideSplitContainerRenderer =
+	                                                  defaultSideSplitContainerRenderer();
+	shared_ptr<ItemRenderer<TextItem>> textItemRenderer = defaultTextItemRenderer();
 
 private:
 	// Private constructors & destructors

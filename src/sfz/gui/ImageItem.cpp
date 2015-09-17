@@ -32,7 +32,7 @@ KeyInput ImageItem::input(KeyInput key)
 
 void ImageItem::update(float delta)
 {
-	RenderingSettings::INSTANCE().imageItemRenderer->update(delta);
+	RenderingSettings::INSTANCE().imageItemRenderer->update(*this, delta);
 }
 
 void ImageItem::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)

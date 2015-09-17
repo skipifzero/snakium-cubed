@@ -15,17 +15,17 @@ namespace gui {
 // Default Button Renderer
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-shared_ptr<ButtonRenderer> defaultButtonRenderer() noexcept
+shared_ptr<ItemRenderer<Button>> defaultButtonRenderer() noexcept
 {
-	class DefaultButtonRenderer final : public ButtonRenderer {
+	class DefaultButtonRenderer final : public ItemRenderer<Button> {
 	public:
-		virtual void update(float delta) override final
+		virtual void update(Button& button, float delta) override final
 		{
 			
 		}
 
-		virtual void draw(const Button& b, vec2 basePos, uint32_t fbo,
-		                  const AABB2D& viewport, const AABB2D& cam) override final
+		virtual void draw(Button& b, vec2 basePos, uint32_t fbo, const AABB2D& viewport,
+		                  const AABB2D& cam) override final
 		{
 			auto& assets = s3::Assets::INSTANCE();
 			auto& sb = assets.spriteBatch;
@@ -97,22 +97,22 @@ shared_ptr<ButtonRenderer> defaultButtonRenderer() noexcept
 			font.end(fbo, viewport, fgColor);
 		}
 	};
-	return shared_ptr<ButtonRenderer>{new DefaultButtonRenderer{}};
+	return shared_ptr<ItemRenderer<Button>>{new DefaultButtonRenderer{}};
 }
 
 // Default ImageItem Renderer
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-shared_ptr<ImageItemRenderer> defaultImageItemRenderer() noexcept
+shared_ptr<ItemRenderer<ImageItem>> defaultImageItemRenderer() noexcept
 {
-	class DefaultImageItemRenderer final : public ImageItemRenderer {
+	class DefaultImageItemRenderer final : public ItemRenderer<ImageItem> {
 	public:
-		virtual void update(float delta) override final
+		virtual void update(ImageItem& imageItem, float delta) override final
 		{
 			
 		}
 
-		virtual void draw(const ImageItem& ii, vec2 basePos, uint32_t fbo,
+		virtual void draw(ImageItem& ii, vec2 basePos, uint32_t fbo,
 		                  const AABB2D& viewport, const AABB2D& cam) override final
 		{
 			auto& sb = s3::Assets::INSTANCE().spriteBatch;
@@ -139,7 +139,226 @@ shared_ptr<ImageItemRenderer> defaultImageItemRenderer() noexcept
 			sb.end(fbo, viewport, ii.texture);
 		}
 	};
-	return shared_ptr<ImageItemRenderer>{new DefaultImageItemRenderer{}};
+	return shared_ptr<ItemRenderer<ImageItem>>{new DefaultImageItemRenderer{}};
+}
+
+// Default MultiChoiceSelector Renderer
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+shared_ptr<ItemRenderer<MultiChoiceSelector>> defaultMultiChoiceSelectorRenderer() noexcept
+{
+	class DefaultMultiChoiceSelectorRenderer final : public ItemRenderer<MultiChoiceSelector> {
+	public:
+		virtual void update(MultiChoiceSelector& multiChoice, float delta) override final
+		{
+			
+		}
+
+		virtual void draw(MultiChoiceSelector& mc, vec2 basePos, uint32_t fbo,
+		                  const AABB2D& viewport, const AABB2D& cam) override final
+		{
+			using sfz::vec4;
+
+			auto& assets = s3::Assets::INSTANCE();
+			auto& sb = assets.spriteBatch;
+			auto& font = assets.fontRenderer;
+
+			sb.begin(cam);
+			sb.draw(basePos + mc.offset, mc.dim, assets.TILE_FACE_REG);
+			sb.end(fbo, viewport, assets.ATLAS_128.texture());
+
+			// Font rendering preparations
+			font.horizontalAlign(gl::HorizontalAlign::LEFT);
+			font.verticalAlign(gl::VerticalAlign::MIDDLE);
+			const float size = 0.6f * mc.dim.y;
+			const float nearbySize = size*0.5f;
+			const float yAlignOffset = (mc.dim.y/2.0f)*0.3f;
+			const float bgXAlignOffset = mc.dim.x * 0.009f;
+
+			const int choice = mc.checkStateFunc();
+			const int len = mc.choiceNames.size();
+			static const string empty = "";
+			const string& choiceLeftStr = (0 <= (choice-1) && (choice-1) < len) ? mc.choiceNames[choice-1] : empty;
+			const string& choiceMidStr = (0 <= (choice) && (choice) < len) ? mc.choiceNames[choice] : empty;
+			const string& choiceRightStr = (0 <= (choice+1) && (choice+1) < len) ? mc.choiceNames[choice+1] : empty;
+
+			vec2 leftMiddlePos = basePos + mc.offset + vec2{-(mc.dim.x/2.0f), yAlignOffset};
+
+			vec2 choiceLeftPos = leftMiddlePos;
+			choiceLeftPos.x += std::max(mc.stateAlignOffset, font.measureStringWidth(size, mc.text + " "));
+			vec2 choiceMidPos = choiceLeftPos;
+			choiceMidPos.x += font.measureStringWidth(nearbySize, choiceLeftStr);
+			vec2 choiceRightPos = choiceMidPos;
+			choiceRightPos.x += font.measureStringWidth(size, choiceMidStr);
+
+			// Render font shadow
+			font.begin(cam);
+			font.write(leftMiddlePos + vec2{bgXAlignOffset, 0.0f}, size, mc.text);
+			//font.write(choiceLeftPos + vec2{bgXAlignOffset, 0.0f}, nearbySize, choiceLeftStr);
+			font.write(choiceMidPos + vec2{bgXAlignOffset, 0.0f}, size, choiceMidStr);
+			//font.write(choiceRightPos + vec2{bgXAlignOffset, 0.0f}, nearbySize, choiceRightStr);
+			font.end(fbo, viewport, vec4{0.0f, 0.0f, 0.0f, 1.0f});
+
+			bool state = false;
+			if (mc.checkStateFunc) state = mc.checkStateFunc();
+
+			// Render button text
+			font.begin(cam);
+			font.write(leftMiddlePos, size, mc.text);
+			font.write(choiceMidPos, size, choiceMidStr);
+			font.end(fbo, viewport, mc.isSelected() ? vec4{1.0f, 0.0f, 0.0f, 1.0f} : vec4{1.0f});
+
+			font.begin(cam);
+			font.write(choiceLeftPos, nearbySize, choiceLeftStr);
+			font.write(choiceRightPos, nearbySize, choiceRightStr);
+			font.end(fbo, viewport, vec4{0.5f, 0.5f, 0.5f, 1.0f});
+		}
+	};
+	return shared_ptr<ItemRenderer<MultiChoiceSelector>>{new DefaultMultiChoiceSelectorRenderer{}};
+}
+
+// Default OnOffSelector Renderer
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+shared_ptr<ItemRenderer<OnOffSelector>> defaultOnOffSelectorRenderer() noexcept
+{
+	class DefaultOnOffSelectorRenderer final : public ItemRenderer<OnOffSelector> {
+	public:
+		virtual void update(OnOffSelector& onOffSelector, float delta) override final
+		{
+			
+		}
+
+		virtual void draw(OnOffSelector& oo, vec2 basePos, uint32_t fbo,
+		                  const AABB2D& viewport, const AABB2D& cam) override final
+		{
+			using sfz::vec4;
+
+			auto& assets = s3::Assets::INSTANCE();
+			auto& sb = assets.spriteBatch;
+			auto& font = assets.fontRenderer;
+
+			sb.begin(cam);
+			sb.draw(basePos + oo.offset, oo.dim, assets.TILE_FACE_REG);
+			sb.end(fbo, viewport, assets.ATLAS_128.texture());
+
+			// Font rendering preparations
+			font.horizontalAlign(gl::HorizontalAlign::LEFT);
+			font.verticalAlign(gl::VerticalAlign::MIDDLE);
+			const float size = 0.6f * oo.dim.y;
+			const float yAlignOffset = (oo.dim.y/2.0f)*0.3f;
+			const float bgXAlignOffset = oo.dim.x * 0.009f;
+
+			vec2 leftMiddlePos = basePos + oo.offset + vec2{-(oo.dim.x/2.0f), yAlignOffset};
+			vec2 onPos = leftMiddlePos;
+			onPos.x += std::max(oo.stateAlignOffset, font.measureStringWidth(size, oo.text + " "));
+			vec2 offPos = onPos;
+			offPos.x += font.measureStringWidth(size, "On ");
+
+			bool state = false;
+			if (oo.checkStateFunc) state = oo.checkStateFunc();
+
+			// Render font shadow
+			font.begin(cam);
+			font.write(leftMiddlePos + vec2{bgXAlignOffset, 0.0f}, size, oo.text);
+			if (state) font.write(onPos + vec2{bgXAlignOffset, 0.0f}, size, "On");
+			else font.write(offPos + vec2{bgXAlignOffset, 0.0f}, size, "Off");
+			font.end(fbo, viewport, vec4{0.0f, 0.0f, 0.0f, 1.0f});
+
+			// Render button text
+			font.begin(cam);
+			font.write(leftMiddlePos, size, oo.text);
+			font.end(fbo, viewport, oo.isSelected() ? vec4{1.0f, 0.0f, 0.0f, 1.0f} : vec4{1.0f});
+			font.begin(cam);
+			font.write(onPos, size, "On");
+			font.end(fbo, viewport, state ? (oo.isSelected() ? vec4{1.0f, 0.0f, 0.0f, 1.0f} : vec4{1.0f}) : vec4{0.5f, 0.5f, 0.5f, 1.0f});
+			font.begin(cam);
+			font.write(offPos, size, "Off");
+			font.end(fbo, viewport, !state ? (oo.isSelected() ? vec4{1.0f, 0.0f, 0.0f, 1.0f} : vec4{1.0f}) : vec4{0.5f, 0.5f, 0.5f, 1.0f});
+
+		}
+	};
+	return shared_ptr<ItemRenderer<OnOffSelector>>{new DefaultOnOffSelectorRenderer{}};
+}
+
+// Default ScrollListContainer Renderer
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+shared_ptr<ItemRenderer<ScrollListContainer>> defaultScrollListContainerRenderer() noexcept
+{
+	class DefaultScrollListContainerRenderer final : public ItemRenderer<ScrollListContainer> {
+	public:
+		virtual void update(ScrollListContainer& scrollList, float delta) override final
+		{
+			
+		}
+
+		virtual void draw(ScrollListContainer& scrollList, vec2 basePos, uint32_t fbo,
+		                  const AABB2D& viewport, const AABB2D& cam) override final
+		{
+
+		}
+	};
+	return shared_ptr<ItemRenderer<ScrollListContainer>>{new DefaultScrollListContainerRenderer{}};
+}
+
+// Default SideSplitContainer Renderer
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+shared_ptr<ItemRenderer<SideSplitContainer>> defaultSideSplitContainerRenderer() noexcept
+{
+	class DefaultSideSplitContainerRenderer final : public ItemRenderer<SideSplitContainer> {
+	public:
+		virtual void update(SideSplitContainer& sideSplit, float delta) override final
+		{
+
+		}
+
+		virtual void draw(SideSplitContainer& sideSplit, vec2 basePos, uint32_t fbo,
+		                  const AABB2D& viewport, const AABB2D& cam) override final
+		{
+
+		}
+	};
+	return shared_ptr<ItemRenderer<SideSplitContainer>>{new DefaultSideSplitContainerRenderer{}};
+}
+
+// Default TextItem Renderer
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+shared_ptr<ItemRenderer<TextItem>> defaultTextItemRenderer() noexcept
+{
+	class DefaultTextItemRenderer final : public ItemRenderer<TextItem> {
+	public:
+		virtual void update(TextItem& textItem, float delta) override final
+		{
+
+		}
+
+		virtual void draw(TextItem& ti, vec2 basePos, uint32_t fbo,
+		                  const AABB2D& viewport, const AABB2D& cam) override final
+		{
+			auto& font = s3::Assets::INSTANCE().fontRenderer;
+
+			auto& sb = s3::Assets::INSTANCE().spriteBatch;
+
+			sb.begin(cam);
+			sb.draw(ti.bounds(basePos), s3::Assets::INSTANCE().TILE_FACE_REG);
+			sb.end(fbo, viewport, s3::Assets::INSTANCE().ATLAS_128.texture());
+
+			float stringWidth = font.measureStringWidth(ti.dim.y, ti.text);
+			vec2 pos = basePos + ti.offset;
+			float alignSign = (float)(int8_t)ti.hAlign;
+			pos.x += (alignSign*(ti.dim.x/2.0f));
+
+			font.horizontalAlign(ti.hAlign);
+			font.verticalAlign(gl::VerticalAlign::MIDDLE);
+			font.begin(cam);
+			font.write(pos, ti.dim.y, ti.text);
+			font.end(fbo, viewport, sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+		}
+	};
+	return shared_ptr<ItemRenderer<TextItem>>{new DefaultTextItemRenderer{}};
 }
 
 // RenderingSettings: Singleton instance

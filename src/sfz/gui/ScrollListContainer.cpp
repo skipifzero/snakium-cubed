@@ -3,8 +3,7 @@
 #include "sfz/Assert.hpp"
 #include "sfz/geometry/Intersection.hpp"
 #include "sfz/gui/GUIUtils.hpp"
-
-#include "rendering/Assets.hpp" // TODO: Hilariously unportable include, remove later
+#include "sfz/gui/RenderingSettings.hpp"
 
 namespace gui {
 
@@ -34,7 +33,7 @@ bool ScrollListContainer::addItem(shared_ptr<BaseItem> item, vec2 dim,
 		mNextItemTopPos = vec2{offset.x, offset.y + (this->dim.y/2.0f)};
 	}
 
-	if (dim.x > dim.x) {
+	if (dim.x > this->dim.x) {
 		std::cerr << "gui::ScrollListContainer: Cannot add item, too wide.\n";
 		return false;
 	}
@@ -143,11 +142,14 @@ KeyInput ScrollListContainer::input(KeyInput key)
 
 void ScrollListContainer::update(float delta)
 {
+	RenderingSettings::INSTANCE().scrollListContainerRenderer->update(*this, delta);
 	for (auto& i : items) i->update(delta);
 }
 
 void ScrollListContainer::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 {
+	RenderingSettings::INSTANCE().scrollListContainerRenderer->draw(*this, basePos, fbo, viewport, cam);
+
 	const vec2 itemBasePos = basePos + offset + vec2{0.0f, mCurrentScrollOffset};
 	AABB2D thisBounds = this->bounds(basePos);
 
