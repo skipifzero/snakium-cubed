@@ -217,14 +217,7 @@ OptionsScreen::OptionsScreen() noexcept
 	}, stateAlignOffset}}, itemDim);
 
 	scrollList.addSpacing(itemSpacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new OnOffSelector{"Has Speed Increase", [this]() {
-		return this->cfgData.modelConfig.hasSpeedIncrease;
-	}, [this]() {
-		this->cfgData.modelConfig.hasSpeedIncrease = !this->cfgData.modelConfig.hasSpeedIncrease;
-	}, stateAlignOffset}}, itemDim);
-
-	scrollList.addSpacing(itemSpacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Speed increase per object", {"0.000", "0.005", "0.010", "0.015", "0.020", "0.025", "0.030", "0.035", "0.040", "0.045", "0.050", "0.055", "0.060", "0.065", "0.070", "0.075", "0.080", "0.085", "0.090", "0.095", "0.100"}, [this]() {
+	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Speed increase (per obj)", {"0.000", "0.005", "0.010", "0.015", "0.020", "0.025", "0.030", "0.035", "0.040", "0.045", "0.050", "0.055", "0.060", "0.065", "0.070", "0.075", "0.080", "0.085", "0.090", "0.095", "0.100"}, [this]() {
 		float val = this->cfgData.modelConfig.speedIncreasePerObject;
 		const float eps = 0.0001f;
 		if (sfz::approxEqual(val, 0.000f, eps)) return 0;
@@ -254,13 +247,13 @@ OptionsScreen::OptionsScreen() noexcept
 	}, stateAlignOffset}}, itemDim);
 
 	scrollList.addSpacing(itemSpacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Points per object", {"0", "8", "16", "24", "32", "40", "48", "56", "64", "72", "80", "88", "96", "104", "112", "120", "128"}, [this]() {
-		int val = this->cfgData.modelConfig.pointsPerObject;
+	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Object value", {"0", "8", "16", "24", "32", "40", "48", "56", "64", "72", "80", "88", "96", "104", "112", "120", "128"}, [this]() {
+		int val = this->cfgData.modelConfig.objectValue;
 		if (val < 0 || 128 < val) return -1;
 		if ((val % 8) != 0) return -1;
 		return val / 8;
 	}, [this](int choice) {
-		this->cfgData.modelConfig.pointsPerObject = choice * 8;
+		this->cfgData.modelConfig.objectValue = choice * 8;
 	}, stateAlignOffset}}, itemDim);
 
 	scrollList.addSpacing(itemSpacing);
@@ -289,13 +282,13 @@ OptionsScreen::OptionsScreen() noexcept
 	}, stateAlignOffset}}, itemDim);
 
 	scrollList.addSpacing(itemSpacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Points per bonus object", {"0", "8", "16", "24", "32", "40", "48", "56", "64", "72", "80", "88", "96", "104", "112", "120", "128"}, [this]() {
-		int val = this->cfgData.modelConfig.pointsPerBonusObject;
+	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Bonus object value", {"0", "8", "16", "24", "32", "40", "48", "56", "64", "72", "80", "88", "96", "104", "112", "120", "128"}, [this]() {
+		int val = this->cfgData.modelConfig.bonusObjectValue;
 		if (val < 0 || 128 < val) return -1;
 		if ((val % 8) != 0) return -1;
 		return val / 8;
 	}, [this](int choice) {
-		this->cfgData.modelConfig.pointsPerBonusObject = choice * 8;
+		this->cfgData.modelConfig.bonusObjectValue = choice * 8;
 	}, stateAlignOffset}}, itemDim);
 
 

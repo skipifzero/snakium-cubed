@@ -65,14 +65,13 @@ void GlobalConfig::load() noexcept
 	ModelConfig& mc = modelConfig;
 	static const string gsStr = "GameSettings";
 	mc.hasBonus =               ip.sanitizeBool(gsStr, "bHasBonus", true);
-	mc.hasSpeedIncrease =       ip.sanitizeBool(gsStr, "bHasSpeedIncrease", true);
 	mc.speedIncreasePerObject = ip.sanitizeFloat(gsStr, "fSpeedIncreasePerObject", 0.025f, 0.001f, 60.0f);
 	mc.tilesPerSecond =         ip.sanitizeFloat(gsStr, "fTilesPerSecond", 2.25f, 0.05f, 60.0f);
 	mc.gridWidth =              ip.sanitizeInt(gsStr, "iGridWidth", 3, 2, 128);;
 	mc.bonusDuration =          ip.sanitizeInt(gsStr, "iBonusDuration", 32, 0, 4096);
 	mc.bonusFrequency =         ip.sanitizeInt(gsStr, "iBonusFrequency", 8, 1, 1024);
-	mc.pointsPerBonusObject =   ip.sanitizeInt(gsStr, "iPointsPerBonusObject", 32, 32, 4096);
-	mc.pointsPerObject =        ip.sanitizeInt(gsStr, "iPointsPerObject", 8, 0, 4096);
+	mc.bonusObjectValue =       ip.sanitizeInt(gsStr, "iBonusObjectValue", 32, 32, 4096);
+	mc.objectValue =            ip.sanitizeInt(gsStr, "iObjectValue", 8, 0, 4096);
 	
 	// [Graphics]
 	static const string grStr = "Graphics";
@@ -90,14 +89,13 @@ void GlobalConfig::save() noexcept
 	// [GameSettings]
 	static const string gsStr = "GameSettings";
 	mIniParser.setBool(gsStr, "bHasBonus", modelConfig.hasBonus);
-	mIniParser.setBool(gsStr, "bHasSpeedIncrease", modelConfig.hasSpeedIncrease);
 	mIniParser.setInt(gsStr, "iGridWidth", modelConfig.gridWidth);
 	mIniParser.setFloat(gsStr, "fSpeedIncreasePerObject", modelConfig.speedIncreasePerObject);
 	mIniParser.setFloat(gsStr, "fTilesPerSecond", modelConfig.tilesPerSecond);
 	mIniParser.setInt(gsStr, "iBonusDuration", modelConfig.bonusDuration);
 	mIniParser.setInt(gsStr, "iBonusFrequency", modelConfig.bonusFrequency);
-	mIniParser.setInt(gsStr, "iPointsPerBonusObject", modelConfig.pointsPerBonusObject);
-	mIniParser.setInt(gsStr, "iPointsPerObject", modelConfig.pointsPerObject);
+	mIniParser.setInt(gsStr, "iBonusObjectValue", modelConfig.bonusObjectValue);
+	mIniParser.setInt(gsStr, "iObjectValue", modelConfig.objectValue);
 
 	// [Graphics]
 	static const string grStr = "Graphics";

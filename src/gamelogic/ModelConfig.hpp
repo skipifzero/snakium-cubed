@@ -14,13 +14,12 @@ using std::int32_t;
 struct ModelConfig final {
 	int32_t gridWidth = 6;
 	float tilesPerSecond = 2.5f;
-	bool hasSpeedIncrease = true;
 	float speedIncreasePerObject = 0.025f;
-	int32_t pointsPerObject = 8;
+	int32_t objectValue = 8;
 	bool hasBonus = true;
 	int32_t bonusFrequency = 8;
 	int32_t bonusDuration = 16;
-	int32_t pointsPerBonusObject = 32;
+	int32_t bonusObjectValue = 32;
 };
 
 } // namespace s3

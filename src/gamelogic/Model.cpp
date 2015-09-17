@@ -142,7 +142,7 @@ void Model::update(float delta) noexcept
 	bool objectEaten = false;
 	if (nextHeadPtr->type() == TileType::OBJECT) {
 		objectEaten = true;
-		mScore += static_cast<long>(mCfg.pointsPerObject);
+		mScore += static_cast<long>(mCfg.objectValue);
 		mTimeSinceBonus += 1;
 
 		SnakeTile* freeTile = freeRandomTile(*this);
@@ -159,12 +159,12 @@ void Model::update(float delta) noexcept
 	}
 	else if (nextHeadPtr->type() == TileType::BONUS_OBJECT) {
 		objectEaten = true;
-		mScore += static_cast<long>(mCfg.pointsPerBonusObject);
+		mScore += static_cast<long>(mCfg.bonusObjectValue);
 		nextHeadPtr->setType(TileType::EMPTY);
 	}
 
 	// Check if speed should be increased
-	if (objectEaten && mCfg.hasSpeedIncrease) {
+	if (objectEaten) {
 		mCurrentSpeed += mCfg.speedIncreasePerObject;
 	}
 
