@@ -137,6 +137,9 @@ KeyInput ScrollListContainer::input(KeyInput key)
 		return items[mCurrentSelectedIndex]->input(key);
 	}
 
+	// If key is UP or DOWN at this point we are exiting the scroll list, so we fix the scroll offset here.
+	if (key == KeyInput::UP) mCurrentScrollOffset = 0.0f;
+	if (key == KeyInput::DOWN) mCurrentScrollOffset = mMinScrollOffset - dim.y;
 	return key;
 }
 
