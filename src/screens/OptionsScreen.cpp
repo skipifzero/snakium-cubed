@@ -109,9 +109,9 @@ OptionsScreen::OptionsScreen() noexcept
 	const float spacing = 5.5f;
 	const float itemSpacing = 1.0f;
 	const float titleHeight = 20.0f;
-	const float stateAlignOffset = menuDim.x * 0.45f;
-	const vec2 headingDim{menuDim.x * 0.8f, 9.0f};
-	const vec2 itemDim{menuDim.x * 0.8f, 7.5f};
+	const float stateAlignOffset = menuDim.x * 0.6f;
+	const vec2 headingDim{menuDim.x * 0.85f, 9.0f};
+	const vec2 itemDim{menuDim.x * 0.85f, 7.5f};
 	float scrollListHeight = menuDim.y - titleHeight - itemDim.y - 3.0f*spacing;
 
 	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Options"}}, vec2{menuDim.x, titleHeight});
@@ -293,11 +293,19 @@ OptionsScreen::OptionsScreen() noexcept
 
 
 	mGuiSystem.addSpacing(itemSpacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new Button{"Back", [this](Button&) {
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new SideSplitContainer{}}, itemDim);
+	SideSplitContainer& sideSplit = *(SideSplitContainer*)mGuiSystem.items().back().get();
+	
+	sideSplit.setLeft(shared_ptr<BaseItem>{new Button{"Cancel", [this](Button&) {
+		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+		                           shared_ptr<BaseScreen>{new MainMenuScreen{}}};
+	}}}, itemDim.x * 0.4f);
+
+	sideSplit.setRight(shared_ptr<BaseItem>{new Button{"Apply", [this](Button&) {
 		applyConfig(this->cfgData);
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                           shared_ptr<BaseScreen>{new MainMenuScreen{}}};
-	}}}, itemDim);
+	}}}, itemDim.x * 0.4);
 }
 
 // OptionsScreen: Overriden screen methods

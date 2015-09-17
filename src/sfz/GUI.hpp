@@ -10,6 +10,7 @@
 #include "sfz/gui/MultiChoiceSelector.hpp"
 #include "sfz/gui/OnOffSelector.hpp"
 #include "sfz/gui/ScrollListContainer.hpp"
+#include "sfz/gui/SideSplitContainer.hpp"
 #include "sfz/gui/System.hpp"
 #include "sfz/gui/TextItem.hpp"
 

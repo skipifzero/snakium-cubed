@@ -98,6 +98,8 @@ set(SOURCE_SFZ_GUI_TEMP_FILES
 	${SRC_DIR}/sfz/gui/OnOffSelector.cpp
 	${SRC_DIR}/sfz/gui/ScrollListContainer.hpp
 	${SRC_DIR}/sfz/gui/ScrollListContainer.cpp
+	${SRC_DIR}/sfz/gui/SideSplitContainer.hpp
+	${SRC_DIR}/sfz/gui/SideSplitContainer.cpp
 	${SRC_DIR}/sfz/gui/System.hpp
 	${SRC_DIR}/sfz/gui/System.cpp
 	${SRC_DIR}/sfz/gui/TextItem.hpp

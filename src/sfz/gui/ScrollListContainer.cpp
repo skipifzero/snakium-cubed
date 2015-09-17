@@ -35,7 +35,7 @@ bool ScrollListContainer::addItem(shared_ptr<BaseItem> item, vec2 dim,
 	}
 
 	if (dim.x > dim.x) {
-		std::cerr << "gui::System: Cannot add item, too wide.\n";
+		std::cerr << "gui::ScrollListContainer: Cannot add item, too wide.\n";
 		return false;
 	}
 

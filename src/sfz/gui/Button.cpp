@@ -37,21 +37,27 @@ bool Button::input(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState,
 KeyInput Button::input(KeyInput key)
 {
 	if (!mEnabled) return key;
-	if (mSelected) {
-		if (key == KeyInput::ACTIVATE) {
-			if (activateFunc) activateFunc(*this);
-			return KeyInput::NONE;
-		}
-		else if (key == KeyInput::DOWN || key == KeyInput::UP) {
+
+	switch (key) {
+	case KeyInput::UP:
+	case KeyInput::DOWN:
+	case KeyInput::LEFT:
+	case KeyInput::RIGHT:
+		if (mSelected) {
 			mSelected = false;
 			return key;
-		}
-		return KeyInput::NONE;
-	} else {
-		if (key == KeyInput::DOWN || key == KeyInput::UP) {
+		} else {
 			mSelected = true;
+			return KeyInput::NONE; 
 		}
+
+	case KeyInput::ACTIVATE:
+		if (mSelected && activateFunc) activateFunc(*this);
 		return KeyInput::NONE;
+
+	default:
+	case KeyInput::NONE:
+		return key;
 	}
 }
 
