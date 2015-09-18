@@ -3,7 +3,7 @@
 #include "sfz/Assert.hpp"
 #include "sfz/geometry/Intersection.hpp"
 #include "sfz/gui/GUIUtils.hpp"
-#include "sfz/gui/RenderingSettings.hpp"
+#include "sfz/gui/DefaultItemRenderers.hpp"
 
 namespace gui {
 
@@ -12,6 +12,11 @@ namespace gui {
 
 static const vec2 UNINITIALIZED_POS{-999.0f, -999.0f};
 
+// ScrollListContainer: Renderer Factory
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+ItemRendererFactory<ScrollListContainer> ScrollListContainer::rendererFactory =
+                                              defaultScrollListContainerRendererFactory();
 
 // ScrollListContainer: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -21,7 +26,7 @@ ScrollListContainer::ScrollListContainer(float scrollSpeed) noexcept
 	mScrollSpeed{scrollSpeed},
 	mNextItemTopPos{UNINITIALIZED_POS}
 {
-	renderer = RenderingSettings::INSTANCE().scrollListRendererFactory(*this);
+	renderer = rendererFactory(*this);
 }
 
 

@@ -1,7 +1,7 @@
 #include "sfz/gui/SideSplitContainer.hpp"
 
 #include "sfz/geometry/Intersection.hpp"
-#include "sfz/gui/RenderingSettings.hpp"
+#include "sfz/gui/DefaultItemRenderers.hpp"
 
 namespace gui {
 
@@ -19,12 +19,18 @@ static int other(int current) noexcept
 	return -1;
 }
 
+// SideSplitContainer: Renderer Factory
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+ItemRendererFactory<SideSplitContainer> SideSplitContainer::rendererFactory =
+										     defaultSideSplitContainerRendererFactory();
+
 // SideSplitContainer: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 SideSplitContainer::SideSplitContainer() noexcept
 {
-	renderer = RenderingSettings::INSTANCE().sideSplitContainerRendererFactory(*this);
+	renderer = rendererFactory(*this);
 }
 
 // SideSplitContainer: Public methods

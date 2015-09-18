@@ -1,9 +1,14 @@
 #include "sfz/gui/TextItem.hpp"
 
 #include "sfz/Assert.hpp"
-#include "sfz/gui/RenderingSettings.hpp"
+#include "sfz/gui/DefaultItemRenderers.hpp"
 
 namespace gui {
+
+// TextItem: Renderer Factory
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+ItemRendererFactory<TextItem> TextItem::rendererFactory = defaultTextItemRendererFactory();
 
 // TextItem: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -13,7 +18,7 @@ TextItem::TextItem(const string& text, HorizontalAlign hAlign) noexcept
 	text{text},
 	hAlign{hAlign}
 {
-	renderer = RenderingSettings::INSTANCE().textItemRendererFactory(*this);
+	renderer = rendererFactory(*this);
 }
 
 // TextItem: Virtual methods overriden from BaseItem

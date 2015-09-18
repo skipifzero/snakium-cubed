@@ -1,9 +1,14 @@
 #include "sfz/gui/ImageItem.hpp"
 
 #include "sfz/Assert.hpp"
-#include "sfz/gui/RenderingSettings.hpp"
+#include "sfz/gui/DefaultItemRenderers.hpp"
 
 namespace gui {
+
+// ImageItem: Renderer Factory
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+ItemRendererFactory<ImageItem> ImageItem::rendererFactory = defaultImageItemRendererFactory();
 
 // ImageItem: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -16,7 +21,7 @@ ImageItem::ImageItem(sfz::TextureRegion imageRegion, unsigned int texture,
 	hAlign{hAlign},
 	imageScale{imageScale}
 {
-	renderer = RenderingSettings::INSTANCE().imageItemRendererFactory(*this);
+	renderer = rendererFactory(*this);
 }
 
 // ImageItem: Virtual methods overriden from BaseItem

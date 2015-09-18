@@ -14,6 +14,11 @@ using std::string;
 
 class TextItem final : public BaseItem {
 public:
+	// Renderer Factory (by default the default renderer)
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	static ItemRendererFactory<TextItem> rendererFactory;
+
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

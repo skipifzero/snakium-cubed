@@ -14,6 +14,11 @@ using std::string;
 
 class Button final : public BaseItem {
 public:
+	// Renderer Factory (by default the default renderer)
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	static ItemRendererFactory<Button> rendererFactory;
+
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

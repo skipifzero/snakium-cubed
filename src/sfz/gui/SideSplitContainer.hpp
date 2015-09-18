@@ -15,6 +15,11 @@ using std::shared_ptr;
 
 class SideSplitContainer final : public BaseItem {
 public:
+	// Renderer Factory (by default the default renderer)
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	static ItemRendererFactory<SideSplitContainer> rendererFactory;
+
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

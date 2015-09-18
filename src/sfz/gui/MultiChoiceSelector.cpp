@@ -1,8 +1,15 @@
 #include "sfz/gui/MultiChoiceSelector.hpp"
 
 #include "sfz/geometry/Intersection.hpp"
-#include "sfz/gui/RenderingSettings.hpp"
+#include "sfz/gui/DefaultItemRenderers.hpp"
+
 namespace gui {
+
+// MultiChoiceSelector: Renderer Factory
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+ItemRendererFactory<MultiChoiceSelector> MultiChoiceSelector::rendererFactory =
+                                              defaultMultiChoiceSelectorRendererFactory();
 
 // MultiChoiceSelector: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -18,7 +25,7 @@ MultiChoiceSelector::MultiChoiceSelector(const string& text, const vector<string
 	changeStateFunc{changeStateFunc},
 	stateAlignOffset{stateAlignOffset}
 {
-	renderer = RenderingSettings::INSTANCE().multiChoiceSelectorRendererFactory(*this);
+	renderer = rendererFactory(*this);
 }
 
 // MultiChoiceSelector: Virtual methods overriden from BaseItem

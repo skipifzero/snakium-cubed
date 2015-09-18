@@ -1,9 +1,15 @@
 #include "sfz/gui/OnOffSelector.hpp"
 
 #include "sfz/geometry/Intersection.hpp"
-#include "sfz/gui/RenderingSettings.hpp"
+#include "sfz/gui/DefaultItemRenderers.hpp"
 
 namespace gui {
+
+// OnOffSelector: Renderer Factory
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+ItemRendererFactory<OnOffSelector> OnOffSelector::rendererFactory =
+                                        defaultOnOffSelectorRendererFactory();
 
 // OnOffSelector: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -16,7 +22,7 @@ OnOffSelector::OnOffSelector(const string& text, const function<bool(void)>& che
 	changeStateFunc{changeStateFunc},
 	stateAlignOffset{stateAlignOffset}
 {
-	renderer = RenderingSettings::INSTANCE().onOffSelectorRendererFactory(*this);
+	renderer = rendererFactory(*this);
 }
 
 // OnOffSelector: Virtual methods overriden from BaseItem

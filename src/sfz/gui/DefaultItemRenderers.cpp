@@ -1,4 +1,4 @@
-#include "sfz/gui/RenderingSettings.hpp"
+#include "sfz/gui/DefaultItemRenderers.hpp"
 
 #include "sfz/gui/Button.hpp"
 #include "sfz/gui/ImageItem.hpp"
@@ -393,12 +393,12 @@ ItemRendererFactory<TextItem> defaultTextItemRendererFactory() noexcept
 	return [](TextItem& ti) { return unique_ptr<ItemRenderer>{new DefaultTextItemRenderer{ti}}; };
 }
 
-// RenderingSettings: Singleton instance
+// DefaultRenderersSettings: Singleton instance
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-RenderingSettings& RenderingSettings::INSTANCE() noexcept
+DefaultRenderersSettings& DefaultRenderersSettings::INSTANCE() noexcept
 {
-	static RenderingSettings settings;
+	static DefaultRenderersSettings settings;
 	return settings;
 }
 

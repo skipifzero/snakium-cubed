@@ -1,9 +1,14 @@
 #include "sfz/gui/Button.hpp"
 
 #include "sfz/geometry/Intersection.hpp"
-#include "sfz/gui/RenderingSettings.hpp"
+#include "sfz/gui/DefaultItemRenderers.hpp"
 
 namespace gui {
+
+// Button: Renderer Factory
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+ItemRendererFactory<Button> Button::rendererFactory = defaultButtonRendererFactory();
 
 // Button: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -13,7 +18,7 @@ Button::Button(const function<void(Button&)>& activateFunc) noexcept
 	text{""},
 	activateFunc{activateFunc}
 {
-	renderer = RenderingSettings::INSTANCE().buttonRendererFactory(*this);
+	renderer = rendererFactory(*this);
 }
 
 Button::Button(const string& text, const function<void(Button&)>& activateFunc)
@@ -21,7 +26,7 @@ Button::Button(const string& text, const function<void(Button&)>& activateFunc)
 	text{text},
 	activateFunc{activateFunc}
 {
-	renderer = RenderingSettings::INSTANCE().buttonRendererFactory(*this);
+	renderer = rendererFactory(*this);
 }
 
 // Button: Virtual methods overriden from BaseItem

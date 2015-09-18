@@ -14,6 +14,11 @@ using std::string;
 
 class OnOffSelector final : public BaseItem {
 public:
+	// Renderer Factory (by default the default renderer)
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	static ItemRendererFactory<OnOffSelector> rendererFactory;
+
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

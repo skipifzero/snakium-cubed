@@ -87,6 +87,8 @@ set(SOURCE_SFZ_GUI_TEMP_FILES
 	${SRC_DIR}/sfz/gui/BaseItem.hpp
 	${SRC_DIR}/sfz/gui/Button.hpp
 	${SRC_DIR}/sfz/gui/Button.cpp
+	${SRC_DIR}/sfz/gui/DefaultItemRenderers.hpp
+	${SRC_DIR}/sfz/gui/DefaultItemRenderers.cpp
 	${SRC_DIR}/sfz/gui/GUIUtils.hpp
 	${SRC_DIR}/sfz/gui/GUIUtils.cpp
 	${SRC_DIR}/sfz/gui/ImageItem.hpp
@@ -97,8 +99,6 @@ set(SOURCE_SFZ_GUI_TEMP_FILES
 	${SRC_DIR}/sfz/gui/MultiChoiceSelector.cpp
 	${SRC_DIR}/sfz/gui/OnOffSelector.hpp
 	${SRC_DIR}/sfz/gui/OnOffSelector.cpp
-	${SRC_DIR}/sfz/gui/RenderingSettings.hpp
-	${SRC_DIR}/sfz/gui/RenderingSettings.cpp
 	${SRC_DIR}/sfz/gui/ScrollListContainer.hpp
 	${SRC_DIR}/sfz/gui/ScrollListContainer.cpp
 	${SRC_DIR}/sfz/gui/SideSplitContainer.hpp

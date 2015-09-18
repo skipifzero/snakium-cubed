@@ -13,6 +13,11 @@ using gl::HorizontalAlign;
 
 class ImageItem final : public BaseItem {
 public:
+	// Renderer Factory (by default the default renderer)
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	static ItemRendererFactory<ImageItem> rendererFactory;
+
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

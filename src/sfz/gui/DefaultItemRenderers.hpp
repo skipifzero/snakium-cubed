@@ -1,9 +1,6 @@
 #pragma once
-#ifndef SFZ_GUI_RENDERING_SETTINGS_HPP
-#define SFZ_GUI_RENDERING_SETTINGS_HPP
-
-#include <functional>
-#include <memory>
+#ifndef SFZ_GUI_DEFAULT_ITEM_RENDERERS_HPP
+#define SFZ_GUI_DEFAULT_ITEM_RENDERERS_HPP
 
 #include "sfz/gui/ItemRenderer.hpp"
 #include "sfz/gl/FontRenderer.hpp"
@@ -13,12 +10,6 @@ namespace gui {
 
 using std::function;
 using std::unique_ptr;
-
-// Common Item Rendering Factory Type
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-template<typename T>
-using ItemRendererFactory = function<unique_ptr<ItemRenderer>(T&)>;
 
 // Forward declarations
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -42,15 +33,15 @@ ItemRendererFactory<ScrollListContainer> defaultScrollListContainerRendererFacto
 ItemRendererFactory<SideSplitContainer> defaultSideSplitContainerRendererFactory() noexcept;
 ItemRendererFactory<TextItem> defaultTextItemRendererFactory() noexcept;
 
-// RenderingSettings class
+// Default renderer settings class
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-class RenderingSettings final {
+class DefaultRenderersSettings final {
 public:
 	// Singleton instance
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	static RenderingSettings& INSTANCE() noexcept;
+	static DefaultRenderersSettings& INSTANCE() noexcept;
 
 	// Public members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -59,26 +50,13 @@ public:
 	gl::FontRenderer* fontPtr = nullptr;
 	gl::SpriteBatch* spriteBatchPtr = nullptr;
 
-	// Renderer factories (by default the default renderers)
-	ItemRendererFactory<Button> buttonRendererFactory = defaultButtonRendererFactory();
-	ItemRendererFactory<ImageItem> imageItemRendererFactory = defaultImageItemRendererFactory();
-	ItemRendererFactory<MultiChoiceSelector> multiChoiceSelectorRendererFactory =
-	                                              defaultMultiChoiceSelectorRendererFactory();
-	ItemRendererFactory<OnOffSelector> onOffSelectorRendererFactory =
-	                                        defaultOnOffSelectorRendererFactory();
-	ItemRendererFactory<ScrollListContainer> scrollListRendererFactory =
-	                                              defaultScrollListContainerRendererFactory();
-	ItemRendererFactory<SideSplitContainer> sideSplitContainerRendererFactory =
-	                                             defaultSideSplitContainerRendererFactory();
-	ItemRendererFactory<TextItem> textItemRendererFactory = defaultTextItemRendererFactory();
-
 private:
 	// Private constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	RenderingSettings() noexcept = default;
-	RenderingSettings(const RenderingSettings&) = delete;
-	RenderingSettings& operator= (const RenderingSettings&) = delete;
+	DefaultRenderersSettings() noexcept = default;
+	DefaultRenderersSettings(const DefaultRenderersSettings&) = delete;
+	DefaultRenderersSettings& operator= (const DefaultRenderersSettings&) = delete;
 };
 
 } // namespace gui
