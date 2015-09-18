@@ -23,8 +23,9 @@ static int other(int current) noexcept
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 SideSplitContainer::SideSplitContainer() noexcept
-{ }
-
+{
+	renderer = RenderingSettings::INSTANCE().sideSplitContainerRendererFactory(*this);
+}
 
 // SideSplitContainer: Public methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -160,14 +161,13 @@ KeyInput SideSplitContainer::input(KeyInput key)
 
 void SideSplitContainer::update(float delta)
 {
-	RenderingSettings::INSTANCE().sideSplitContainerRenderer->update(*this, delta);
-	if (leftItem != nullptr) leftItem->update(delta);
+	renderer->update(delta);	if (leftItem != nullptr) leftItem->update(delta);
 	if (rightItem != nullptr) rightItem->update(delta);
 }
 
 void SideSplitContainer::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 {
-	RenderingSettings::INSTANCE().sideSplitContainerRenderer->draw(*this, basePos, fbo, viewport, cam);
+	renderer->draw(basePos, fbo, viewport, cam);
 	if (leftItem != nullptr) leftItem->draw(basePos + offset, fbo, viewport, cam);
 	if (rightItem != nullptr) rightItem->draw(basePos + offset, fbo, viewport, cam);
 }

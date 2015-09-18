@@ -15,12 +15,14 @@ OnOffSelector::OnOffSelector(const string& text, const function<bool(void)>& che
 	checkStateFunc{checkStateFunc},
 	changeStateFunc{changeStateFunc},
 	stateAlignOffset{stateAlignOffset}
-{ }
+{
+	renderer = RenderingSettings::INSTANCE().onOffSelectorRendererFactory(*this);
+}
 
 // OnOffSelector: Virtual methods overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool OnOffSelector::input(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel)
+bool OnOffSelector::input(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2)
 {
 	if (!mEnabled) return false;
 	mSelected = sfz::pointInside(bounds(basePos), pointerPos);
@@ -61,12 +63,12 @@ KeyInput OnOffSelector::input(KeyInput key)
 
 void OnOffSelector::update(float delta)
 {
-	RenderingSettings::INSTANCE().onOffSelectorRenderer->update(*this, delta);
+	renderer->update(delta);
 }
 
 void OnOffSelector::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 {
-	RenderingSettings::INSTANCE().onOffSelectorRenderer->draw(*this, basePos, fbo, viewport, cam);
+	renderer->draw(basePos, fbo, viewport, cam);
 }
 
 // OnOffSelector: Virtual getters overriden from BaseItem

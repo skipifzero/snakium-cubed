@@ -2,32 +2,23 @@
 #ifndef SFZ_GUI_RENDERING_SETTINGS_HPP
 #define SFZ_GUI_RENDERING_SETTINGS_HPP
 
-#include <cstdint>
+#include <functional>
 #include <memory>
 
-#include "sfz/geometry/AABB2D.hpp"
+#include "sfz/gui/ItemRenderer.hpp"
 #include "sfz/gl/FontRenderer.hpp"
 #include "sfz/gl/SpriteBatch.hpp"
-#include "sfz/math/Vector.hpp"
 
 namespace gui {
 
-using sfz::AABB2D;
-using sfz::vec2;
+using std::function;
+using std::unique_ptr;
 
-using std::shared_ptr;
-using std::uint32_t;
-
-// Common rendering interface
+// Common Item Rendering Factory Type
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 template<typename T>
-class ItemRenderer {
-public:
-	virtual void update(T& item, float delta) = 0;
-	virtual void draw(T& item, vec2 basePos, uint32_t fbo, const AABB2D& viewport,
-	                  const AABB2D& cam) = 0;
-};
+using ItemRendererFactory = function<unique_ptr<ItemRenderer>(T&)>;
 
 // Forward declarations
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -40,16 +31,16 @@ class ScrollListContainer;
 class SideSplitContainer;
 class TextItem;
 
-// Default renderers
+// Default renderer factories
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-shared_ptr<ItemRenderer<Button>> defaultButtonRenderer() noexcept;
-shared_ptr<ItemRenderer<ImageItem>> defaultImageItemRenderer() noexcept;
-shared_ptr<ItemRenderer<MultiChoiceSelector>> defaultMultiChoiceSelectorRenderer() noexcept;
-shared_ptr<ItemRenderer<OnOffSelector>> defaultOnOffSelectorRenderer() noexcept;
-shared_ptr<ItemRenderer<ScrollListContainer>> defaultScrollListContainerRenderer() noexcept;
-shared_ptr<ItemRenderer<SideSplitContainer>> defaultSideSplitContainerRenderer() noexcept;
-shared_ptr<ItemRenderer<TextItem>> defaultTextItemRenderer() noexcept;
+ItemRendererFactory<Button> defaultButtonRendererFactory() noexcept;
+ItemRendererFactory<ImageItem> defaultImageItemRendererFactory() noexcept;
+ItemRendererFactory<MultiChoiceSelector> defaultMultiChoiceSelectorRendererFactory() noexcept;
+ItemRendererFactory<OnOffSelector> defaultOnOffSelectorRendererFactory() noexcept;
+ItemRendererFactory<ScrollListContainer> defaultScrollListContainerRendererFactory() noexcept;
+ItemRendererFactory<SideSplitContainer> defaultSideSplitContainerRendererFactory() noexcept;
+ItemRendererFactory<TextItem> defaultTextItemRendererFactory() noexcept;
 
 // RenderingSettings class
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -68,17 +59,18 @@ public:
 	gl::FontRenderer* fontPtr = nullptr;
 	gl::SpriteBatch* spriteBatchPtr = nullptr;
 
-	// Default renderers
-	shared_ptr<ItemRenderer<Button>> buttonRenderer = defaultButtonRenderer();
-	shared_ptr<ItemRenderer<ImageItem>> imageItemRenderer = defaultImageItemRenderer();
-	shared_ptr<ItemRenderer<MultiChoiceSelector>> multiChoiceSelectorRenderer = 
-	                                                   defaultMultiChoiceSelectorRenderer();
-	shared_ptr<ItemRenderer<OnOffSelector>> onOffSelectorRenderer = defaultOnOffSelectorRenderer();
-	shared_ptr<ItemRenderer<ScrollListContainer>> scrollListContainerRenderer =
-	                                                   defaultScrollListContainerRenderer();
-	shared_ptr<ItemRenderer<SideSplitContainer>> sideSplitContainerRenderer =
-	                                                  defaultSideSplitContainerRenderer();
-	shared_ptr<ItemRenderer<TextItem>> textItemRenderer = defaultTextItemRenderer();
+	// Renderer factories (by default the default renderers)
+	ItemRendererFactory<Button> buttonRendererFactory = defaultButtonRendererFactory();
+	ItemRendererFactory<ImageItem> imageItemRendererFactory = defaultImageItemRendererFactory();
+	ItemRendererFactory<MultiChoiceSelector> multiChoiceSelectorRendererFactory =
+	                                              defaultMultiChoiceSelectorRendererFactory();
+	ItemRendererFactory<OnOffSelector> onOffSelectorRendererFactory =
+	                                        defaultOnOffSelectorRendererFactory();
+	ItemRendererFactory<ScrollListContainer> scrollListRendererFactory =
+	                                              defaultScrollListContainerRendererFactory();
+	ItemRendererFactory<SideSplitContainer> sideSplitContainerRendererFactory =
+	                                             defaultSideSplitContainerRendererFactory();
+	ItemRendererFactory<TextItem> textItemRendererFactory = defaultTextItemRendererFactory();
 
 private:
 	// Private constructors & destructors

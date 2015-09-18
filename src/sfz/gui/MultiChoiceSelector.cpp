@@ -17,12 +17,14 @@ MultiChoiceSelector::MultiChoiceSelector(const string& text, const vector<string
 	checkStateFunc{checkStateFunc},
 	changeStateFunc{changeStateFunc},
 	stateAlignOffset{stateAlignOffset}
-{ }
+{
+	renderer = RenderingSettings::INSTANCE().multiChoiceSelectorRendererFactory(*this);
+}
 
 // MultiChoiceSelector: Virtual methods overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool MultiChoiceSelector::input(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel)
+bool MultiChoiceSelector::input(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2)
 {
 	if (!mEnabled) return false;
 	mSelected = sfz::pointInside(bounds(basePos), pointerPos);
@@ -30,7 +32,7 @@ bool MultiChoiceSelector::input(vec2 basePos, vec2 pointerPos, sdl::ButtonState 
 		int currentState = checkStateFunc();
 		int next = currentState + 1;
 		if (currentState < 0) next = 0;
-		if (next >= choiceNames.size()) next = 0;
+		if (next >= (int)choiceNames.size()) next = 0;
 		changeStateFunc(next);
 	}
 	return mSelected;
@@ -43,9 +45,9 @@ KeyInput MultiChoiceSelector::input(KeyInput key)
 	if (mSelected) {
 		if (key == KeyInput::ACTIVATE) {
 			int currentState = checkStateFunc();
-			if (0 <= currentState && currentState <= choiceNames.size()-1) {
+			if (0 <= currentState && currentState <= (int)choiceNames.size()-1) {
 				int next = currentState + 1;
-				if (next >= choiceNames.size()) next = 0;
+				if (next >= (int)choiceNames.size()) next = 0;
 				changeStateFunc(next);
 			}
 		}
@@ -57,13 +59,13 @@ KeyInput MultiChoiceSelector::input(KeyInput key)
 			int next = currentState - 1;
 			if (currentState < 0) next = 0;
 			if (next < 0) next = 0;
-			if (next >= choiceNames.size()) next = choiceNames.size() - 1;
+			if (next >= (int)choiceNames.size()) next = choiceNames.size() - 1;
 			if (next != currentState) changeStateFunc(next);
 		} else if (key == KeyInput::RIGHT) {
 			int currentState = checkStateFunc();
 			int next = currentState + 1;
 			if (currentState < 0) next = 0;
-			if (next >= choiceNames.size()) next = choiceNames.size() - 1;
+			if (next >= (int)choiceNames.size()) next = choiceNames.size() - 1;
 			if (next != currentState) changeStateFunc(next);
 		}
 		return KeyInput::NONE;
@@ -77,12 +79,12 @@ KeyInput MultiChoiceSelector::input(KeyInput key)
 
 void MultiChoiceSelector::update(float delta)
 {
-	RenderingSettings::INSTANCE().multiChoiceSelectorRenderer->update(*this, delta);
+	renderer->update(delta);
 }
 
 void MultiChoiceSelector::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 {
-	RenderingSettings::INSTANCE().multiChoiceSelectorRenderer->draw(*this, basePos, fbo, viewport, cam);
+	renderer->draw(basePos, fbo, viewport, cam);
 }
 
 // MultiChoiceSelector: Virtual getters overriden from BaseItem

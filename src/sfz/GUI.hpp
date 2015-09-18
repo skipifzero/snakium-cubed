@@ -7,6 +7,7 @@
 #include "sfz/gui/GUIUtils.hpp"
 #include "sfz/gui/ImageItem.hpp"
 #include "sfz/gui/InputData.hpp"
+#include "sfz/gui/ItemRenderer.hpp"
 #include "sfz/gui/MultiChoiceSelector.hpp"
 #include "sfz/gui/OnOffSelector.hpp"
 #include "sfz/gui/RenderingSettings.hpp"

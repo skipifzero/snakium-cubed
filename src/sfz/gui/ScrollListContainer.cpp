@@ -20,7 +20,9 @@ ScrollListContainer::ScrollListContainer(float scrollSpeed) noexcept
 :
 	mScrollSpeed{scrollSpeed},
 	mNextItemTopPos{UNINITIALIZED_POS}
-{ }
+{
+	renderer = RenderingSettings::INSTANCE().scrollListRendererFactory(*this);
+}
 
 
 // ScrollListContainer: Public methods
@@ -145,13 +147,13 @@ KeyInput ScrollListContainer::input(KeyInput key)
 
 void ScrollListContainer::update(float delta)
 {
-	RenderingSettings::INSTANCE().scrollListContainerRenderer->update(*this, delta);
+	renderer->update(delta);
 	for (auto& i : items) i->update(delta);
 }
 
 void ScrollListContainer::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 {
-	RenderingSettings::INSTANCE().scrollListContainerRenderer->draw(*this, basePos, fbo, viewport, cam);
+	renderer->draw(basePos, fbo, viewport, cam);
 
 	const vec2 itemBasePos = basePos + offset + vec2{0.0f, mCurrentScrollOffset};
 	AABB2D thisBounds = this->bounds(basePos);

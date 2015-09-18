@@ -12,18 +12,22 @@ Button::Button(const function<void(Button&)>& activateFunc) noexcept
 :
 	text{""},
 	activateFunc{activateFunc}
-{ }
+{
+	renderer = RenderingSettings::INSTANCE().buttonRendererFactory(*this);
+}
 
 Button::Button(const string& text, const function<void(Button&)>& activateFunc)
 :
 	text{text},
 	activateFunc{activateFunc}
-{ }
+{
+	renderer = RenderingSettings::INSTANCE().buttonRendererFactory(*this);
+}
 
 // Button: Virtual methods overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool Button::input(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel)
+bool Button::input(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2)
 {
 	if (!mEnabled) return false;
 	mSelected = sfz::pointInside(bounds(basePos), pointerPos);
@@ -62,12 +66,12 @@ KeyInput Button::input(KeyInput key)
 
 void Button::update(float delta)
 {
-	RenderingSettings::INSTANCE().buttonRenderer->update(*this, delta);
+	renderer->update(delta);
 }
 
 void Button::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 {
-	RenderingSettings::INSTANCE().buttonRenderer->draw(*this, basePos, fbo, viewport, cam);
+	renderer->draw(basePos, fbo, viewport, cam);
 }
 
 // Button: Virtual getters overriden from BaseItem

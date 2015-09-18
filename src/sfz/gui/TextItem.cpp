@@ -12,7 +12,9 @@ TextItem::TextItem(const string& text, HorizontalAlign hAlign) noexcept
 :
 	text{text},
 	hAlign{hAlign}
-{ }
+{
+	renderer = RenderingSettings::INSTANCE().textItemRendererFactory(*this);
+}
 
 // TextItem: Virtual methods overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -29,12 +31,12 @@ KeyInput TextItem::input(KeyInput key)
 
 void TextItem::update(float delta)
 {
-	RenderingSettings::INSTANCE().textItemRenderer->update(*this, delta);
+	renderer->update(delta);
 }
 
 void TextItem::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 {
-	RenderingSettings::INSTANCE().textItemRenderer->draw(*this, basePos, fbo, viewport, cam);
+	renderer->draw(basePos, fbo, viewport, cam);
 }
 
 // TextItem: Virtual getters overriden from BaseItem

@@ -3,11 +3,13 @@
 #define SFZ_GUI_BASE_ITEM_HPP
 
 #include <cstdint>
+#include <memory>
 
 #include "sfz/geometry/AABB2D.hpp"
 #include "sfz/math/Vector.hpp"
 #include "sfz/sdl/ButtonState.hpp"
 #include "sfz/gui/InputData.hpp"
+#include "sfz/gui/ItemRenderer.hpp"
 
 namespace gui {
 
@@ -15,6 +17,7 @@ using sfz::AABB2D;
 using sfz::vec2;
 
 using std::uint32_t;
+using std::unique_ptr;
 
 // BaseItem class
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -48,6 +51,7 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	
 	vec2 offset, dim;
+	unique_ptr<ItemRenderer> renderer;
 
 	// Common inline functions
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

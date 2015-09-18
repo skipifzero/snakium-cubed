@@ -12,20 +12,23 @@
 
 namespace gui {
 
-// Default Button Renderer
+// Default Button Renderer Factory
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-shared_ptr<ItemRenderer<Button>> defaultButtonRenderer() noexcept
+ItemRendererFactory<Button> defaultButtonRendererFactory() noexcept
 {
-	class DefaultButtonRenderer final : public ItemRenderer<Button> {
+	class DefaultButtonRenderer final : public ItemRenderer {
 	public:
-		virtual void update(Button& button, float delta) override final
+		DefaultButtonRenderer(Button& b) : b{b} { }
+		Button& b;
+
+		virtual void update(float delta) override final
 		{
 			
 		}
 
-		virtual void draw(Button& b, vec2 basePos, uint32_t fbo, const AABB2D& viewport,
-		                  const AABB2D& cam) override final
+		virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
+		     override final
 		{
 			auto& assets = s3::Assets::INSTANCE();
 			auto& sb = assets.spriteBatch;
@@ -97,23 +100,27 @@ shared_ptr<ItemRenderer<Button>> defaultButtonRenderer() noexcept
 			font.end(fbo, viewport, fgColor);
 		}
 	};
-	return shared_ptr<ItemRenderer<Button>>{new DefaultButtonRenderer{}};
+
+	return [](Button& b) { return unique_ptr<ItemRenderer>{new DefaultButtonRenderer{b}}; };
 }
 
-// Default ImageItem Renderer
+// Default ImageItem Renderer Factory
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-shared_ptr<ItemRenderer<ImageItem>> defaultImageItemRenderer() noexcept
+ItemRendererFactory<ImageItem> defaultImageItemRendererFactory() noexcept
 {
-	class DefaultImageItemRenderer final : public ItemRenderer<ImageItem> {
+	class DefaultImageItemRenderer final : public ItemRenderer {
 	public:
-		virtual void update(ImageItem& imageItem, float delta) override final
+		DefaultImageItemRenderer(ImageItem& ii) : ii{ii} { }
+		ImageItem& ii;
+
+		virtual void update(float delta) override final
 		{
 			
 		}
 
-		virtual void draw(ImageItem& ii, vec2 basePos, uint32_t fbo,
-		                  const AABB2D& viewport, const AABB2D& cam) override final
+		virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
+		      override final
 		{
 			auto& sb = s3::Assets::INSTANCE().spriteBatch;
 
@@ -139,22 +146,26 @@ shared_ptr<ItemRenderer<ImageItem>> defaultImageItemRenderer() noexcept
 			sb.end(fbo, viewport, ii.texture);
 		}
 	};
-	return shared_ptr<ItemRenderer<ImageItem>>{new DefaultImageItemRenderer{}};
+
+	return [](ImageItem& ii) { return unique_ptr<ItemRenderer>{new DefaultImageItemRenderer{ii}}; };
 }
 
-// Default MultiChoiceSelector Renderer
+// Default MultiChoiceSelector Renderer Factory
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-shared_ptr<ItemRenderer<MultiChoiceSelector>> defaultMultiChoiceSelectorRenderer() noexcept
+ItemRendererFactory<MultiChoiceSelector> defaultMultiChoiceSelectorRendererFactory() noexcept
 {
-	class DefaultMultiChoiceSelectorRenderer final : public ItemRenderer<MultiChoiceSelector> {
+	class DefaultMultiChoiceSelectorRenderer final : public ItemRenderer {
 	public:
-		virtual void update(MultiChoiceSelector& multiChoice, float delta) override final
+		DefaultMultiChoiceSelectorRenderer(MultiChoiceSelector& mc) : mc{mc} { }
+		MultiChoiceSelector& mc;
+
+		virtual void update(float delta) override final
 		{
 			
 		}
 
-		virtual void draw(MultiChoiceSelector& mc, vec2 basePos, uint32_t fbo,
+		virtual void draw(vec2 basePos, uint32_t fbo,
 		                  const AABB2D& viewport, const AABB2D& cam) override final
 		{
 			using sfz::vec4;
@@ -214,23 +225,28 @@ shared_ptr<ItemRenderer<MultiChoiceSelector>> defaultMultiChoiceSelectorRenderer
 			font.end(fbo, viewport, vec4{0.5f, 0.5f, 0.5f, 1.0f});
 		}
 	};
-	return shared_ptr<ItemRenderer<MultiChoiceSelector>>{new DefaultMultiChoiceSelectorRenderer{}};
+
+	return [](MultiChoiceSelector& mc) {
+	            return unique_ptr<ItemRenderer>{new DefaultMultiChoiceSelectorRenderer{mc}}; };
 }
 
-// Default OnOffSelector Renderer
+// Default OnOffSelector Renderer Factory
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-shared_ptr<ItemRenderer<OnOffSelector>> defaultOnOffSelectorRenderer() noexcept
+ItemRendererFactory<OnOffSelector> defaultOnOffSelectorRendererFactory() noexcept
 {
-	class DefaultOnOffSelectorRenderer final : public ItemRenderer<OnOffSelector> {
+	class DefaultOnOffSelectorRenderer final : public ItemRenderer {
 	public:
-		virtual void update(OnOffSelector& onOffSelector, float delta) override final
+		DefaultOnOffSelectorRenderer(OnOffSelector& oo) : oo{oo} { }
+		OnOffSelector& oo;
+
+		virtual void update(float delta) override final
 		{
 			
 		}
 
-		virtual void draw(OnOffSelector& oo, vec2 basePos, uint32_t fbo,
-		                  const AABB2D& viewport, const AABB2D& cam) override final
+		virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
+		     override final
 		{
 			using sfz::vec4;
 
@@ -278,65 +294,80 @@ shared_ptr<ItemRenderer<OnOffSelector>> defaultOnOffSelectorRenderer() noexcept
 
 		}
 	};
-	return shared_ptr<ItemRenderer<OnOffSelector>>{new DefaultOnOffSelectorRenderer{}};
+
+	return [](OnOffSelector& oo) {
+	            return unique_ptr<ItemRenderer>{new DefaultOnOffSelectorRenderer{oo}}; };
 }
 
-// Default ScrollListContainer Renderer
+// Default ScrollListContainer Renderer Factory
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-shared_ptr<ItemRenderer<ScrollListContainer>> defaultScrollListContainerRenderer() noexcept
+ItemRendererFactory<ScrollListContainer> defaultScrollListContainerRendererFactory() noexcept
 {
-	class DefaultScrollListContainerRenderer final : public ItemRenderer<ScrollListContainer> {
+	class DefaultScrollListContainerRenderer final : public ItemRenderer {
 	public:
-		virtual void update(ScrollListContainer& scrollList, float delta) override final
+		DefaultScrollListContainerRenderer(ScrollListContainer& sl) : sl{sl} { }
+		ScrollListContainer& sl;
+
+		virtual void update(float delta) override final
 		{
 			
 		}
 
-		virtual void draw(ScrollListContainer& scrollList, vec2 basePos, uint32_t fbo,
-		                  const AABB2D& viewport, const AABB2D& cam) override final
+		virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
+		      override final
 		{
 
 		}
 	};
-	return shared_ptr<ItemRenderer<ScrollListContainer>>{new DefaultScrollListContainerRenderer{}};
+
+	return [](ScrollListContainer& sl) {
+	            return unique_ptr<ItemRenderer>{new DefaultScrollListContainerRenderer{sl}}; };
 }
 
-// Default SideSplitContainer Renderer
+// Default SideSplitContainer Renderer Factory
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-shared_ptr<ItemRenderer<SideSplitContainer>> defaultSideSplitContainerRenderer() noexcept
+ItemRendererFactory<SideSplitContainer> defaultSideSplitContainerRendererFactory() noexcept
 {
-	class DefaultSideSplitContainerRenderer final : public ItemRenderer<SideSplitContainer> {
+	class DefaultSideSplitContainerRenderer final : public ItemRenderer {
 	public:
-		virtual void update(SideSplitContainer& sideSplit, float delta) override final
+		DefaultSideSplitContainerRenderer(SideSplitContainer& ss) : ss{ss} { }
+		SideSplitContainer& ss;
+
+		virtual void update(float delta) override final
 		{
 
 		}
 
-		virtual void draw(SideSplitContainer& sideSplit, vec2 basePos, uint32_t fbo,
-		                  const AABB2D& viewport, const AABB2D& cam) override final
+		virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
+		     override final
 		{
 
 		}
 	};
-	return shared_ptr<ItemRenderer<SideSplitContainer>>{new DefaultSideSplitContainerRenderer{}};
+
+	return [](SideSplitContainer& ss) {
+	            return unique_ptr<ItemRenderer>{new DefaultSideSplitContainerRenderer{ss}}; };
 }
 
-// Default TextItem Renderer
+// Default TextItem Renderer Factory
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-shared_ptr<ItemRenderer<TextItem>> defaultTextItemRenderer() noexcept
+ItemRendererFactory<TextItem> defaultTextItemRendererFactory() noexcept
 {
-	class DefaultTextItemRenderer final : public ItemRenderer<TextItem> {
+	class DefaultTextItemRenderer final : public ItemRenderer {
 	public:
-		virtual void update(TextItem& textItem, float delta) override final
+		DefaultTextItemRenderer(TextItem& ti) : ti{ti} { }
+		TextItem& ti;
+
+		virtual void update(float delta) override final
 		{
 
 		}
 
-		virtual void draw(TextItem& ti, vec2 basePos, uint32_t fbo,
-		                  const AABB2D& viewport, const AABB2D& cam) override final
+		virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
+		     override final
 		{
 			auto& font = s3::Assets::INSTANCE().fontRenderer;
 
@@ -358,7 +389,8 @@ shared_ptr<ItemRenderer<TextItem>> defaultTextItemRenderer() noexcept
 			font.end(fbo, viewport, sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
 		}
 	};
-	return shared_ptr<ItemRenderer<TextItem>>{new DefaultTextItemRenderer{}};
+
+	return [](TextItem& ti) { return unique_ptr<ItemRenderer>{new DefaultTextItemRenderer{ti}}; };
 }
 
 // RenderingSettings: Singleton instance

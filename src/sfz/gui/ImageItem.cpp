@@ -15,12 +15,14 @@ ImageItem::ImageItem(sfz::TextureRegion imageRegion, unsigned int texture,
 	texture{texture},
 	hAlign{hAlign},
 	imageScale{imageScale}
-{ }
+{
+	renderer = RenderingSettings::INSTANCE().imageItemRendererFactory(*this);
+}
 
 // ImageItem: Virtual methods overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool ImageItem::input(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState, vec2 wheel)
+bool ImageItem::input(vec2, vec2, sdl::ButtonState, vec2)
 {
 	return false;
 }
@@ -32,12 +34,12 @@ KeyInput ImageItem::input(KeyInput key)
 
 void ImageItem::update(float delta)
 {
-	RenderingSettings::INSTANCE().imageItemRenderer->update(*this, delta);
+	renderer->update(delta);
 }
 
 void ImageItem::draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 {
-	RenderingSettings::INSTANCE().imageItemRenderer->draw(*this, basePos, fbo, viewport, cam);
+	renderer->draw(basePos, fbo, viewport, cam);
 }
 
 // ImageItem: Virtual getters overriden from BaseItem
