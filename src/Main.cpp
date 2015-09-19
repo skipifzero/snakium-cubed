@@ -11,6 +11,10 @@
 #include "GlobalConfig.hpp"
 #include "Screens.hpp"
 
+// Perhaps temporary
+#include <sfz/gui/DefaultItemRenderers.hpp>
+#include "rendering/Assets.hpp"
+
 #undef main // Remove SDL hack until we can get it to compile properly
 
 sdl::WindowFlags fullscreenFlag(int fullscreenMode)
@@ -63,6 +67,24 @@ int main()
 
 	// Enable/disable vsync
 	if (!cfg.vsync) SDL_GL_SetSwapInterval(0);
+
+	// Initializes GUI rendering
+	{
+		auto& settings = gui::DefaultRenderersSettings::INSTANCE();
+		auto& assets = s3::Assets::INSTANCE();
+
+		settings.spriteBatchPtr = &assets.spriteBatch;
+		settings.fontPtr = &assets.fontRenderer;
+		
+		settings.renderBounds = true;
+		settings.boundsTexture = assets.TILE_FACE.mHandle;
+
+		settings.fontScale = 1.2f;
+		settings.fontVerticalOffsetScale = -0.3f;
+		settings.fontColor = sfz::vec4{0.84f, 1.0f, 0.84f, 1.0f};
+
+		settings.fontBgColor = sfz::vec4{0.37f, 0.72f, 0.37f, 1.0f};
+	}
 
 	sfz::runGameLoop(window, std::shared_ptr<sfz::BaseScreen>{new s3::MainMenuScreen{}});
 

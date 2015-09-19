@@ -2,13 +2,24 @@
 #ifndef SFZ_GUI_DEFAULT_ITEM_RENDERERS_HPP
 #define SFZ_GUI_DEFAULT_ITEM_RENDERERS_HPP
 
+#include <cstdint>
+
 #include "sfz/gui/ItemRenderer.hpp"
 #include "sfz/gl/FontRenderer.hpp"
 #include "sfz/gl/SpriteBatch.hpp"
+#include "sfz/gl/TextureRegion.hpp"
+#include "sfz/math/Vector.hpp"
 
 namespace gui {
 
+using gl::FontRenderer;
+using gl::SpriteBatch;
+using sfz::TextureRegion;
+using sfz::vec2;
+using sfz::vec4;
+
 using std::function;
+using std::uint32_t;
 using std::unique_ptr;
 
 // Forward declarations
@@ -47,8 +58,21 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	// These needs to be set manually before GUI can be rendered with default renderers
-	gl::FontRenderer* fontPtr = nullptr;
-	gl::SpriteBatch* spriteBatchPtr = nullptr;
+	FontRenderer* fontPtr = nullptr;
+	SpriteBatch* spriteBatchPtr = nullptr;
+
+	bool renderBounds = false;
+	uint32_t boundsTexture = -1;
+	TextureRegion boundsRegion{vec2{0.0f, 0.0f}, vec2{1.0f, 1.0f}};
+
+	float fontScale = 1.0f;
+	float fontVerticalOffsetScale = 0.0f;
+	vec4 fontColor{1.0f, 1.0f, 1.0f, 1.0f};
+
+	bool fontRenderBg = true;
+	bool fontRenderDualBg = false;
+	vec2 fontBgOffsetScale{0.02f, 0.02f};
+	vec4 fontBgColor{0.0f, 0.0f, 0.0f, 1.0f};
 
 private:
 	// Private constructors & destructors

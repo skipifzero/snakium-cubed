@@ -101,7 +101,9 @@ ItemRendererFactory<Button> defaultButtonRendererFactory() noexcept
 		}
 	};
 
-	return [](Button& b) { return unique_ptr<ItemRenderer>{new DefaultButtonRenderer{b}}; };
+	return [](Button& b) {
+		return unique_ptr<ItemRenderer>{new DefaultButtonRenderer{b}};
+	};
 }
 
 // Default ImageItem Renderer Factory
@@ -147,7 +149,9 @@ ItemRendererFactory<ImageItem> defaultImageItemRendererFactory() noexcept
 		}
 	};
 
-	return [](ImageItem& ii) { return unique_ptr<ItemRenderer>{new DefaultImageItemRenderer{ii}}; };
+	return [](ImageItem& ii) {
+		return unique_ptr<ItemRenderer>{new DefaultImageItemRenderer{ii}};
+	};
 }
 
 // Default MultiChoiceSelector Renderer Factory
@@ -227,7 +231,8 @@ ItemRendererFactory<MultiChoiceSelector> defaultMultiChoiceSelectorRendererFacto
 	};
 
 	return [](MultiChoiceSelector& mc) {
-	            return unique_ptr<ItemRenderer>{new DefaultMultiChoiceSelectorRenderer{mc}}; };
+		return unique_ptr<ItemRenderer>{new DefaultMultiChoiceSelectorRenderer{mc}};
+	};
 }
 
 // Default OnOffSelector Renderer Factory
@@ -237,7 +242,7 @@ ItemRendererFactory<OnOffSelector> defaultOnOffSelectorRendererFactory() noexcep
 {
 	class DefaultOnOffSelectorRenderer final : public ItemRenderer {
 	public:
-		DefaultOnOffSelectorRenderer(OnOffSelector& oo) : oo{oo} { }
+		DefaultOnOffSelectorRenderer(OnOffSelector& oo) : oo{oo} { }
 		OnOffSelector& oo;
 
 		virtual void update(float delta) override final
@@ -296,7 +301,8 @@ ItemRendererFactory<OnOffSelector> defaultOnOffSelectorRendererFactory() noexcep
 	};
 
 	return [](OnOffSelector& oo) {
-	            return unique_ptr<ItemRenderer>{new DefaultOnOffSelectorRenderer{oo}}; };
+		return unique_ptr<ItemRenderer>{new DefaultOnOffSelectorRenderer{oo}};
+	};
 }
 
 // Default ScrollListContainer Renderer Factory
@@ -322,7 +328,8 @@ ItemRendererFactory<ScrollListContainer> defaultScrollListContainerRendererFacto
 	};
 
 	return [](ScrollListContainer& sl) {
-	            return unique_ptr<ItemRenderer>{new DefaultScrollListContainerRenderer{sl}}; };
+		return unique_ptr<ItemRenderer>{new DefaultScrollListContainerRenderer{sl}};
+	};
 }
 
 // Default SideSplitContainer Renderer Factory
@@ -348,7 +355,8 @@ ItemRendererFactory<SideSplitContainer> defaultSideSplitContainerRendererFactory
 	};
 
 	return [](SideSplitContainer& ss) {
-	            return unique_ptr<ItemRenderer>{new DefaultSideSplitContainerRenderer{ss}}; };
+		return unique_ptr<ItemRenderer>{new DefaultSideSplitContainerRenderer{ss}};
+	};
 }
 
 // Default TextItem Renderer Factory
@@ -358,7 +366,7 @@ ItemRendererFactory<TextItem> defaultTextItemRendererFactory() noexcept
 {
 	class DefaultTextItemRenderer final : public ItemRenderer {
 	public:
-		DefaultTextItemRenderer(TextItem& ti) : ti{ti} { }
+		DefaultTextItemRenderer(TextItem& ti) : ti{ti} { }
 		TextItem& ti;
 
 		virtual void update(float delta) override final
@@ -369,28 +377,50 @@ ItemRendererFactory<TextItem> defaultTextItemRendererFactory() noexcept
 		virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 		     override final
 		{
-			auto& font = s3::Assets::INSTANCE().fontRenderer;
+			auto& settings = DefaultRenderersSettings::INSTANCE();
+			auto& sb = *settings.spriteBatchPtr;
+			auto& font = *settings.fontPtr;
 
-			auto& sb = s3::Assets::INSTANCE().spriteBatch;
+			// Render bounds if enabled
+			if (settings.renderBounds) {
+				sb.begin(cam);
+				sb.draw(ti.bounds(basePos), settings.boundsRegion);
+				sb.end(fbo, viewport, settings.boundsTexture);
+			}
 
-			sb.begin(cam);
-			sb.draw(ti.bounds(basePos), s3::Assets::INSTANCE().TILE_FACE_REG);
-			sb.end(fbo, viewport, s3::Assets::INSTANCE().ATLAS_128.texture());
-
-			float stringWidth = font.measureStringWidth(ti.dim.y, ti.text);
+			// Calculate position and size
+			const float size = ti.dim.y * settings.fontScale;
+			const float stringWidth = font.measureStringWidth(size, ti.text);
 			vec2 pos = basePos + ti.offset;
 			float alignSign = (float)(int8_t)ti.hAlign;
-			pos.x += (alignSign*(ti.dim.x/2.0f));
+			pos.x += (alignSign * (ti.dim.x/2.0f));
+			pos.y += (ti.dim.y * settings.fontVerticalOffsetScale);
 
+			// Set font alignment settings
 			font.horizontalAlign(ti.hAlign);
-			font.verticalAlign(gl::VerticalAlign::MIDDLE);
+			font.verticalAlign(gl::VerticalAlign::BOTTOM);
+
+			// Render background text if enabled
+			if (settings.fontRenderBg) {
+				const vec2 bgOffs = settings.fontBgOffsetScale * size;
+				font.begin(cam);
+				font.write(pos + bgOffs, size, ti.text);
+				if (settings.fontRenderDualBg) {
+					font.write(pos - bgOffs, size, ti.text);
+				}
+				font.end(fbo, viewport, settings.fontBgColor);
+			}
+
+			// Render (foreground) text
 			font.begin(cam);
-			font.write(pos, ti.dim.y, ti.text);
-			font.end(fbo, viewport, sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+			font.write(pos, size, ti.text);
+			font.end(fbo, viewport, settings.fontColor);
 		}
 	};
 
-	return [](TextItem& ti) { return unique_ptr<ItemRenderer>{new DefaultTextItemRenderer{ti}}; };
+	return [](TextItem& ti) {
+		return unique_ptr<ItemRenderer>{new DefaultTextItemRenderer{ti}};
+	};
 }
 
 // DefaultRenderersSettings: Singleton instance
