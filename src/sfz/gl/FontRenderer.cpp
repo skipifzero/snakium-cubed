@@ -8,7 +8,9 @@
 #include <stb_truetype.h>
 #include <sfz/PopWarnings.hpp>
 
-#include <sfz/gl/Utils.hpp>
+#include "sfz/gl/OpenGL.hpp"
+#include "sfz/gl/GLUtils.hpp"
+
 #include <new> // std::nothrow
 #include <cstdio>
 #include <cstdlib> // malloc
@@ -82,7 +84,7 @@ const char* FONT_RENDERER_FRAGMENT_SHADER_SRC = R"(
 // Anonymous: Functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-uint8_t* loadTTFBuffer(const std::string& path) noexcept
+uint8_t* loadTTFBuffer(const string& path) noexcept
 {
 	const size_t MAX_TTF_BUFFER_SIZE = 1<<22; // 4 MiB
 	uint8_t* buffer = new (std::nothrow) uint8_t[MAX_TTF_BUFFER_SIZE];
@@ -129,7 +131,7 @@ void calculateCharInfo(CharInfo& info, void* chardata, vec2 pixelToUV, uint32_t 
 // FontRenderer: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-FontRenderer::FontRenderer(const std::string& fontPath, uint32_t texWidth, uint32_t texHeight,
+FontRenderer::FontRenderer(const string& fontPath, uint32_t texWidth, uint32_t texHeight,
 	                       float fontSize, size_t numCharsPerBatch) noexcept
 :
 	mFontSize{fontSize},
@@ -192,7 +194,7 @@ void FontRenderer::begin(vec2 cameraPosition, vec2 cameraDimensions) noexcept
 	mSpriteBatch.begin(cameraPosition, cameraDimensions);
 }
 
-float FontRenderer::write(vec2 position, float size, const std::string& text) noexcept
+float FontRenderer::write(vec2 position, float size, const string& text) noexcept
 {
 	const float scale = size / mFontSize;
 
@@ -225,19 +227,19 @@ void FontRenderer::writeBitmapFont(vec2 position, vec2 dimensions) noexcept
 	mSpriteBatch.draw(position, dimensions, TextureRegion{vec2{0.0f, 0.0f}, vec2{1.0f, 1.0f}});
 }
 
-void FontRenderer::end(GLuint fbo, vec2 viewportDimensions, vec4 textColor) noexcept
+void FontRenderer::end(uint32_t fbo, vec2 viewportDimensions, vec4 textColor) noexcept
 {
 	this->end(fbo, AABB2D{viewportDimensions/2.0f, viewportDimensions}, textColor);
 }
 
-void FontRenderer::end(GLuint fbo, const AABB2D& viewport, vec4 textColor) noexcept
+void FontRenderer::end(uint32_t fbo, const AABB2D& viewport, vec4 textColor) noexcept
 {
 	glUseProgram(mSpriteBatch.shaderProgram());
 	gl::setUniform(mSpriteBatch.shaderProgram(), "uTextColor", textColor);
 	mSpriteBatch.end(fbo, viewport, mFontTexture);
 }
 
-float FontRenderer::measureStringWidth(float size, const std::string& text) const noexcept
+float FontRenderer::measureStringWidth(float size, const string& text) const noexcept
 {
 	const float scale = size / mFontSize;
 	CharInfo info;

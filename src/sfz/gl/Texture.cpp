@@ -6,6 +6,9 @@
 #include <stb_image.h>
 #include <sfz/PopWarnings.hpp>
 
+#include "sfz/gl/OpenGL.hpp"
+#include "sfz/gl/GLUtils.hpp"
+
 #include <algorithm> // std::swap
 #include <cstring> // std::memcpy
 #include <exception> // std::terminate
@@ -13,10 +16,11 @@
 #include <new>
 
 namespace gl {
-	
-namespace {
 
-void flipImage(uint8_t* const pixels, int w, int h, int pitch, int numChannels) noexcept
+// Static functions
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+static void flipImage(uint8_t* const pixels, int w, int h, int pitch, int numChannels) noexcept
 {
 	const int bytesPerRow = w*numChannels;
 	const int bytePitch = pitch*numChannels;
@@ -34,7 +38,7 @@ void flipImage(uint8_t* const pixels, int w, int h, int pitch, int numChannels) 
 	delete[] buffer;
 }
 
-float anisotropicFactor(TextureFiltering filtering) noexcept
+static float anisotropicFactor(TextureFiltering filtering) noexcept
 {
 	switch (filtering) {
 	case TextureFiltering::ANISOTROPIC_1: return 1.0f;
@@ -47,11 +51,11 @@ float anisotropicFactor(TextureFiltering filtering) noexcept
 	}
 }
 
-GLuint loadTexture(const string& path, int numChannelsWanted, TextureFiltering filtering) noexcept
+static GLuint loadTexture(const char* path, int numChannelsWanted, TextureFiltering filtering) noexcept
 {
 	// Loading image
 	int width, height, numChannels;
-	uint8_t* img = stbi_load(path.c_str(), &width, &height, &numChannels, numChannelsWanted);
+	uint8_t* img = stbi_load(path, &width, &height, &numChannels, numChannelsWanted);
 
 	// Some error checking
 	if (img == NULL) {		
@@ -119,33 +123,36 @@ GLuint loadTexture(const string& path, int numChannelsWanted, TextureFiltering f
 
 	return texture;
 }
-	
-} // namespace
 
 // Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+Texture::Texture(const char* path, TextureFormat format, TextureFiltering filtering) noexcept
+:
+	handle{loadTexture(path, static_cast<uint8_t>(format), filtering)}
+{ }
+
 Texture::Texture(const string& path, TextureFormat format, TextureFiltering filtering) noexcept
 :
-	mHandle{loadTexture(path, static_cast<uint8_t>(format), filtering)}
+	handle{loadTexture(path.c_str(), static_cast<uint8_t>(format), filtering)}
 { }
 
 Texture::Texture(Texture&& other) noexcept
 {
-	glGenTextures(1, &mHandle);
-	std::swap(mHandle, other.mHandle);
+	*this = std::move(other);
 }
 
 Texture& Texture::operator= (Texture&& other) noexcept
 {
-	glGenTextures(1, &mHandle);
-	std::swap(mHandle, other.mHandle);
+	if (this->handle != other.handle) {
+		std::swap(handle, other.handle);
+	}
 	return *this;
 }
 
 Texture::~Texture() noexcept
 {
-	glDeleteTextures(1, &mHandle);
+	glDeleteTextures(1, &handle);
 }
 	
 } // namespace gl

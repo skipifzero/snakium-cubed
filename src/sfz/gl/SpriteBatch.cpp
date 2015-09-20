@@ -1,7 +1,8 @@
 #include "sfz/gl/SpriteBatch.hpp"
 
-#include <sfz/Assert.hpp>
-#include <sfz/gl/Utils.hpp>
+#include "sfz/Assert.hpp"
+#include "sfz/gl/OpenGL.hpp"
+#include "sfz/gl/GLUtils.hpp"
 
 #include <new> // std::nothrow
 #include <algorithm> // std::swap
@@ -251,12 +252,12 @@ void SpriteBatch::draw(vec2 position, vec2 dimensions, float angleRads,
 	sfz_assert_debug(mCurrentDrawCount <= mCapacity);
 }
 
-void SpriteBatch::end(GLuint fbo, vec2 viewportDimensions, GLuint texture) noexcept
+void SpriteBatch::end(uint32_t fbo, vec2 viewportDimensions, uint32_t texture) noexcept
 {
 	this->end(fbo, AABB2D{viewportDimensions/2.0f, viewportDimensions}, texture);
 }
 
-void SpriteBatch::end(GLuint fbo, const AABB2D& viewport, GLuint texture) noexcept
+void SpriteBatch::end(uint32_t fbo, const AABB2D& viewport, uint32_t texture) noexcept
 {
 	sfz_assert_debug(mCurrentDrawCount <= mCapacity);
 

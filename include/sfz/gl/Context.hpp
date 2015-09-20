@@ -3,9 +3,6 @@
 #define SFZ_GL_CONTEXT_HPP
 
 #include <SDL.h>
-#include <iostream>
-#include <exception> // std::terminate
-#include "sfz/gl/Utils.hpp"
 
 namespace gl {
 
@@ -18,7 +15,6 @@ enum class GLContextProfile : Uint32 { // TODO: Check if actually Uint32
 	ES = SDL_GL_CONTEXT_PROFILE_ES
 };
 
-
 /**
  * @brief Wrapper class responsible for creating and destroying a OpenGL context.
  */
@@ -28,20 +24,19 @@ public:
 	// Public members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	SDL_GLContext mContext;
+	SDL_GLContext handle;
 
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	// No default constructor
-	Context() noexcept = delete;
-	Context(const Context&) noexcept = delete;
-	Context& operator= (const Context&) noexcept = delete;
+	Context() = delete;
+	Context(const Context&) = delete;
+	Context& operator= (const Context&) = delete;
 
 	Context(SDL_Window* window, int major, int minor, GLContextProfile profile) noexcept;
 	~Context() noexcept;
 };
 
 } // namespace gl
-
 #endif
