@@ -79,16 +79,21 @@ int main()
 		settings.fontPtr = &assets.fontRenderer;
 		
 		settings.renderBounds = true;
-		settings.boundsTexture = assets.TILE_FACE.handle;
+		settings.boundsTexture = assets.ATLAS_128.texture();
+		settings.boundsRegion = assets.TILE_FACE_REG;
 
 		settings.fontScale = 1.2f;
-		settings.fontVerticalOffsetScale = -0.275f;
-		//settings.fontColor = sfz::vec4{0.84f, 1.0f, 0.84f, 1.0f};
+		settings.fontVerticalOffsetScale = -0.265f;
+		
+		settings.fontColor = sfz::vec4{0.84f, 1.0f, 0.84f, 1.0f};
+		settings.fontSelectedColor = sfz::vec4{0.3f, 0.75f, 0.3f, 1.0f};
+		//settings.fontDisabledColor = sfz::vec4{0.4f, 0.4f, 0.4f, 1.0f};
 
 		//settings.fontBgColor = sfz::vec4{0.37f, 0.72f, 0.37f, 1.0f};
+		//settings.fontBgSelectedColor = sfz::vec4{0.0f, 0.0f, 0.0f, 1.0f};
+		//settings.fontBgDisabledColor = sfz::vec4{0.0f, 0.0f, 0.0f, 1.0f};
 
-
-		//gui::Button::rendererFactory = s3::snakiumButtonRendererFactory();
+		gui::Button::rendererFactory = s3::snakiumButtonRendererFactory();
 	}
 
 	sfz::runGameLoop(window, std::shared_ptr<sfz::BaseScreen>{new s3::MainMenuScreen{}});

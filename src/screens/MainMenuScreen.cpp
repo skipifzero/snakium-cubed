@@ -28,7 +28,7 @@ MainMenuScreen::MainMenuScreen() noexcept
 
 	const vec2 menuDim = vec2{screens::MIN_DRAWABLE.x-0.1f, screens::MIN_DRAWABLE.y-0.1f};
 	float spacing = 4.0f;
-	float buttonWidth = menuDim.x * 0.5f;
+	float buttonWidth = menuDim.x * 0.55f;
 	float logoHeight = 30.0f;
 	float copyLogoHeight = 10.0f;
 	float numButtons = 6.0f;
