@@ -109,9 +109,9 @@ OptionsScreen::OptionsScreen() noexcept
 	const float spacing = 5.5f;
 	const float itemSpacing = 1.0f;
 	const float titleHeight = 20.0f;
-	const float stateAlignOffset = menuDim.x * 0.6f;
+	const float stateAlignOffset = menuDim.x * 0.55f;
 	const vec2 headingDim{menuDim.x * 0.85f, 9.0f};
-	const vec2 itemDim{menuDim.x * 0.85f, 7.5f};
+	const vec2 itemDim{menuDim.x * 0.85f, 4.0f};
 	float scrollListHeight = menuDim.y - titleHeight - itemDim.y - 3.0f*spacing;
 
 	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Options"}}, vec2{menuDim.x, titleHeight});
@@ -217,7 +217,7 @@ OptionsScreen::OptionsScreen() noexcept
 	}, stateAlignOffset}}, itemDim);
 
 	scrollList.addSpacing(itemSpacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Speed increase (per obj)", {"0.000", "0.005", "0.010", "0.015", "0.020", "0.025", "0.030", "0.035", "0.040", "0.045", "0.050", "0.055", "0.060", "0.065", "0.070", "0.075", "0.080", "0.085", "0.090", "0.095", "0.100"}, [this]() {
+	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Speed increase", {"0.000", "0.005", "0.010", "0.015", "0.020", "0.025", "0.030", "0.035", "0.040", "0.045", "0.050", "0.055", "0.060", "0.065", "0.070", "0.075", "0.080", "0.085", "0.090", "0.095", "0.100"}, [this]() {
 		float val = this->cfgData.modelConfig.speedIncreasePerObject;
 		const float eps = 0.0001f;
 		if (sfz::approxEqual(val, 0.000f, eps)) return 0;

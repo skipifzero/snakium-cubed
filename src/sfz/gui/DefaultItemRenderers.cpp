@@ -49,7 +49,6 @@ ItemRendererFactory<Button> defaultButtonRendererFactory() noexcept
 			
 			// Calculate position and size
 			const float size = b.dim.y * settings.fontScale;
-			const float stringWidth = font.measureStringWidth(size, b.text);
 			vec2 pos = basePos + b.offset;
 			pos.y += (b.dim.y * settings.fontVerticalOffsetScale);
 
@@ -98,7 +97,8 @@ ItemRendererFactory<ImageItem> defaultImageItemRendererFactory() noexcept
 		virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 		      override final
 		{
-			auto& sb = s3::Assets::INSTANCE().spriteBatch;
+			auto& settings = DefaultRenderersSettings::INSTANCE();
+			auto& sb = *settings.spriteBatchPtr;
 
 			vec2 imageDim = ii.imageRegion.dimensions() * ii.imageScale;
 			float imageAspect = imageDim.x / imageDim.y;
@@ -146,61 +146,69 @@ ItemRendererFactory<MultiChoiceSelector> defaultMultiChoiceSelectorRendererFacto
 		virtual void draw(vec2 basePos, uint32_t fbo,
 		                  const AABB2D& viewport, const AABB2D& cam) override final
 		{
-			using sfz::vec4;
+			auto& settings = DefaultRenderersSettings::INSTANCE();
+			auto& sb = *settings.spriteBatchPtr;
+			auto& font = *settings.fontPtr;
 
-			auto& assets = s3::Assets::INSTANCE();
-			auto& sb = assets.spriteBatch;
-			auto& font = assets.fontRenderer;
+			// Render bounds if enabled
+			if (settings.renderBounds) {
+				sb.begin(cam);
+				sb.draw(mc.bounds(basePos), settings.boundsRegion);
+				sb.end(fbo, viewport, settings.boundsTexture);
+			}
 
-			sb.begin(cam);
-			sb.draw(basePos + mc.offset, mc.dim, assets.TILE_FACE_REG);
-			sb.end(fbo, viewport, assets.ATLAS_128.texture());
+			// Get font colors
+			vec4 fgColor = (!mc.isEnabled()) ? settings.fontDisabledColor :
+			               (mc.isSelected() ? settings.fontSelectedColor : settings.fontColor);
+			vec4 bgColor = (!mc.isEnabled()) ? settings.fontBgDisabledColor :
+			               (mc.isSelected() ? settings.fontBgSelectedColor : settings.fontBgColor);
 
-			// Font rendering preparations
+			// Calculate position and size
+			const float size = mc.dim.y * settings.fontScale;
+			const float stringWidth = font.measureStringWidth(size, mc.text);
+			vec2 pos = basePos + mc.offset;
+			pos.x -= (mc.dim.x/2.0f);
+			pos.y += (mc.dim.y * settings.fontVerticalOffsetScale);
+
+			// State calculations and string
+			vec2 statePos = pos;
+			statePos.x += std::max(mc.stateAlignOffset, font.measureStringWidth(size, mc.text + " "));
+			int state = mc.checkStateFunc();
+			bool stateInRange = 0 <= state && state <= ((int)mc.choiceNames.size()-1);
+			static const string otherStr{"other"};
+			const string& stateStr = stateInRange ? mc.choiceNames[state] : otherStr;
+
+			// Set font alignment settings
 			font.horizontalAlign(gl::HorizontalAlign::LEFT);
-			font.verticalAlign(gl::VerticalAlign::MIDDLE);
-			const float size = 0.6f * mc.dim.y;
-			const float nearbySize = size*0.5f;
-			const float yAlignOffset = (mc.dim.y/2.0f)*0.3f;
-			const float bgXAlignOffset = mc.dim.x * 0.009f;
+			font.verticalAlign(gl::VerticalAlign::BOTTOM);
 
-			const int choice = mc.checkStateFunc();
-			const int len = mc.choiceNames.size();
-			static const string empty = "";
-			const string& choiceLeftStr = (0 <= (choice-1) && (choice-1) < len) ? mc.choiceNames[choice-1] : empty;
-			const string& choiceMidStr = (0 <= (choice) && (choice) < len) ? mc.choiceNames[choice] : empty;
-			const string& choiceRightStr = (0 <= (choice+1) && (choice+1) < len) ? mc.choiceNames[choice+1] : empty;
+			// Render background text if enabled
+			if (settings.fontRenderBg) {
+				const vec2 bgOffs = settings.fontBgOffsetScale * size;
+				font.begin(cam);
+				font.write(pos + bgOffs, size, mc.text);
+				vec2 statePosCpy = statePos + bgOffs;
+				if (stateInRange && state != 0) statePosCpy.x = font.write(statePosCpy, size, "< ");
+				statePosCpy.x = font.write(statePosCpy, size, stateStr);
+				if (stateInRange && state != ((int)mc.choiceNames.size()-1)) statePosCpy.x = font.write(statePosCpy, size, " >");
+				if (settings.fontRenderDualBg) {
+					font.write(pos - bgOffs, size, mc.text);
+					vec2 statePosCpy2 = statePos + bgOffs;
+					if (stateInRange && state != 0) statePosCpy2.x = font.write(statePosCpy2, size, "< ");
+					statePosCpy2.x = font.write(statePosCpy2, size, stateStr);
+					if (stateInRange && state != ((int)mc.choiceNames.size()-1)) statePosCpy2.x = font.write(statePosCpy2, size, " >");
+				}
+				font.end(fbo, viewport, bgColor);
+			}
 
-			vec2 leftMiddlePos = basePos + mc.offset + vec2{-(mc.dim.x/2.0f), yAlignOffset};
-
-			vec2 choiceLeftPos = leftMiddlePos;
-			choiceLeftPos.x += std::max(mc.stateAlignOffset, font.measureStringWidth(size, mc.text + " "));
-			vec2 choiceMidPos = choiceLeftPos;
-			choiceMidPos.x += font.measureStringWidth(nearbySize, choiceLeftStr);
-			vec2 choiceRightPos = choiceMidPos;
-			choiceRightPos.x += font.measureStringWidth(size, choiceMidStr);
-
-			// Render font shadow
+			// Render (foreground) text
 			font.begin(cam);
-			font.write(leftMiddlePos + vec2{bgXAlignOffset, 0.0f}, size, mc.text);
-			//font.write(choiceLeftPos + vec2{bgXAlignOffset, 0.0f}, nearbySize, choiceLeftStr);
-			font.write(choiceMidPos + vec2{bgXAlignOffset, 0.0f}, size, choiceMidStr);
-			//font.write(choiceRightPos + vec2{bgXAlignOffset, 0.0f}, nearbySize, choiceRightStr);
-			font.end(fbo, viewport, vec4{0.0f, 0.0f, 0.0f, 1.0f});
-
-			bool state = false;
-			if (mc.checkStateFunc) state = mc.checkStateFunc();
-
-			// Render button text
-			font.begin(cam);
-			font.write(leftMiddlePos, size, mc.text);
-			font.write(choiceMidPos, size, choiceMidStr);
-			font.end(fbo, viewport, mc.isSelected() ? vec4{1.0f, 0.0f, 0.0f, 1.0f} : vec4{1.0f});
-
-			font.begin(cam);
-			font.write(choiceLeftPos, nearbySize, choiceLeftStr);
-			font.write(choiceRightPos, nearbySize, choiceRightStr);
-			font.end(fbo, viewport, vec4{0.5f, 0.5f, 0.5f, 1.0f});
+			font.write(pos, size, mc.text);
+			vec2 statePosCpy = statePos;
+			if (stateInRange && state != 0) statePosCpy.x = font.write(statePosCpy, size, "< ");
+			statePosCpy.x = font.write(statePosCpy, size, stateStr);
+			if (stateInRange && state != ((int)mc.choiceNames.size()-1)) statePosCpy.x = font.write(statePosCpy, size, " >");
+			font.end(fbo, viewport, fgColor);
 		}
 	};
 
