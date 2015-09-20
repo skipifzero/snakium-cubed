@@ -3,8 +3,9 @@
 #define SFZ_GL_FONT_FONT_RENDERER_HPP
 
 #include "sfz/geometry/AABB2D.hpp"
-#include "sfz/gl/SpriteBatch.hpp"
 #include "sfz/gl/Alignment.hpp"
+#include "sfz/gl/SpriteBatch.hpp"
+#include "sfz/gl/TextureEnums.hpp"
 #include "sfz/math/Vector.hpp"
 
 #include <cstddef> // size_t
@@ -37,7 +38,8 @@ public:
 	FontRenderer& operator= (FontRenderer&&) = delete;
 
 	FontRenderer(const string& fontPath, uint32_t texWidth, uint32_t texHeight,
-	             float fontSize, size_t numCharsPerBatch) noexcept;
+	             float fontSize, size_t numCharsPerBatch,
+	             TextureFiltering filtering = TextureFiltering::ANISOTROPIC_16) noexcept;
 	~FontRenderer() noexcept;
 
 	// Public methods
