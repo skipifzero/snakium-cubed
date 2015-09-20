@@ -11,6 +11,6 @@
 #include "sfz/gl/TextureEnums.hpp"
 #include "sfz/gl/TexturePacker.hpp"
 #include "sfz/gl/TextureRegion.hpp"
-#include "sfz/gl/Utils.hpp"
+#include "sfz/gl/GLUtils.hpp"
 
 #endif
