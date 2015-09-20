@@ -10,8 +10,6 @@
 #include "sfz/gui/SideSplitContainer.hpp"
 #include "sfz/gui/TextItem.hpp"
 
-#include "rendering/Assets.hpp" // TODO: Remove, hilariously unportable
-
 namespace gui {
 
 // Default Button Renderer Factory
@@ -167,7 +165,6 @@ ItemRendererFactory<MultiChoiceSelector> defaultMultiChoiceSelectorRendererFacto
 
 			// Calculate position and size
 			const float size = mc.dim.y * settings.fontScale;
-			const float stringWidth = font.measureStringWidth(size, mc.text);
 			vec2 pos = basePos + mc.offset;
 			pos.x -= (mc.dim.x/2.0f);
 			pos.y += (mc.dim.y * settings.fontVerticalOffsetScale);
@@ -195,7 +192,7 @@ ItemRendererFactory<MultiChoiceSelector> defaultMultiChoiceSelectorRendererFacto
 				if (stateInRange && state != ((int)mc.choiceNames.size()-1)) statePosCpy.x = font.write(statePosCpy, size, " >");
 				if (settings.fontRenderDualBg) {
 					font.write(pos - bgOffs, size, mc.text);
-					vec2 statePosCpy2 = statePos + bgOffs;
+					vec2 statePosCpy2 = statePos - bgOffs;
 					if (stateInRange && state != 0) statePosCpy2.x = font.write(statePosCpy2, size, "< ");
 					statePosCpy2.x = font.write(statePosCpy2, size, stateStr);
 					if (stateInRange && state != ((int)mc.choiceNames.size()-1)) statePosCpy2.x = font.write(statePosCpy2, size, " >");
@@ -237,50 +234,78 @@ ItemRendererFactory<OnOffSelector> defaultOnOffSelectorRendererFactory() noexcep
 		virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 		     override final
 		{
-			using sfz::vec4;
+			auto& settings = DefaultRenderersSettings::INSTANCE();
+			auto& sb = *settings.spriteBatchPtr;
+			auto& font = *settings.fontPtr;
 
-			auto& assets = s3::Assets::INSTANCE();
-			auto& sb = assets.spriteBatch;
-			auto& font = assets.fontRenderer;
+			// Render bounds if enabled
+			if (settings.renderBounds) {
+				sb.begin(cam);
+				sb.draw(oo.bounds(basePos), settings.boundsRegion);
+				sb.end(fbo, viewport, settings.boundsTexture);
+			}
 
-			sb.begin(cam);
-			sb.draw(basePos + oo.offset, oo.dim, assets.TILE_FACE_REG);
-			sb.end(fbo, viewport, assets.ATLAS_128.texture());
+			// Get font colors
+			vec4 fgColor = (!oo.isEnabled()) ? settings.fontDisabledColor :
+			               (oo.isSelected() ? settings.fontSelectedColor : settings.fontColor);
+			vec4 bgColor = (!oo.isEnabled()) ? settings.fontBgDisabledColor :
+			               (oo.isSelected() ? settings.fontBgSelectedColor : settings.fontBgColor);
 
-			// Font rendering preparations
+			// Calculate position and size
+			const float size = oo.dim.y * settings.fontScale;
+			vec2 pos = basePos + oo.offset;
+			pos.x -= (oo.dim.x/2.0f);
+			pos.y += (oo.dim.y * settings.fontVerticalOffsetScale);
+
+			// State calculations and string
+			vec2 offPos = pos;
+			offPos.x += std::max(oo.stateAlignOffset, font.measureStringWidth(size, oo.text + " "));
+			bool state = oo.checkStateFunc();
+			static const string onStr = "On";
+			static const string offStr = "Off";
+			static const string offSpaceStr = "Off ";
+			vec2 onPos = offPos;
+			onPos.x += font.measureStringWidth(size, offSpaceStr);
+
+			// Set font alignment settings
 			font.horizontalAlign(gl::HorizontalAlign::LEFT);
-			font.verticalAlign(gl::VerticalAlign::MIDDLE);
-			const float size = 0.6f * oo.dim.y;
-			const float yAlignOffset = (oo.dim.y/2.0f)*0.3f;
-			const float bgXAlignOffset = oo.dim.x * 0.009f;
+			font.verticalAlign(gl::VerticalAlign::BOTTOM);
 
-			vec2 leftMiddlePos = basePos + oo.offset + vec2{-(oo.dim.x/2.0f), yAlignOffset};
-			vec2 onPos = leftMiddlePos;
-			onPos.x += std::max(oo.stateAlignOffset, font.measureStringWidth(size, oo.text + " "));
-			vec2 offPos = onPos;
-			offPos.x += font.measureStringWidth(size, "On ");
+			// Render background text if enabled
+			if (settings.fontRenderBg) {
+				const vec2 bgOffs = settings.fontBgOffsetScale * size;
+				font.begin(cam);
+				font.write(pos + bgOffs, size, oo.text);
+				if (state) font.write(onPos + bgOffs, size, onStr);
+				else font.write(offPos + bgOffs, size, offStr);
+				if (settings.fontRenderDualBg) {
+					font.write(pos - bgOffs, size, oo.text);
+					if (state) font.write(onPos - bgOffs, size, onStr);
+					else font.write(offPos - bgOffs, size, offStr);
+				}
+				font.end(fbo, viewport, bgColor);
 
-			bool state = false;
-			if (oo.checkStateFunc) state = oo.checkStateFunc();
+				font.begin(cam);
+				if (state) font.write(offPos + bgOffs, size, offStr);
+				else font.write(onPos + bgOffs, size, onStr);
+				if (settings.fontRenderDualBg) {
+					if (state) font.write(offPos - bgOffs, size, offStr);
+					else font.write(onPos - bgOffs, size, onStr);
+				}
+				font.end(fbo, viewport, settings.fontBgDisabledColor);
+			}
 
-			// Render font shadow
+			// Render (foreground) text
 			font.begin(cam);
-			font.write(leftMiddlePos + vec2{bgXAlignOffset, 0.0f}, size, oo.text);
-			if (state) font.write(onPos + vec2{bgXAlignOffset, 0.0f}, size, "On");
-			else font.write(offPos + vec2{bgXAlignOffset, 0.0f}, size, "Off");
-			font.end(fbo, viewport, vec4{0.0f, 0.0f, 0.0f, 1.0f});
+			font.write(pos, size, oo.text);
+			if (state) font.write(onPos, size, onStr);
+			else font.write(offPos, size, offStr);
+			font.end(fbo, viewport, fgColor);
 
-			// Render button text
 			font.begin(cam);
-			font.write(leftMiddlePos, size, oo.text);
-			font.end(fbo, viewport, oo.isSelected() ? vec4{1.0f, 0.0f, 0.0f, 1.0f} : vec4{1.0f});
-			font.begin(cam);
-			font.write(onPos, size, "On");
-			font.end(fbo, viewport, state ? (oo.isSelected() ? vec4{1.0f, 0.0f, 0.0f, 1.0f} : vec4{1.0f}) : vec4{0.5f, 0.5f, 0.5f, 1.0f});
-			font.begin(cam);
-			font.write(offPos, size, "Off");
-			font.end(fbo, viewport, !state ? (oo.isSelected() ? vec4{1.0f, 0.0f, 0.0f, 1.0f} : vec4{1.0f}) : vec4{0.5f, 0.5f, 0.5f, 1.0f});
-
+			if (state) font.write(offPos, size, offStr); 
+			else font.write(onPos, size, onStr);
+			font.end(fbo, viewport, settings.fontDisabledColor);
 		}
 	};
 

@@ -49,11 +49,11 @@ KeyInput OnOffSelector::input(KeyInput key)
 		else if (key == KeyInput::DOWN || key == KeyInput::UP) {
 			mSelected = false;
 			return key;
-		} else if (key == KeyInput::LEFT) {
+		} else if (key == KeyInput::RIGHT) {
 			bool state = false;
 			if (checkStateFunc) state = checkStateFunc();
 			if (!state && changeStateFunc) changeStateFunc();
-		} else if (key == KeyInput::RIGHT) {
+		} else if (key == KeyInput::LEFT) {
 			bool state = false;
 			if (checkStateFunc) state = checkStateFunc();
 			if (state && changeStateFunc) changeStateFunc();

@@ -69,7 +69,7 @@ public:
 	float fontVerticalOffsetScale = 0.0f;
 	vec4 fontColor{1.0f, 1.0f, 1.0f, 1.0f};
 	vec4 fontSelectedColor{1.0f, 0.0f, 0.0f, 1.0f};
-	vec4 fontDisabledColor{0.5f, 0.5f, 0.5f, 1.0f};
+	vec4 fontDisabledColor{0.4f, 0.4f, 0.4f, 1.0f};
 
 	bool fontRenderBg = true;
 	bool fontRenderDualBg = false;

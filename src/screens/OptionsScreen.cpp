@@ -106,13 +106,15 @@ OptionsScreen::OptionsScreen() noexcept
 	using namespace gui;
 
 	const vec2 menuDim = vec2{screens::MIN_DRAWABLE.x-0.1f, screens::MIN_DRAWABLE.y-0.1f};
-	const float spacing = 5.5f;
-	const float itemSpacing = 1.0f;
+	const float spacing = 3.5f;
+	const float itemSpacing = 1.8f;
+	const float bottomSpacing = 2.0f;
 	const float titleHeight = 20.0f;
-	const float stateAlignOffset = menuDim.x * 0.55f;
-	const vec2 headingDim{menuDim.x * 0.85f, 9.0f};
-	const vec2 itemDim{menuDim.x * 0.85f, 4.0f};
-	float scrollListHeight = menuDim.y - titleHeight - itemDim.y - 3.0f*spacing;
+	const float buttonHeight = 8.0f;
+	const float stateAlignOffset = menuDim.x * 0.575f;
+	const vec2 headingDim{menuDim.x * 0.95f, 7.5f};
+	const vec2 itemDim{menuDim.x * 0.95f, 4.75f};
+	float scrollListHeight = menuDim.y - titleHeight - buttonHeight - 2.0f*spacing - bottomSpacing;
 
 	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Options"}}, vec2{menuDim.x, titleHeight});
 	mGuiSystem.addSpacing(spacing);
@@ -291,21 +293,20 @@ OptionsScreen::OptionsScreen() noexcept
 		this->cfgData.modelConfig.bonusObjectValue = choice * 8;
 	}, stateAlignOffset}}, itemDim);
 
-
-	mGuiSystem.addSpacing(itemSpacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new SideSplitContainer{}}, itemDim);
+	mGuiSystem.addSpacing(spacing);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new SideSplitContainer{}}, vec2{menuDim.x, buttonHeight});
 	SideSplitContainer& sideSplit = *(SideSplitContainer*)mGuiSystem.items().back().get();
 	
 	sideSplit.setLeft(shared_ptr<BaseItem>{new Button{"Cancel", [this](Button&) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                           shared_ptr<BaseScreen>{new MainMenuScreen{}}};
-	}}}, itemDim.x * 0.4f);
+	}}}, menuDim.x * 0.4f);
 
 	sideSplit.setRight(shared_ptr<BaseItem>{new Button{"Apply", [this](Button&) {
 		applyConfig(this->cfgData);
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                           shared_ptr<BaseScreen>{new MainMenuScreen{}}};
-	}}}, itemDim.x * 0.4);
+	}}}, menuDim.x * 0.4f);
 }
 
 // OptionsScreen: Overriden screen methods
