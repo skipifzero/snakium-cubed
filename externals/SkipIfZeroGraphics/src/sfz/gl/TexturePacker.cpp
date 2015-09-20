@@ -10,7 +10,8 @@
 #include <stb_image.h>
 #include <sfz/PopWarnings.hpp>
 
-#include "sfz/gl/Utils.hpp"
+#include <sfz/gl/OpenGL.hpp>
+#include "sfz/gl/GLUtils.hpp"
 #include <new> // std::nothrow
 #include <cstring> // std::memcpy
 #include <iostream>
@@ -19,12 +20,10 @@
 
 namespace gl {
 
-// Anonymous namespace
+// Static functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-namespace {
-
-void flipImage(uint8_t* const pixels, int w, int h, int pitch, int numChannels) noexcept
+static void flipImage(uint8_t* const pixels, int w, int h, int pitch, int numChannels) noexcept
 {
 	const int bytesPerRow = w*numChannels;
 	const int bytePitch = pitch*numChannels;
@@ -42,7 +41,20 @@ void flipImage(uint8_t* const pixels, int w, int h, int pitch, int numChannels) 
 	delete[] buffer;
 }
 
-SDL_Surface* loadTexture(const string& path) noexcept
+static float anisotropicFactor(TextureFiltering filtering) noexcept
+{
+	switch (filtering) {
+	case TextureFiltering::ANISOTROPIC_1: return 1.0f;
+	case TextureFiltering::ANISOTROPIC_2: return 2.0f;
+	case TextureFiltering::ANISOTROPIC_4: return 4.0f;
+	case TextureFiltering::ANISOTROPIC_8: return 8.0f;
+	case TextureFiltering::ANISOTROPIC_16: return 16.0f;
+	default:
+		sfz_error("Can't extract anisotropic factor.");
+	}
+}
+
+static SDL_Surface* loadTexture(const string& path) noexcept
 {
 	// Loading image
 	int width, height, numChannels;
@@ -63,17 +75,16 @@ SDL_Surface* loadTexture(const string& path) noexcept
 	// Flips image so UV coordinates will be in a right-handed system in OpenGL.
 	flipImage(data, width, height, width, numChannels);
 
-	uint32_t rmask, gmask, bmask, amask;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	rmask = 0xff000000;
-	gmask = 0x00ff0000;
-	bmask = 0x0000ff00;
-	amask = 0x000000ff;
+	const uint32_t rmask = 0xff000000;
+	const uint32_t gmask = 0x00ff0000;
+	const uint32_t bmask = 0x0000ff00;
+	const uint32_t amask = 0x000000ff;
 #else
-	rmask = 0x000000ff;
-	gmask = 0x0000ff00;
-	bmask = 0x00ff0000;
-	amask = 0xff000000;
+	const uint32_t rmask = 0x000000ff;
+	const uint32_t gmask = 0x0000ff00;
+	const uint32_t bmask = 0x00ff0000;
+	const uint32_t amask = 0xff000000;
 #endif
 
 	SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(data, width, height, 32, width*numChannels,
@@ -85,10 +96,12 @@ SDL_Surface* loadTexture(const string& path) noexcept
 		std::terminate();
 	}
 
+	SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
+
 	return surface;
 }
 
-bool packRects(vector<stbrp_rect>& rects, int width, int height) noexcept
+static bool packRects(vector<stbrp_rect>& rects, int width, int height) noexcept
 {
 	stbrp_context packContext;
 	stbrp_node* nodes = new (std::nothrow) stbrp_node[width+2];
@@ -103,13 +116,12 @@ bool packRects(vector<stbrp_rect>& rects, int width, int height) noexcept
 	return true;
 }
 
-} // anonymous namespace
-
 // TexturePacker: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 TexturePacker::TexturePacker(const string& dirPath, const vector<string>& filenames, int padding,
-                             size_t suggestedWidth, size_t suggestedHeight) noexcept
+                             size_t suggestedWidth, size_t suggestedHeight,
+                             TextureFiltering filtering) noexcept
 :
 	mWidth{suggestedWidth},
 	mHeight{suggestedHeight},
@@ -138,19 +150,18 @@ TexturePacker::TexturePacker(const string& dirPath, const vector<string>& filena
 	}
 
 	// Creates surface and makes sure it's empty.
-	uint32_t rmask, gmask, bmask, amask;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	rmask = 0xff000000;
-	gmask = 0x00ff0000;
-	bmask = 0x0000ff00;
-	amask = 0x000000ff;
+	const uint32_t rmask = 0xff000000;
+	const uint32_t gmask = 0x00ff0000;
+	const uint32_t bmask = 0x0000ff00;
+	const uint32_t amask = 0x000000ff;
 #else
-	rmask = 0x000000ff;
-	gmask = 0x0000ff00;
-	bmask = 0x00ff0000;
-	amask = 0xff000000;
+	const uint32_t rmask = 0x000000ff;
+	const uint32_t gmask = 0x0000ff00;
+	const uint32_t bmask = 0x00ff0000;
+	const uint32_t amask = 0xff000000;
 #endif
-    SDL_Surface* surface = SDL_CreateRGBSurface(0, mWidth, mHeight, 32, rmask, gmask, bmask, amask);
+	SDL_Surface* surface = SDL_CreateRGBSurface(0, mWidth, mHeight, 32, rmask, gmask, bmask, amask);
 	SDL_SetSurfaceBlendMode(surface, SDL_BLENDMODE_NONE);
 	SDL_FillRect(surface, NULL, 0);
 
@@ -166,8 +177,9 @@ TexturePacker::TexturePacker(const string& dirPath, const vector<string>& filena
 		SDL_BlitSurface(surfaces[i], NULL, surface, &dstRect);
 
 		// Calculate TextureRegion
-		vec2 min = vec2{(float)(dstRect.x + padding), (float)(dstRect.y + padding)} * texDimInv;
-		vec2 max = vec2{(float)(dstRect.x + dstRect.w - 2*padding), (float)(dstRect.y + dstRect.h - 2*padding)} * texDimInv;
+		const vec2 offset{0.35f, 0.35f}; // Small hack to fix pixel imprecision
+		vec2 min = (vec2{(float)(dstRect.x + padding), (float)(dstRect.y + padding)} - offset) * texDimInv;
+		vec2 max = (vec2{(float)(dstRect.x + dstRect.w - padding), (float)(dstRect.y + dstRect.h - padding)} + offset) * texDimInv;
 		mTextureRegionMap[filenames[i]] = TextureRegion{min, max};
 	}
 
@@ -178,19 +190,57 @@ TexturePacker::TexturePacker(const string& dirPath, const vector<string>& filena
 		stbi_image_free(data);
 	}
 
-	// Generating texture.
+	// Generating texture
 	glGenTextures(1, &mTexture);
 	glBindTexture(GL_TEXTURE_2D, mTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, surface->w, surface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-	             surface->pixels);
-	// Generate mipmaps
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// Enable anisotropic filtering
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 16.0f);
 
+	int numChannels = 4;
+	int width = surface->w;
+	int height = surface->h;
+
+	switch (numChannels) {
+	case 1:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, surface->pixels);
+		break;
+	case 2:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8, width, height, 0, GL_RG, GL_UNSIGNED_BYTE, surface->pixels);
+		break;
+	case 3:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, surface->pixels);
+		break;
+	case 4:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
+		break;
+	}
 	SDL_FreeSurface(surface);
+
+	// Sets specified texture filtering, generating mipmaps if needed.
+	switch (filtering) {
+	case TextureFiltering::NEAREST:
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		break;
+	case TextureFiltering::BILINEAR:
+		glGenerateMipmap(GL_TEXTURE_2D);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		break;
+	case TextureFiltering::TRILINEAR:
+		glGenerateMipmap(GL_TEXTURE_2D);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		break;
+	case TextureFiltering::ANISOTROPIC_1:
+	case TextureFiltering::ANISOTROPIC_2:
+	case TextureFiltering::ANISOTROPIC_4:
+	case TextureFiltering::ANISOTROPIC_8:
+	case TextureFiltering::ANISOTROPIC_16:
+		glGenerateMipmap(GL_TEXTURE_2D);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropicFactor(filtering));
+		break;
+	}
 }
 
 TexturePacker::~TexturePacker() noexcept

@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "sfz/gl/Utils.hpp"
+#include "sfz/gl/GLUtils.hpp"
 #include "sfz/math/Vector.hpp"
 #include "sfz/sdl/GameController.hpp"
 

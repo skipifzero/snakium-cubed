@@ -1,7 +1,9 @@
-#include "sfz/gl/Utils.hpp"
+#include "sfz/gl/GLUtils.hpp"
 
 #include <iostream>
 #include <exception> // std::terminate()
+
+#include "sfz/gl/OpenGL.hpp"
 
 namespace gl {
 
@@ -29,7 +31,7 @@ bool checkAllGLErrors() noexcept
 	return foundError;
 }
 
-void printShaderInfoLog(GLuint program) noexcept
+void printShaderInfoLog(uint32_t program) noexcept
 {
 	int logLength;
 	glGetShaderiv(program, GL_INFO_LOG_LENGTH, &logLength);
@@ -39,7 +41,7 @@ void printShaderInfoLog(GLuint program) noexcept
 	delete[] log;
 }
 
-GLuint compileVertexShader(const std::string& shaderSource) noexcept
+uint32_t compileVertexShader(const string& shaderSource) noexcept
 {
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	const char* shaderSourcePtr = shaderSource.c_str();
@@ -58,7 +60,7 @@ GLuint compileVertexShader(const std::string& shaderSource) noexcept
 	return vertexShader;
 }
 
-GLuint compileFragmentShader(const std::string& shaderSource) noexcept
+uint32_t compileFragmentShader(const string& shaderSource) noexcept
 {
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	const char* shaderSourcePtr = shaderSource.c_str();
@@ -77,7 +79,7 @@ GLuint compileFragmentShader(const std::string& shaderSource) noexcept
 	return fragmentShader;
 }
 
-void linkProgram(GLuint program) noexcept
+void linkProgram(uint32_t program) noexcept
 {
 	glLinkProgram(program);
 	{
@@ -100,7 +102,7 @@ void setUniform(int location, int i) noexcept
 	glUniform1i(location, i);
 }
 
-void setUniform(GLuint shaderProgram, const string& name, int i) noexcept
+void setUniform(uint32_t shaderProgram, const string& name, int i) noexcept
 {
 	int loc = glGetUniformLocation(shaderProgram, name.c_str());
 	setUniform(loc, i);
@@ -111,7 +113,7 @@ void setUniform(int location, const int* intArray, size_t count) noexcept
 	glUniform1iv(location, count, intArray);
 }
 
-void setUniform(GLuint shaderProgram, const string& name, const int* intArray, size_t count) noexcept
+void setUniform(uint32_t shaderProgram, const string& name, const int* intArray, size_t count) noexcept
 {
 	int loc = glGetUniformLocation(shaderProgram, name.c_str());
 	setUniform(loc, intArray, count);
@@ -125,7 +127,7 @@ void setUniform(int location, float f) noexcept
 	glUniform1f(location, f);
 }
 
-void setUniform(GLuint shaderProgram, const string& name, float f) noexcept
+void setUniform(uint32_t shaderProgram, const string& name, float f) noexcept
 {
 	int loc = glGetUniformLocation(shaderProgram, name.c_str());
 	setUniform(loc, f);
@@ -136,7 +138,7 @@ void setUniform(int location, const float* floatArray, size_t count) noexcept
 	glUniform1fv(location, count, floatArray);
 }
 
-void setUniform(GLuint shaderProgram, const string& name, const float* floatArray, size_t count) noexcept
+void setUniform(uint32_t shaderProgram, const string& name, const float* floatArray, size_t count) noexcept
 {
 	int loc = glGetUniformLocation(shaderProgram, name.c_str());
 	setUniform(loc, floatArray, count);
@@ -150,7 +152,7 @@ void setUniform(int location, vec2 vector) noexcept
 	glUniform2fv(location, 1, vector.elements);
 }
 
-void setUniform(GLuint shaderProgram, const string& name, vec2 vector) noexcept
+void setUniform(uint32_t shaderProgram, const string& name, vec2 vector) noexcept
 {
 	int loc = glGetUniformLocation(shaderProgram, name.c_str());
 	setUniform(loc, vector);
@@ -162,7 +164,7 @@ void setUniform(int location, const vec2* vectorArray, size_t count) noexcept
 	glUniform2fv(location, count, vectorArray[0].elements);
 }
 
-void setUniform(GLuint shaderProgram, const string& name, const vec2* vectorArray, size_t count) noexcept
+void setUniform(uint32_t shaderProgram, const string& name, const vec2* vectorArray, size_t count) noexcept
 {
 	int loc = glGetUniformLocation(shaderProgram, name.c_str());
 	setUniform(loc, vectorArray, count);
@@ -176,7 +178,7 @@ void setUniform(int location, const vec3& vector) noexcept
 	glUniform3fv(location, 1, vector.elements);
 }
 
-void setUniform(GLuint shaderProgram, const string& name, const vec3& vector) noexcept
+void setUniform(uint32_t shaderProgram, const string& name, const vec3& vector) noexcept
 {
 	int loc = glGetUniformLocation(shaderProgram, name.c_str());
 	setUniform(loc, vector);
@@ -188,7 +190,7 @@ void setUniform(int location, const vec3* vectorArray, size_t count) noexcept
 	glUniform3fv(location, count, vectorArray[0].elements);
 }
 
-void setUniform(GLuint shaderProgram, const string& name, const vec3* vectorArray, size_t count) noexcept
+void setUniform(uint32_t shaderProgram, const string& name, const vec3* vectorArray, size_t count) noexcept
 {
 	int loc = glGetUniformLocation(shaderProgram, name.c_str());
 	setUniform(loc, vectorArray, count);
@@ -202,7 +204,7 @@ void setUniform(int location, const vec4& vector) noexcept
 	glUniform4fv(location, 1, vector.elements);
 }
 
-void setUniform(GLuint shaderProgram, const string& name, const vec4& vector) noexcept
+void setUniform(uint32_t shaderProgram, const string& name, const vec4& vector) noexcept
 {
 	int loc = glGetUniformLocation(shaderProgram, name.c_str());
 	setUniform(loc, vector);
@@ -214,7 +216,7 @@ void setUniform(int location, const vec4* vectorArray, size_t count) noexcept
 	glUniform4fv(location, count, vectorArray[0].elements);
 }
 
-void setUniform(GLuint shaderProgram, const string& name, const vec4* vectorArray, size_t count) noexcept
+void setUniform(uint32_t shaderProgram, const string& name, const vec4* vectorArray, size_t count) noexcept
 {
 	int loc = glGetUniformLocation(shaderProgram, name.c_str());
 	setUniform(loc, vectorArray, count);
@@ -228,7 +230,7 @@ void setUniform(int location, const mat3& matrix) noexcept
 	glUniformMatrix3fv(location, 1, false, matrix.data());
 }
 
-void setUniform(GLuint shaderProgram, const string& name, const mat3& matrix) noexcept
+void setUniform(uint32_t shaderProgram, const string& name, const mat3& matrix) noexcept
 {
 	int loc = glGetUniformLocation(shaderProgram, name.c_str());
 	setUniform(loc, matrix);
@@ -240,7 +242,7 @@ void setUniform(int location, const mat3* matrixArray, size_t count) noexcept
 	glUniformMatrix3fv(location, count, false, matrixArray[0].data());
 }
 
-void setUniform(GLuint shaderProgram, const string& name, const mat3* matrixArray, size_t count) noexcept
+void setUniform(uint32_t shaderProgram, const string& name, const mat3* matrixArray, size_t count) noexcept
 {
 	int loc = glGetUniformLocation(shaderProgram, name.c_str());
 	setUniform(loc, matrixArray, count);
@@ -254,7 +256,7 @@ void setUniform(int location, const mat4& matrix) noexcept
 	glUniformMatrix4fv(location, 1, false, matrix.data());
 }
 
-void setUniform(GLuint shaderProgram, const string& name, const mat4& matrix) noexcept
+void setUniform(uint32_t shaderProgram, const string& name, const mat4& matrix) noexcept
 {
 	int loc = glGetUniformLocation(shaderProgram, name.c_str());
 	setUniform(loc, matrix);
@@ -266,7 +268,7 @@ void setUniform(int location, const mat4* matrixArray, size_t count) noexcept
 	glUniformMatrix4fv(location, count, false, matrixArray[0].data());
 }
 
-void setUniform(GLuint shaderProgram, const string& name, const mat4* matrixArray, size_t count) noexcept
+void setUniform(uint32_t shaderProgram, const string& name, const mat4* matrixArray, size_t count) noexcept
 {
 	int loc = glGetUniformLocation(shaderProgram, name.c_str());
 	setUniform(loc, matrixArray, count);
