@@ -73,7 +73,7 @@ public:
 
 	bool fontRenderBg = true;
 	bool fontRenderDualBg = false;
-	vec2 fontBgOffsetScale{0.02f, 0.02f};
+	vec2 fontBgOffsetScale{0.02f, -0.02f};
 	vec4 fontBgColor{0.0f, 0.0f, 0.0f, 1.0f};
 	vec4 fontBgSelectedColor{0.0f, 0.0f, 0.0f, 1.0f};
 	vec4 fontBgDisabledColor{0.0f, 0.0f, 0.0f, 1.0f};

@@ -78,17 +78,18 @@ int main()
 		settings.spriteBatchPtr = &assets.spriteBatch;
 		settings.fontPtr = &assets.fontRenderer;
 		
-		settings.renderBounds = true;
+		settings.renderBounds = false;
 		settings.boundsTexture = assets.ATLAS_128.texture();
 		settings.boundsRegion = assets.TILE_FACE_REG;
 
-		settings.fontScale = 1.2f;
+		settings.fontScale = 1.15f;
 		settings.fontVerticalOffsetScale = -0.265f;
 		
 		settings.fontColor = sfz::vec4{0.84f, 1.0f, 0.84f, 1.0f};
 		settings.fontSelectedColor = sfz::vec4{0.3f, 0.75f, 0.3f, 1.0f};
 		//settings.fontDisabledColor = sfz::vec4{0.4f, 0.4f, 0.4f, 1.0f};
 
+		//settings.fontRenderDualBg = true;
 		//settings.fontBgColor = sfz::vec4{0.37f, 0.72f, 0.37f, 1.0f};
 		//settings.fontBgSelectedColor = sfz::vec4{0.0f, 0.0f, 0.0f, 1.0f};
 		//settings.fontBgDisabledColor = sfz::vec4{0.0f, 0.0f, 0.0f, 1.0f};
