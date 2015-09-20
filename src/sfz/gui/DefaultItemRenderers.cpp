@@ -1,5 +1,7 @@
 #include "sfz/gui/DefaultItemRenderers.hpp"
 
+#include <algorithm>
+
 #include "sfz/gui/Button.hpp"
 #include "sfz/gui/ImageItem.hpp"
 #include "sfz/gui/MultiChoiceSelector.hpp"

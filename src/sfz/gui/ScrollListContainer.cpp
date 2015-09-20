@@ -1,5 +1,7 @@
 #include "sfz/gui/ScrollListContainer.hpp"
 
+#include <algorithm>
+
 #include "sfz/Assert.hpp"
 #include "sfz/geometry/Intersection.hpp"
 #include "sfz/gui/GUIUtils.hpp"

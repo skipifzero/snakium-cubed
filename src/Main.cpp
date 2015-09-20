@@ -79,7 +79,7 @@ int main()
 		settings.fontPtr = &assets.fontRenderer;
 		
 		settings.renderBounds = true;
-		settings.boundsTexture = assets.TILE_FACE.mHandle;
+		settings.boundsTexture = assets.TILE_FACE.handle;
 
 		settings.fontScale = 1.2f;
 		settings.fontVerticalOffsetScale = -0.275f;
