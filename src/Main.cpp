@@ -12,8 +12,10 @@
 #include "Screens.hpp"
 
 // Perhaps temporary
-#include <sfz/gui/DefaultItemRenderers.hpp>
 #include "rendering/Assets.hpp"
+#include "screens/S3ItemRenderers.hpp"
+#include <sfz/gui/Button.hpp>
+#include <sfz/gui/DefaultItemRenderers.hpp>
 
 #undef main // Remove SDL hack until we can get it to compile properly
 
@@ -80,10 +82,13 @@ int main()
 		settings.boundsTexture = assets.TILE_FACE.mHandle;
 
 		settings.fontScale = 1.2f;
-		settings.fontVerticalOffsetScale = -0.3f;
-		settings.fontColor = sfz::vec4{0.84f, 1.0f, 0.84f, 1.0f};
+		settings.fontVerticalOffsetScale = -0.275f;
+		//settings.fontColor = sfz::vec4{0.84f, 1.0f, 0.84f, 1.0f};
 
-		settings.fontBgColor = sfz::vec4{0.37f, 0.72f, 0.37f, 1.0f};
+		//settings.fontBgColor = sfz::vec4{0.37f, 0.72f, 0.37f, 1.0f};
+
+
+		//gui::Button::rendererFactory = s3::snakiumButtonRendererFactory();
 	}
 
 	sfz::runGameLoop(window, std::shared_ptr<sfz::BaseScreen>{new s3::MainMenuScreen{}});

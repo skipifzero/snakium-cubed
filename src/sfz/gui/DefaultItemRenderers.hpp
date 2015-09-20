@@ -68,11 +68,15 @@ public:
 	float fontScale = 1.0f;
 	float fontVerticalOffsetScale = 0.0f;
 	vec4 fontColor{1.0f, 1.0f, 1.0f, 1.0f};
+	vec4 fontSelectedColor{1.0f, 0.0f, 0.0f, 1.0f};
+	vec4 fontDisabledColor{0.5f, 0.5f, 0.5f, 1.0f};
 
 	bool fontRenderBg = true;
 	bool fontRenderDualBg = false;
 	vec2 fontBgOffsetScale{0.02f, 0.02f};
 	vec4 fontBgColor{0.0f, 0.0f, 0.0f, 1.0f};
+	vec4 fontBgSelectedColor{0.0f, 0.0f, 0.0f, 1.0f};
+	vec4 fontBgDisabledColor{0.0f, 0.0f, 0.0f, 1.0f};
 
 private:
 	// Private constructors & destructors
