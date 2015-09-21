@@ -74,7 +74,7 @@ MainMenuScreen::MainMenuScreen() noexcept
 // MainMenuScreen: Overriden screen methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-UpdateOp MainMenuScreen::update(const UpdateState& state)
+UpdateOp MainMenuScreen::update(UpdateState& state)
 {
 	const vec2 drawableDim = state.window.drawableDimensions();
 	const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, screens::MIN_DRAWABLE);
@@ -88,7 +88,7 @@ UpdateOp MainMenuScreen::update(const UpdateState& state)
 	return mUpdateOp;
 }
 
-void MainMenuScreen::render(const UpdateState& state)
+void MainMenuScreen::render(UpdateState& state)
 {
 	// Clearing screen
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);

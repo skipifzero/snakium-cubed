@@ -33,8 +33,8 @@ public:
 	// Overriden screen methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	virtual UpdateOp update(const UpdateState& state) override final;
-	virtual void render(const UpdateState& state) override final;
+	virtual UpdateOp update(UpdateState& state) override final;
+	virtual void render(UpdateState& state) override final;
 	virtual void onResize(vec2 dimensions, vec2 drawableDimensions) override final;
 
 private:

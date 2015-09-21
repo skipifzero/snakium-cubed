@@ -167,7 +167,7 @@ GameScreen::GameScreen(const ModelConfig& modelCfg) noexcept
 // GameScreen: Overriden screen methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-UpdateOp GameScreen::update(const UpdateState& state)
+UpdateOp GameScreen::update(UpdateState& state)
 {
 	const float delta = state.delta;
 	GlobalConfig& cfg = GlobalConfig::INSTANCE();
@@ -233,7 +233,7 @@ UpdateOp GameScreen::update(const UpdateState& state)
 	return sfz::SCREEN_NO_OP;
 }
 
-void GameScreen::render(const UpdateState& state)
+void GameScreen::render(UpdateState& state)
 {
 	float aspect = (float)state.window.width() / (float)state.window.height();
 	mProjMatrix = sfz::glPerspectiveProjectionMatrix(mCam.mFov, aspect, 0.1f, 50.0f);

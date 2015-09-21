@@ -312,7 +312,7 @@ OptionsScreen::OptionsScreen() noexcept
 // OptionsScreen: Overriden screen methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-UpdateOp OptionsScreen::update(const UpdateState& state)
+UpdateOp OptionsScreen::update(UpdateState& state)
 {
 	const vec2 drawableDim = state.window.drawableDimensions();
 	const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, screens::MIN_DRAWABLE);
@@ -330,7 +330,7 @@ UpdateOp OptionsScreen::update(const UpdateState& state)
 	return mUpdateOp;
 }
 
-void OptionsScreen::render(const UpdateState& state)
+void OptionsScreen::render(UpdateState& state)
 {
 	// Clearing screen
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
