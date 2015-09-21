@@ -75,8 +75,8 @@ class BaseScreen {
 public:
 	virtual ~BaseScreen() = default;
 
-	virtual UpdateOp update(const UpdateState& state) = 0;
-	virtual void render(const UpdateState& state) = 0;
+	virtual UpdateOp update(UpdateState& state) = 0;
+	virtual void render(UpdateState& state) = 0;
 
 	virtual void onQuit();
 	virtual void onResize(vec2 windowDimensions, vec2 drawableDimensions);
