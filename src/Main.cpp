@@ -68,7 +68,9 @@ int main()
 	if (gl::checkAllGLErrors()) std::cerr << "^^^ Above errors caused by glewInit()." << std::endl;
 
 	// Enable/disable vsync
-	if (!cfg.vsync) SDL_GL_SetSwapInterval(0);
+	if (cfg.vsync == 1) SDL_GL_SetSwapInterval(1);
+	else if (cfg.vsync == 2) SDL_GL_SetSwapInterval(-1);
+	else SDL_GL_SetSwapInterval(0);
 
 	// Initializes GUI rendering
 	{

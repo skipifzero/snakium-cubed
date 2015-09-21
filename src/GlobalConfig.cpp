@@ -76,10 +76,10 @@ void GlobalConfig::load() noexcept
 	// [Graphics]
 	static const string grStr = "Graphics";
 	transparentCube =   ip.sanitizeBool(grStr, "bTransparentCube", true);
-	vsync =             ip.sanitizeBool(grStr, "bVSync", true);
 	displayIndex =      ip.sanitizeInt(grStr, "iDisplayIndex", 0, 0, 32);
 	fullscreenMode =    ip.sanitizeInt(grStr, "iFullscreenMode", 0, 0, 2);
 	msaa =              ip.sanitizeInt(grStr, "iMSAA", 4, 0, 32);
+	vsync =             ip.sanitizeInt(grStr, "iVSync", 1, 0, 2);
 	windowResolutionX = ip.sanitizeInt(grStr, "iWindowResolutionX", 800, 64, 8192);
 	windowResolutionY = ip.sanitizeInt(grStr, "iWindowResolutionY", 800, 64, 8192);
 }
@@ -100,10 +100,10 @@ void GlobalConfig::save() noexcept
 	// [Graphics]
 	static const string grStr = "Graphics";
 	mIniParser.setBool(grStr, "bTransparentCube", transparentCube);
-	mIniParser.setBool(grStr, "bVSync", vsync);
 	mIniParser.setInt(grStr, "iDisplayIndex", displayIndex);
 	mIniParser.setInt(grStr, "iFullscreenMode", fullscreenMode);
 	mIniParser.setInt(grStr, "iMSAA", msaa);
+	mIniParser.setInt(grStr, "iVSync", vsync);
 	mIniParser.setInt(grStr, "iWindowResolutionX", windowResolutionX);
 	mIniParser.setInt(grStr, "iWindowResolutionY", windowResolutionY);
 

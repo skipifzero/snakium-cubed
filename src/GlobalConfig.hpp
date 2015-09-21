@@ -20,7 +20,7 @@ struct ConfigData {
 	int32_t displayIndex;
 	int32_t fullscreenMode; // 0 = off, 1 = windowed, 2 = exclusive
 	int32_t windowResolutionX, windowResolutionY;
-	bool vsync;
+	int32_t vsync; // 0 = off, 1 = on, 2 = swap control tear
 	int32_t msaa;
 	bool transparentCube;
 

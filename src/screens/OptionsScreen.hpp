@@ -5,9 +5,10 @@
 #include <string>
 #include <vector>
 
+#include <sfz/GUI.hpp>
 #include <sfz/math/Vector.hpp>
 #include <sfz/Screens.hpp>
-#include <sfz/GUI.hpp>
+#include <sfz/sdl/Window.hpp>
 
 #include "GlobalConfig.hpp"
 
@@ -44,9 +45,15 @@ public:
 	ConfigData cfgData;
 
 private:
+	// Private methods
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	void applyConfig() noexcept;
+
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+	sdl::Window* mWindowPtr = nullptr;
 	gui::System mGuiSystem;
 	vector<sfz::vec2i> mResolutions;
 	UpdateOp mUpdateOp = sfz::SCREEN_NO_OP;

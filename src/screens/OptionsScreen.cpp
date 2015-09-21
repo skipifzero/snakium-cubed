@@ -21,14 +21,6 @@ using std::shared_ptr;
 // Static functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-static void applyConfig(const ConfigData& newCfg) noexcept
-{
-	auto globalData = GlobalConfig::INSTANCE().data();
-	globalData.modelConfig = newCfg.modelConfig;
-	GlobalConfig::INSTANCE().data(globalData);
-	GlobalConfig::INSTANCE().save();
-}
-
 struct Resolutions {
 	vector<string> names;
 	vector<sfz::vec2i> resolutions;
@@ -149,10 +141,10 @@ OptionsScreen::OptionsScreen() noexcept
 	}, stateAlignOffset}}, itemDim);
 
 	scrollList.addSpacing(itemSpacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new OnOffSelector{"VSync", [this]() {
+	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"VSync", {"Off", "On", "Swap Control Tear"}, [this]() {
 		return this->cfgData.vsync;
-	}, [this]() {
-		this->cfgData.vsync = !this->cfgData.vsync;
+	}, [this](int choice) {
+		this->cfgData.vsync = choice;
 	}, stateAlignOffset}}, itemDim);
 
 	scrollList.addSpacing(itemSpacing);
@@ -303,7 +295,7 @@ OptionsScreen::OptionsScreen() noexcept
 	}}}, menuDim.x * 0.4f);
 
 	sideSplit.setRight(shared_ptr<BaseItem>{new Button{"Apply", [this](Button&) {
-		applyConfig(this->cfgData);
+		this->applyConfig();
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                           shared_ptr<BaseScreen>{new MainMenuScreen{}}};
 	}}}, menuDim.x * 0.4f);
@@ -314,6 +306,8 @@ OptionsScreen::OptionsScreen() noexcept
 
 UpdateOp OptionsScreen::update(UpdateState& state)
 {
+	if (mWindowPtr == nullptr) mWindowPtr = &state.window;
+
 	const vec2 drawableDim = state.window.drawableDimensions();
 	const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, screens::MIN_DRAWABLE);
 
@@ -321,7 +315,7 @@ UpdateOp OptionsScreen::update(UpdateState& state)
 	bool cancelRef;
 	gui::InputData data = inputDataFromUpdateState(state, guiCam, ctrlId, &cancelRef);
 	if (cancelRef) {
-		applyConfig(cfgData);
+		this->applyConfig();
 		return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                shared_ptr<BaseScreen>{new MainMenuScreen{}}};
 	}
@@ -352,6 +346,32 @@ void OptionsScreen::render(UpdateState& state)
 
 	// Draw GUI
 	mGuiSystem.draw(0, drawableDim, guiCam);
+}
+
+// OptionsScreen: Private methods
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+void OptionsScreen::applyConfig() noexcept
+{
+	auto& globalCfg = GlobalConfig::INSTANCE();
+	
+	// Add the new settings to Global Config
+	globalCfg.data(cfgData);
+
+	// Enable new settings
+
+	// Fullscreen
+	if (cfgData.fullscreenMode == 0) SDL_SetWindowFullscreen(mWindowPtr->mPtr, 0);
+	else if (cfgData.fullscreenMode == 1) SDL_SetWindowFullscreen(mWindowPtr->mPtr, SDL_WINDOW_FULLSCREEN_DESKTOP);
+	else if (cfgData.fullscreenMode == 2) SDL_SetWindowFullscreen(mWindowPtr->mPtr, SDL_WINDOW_FULLSCREEN);
+
+	// VSync
+	if (cfgData.vsync == 1) SDL_GL_SetSwapInterval(1);
+	else if (cfgData.vsync == 2) SDL_GL_SetSwapInterval(-1);
+	else SDL_GL_SetSwapInterval(0);
+	
+	// Write to file
+	globalCfg.save();
 }
 
 } // namespace s3
