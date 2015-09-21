@@ -55,7 +55,7 @@ private:
 
 	sdl::Window* mWindowPtr = nullptr;
 	gui::System mGuiSystem;
-	vector<sfz::vec2i> mResolutions;
+	vector<SDL_DisplayMode> mDisplayModes;
 	UpdateOp mUpdateOp = sfz::SCREEN_NO_OP;
 };
 

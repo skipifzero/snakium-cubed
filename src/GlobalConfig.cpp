@@ -79,9 +79,12 @@ void GlobalConfig::load() noexcept
 	displayIndex =      ip.sanitizeInt(grStr, "iDisplayIndex", 0, 0, 32);
 	fullscreenMode =    ip.sanitizeInt(grStr, "iFullscreenMode", 0, 0, 2);
 	msaa =              ip.sanitizeInt(grStr, "iMSAA", 4, 0, 32);
+	refreshRate =       ip.sanitizeInt(grStr, "iRefreshRate", 60, 15, 240);
+	resolutionX =       ip.sanitizeInt(grStr, "iResolutionX", 1920, 200, 30720);
+	resolutionY =       ip.sanitizeInt(grStr, "iResolutionY", 1080, 200, 17280);
 	vsync =             ip.sanitizeInt(grStr, "iVSync", 1, 0, 2);
-	windowResolutionX = ip.sanitizeInt(grStr, "iWindowResolutionX", 800, 64, 8192);
-	windowResolutionY = ip.sanitizeInt(grStr, "iWindowResolutionY", 800, 64, 8192);
+	windowHeight =      ip.sanitizeInt(grStr, "iWindowHeight", 800, 200, 10000);
+	windowWidth =       ip.sanitizeInt(grStr, "iWindowWidth", 800, 200, 10000);
 }
 
 void GlobalConfig::save() noexcept
@@ -103,9 +106,12 @@ void GlobalConfig::save() noexcept
 	mIniParser.setInt(grStr, "iDisplayIndex", displayIndex);
 	mIniParser.setInt(grStr, "iFullscreenMode", fullscreenMode);
 	mIniParser.setInt(grStr, "iMSAA", msaa);
+	mIniParser.setInt(grStr, "iRefreshRate", refreshRate);
+	mIniParser.setInt(grStr, "iResolutionX", resolutionX);
+	mIniParser.setInt(grStr, "iResolutionY", resolutionY);
 	mIniParser.setInt(grStr, "iVSync", vsync);
-	mIniParser.setInt(grStr, "iWindowResolutionX", windowResolutionX);
-	mIniParser.setInt(grStr, "iWindowResolutionY", windowResolutionY);
+	mIniParser.setInt(grStr, "iWindowHeight", windowHeight);
+	mIniParser.setInt(grStr, "iWindowWidth", windowWidth);
 
 	if (!mIniParser.save()) {
 		std::cerr << "Couldn't save config.ini at: " << userIniPath() << std::endl;
@@ -117,14 +123,18 @@ void GlobalConfig::save() noexcept
 
 void GlobalConfig::data(const ConfigData& configData) noexcept
 {
-	this->modelConfig = configData.modelConfig;
 	this->displayIndex = configData.displayIndex;
 	this->fullscreenMode = configData.fullscreenMode;
-	this->windowResolutionX = configData.windowResolutionX;
-	this->windowResolutionY = configData.windowResolutionY;
+	this->refreshRate = configData.refreshRate;
+	this->resolutionX = configData.resolutionX;
+	this->resolutionY = configData.resolutionY;
+	this->windowWidth = configData.windowWidth;
+	this->windowHeight = configData.windowHeight;
 	this->vsync = configData.vsync;
 	this->msaa = configData.msaa;
 	this->transparentCube = configData.transparentCube;
+
+	this->modelConfig = configData.modelConfig;
 }
 
 // GlobalConfig: Private constructors & destructors

@@ -19,7 +19,8 @@ struct ConfigData {
 	// Graphics
 	int32_t displayIndex;
 	int32_t fullscreenMode; // 0 = off, 1 = windowed, 2 = exclusive
-	int32_t windowResolutionX, windowResolutionY;
+	int32_t refreshRate, resolutionX, resolutionY; // DisplayMode
+	int32_t windowWidth, windowHeight;
 	int32_t vsync; // 0 = off, 1 = on, 2 = swap control tear
 	int32_t msaa;
 	bool transparentCube;

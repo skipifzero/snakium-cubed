@@ -23,18 +23,12 @@ using std::shared_ptr;
 
 struct Resolutions {
 	vector<string> names;
-	vector<sfz::vec2i> resolutions;
+	vector<SDL_DisplayMode> modes;
 };
 
 static Resolutions getAvailableResolutions(ConfigData& data) noexcept
 {
-	struct DispMode {
-		string name;
-		sfz::vec2i res;
-	};
-
-	vector<DispMode> dispModes;
-	SDL_DisplayMode mode;
+	// Make sure current display index is valid
 	const int numDisplays = SDL_GetNumVideoDisplays();
 	if (numDisplays < 0) {
 		std::cerr << "SDL_GetNumVideoDisplays() failed: " << SDL_GetError() << std::endl;
@@ -45,6 +39,9 @@ static Resolutions getAvailableResolutions(ConfigData& data) noexcept
 		data.displayIndex = 0;
 	}
 
+	// Get all available display modes for the selected display index
+	vector<SDL_DisplayMode> modes;
+	SDL_DisplayMode mode;
 	const int numDisplayModes = SDL_GetNumDisplayModes(data.displayIndex);
 	if (numDisplayModes < 0) {
 		std::cerr << "SDL_GetNumDisplayModes failed: " << SDL_GetError() << std::endl;
@@ -54,34 +51,29 @@ static Resolutions getAvailableResolutions(ConfigData& data) noexcept
 		if (SDL_GetDisplayMode(data.displayIndex, i, &mode) != 0) {
 			std::cerr << "SDL_GetDisplayMode failed: " << SDL_GetError() << std::endl;
 		}
-		std::cout << "DisplayMode: " << mode.w << "x" << mode.h << ", " << mode.refresh_rate << "Hz, PixelFormat: " << mode.format << std::endl;
-		dispModes.push_back({std::to_string(mode.w) + "x" + std::to_string(mode.h),
-		                     sfz::vec2i{mode.w, mode.h}});
+		modes.push_back(mode);
+		//std::cout << "DisplayMode: " << mode.w << "x" << mode.h << ", " << mode.refresh_rate << "Hz, PixelFormat: " << mode.format << std::endl;
 	}
 
-	sfz::vec2i current{data.windowResolutionX, data.windowResolutionY};
-	bool found = false;
-	for (int i = 0; i < (int)dispModes.size(); ++i) {
-		if (dispModes[i].res == current) {
-			found = true;
-			break;
+	// Sort the display modes
+	std::sort(modes.begin(), modes.end(), [](const SDL_DisplayMode& lhs, const SDL_DisplayMode& rhs) {
+		if (lhs.w == rhs.w && lhs.h == rhs.h) {
+			return lhs.refresh_rate < rhs.refresh_rate;
 		}
-	}
-
-	if (!found) {
-		dispModes.push_back({std::to_string(current.x) + "x" + std::to_string(current.x),  current});
-	}
-
-	std::sort(dispModes.begin(), dispModes.end(), [](const DispMode& lhs, const DispMode& rhs) {
-		return sfz::squaredLength(lhs.res) < sfz::squaredLength(rhs.res);
+		float lhsSquaredLength = sfz::squaredLength(vec2{(float)lhs.w, (float)lhs.h});
+		float rhsSquaredLength = sfz::squaredLength(vec2{(float)rhs.w, (float)rhs.h});
+		return lhsSquaredLength < rhsSquaredLength;
 	});
 
-	Resolutions temp;
-	for (int i = 0; i < (int)dispModes.size(); ++i) {
-		temp.names.push_back(std::move(dispModes[i].name));
-		temp.resolutions.push_back(dispModes[i].res);
+	// Create display mode strings
+	vector<string> names;
+	for (auto& m : modes) {
+		names.emplace_back(std::to_string(m.w) + "x" + std::to_string(m.h) + " (" + std::to_string(m.refresh_rate) + "Hz)");
 	}
 
+	Resolutions temp;
+	temp.names = std::move(names);
+	temp.modes = std::move(modes);
 	return temp;
 };
 
@@ -103,9 +95,9 @@ OptionsScreen::OptionsScreen() noexcept
 	const float bottomSpacing = 2.0f;
 	const float titleHeight = 20.0f;
 	const float buttonHeight = 8.0f;
-	const float stateAlignOffset = menuDim.x * 0.575f;
+	const float stateAlignOffset = menuDim.x * 0.535f;
 	const vec2 headingDim{menuDim.x * 0.95f, 7.5f};
-	const vec2 itemDim{menuDim.x * 0.95f, 4.75f};
+	const vec2 itemDim{menuDim.x * 0.95f, 4.6725f};
 	float scrollListHeight = menuDim.y - titleHeight - buttonHeight - 2.0f*spacing - bottomSpacing;
 
 	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Options"}}, vec2{menuDim.x, titleHeight});
@@ -128,16 +120,20 @@ OptionsScreen::OptionsScreen() noexcept
 
 	scrollList.addSpacing(itemSpacing);
 	auto temp = getAvailableResolutions(cfgData);
-	mResolutions = std::move(temp.resolutions);
-	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Resolutions", std::move(temp.names), [this]() {
-		sfz::vec2i current{this->cfgData.windowResolutionX, this->cfgData.windowResolutionY};
-		for (int i = 0; i < (int)this->mResolutions.size(); ++i) {
-			if (this->mResolutions[i] == current) return i;
+	mDisplayModes = std::move(temp.modes);
+	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Resolution", std::move(temp.names), [this]() {
+		for (int i = 0; i < (int)this->mDisplayModes.size(); ++i) {
+			auto m = this->mDisplayModes[i];
+			auto& d = this->cfgData;
+			if (m.w == d.resolutionX && m.h == d.resolutionY && m.refresh_rate == d.refreshRate) {
+				return i;
+			}
 		}
 		return -1;
 	}, [this](int choice) {
-		this->cfgData.windowResolutionX = this->mResolutions[choice].x;
-		this->cfgData.windowResolutionY = this->mResolutions[choice].y;
+		this->cfgData.resolutionX = this->mDisplayModes[choice].w;
+		this->cfgData.resolutionY = this->mDisplayModes[choice].h;
+		this->cfgData.refreshRate = this->mDisplayModes[choice].refresh_rate;
 	}, stateAlignOffset}}, itemDim);
 
 	scrollList.addSpacing(itemSpacing);
@@ -148,7 +144,7 @@ OptionsScreen::OptionsScreen() noexcept
 	}, stateAlignOffset}}, itemDim);
 
 	scrollList.addSpacing(itemSpacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"MSAA", {"Off", "2x", "4x", "8x", "16x"}, [this]() {
+	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"MSAA (needs restart)", {"Off", "2x", "4x", "8x", "16x"}, [this]() {
 		switch (this->cfgData.msaa) {
 		case 0: return 0;
 		case 2: return 1;
@@ -338,12 +334,6 @@ void OptionsScreen::render(UpdateState& state)
 	const vec2 drawableDim = state.window.drawableDimensions();
 	const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, screens::MIN_DRAWABLE);
 
-	/*auto& sb = Assets::INSTANCE().spriteBatch;
-	sb.begin(guiCam);
-	sb.draw(mGuiSystem.bounds().position(), mGuiSystem.bounds().dimensions(), Assets::INSTANCE().TILE_FACE_REG);
-	sb.draw(testBox, Assets::INSTANCE().TILE_FACE_REG);
-	sb.end(0, drawableDim, Assets::INSTANCE().ATLAS_128.texture());*/
-
 	// Draw GUI
 	mGuiSystem.draw(0, drawableDim, guiCam);
 }
@@ -355,20 +345,53 @@ void OptionsScreen::applyConfig() noexcept
 {
 	auto& globalCfg = GlobalConfig::INSTANCE();
 	
+	bool needToUpdateFullscreen = (globalCfg.fullscreenMode == 2);
+
 	// Add the new settings to Global Config
 	globalCfg.data(cfgData);
 
 	// Enable new settings
 
-	// Fullscreen
-	if (cfgData.fullscreenMode == 0) SDL_SetWindowFullscreen(mWindowPtr->mPtr, 0);
-	else if (cfgData.fullscreenMode == 1) SDL_SetWindowFullscreen(mWindowPtr->mPtr, SDL_WINDOW_FULLSCREEN_DESKTOP);
-	else if (cfgData.fullscreenMode == 2) SDL_SetWindowFullscreen(mWindowPtr->mPtr, SDL_WINDOW_FULLSCREEN);
+	// Resolution
+	SDL_DisplayMode cfgDataMode;
+	cfgDataMode.w = cfgData.resolutionX;
+	cfgDataMode.h = cfgData.resolutionY;
+	cfgDataMode.format = 0;
+	cfgDataMode.refresh_rate = cfgData.refreshRate;
+	cfgDataMode.driverdata = 0;
+	SDL_DisplayMode closest;
+	if (SDL_GetClosestDisplayMode(cfgData.displayIndex, &cfgDataMode, &closest) == NULL) {
+		std::cerr << "SDL_GetClosestDisplayMode() failed: " << SDL_GetError() << std::endl;
+	}
+	if (SDL_SetWindowDisplayMode(mWindowPtr->mPtr, &closest) < 0) {
+		std::cerr << "SDL_SetWindowDisplayMode() failed: " << SDL_GetError() << std::endl;
+	}
 
+	// Fullscreen
+	int fullscreenFlags = 0;
+	if (cfgData.fullscreenMode == 0) fullscreenFlags = 0;
+	else if (cfgData.fullscreenMode == 1) fullscreenFlags = SDL_WINDOW_FULLSCREEN_DESKTOP;
+	else if (cfgData.fullscreenMode == 2) fullscreenFlags = SDL_WINDOW_FULLSCREEN;
+	if (SDL_SetWindowFullscreen(mWindowPtr->mPtr, fullscreenFlags) < 0) {
+		std::cerr << "SDL_SetWindowFullscreen() failed: " << SDL_GetError() << std::endl;
+	}
+	if (needToUpdateFullscreen && fullscreenFlags == SDL_WINDOW_FULLSCREEN) {
+		if (SDL_SetWindowFullscreen(mWindowPtr->mPtr, 0) < 0) {
+			std::cerr << "SDL_SetWindowFullscreen() failed: " << SDL_GetError() << std::endl;
+		}
+		if (SDL_SetWindowFullscreen(mWindowPtr->mPtr, SDL_WINDOW_FULLSCREEN) < 0) {
+			std::cerr << "SDL_SetWindowFullscreen() failed: " << SDL_GetError() << std::endl;
+		}
+	}
+	
 	// VSync
-	if (cfgData.vsync == 1) SDL_GL_SetSwapInterval(1);
-	else if (cfgData.vsync == 2) SDL_GL_SetSwapInterval(-1);
-	else SDL_GL_SetSwapInterval(0);
+	int vsyncInterval = 1;
+	if (cfgData.vsync == 0) vsyncInterval = 0;
+	else if (cfgData.vsync == 1) vsyncInterval = 1;
+	else if (cfgData.vsync == 2) vsyncInterval = -1;
+	if (SDL_GL_SetSwapInterval(vsyncInterval) < 0) {
+		std::cerr << "SDL_GL_SetSwapInterval() failed: " << SDL_GetError() << std::endl;
+	}
 	
 	// Write to file
 	globalCfg.save();
