@@ -1,2 +1,0 @@
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-set(STB_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include PARENT_SCOPE)
