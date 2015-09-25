@@ -26,13 +26,13 @@ set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(INCLUDE_DIR ${SRC_DIR})
 set(EXTERNALS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/externals)
 
-# SkipIfZero Graphics
-add_subdirectory(${EXTERNALS_DIR}/SkipIfZeroGraphics)
+# SkipIfZero Common
+add_subdirectory(${EXTERNALS_DIR}/SkipIfZeroCommon)
 
 # Include directories
 include_directories(
 	${INCLUDE_DIR}
-	${SFZ_GRAPHICS_INCLUDE_DIRS}
+	${SFZ_COMMON_INCLUDE_DIRS}
 )
 
 # Source files
@@ -126,7 +126,7 @@ add_executable(snakium-cubed ${SOURCE_ALL_FILES})
 target_link_libraries(
 	snakium-cubed
 
-	${SFZ_GRAPHICS_LIBRARIES}
+	${SFZ_COMMON_LIBRARIES}
 )
 
 # Specifies directory where generated binary and assets will be placed.

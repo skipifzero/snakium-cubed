@@ -4,6 +4,7 @@
 
 #include <sfz/geometry/AABB2D.hpp>
 #include <sfz/GL.hpp>
+#include <sfz/gl/OpenGL.hpp>
 
 #include "GlobalConfig.hpp"
 #include "rendering/Assets.hpp"

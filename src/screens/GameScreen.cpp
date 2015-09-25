@@ -1,6 +1,7 @@
 #include "screens/GameScreen.hpp"
 
 #include <sfz/GL.hpp>
+#include <sfz/gl/OpenGL.hpp>
 
 #include "GameLogic.hpp"
 #include "GlobalConfig.hpp"

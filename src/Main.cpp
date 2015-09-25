@@ -4,6 +4,7 @@
 
 #include <sfz/Assert.hpp>
 #include <sfz/GL.hpp>
+#include <sfz/gl/OpenGL.hpp>
 #include <sfz/Math.hpp>
 #include <sfz/Screens.hpp>
 #include <sfz/SDL.hpp>
