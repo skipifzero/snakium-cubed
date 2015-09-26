@@ -2,6 +2,7 @@
 #ifndef S3_SCREENS_GAME_SCREEN_HPP
 #define S3_SCREENS_GAME_SCREEN_HPP
 
+#include <sfz/gl/Program.hpp>
 #include <sfz/Math.hpp>
 #include <sfz/Screens.hpp>
 
@@ -44,7 +45,7 @@ private:
 	Model mModel;
 	TileObject mTile, mXFlippedTile;
 
-	unsigned int mShaderProgram;
+	gl::Program mShaderProgram;
 	Camera mCam;
 
 	mat4 mProjMatrix;

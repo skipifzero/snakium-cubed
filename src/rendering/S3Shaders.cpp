@@ -5,9 +5,9 @@
 
 namespace s3 {
 
-unsigned int compileStandardShaderProgram() noexcept
+gl::Program compileStandardShaderProgram() noexcept
 {
-	GLuint vertexShader = gl::compileVertexShader(R"(
+	return gl::Program::fromSource(R"(
 		#version 330
 
 		in vec3 position;
@@ -22,10 +22,7 @@ unsigned int compileStandardShaderProgram() noexcept
 			gl_Position = modelViewProj * vec4(position, 1);
 			texCoord = texCoordIn;
 		}
-	)");
-
-
-	GLuint fragmentShader = gl::compileFragmentShader(R"(
+	)", R"(
 		#version 330
 
 		precision highp float; // required by GLSL spec Sect 4.5.3
@@ -39,26 +36,11 @@ unsigned int compileStandardShaderProgram() noexcept
 		{
 			fragmentColor = texture(tex, texCoord.xy);
 		}
-	)");
-
-
-	GLuint shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-
-	glBindAttribLocation(shaderProgram, 0, "position");
-	glBindAttribLocation(shaderProgram, 1, "texCoordIn");
-	glBindFragDataLocation(shaderProgram, 0, "fragmentColor");
-
-	gl::linkProgram(shaderProgram);
-
-
-	if (gl::checkAllGLErrors()) {
-		std::cerr << "^^^ Above errors caused by shader compiling & linking." << std::endl;
-	}
-	return shaderProgram;
+	)", [](uint32_t shaderProgram) {
+		glBindAttribLocation(shaderProgram, 0, "position");
+		glBindAttribLocation(shaderProgram, 1, "texCoordIn");
+		glBindFragDataLocation(shaderProgram, 0, "fragmentColor");
+	});
 }
 
 } // namespace s3

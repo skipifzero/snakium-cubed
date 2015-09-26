@@ -259,7 +259,7 @@ void GameScreen::render(UpdateState& state)
 
 	glViewport(0, 0, state.window.drawableWidth(), state.window.drawableHeight());
 
-	glUseProgram(mShaderProgram);
+	glUseProgram(mShaderProgram.handle());
 
 	const mat4 viewProj = mProjMatrix * mCam.mViewMatrix;
 
@@ -298,7 +298,7 @@ void GameScreen::render(UpdateState& state)
 				// Render tile face
 				translation(transform, tilePosToVector(mModel, tilePos));
 				gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
-				glBindTexture(GL_TEXTURE_2D, assets.TILE_FACE.handle);
+				glBindTexture(GL_TEXTURE_2D, assets.TILE_FACE.handle());
 				mTile.render();
 
 				// Render snake sprite for non-empty tiles
@@ -308,7 +308,7 @@ void GameScreen::render(UpdateState& state)
 				translation(transform, translation(transform) + snakeFloatVec);
 				gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
 				glBindTexture(GL_TEXTURE_2D,
-				     getTileTexture(tilePtr, mModel.mProgress, mModel.mGameOver).handle);
+				     getTileTexture(tilePtr, mModel.mProgress, mModel.mGameOver).handle());
 				if (isLeftTurn(tilePtr->from(), tilePtr->to())) mXFlippedTile.render();
 				else mTile.render();
 			}
@@ -326,7 +326,7 @@ void GameScreen::render(UpdateState& state)
 					translation(transform, tilePosToVector(mModel, tilePos) + snakeFloatVec);
 					gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
 					glBindTexture(GL_TEXTURE_2D,
-					     getTileTexture(tilePtr, mModel.mProgress, mModel.mGameOver).handle);
+					     getTileTexture(tilePtr, mModel.mProgress, mModel.mGameOver).handle());
 					if (isLeftTurn(tilePtr->from(), tilePtr->to())) mXFlippedTile.render();
 					else mTile.render();
 				}
@@ -334,7 +334,7 @@ void GameScreen::render(UpdateState& state)
 				// Render tile face
 				translation(transform, tilePosToVector(mModel, tilePos));
 				gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
-				glBindTexture(GL_TEXTURE_2D, assets.TILE_FACE.handle);
+				glBindTexture(GL_TEXTURE_2D, assets.TILE_FACE.handle());
 				mTile.render();
 			}
 		}
@@ -356,7 +356,7 @@ void GameScreen::render(UpdateState& state)
 		// Render dead head
 		gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
 		glBindTexture(GL_TEXTURE_2D,
-		     getTileTexture(deadHeadPtr, mModel.mProgress, mModel.mGameOver).handle);
+		     getTileTexture(deadHeadPtr, mModel.mProgress, mModel.mGameOver).handle());
 		if (isLeftTurn(deadHeadPtr->from(), deadHeadPtr->to())) mXFlippedTile.render();
 		else mTile.render();
 	}

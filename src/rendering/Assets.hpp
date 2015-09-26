@@ -6,6 +6,8 @@
 
 namespace s3 {
 
+using gl::Texture;
+
 // Assets class
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -22,45 +24,45 @@ public:
 	gl::SpriteBatch spriteBatch;
 	gl::FontRenderer fontRenderer;
 
-	gl::Texture HEAD_D2U_F1,
-	            HEAD_D2U_F2,
+	Texture HEAD_D2U_F1,
+	        HEAD_D2U_F2,
 
-	            PRE_HEAD_D2U_F1,
-	            PRE_HEAD_D2U_DIG_F1,
-	            PRE_HEAD_D2R_F1,
-	            PRE_HEAD_D2R_DIG_F1,
+	        PRE_HEAD_D2U_F1,
+	        PRE_HEAD_D2U_DIG_F1,
+	        PRE_HEAD_D2R_F1,
+	        PRE_HEAD_D2R_DIG_F1,
 
-	            DEAD_PRE_HEAD_D2U_F1,
-	            DEAD_PRE_HEAD_D2U_DIG_F1,
-	            DEAD_PRE_HEAD_D2R_F1,
-	            DEAD_PRE_HEAD_D2R_DIG_F1,
+	        DEAD_PRE_HEAD_D2U_F1,
+	        DEAD_PRE_HEAD_D2U_DIG_F1,
+	        DEAD_PRE_HEAD_D2R_F1,
+	        DEAD_PRE_HEAD_D2R_DIG_F1,
 
-	            BODY_D2U,
-	            BODY_D2U_DIG,
-	            BODY_D2R,
-	            BODY_D2R_DIG,
+	        BODY_D2U,
+	        BODY_D2U_DIG,
+	        BODY_D2R,
+	        BODY_D2R_DIG,
 
-	            TAIL_D2U_F1,
-	            TAIL_D2U_F2,
-	            TAIL_D2U_DIG_F1,
-	            TAIL_D2U_DIG_F2,
-	            TAIL_D2R_F1,
-	            TAIL_D2R_F2,
-	            TAIL_D2R_DIG_F1,
-	            TAIL_D2R_DIG_F2,
+	        TAIL_D2U_F1,
+	        TAIL_D2U_F2,
+	        TAIL_D2U_DIG_F1,
+	        TAIL_D2U_DIG_F2,
+	        TAIL_D2R_F1,
+	        TAIL_D2R_F2,
+	        TAIL_D2R_DIG_F1,
+	        TAIL_D2R_DIG_F2,
 
-	            BUTTON_LEFT,
-	            BUTTON_LEFT_TOUCHED,
-	            BUTTON_LEFT_DISABLED,
-	            BUTTON_MIDDLE_TOUCHED,
-	            BUTTON_RIGHT,
-	            BUTTON_RIGHT_TOUCHED,
-	            BUTTON_RIGHT_DISABLED,
+	        BUTTON_LEFT,
+	        BUTTON_LEFT_TOUCHED,
+	        BUTTON_LEFT_DISABLED,
+	        BUTTON_MIDDLE_TOUCHED,
+	        BUTTON_RIGHT,
+	        BUTTON_RIGHT_TOUCHED,
+	        BUTTON_RIGHT_DISABLED,
 
-	            OBJECT,
-	            BONUS_OBJECT,
-	            FILLED,
-	            TILE_FACE;
+	        OBJECT,
+	        BONUS_OBJECT,
+	        FILLED,
+	        TILE_FACE;
 	
 	gl::TexturePacker ATLAS_128;
 	gl::TextureRegion HEAD_D2U_F1_REG,
