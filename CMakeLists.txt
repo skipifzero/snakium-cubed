@@ -188,10 +188,11 @@ set(SFZ_COMMON_LIBRARIES
 # Test addding function
 function(add_test_file test_name test_files)
 	set(test_name_name ${test_name})
-	add_executable(${test_name} ${test_files} ${SOURCE_ALL_FILES}) # Link with all files
+	add_executable(${test_name} ${test_files})
 	target_link_libraries(
 		${test_name}
 		
+		SkipIfZeroCommon
 		${SDL2_LIBRARY}
 		${GLEW_LIBRARIES}
 		${OPENGL_LIBRARIES}

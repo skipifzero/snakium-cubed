@@ -61,29 +61,15 @@ const char* FRAGMENT_SHADER_SRC = R"(
 	}
 )";
 
-GLuint compileSpriteBatchShaderProgram(const char* vertexSrc, const char* fragmentSrc) noexcept
+gl::Program compileSpriteBatchShaderProgram(const char* vertexSrc, const char* fragmentSrc) noexcept
 {
-	GLuint vertexShader = gl::compileVertexShader(vertexSrc);
-	GLuint fragmentShader = gl::compileFragmentShader(fragmentSrc);
-
-	GLuint shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
-
-	glBindAttribLocation(shaderProgram, 0, "vertexIn");
-	glBindAttribLocation(shaderProgram, 1, "transformIn");
-	glBindAttribLocation(shaderProgram, 4, "uvCoordIn");
-	glBindFragDataLocation(shaderProgram, 0, "fragmentColor");
-
-	gl::linkProgram(shaderProgram);
-
-	if (gl::checkAllGLErrors()) {
-		std::cerr << "^^^ Above errors caused by shader compiling & linking." << std::endl;
-	}
-
-	return shaderProgram;
+	return gl::Program::fromSource(vertexSrc, fragmentSrc,
+	[](uint32_t shaderProgram) {
+		glBindAttribLocation(shaderProgram, 0, "vertexIn");
+		glBindAttribLocation(shaderProgram, 1, "transformIn");
+		glBindAttribLocation(shaderProgram, 4, "uvCoordIn");
+		glBindFragDataLocation(shaderProgram, 0, "fragmentColor");
+	});
 }
 
 } // anonymous namespace
@@ -189,7 +175,6 @@ SpriteBatch& SpriteBatch::operator= (SpriteBatch&& other) noexcept
 
 SpriteBatch::~SpriteBatch() noexcept
 {
-	glDeleteProgram(mShader);
 	glDeleteBuffers(1, &mVertexBuffer);
 	glDeleteBuffers(1, &mIndexBuffer);
 	glDeleteBuffers(1, &mTransformBuffer);
@@ -302,7 +287,7 @@ void SpriteBatch::end(uint32_t fbo, const AABB2D& viewport, uint32_t texture) no
 	glDisable(GL_DEPTH_TEST);
 
 	// Enabling shader
-	glUseProgram(mShader);
+	glUseProgram(mShader.handle());
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glViewport(viewport.min.x, viewport.min.y, viewport.width(), viewport.height());
 

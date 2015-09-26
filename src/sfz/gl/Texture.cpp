@@ -6,12 +6,12 @@
 #include <stb_image.h>
 #include <sfz/PopWarnings.hpp>
 
+#include "sfz/Assert.hpp"
 #include "sfz/gl/OpenGL.hpp"
 #include "sfz/gl/GLUtils.hpp"
 
 #include <algorithm> // std::swap
 #include <cstring> // std::memcpy
-#include <exception> // std::terminate
 #include <iostream>
 #include <new>
 
@@ -61,7 +61,7 @@ static GLuint loadTexture(const char* path, int numChannelsWanted, TextureFilter
 	if (img == NULL) {		
 		std::cerr << "Unable to load image at: " << path << ", reason: "
 		          << stbi_failure_reason() << std::endl;
-		std::terminate();
+		return 0;
 	}
 
 	// Flips image so UV coordinates will be in a right-handed system in OpenGL.
@@ -124,35 +124,33 @@ static GLuint loadTexture(const char* path, int numChannelsWanted, TextureFilter
 	return texture;
 }
 
-// Constructors & destructors
+// Texture: Constructor functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Texture::Texture(const char* path, TextureFormat format, TextureFiltering filtering) noexcept
-:
-	handle{loadTexture(path, static_cast<uint8_t>(format), filtering)}
-{ }
+Texture Texture::fromFile(const char* path, TextureFormat format, TextureFiltering filtering) noexcept
+{
+	Texture tmp;
+	tmp.mHandle = loadTexture(path, static_cast<uint8_t>(format), filtering);
+	return std::move(tmp);
+}
 
-Texture::Texture(const string& path, TextureFormat format, TextureFiltering filtering) noexcept
-:
-	handle{loadTexture(path.c_str(), static_cast<uint8_t>(format), filtering)}
-{ }
+// Texture: Constructors & destructors
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 Texture::Texture(Texture&& other) noexcept
 {
-	*this = std::move(other);
+	std::swap(this->mHandle, other.mHandle);
 }
 
 Texture& Texture::operator= (Texture&& other) noexcept
 {
-	if (this->handle != other.handle) {
-		std::swap(handle, other.handle);
-	}
+	std::swap(this->mHandle, other.mHandle);
 	return *this;
 }
 
 Texture::~Texture() noexcept
 {
-	glDeleteTextures(1, &handle);
+	glDeleteTextures(1, &mHandle); // Silently ignores mHandle == 0
 }
 	
 } // namespace gl
