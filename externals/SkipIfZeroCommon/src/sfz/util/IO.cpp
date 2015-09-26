@@ -1,6 +1,8 @@
 #include "sfz/util/IO.hpp"
 #include "sfz/Assert.hpp"
 
+#include <SDL.h>
+
 #include <cstdlib>
 #include <cstdio> // fopen, fwrite, BUFSIZ
 #include <cstdint>
@@ -24,6 +26,17 @@ namespace sfz {
 
 using std::size_t;
 using std::uint8_t;
+
+const string& basePath() noexcept
+{
+	static const string path = []() {
+		const char* tmp = SDL_GetBasePath();
+		string tmpStr{tmp};
+		SDL_free((void*)tmp);
+		return std::move(tmpStr);
+	}();
+	return path;
+}
 
 const string& myDocumentsPath() noexcept
 {

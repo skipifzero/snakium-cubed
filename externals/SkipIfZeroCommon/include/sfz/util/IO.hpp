@@ -14,6 +14,9 @@ using std::string;
 using std::uint8_t;
 using std::vector;
 
+/** @brief Returns path to the directory the application was run from, likely executable location. */
+const string& basePath() noexcept;
+
 /** @brief Returns path to MyDocuments on Windows, user root (~) on Unix. */
 const string& myDocumentsPath() noexcept;
 

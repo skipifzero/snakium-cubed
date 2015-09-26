@@ -3,17 +3,9 @@
 
 #include <string>
 
-#include <SDL.h> // SDL_GetBasePath();
-
 #include "sfz/util/IO.hpp"
 
 using std::string;
-
-const string& basePath()
-{
-	static const string path{SDL_GetBasePath()}; // Leaks by design. :P
-	return path;
-}
 
 const string& stupidFileName()
 {
@@ -23,7 +15,7 @@ const string& stupidFileName()
 
 TEST_CASE("createFile() & fileExists() & deleteFile()", "[sfz::IO]")
 {
-	const string filePath = basePath() + stupidFileName();
+	const string filePath = sfz::basePath() + stupidFileName();
 	const char* fpath = filePath.c_str();
 
 	bool resExists1 = sfz::fileExists(fpath);
@@ -41,7 +33,7 @@ TEST_CASE("createFile() & fileExists() & deleteFile()", "[sfz::IO]")
 
 TEST_CASE("createDirectory() & directoryExists() & deleteDirectory()", "[sfz::IO]")
 {
-	const string dirPath = basePath() + stupidFileName();
+	const string dirPath = sfz::basePath() + stupidFileName();
 	const char* dpath = dirPath.c_str();
 
 	bool resExists1 = sfz::directoryExists(dpath);
@@ -59,7 +51,7 @@ TEST_CASE("createDirectory() & directoryExists() & deleteDirectory()", "[sfz::IO
 
 TEST_CASE("writeBinaryFile() & readBinaryFile() & sizeofFile(), ", "[sfz::IO]")
 {
-	const string filePath = basePath() + stupidFileName();
+	const string filePath = sfz::basePath() + stupidFileName();
 	const char* fpath = filePath.c_str();
 	const uint8_t data[] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
 	uint8_t data2[sizeof(data)];
@@ -88,7 +80,7 @@ TEST_CASE("writeBinaryFile() & readBinaryFile() & sizeofFile(), ", "[sfz::IO]")
 
 TEST_CASE("readTextFile()", "[sfz::IO]")
 {
-	const string filePath = basePath() + stupidFileName();
+	const string filePath = sfz::basePath() + stupidFileName();
 	const char* fpath = filePath.c_str();
 	const char* strToWrite = "Hello World!\nHello World 2!\nHello World 3!";
 

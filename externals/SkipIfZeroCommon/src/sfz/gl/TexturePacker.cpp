@@ -1,24 +1,29 @@
 #include "sfz/gl/TexturePacker.hpp"
 
-#include <SDL.h>
-
-#include <sfz/PushWarnings.hpp>
-//#define STB_RECT_PACK_IMPLEMENTATION
-#include <stb_rect_pack.h>
-#define STB_IMAGE_STATIC
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb_image.h>
-#include <sfz/PopWarnings.hpp>
-
-#include <sfz/gl/OpenGL.hpp>
-#include "sfz/gl/GLUtils.hpp"
 #include <new> // std::nothrow
 #include <cstring> // std::memcpy
 #include <iostream>
 #include <exception> // std::terminate
 #include <algorithm> // std::swap
 
+#include <SDL.h>
+
+#include "sfz/PushWarnings.hpp"
+//#define STB_RECT_PACK_IMPLEMENTATION
+#include <stb_rect_pack.h>
+#define STB_IMAGE_STATIC
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>
+#include "sfz/PopWarnings.hpp"
+
+#include "sfz/Assert.hpp"
+#include "sfz/gl/GLUtils.hpp"
+#include "sfz/gl/OpenGL.hpp"
+#include "sfz/math/vector.hpp"
+
 namespace gl {
+
+using sfz::vec2;
 
 // Static functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

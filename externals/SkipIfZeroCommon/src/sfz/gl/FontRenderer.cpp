@@ -98,7 +98,7 @@ static float anisotropicFactor(TextureFiltering filtering) noexcept
 	}
 }
 
-static struct CharInfo {
+struct CharInfo {
 	vec2 pos;
 	vec2 dim;
 	TextureRegion texRegion;
@@ -251,7 +251,7 @@ void FontRenderer::end(uint32_t fbo, vec2 viewportDimensions, vec4 textColor) no
 
 void FontRenderer::end(uint32_t fbo, const AABB2D& viewport, vec4 textColor) noexcept
 {
-	glUseProgram(mSpriteBatch.shaderProgram());
+	glUseProgram(mSpriteBatch.shaderProgram().handle());
 	gl::setUniform(mSpriteBatch.shaderProgram(), "uTextColor", textColor);
 	mSpriteBatch.end(fbo, viewport, mFontTexture);
 }

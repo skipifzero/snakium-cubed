@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "sfz/geometry/AABB2D.hpp"
+#include "sfz/gl/Program.hpp"
 #include "sfz/gl/TextureRegion.hpp"
 #include "sfz/math/Matrix.hpp"
 #include "sfz/math/Vector.hpp"
@@ -67,7 +68,7 @@ public:
 	/** viewport is in same coordinate system as glViewport() (i.e. (0,0) in lower left corner) */
 	void end(uint32_t fbo, const AABB2D& viewport, uint32_t texture) noexcept;
 
-	inline uint32_t shaderProgram() const noexcept { return mShader; }
+	inline const gl::Program& shaderProgram() const noexcept { return mShader; }
 
 private:
 	// Private members
@@ -77,7 +78,7 @@ private:
 	size_t mCurrentDrawCount;
 	mat3 mCamProj;
 
-	uint32_t mShader;
+	gl::Program mShader;
 	uint32_t mVAO;
 	uint32_t mVertexBuffer, mIndexBuffer, mTransformBuffer, mUVBuffer;
 	unique_ptr<mat3[]> mTransformArray;
