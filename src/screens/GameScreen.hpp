@@ -3,10 +3,12 @@
 #define S3_SCREENS_GAME_SCREEN_HPP
 
 #include <sfz/gl/Program.hpp>
-#include <sfz/Math.hpp>
+#include <sfz/math/Matrix.hpp>
+#include <sfz/math/Vector.hpp>
 #include <sfz/Screens.hpp>
 
-#include "Camera.hpp"
+#include "rendering/Camera.hpp"
+#include "rendering/ClassicRenderer.hpp"
 #include "rendering/TileObject.hpp"
 
 namespace s3 {
@@ -36,20 +38,14 @@ public:
 
 	virtual UpdateOp update(UpdateState& state) override final;
 	virtual void render(UpdateState& state) override final;
-	virtual void onResize(vec2 dimensions, vec2 drawableDimensions) override final;
 
 private:
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	Model mModel;
-	TileObject mTile, mXFlippedTile;
-
-	gl::Program mShaderProgram;
 	Camera mCam;
-
-	mat4 mProjMatrix;
-	bool mIsTransparent = false;
+	ClassicRenderer mClassicRenderer;
 	bool mIsPaused = false;
 };
 

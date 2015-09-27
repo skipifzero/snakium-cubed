@@ -8,7 +8,6 @@
 
 #include "GlobalConfig.hpp"
 #include "rendering/Assets.hpp"
-#include "rendering/GUIRendering.hpp"
 #include "screens/GameScreen.hpp"
 #include "screens/OptionsScreen.hpp"
 #include "screens/ScreenMenuConstants.hpp"

@@ -6,10 +6,10 @@
 #include <sfz/geometry/AABB2D.hpp>
 #include <sfz/GL.hpp>
 #include <sfz/gl/OpenGL.hpp>
+#include <sfz/math/MathHelpers.hpp>
 
 #include "GlobalConfig.hpp"
 #include "rendering/Assets.hpp"
-#include "rendering/GUIRendering.hpp"
 #include "screens/GameScreen.hpp"
 #include "screens/MainMenuScreen.hpp"
 #include "screens/ScreenMenuConstants.hpp"

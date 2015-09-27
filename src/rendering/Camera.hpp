@@ -2,9 +2,7 @@
 #ifndef S3_CAMERA_HPP
 #define S3_CAMERA_HPP
 
-#include <sfz/math/Matrix.hpp>
-#include <sfz/math/Vector.hpp>
-
+#include "sfz/Math.hpp"
 #include "GameLogic.hpp"
 #include <exception> // std::terminate
 #include <cmath>

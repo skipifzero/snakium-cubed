@@ -10,169 +10,19 @@
 
 namespace s3 {
 
-// Static functions
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-static const gl::Texture& getTileTexture(SnakeTile *tilePtr, float progress, bool gameOver) noexcept
-{
-	Assets& assets = Assets::INSTANCE();
-
-	bool isTurn = s3::isTurn(tilePtr->from(), tilePtr->to());
-
-	switch (tilePtr->type()) {
-	case s3::TileType::EMPTY: return assets.TILE_FACE;
-	case s3::TileType::OBJECT: return assets.OBJECT;
-	case s3::TileType::BONUS_OBJECT: return assets.BONUS_OBJECT;
-
-	case s3::TileType::HEAD:
-		if (progress <= 0.5f) { // Frame 1
-			return assets.HEAD_D2U_F1;
-		}
-		else { // Frame 2
-			return assets.HEAD_D2U_F2;
-		}
-	case s3::TileType::PRE_HEAD:
-		if (progress <= 0.5f) { // Frame 1
-			if (!isTurn) return !gameOver ? assets.PRE_HEAD_D2U_F1 : assets.DEAD_PRE_HEAD_D2U_F1;
-			else return !gameOver ? assets.PRE_HEAD_D2R_F1 : assets.DEAD_PRE_HEAD_D2R_F1;
-		}
-		else { // Frame 2
-			if (!isTurn) return assets.BODY_D2U;
-			else return assets.BODY_D2R;
-		}
-	case s3::TileType::BODY:
-		if (!isTurn) return assets.BODY_D2U;
-		else return assets.BODY_D2R;
-	case s3::TileType::TAIL:
-		if (progress <= 0.5f) { // Frame 1
-			if (!isTurn) return assets.TAIL_D2U_F1;
-			else return assets.TAIL_D2R_F1;
-		}
-		else { // Frame 2
-			if (!isTurn) return assets.TAIL_D2U_F2;
-			else return assets.TAIL_D2R_F2;
-		}
-
-	case s3::TileType::HEAD_DIGESTING:
-		if (progress <= 0.5f) { // Frame 1
-			return assets.HEAD_D2U_F1;
-		}
-		else { // Frame 2
-			return assets.HEAD_D2U_F2;
-		}
-	case s3::TileType::PRE_HEAD_DIGESTING:
-		if (progress <= 0.5f) { // Frame 1
-			if (!isTurn) return !gameOver ? assets.PRE_HEAD_D2U_DIG_F1 : assets.DEAD_PRE_HEAD_D2U_DIG_F1;
-			else return !gameOver ? assets.PRE_HEAD_D2R_DIG_F1 : assets.DEAD_PRE_HEAD_D2R_DIG_F1;
-		}
-		else { // Frame 2
-			if (!isTurn) return assets.BODY_D2U_DIG;
-			else return assets.BODY_D2R_DIG;
-		}
-	case s3::TileType::BODY_DIGESTING:
-		if (!isTurn) return assets.BODY_D2U_DIG;
-		else return assets.BODY_D2R_DIG;
-	case s3::TileType::TAIL_DIGESTING:
-		if (progress <= 0.5f) { // Frame 1
-			if (!isTurn) return assets.TAIL_D2U_DIG_F1;
-			else return assets.TAIL_D2R_DIG_F1;
-		}
-		else { // Frame 2
-			if (!isTurn) return assets.TAIL_D2U_DIG_F2;
-			else return assets.TAIL_D2R_DIG_F2;
-		}
-	}
-}
-
-static float getTileAngleRad(Direction3D side, Direction2D from) noexcept
-{
-	float angle;
-
-	switch (from) {
-	case Direction2D::UP:
-		angle = 180.0f;
-		break;
-	case Direction2D::DOWN:
-		angle = 0.0f;
-		break;
-	case Direction2D::LEFT:
-		angle = -90.0f;
-		break;
-	case Direction2D::RIGHT:
-		angle = 90.0f;
-		break;
-	}
-
-	// Yeah, I dunno. There probably is a pattern here to make it general, but I don't see it.
-	switch (side) {
-	case Direction3D::NORTH:
-		angle += 180.0f;
-		break;
-	case Direction3D::SOUTH:
-		// Do nothing.
-		break;
-	case Direction3D::WEST:
-		angle -= 90.0f;
-		break;
-	case Direction3D::EAST:
-		angle += 90.0f;
-		break;
-	case Direction3D::UP:
-		angle += 180.0f;
-		break;
-	case Direction3D::DOWN:
-		// Do nothing.
-		break;
-	}
-
-	return angle * sfz::DEG_TO_RAD();
-}
-
-static vec3 tilePosToVector(const Model& model, const Position& tilePos) noexcept
-{
-	// +0.5f to get the midpoint of the tile
-	const float e1f = static_cast<float>(tilePos.e1) + 0.5f;
-	const float e2f = static_cast<float>(tilePos.e2) + 0.5f; 
-	const float tileWidth = 1.0f / static_cast<float>(model.mCfg.gridWidth);
-
-	return (e1f * tileWidth - 0.5f) * directionVector(tilePos.side, Coordinate::e1) +
-	       (e2f * tileWidth - 0.5f) * directionVector(tilePos.side, Coordinate::e2) +
-	       toVector(tilePos.side) * 0.5f;
-}
-
-static mat4 tileSpaceRotation(Direction3D side) noexcept
-{
-	switch (side) {
-	case Direction3D::UP: return sfz::identityMatrix4<float>();
-	case Direction3D::DOWN: return sfz::xRotationMatrix4(sfz::PI());
-	case Direction3D::SOUTH: return sfz::xRotationMatrix4(sfz::PI()/2.0f);
-	case Direction3D::NORTH: return sfz::xRotationMatrix4(-sfz::PI()/2.0f);
-	case Direction3D::WEST: return sfz::zRotationMatrix4(sfz::PI()/2.0f);
-	case Direction3D::EAST: return sfz::zRotationMatrix4(-sfz::PI()/2.0f);
-	}
-}
-
 // GameScreen: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 GameScreen::GameScreen(const ModelConfig& modelCfg) noexcept
 :
-	mModel{modelCfg},
-	mTile{false, false},
-	mXFlippedTile{true, false}
-{
-	mShaderProgram = s3::compileStandardShaderProgram();
-	mIsTransparent = GlobalConfig::INSTANCE().transparentCube;
-}
+	mModel{modelCfg}
+{ }
 
 // GameScreen: Overriden screen methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 UpdateOp GameScreen::update(UpdateState& state)
 {
-	const float delta = state.delta;
-	GlobalConfig& cfg = GlobalConfig::INSTANCE();
-
 	// Handle input
 	for (const SDL_Event& event : state.events) {
 		switch (event.type) {
@@ -201,14 +51,6 @@ UpdateOp GameScreen::update(UpdateState& state)
 			case 'D':
 				mModel.changeDirection(mCam.mUpDir, Direction2D::RIGHT);
 				break;
-			case 'x':
-			case 'X':
-				mIsTransparent = !mIsTransparent;
-				break;
-			case 'z':
-			case 'Z':
-				mIsTransparent = true;
-				break;
 			}
 			break;
 		case SDL_KEYUP:
@@ -216,10 +58,6 @@ UpdateOp GameScreen::update(UpdateState& state)
 			case SDLK_ESCAPE:
 				return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 				          std::shared_ptr<sfz::BaseScreen>{new MainMenuScreen{}}};
-			case 'z':
-			case 'Z':
-				mIsTransparent = cfg.transparentCube;
-				break;
 			}
 			break;
 		}
@@ -228,168 +66,15 @@ UpdateOp GameScreen::update(UpdateState& state)
 	// Updating
 	if (mIsPaused) return sfz::SCREEN_NO_OP;
 
-	mModel.update(delta);
-	if (!mModel.mGameOver) mCam.update(mModel, delta);
+	mModel.update(state.delta);
+	if (!mModel.mGameOver) mCam.update(mModel, state.delta);
 
 	return sfz::SCREEN_NO_OP;
 }
 
 void GameScreen::render(UpdateState& state)
 {
-	float aspect = (float)state.window.width() / (float)state.window.height();
-	mProjMatrix = sfz::glPerspectiveProjectionMatrix(mCam.mFov, aspect, 0.1f, 50.0f);
-
-	Assets& assets = Assets::INSTANCE();
-
-	//glClearDepth(1.0f);
-	glDepthFunc(GL_LESS);
-	glEnable(GL_DEPTH_TEST);
-	
-	// Clearing screen
-	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// Enable blending
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	// Enable/Disable culling
-	if (mIsTransparent) glDisable(GL_CULL_FACE);
-	else glEnable(GL_CULL_FACE);
-
-	glViewport(0, 0, state.window.drawableWidth(), state.window.drawableHeight());
-
-	glUseProgram(mShaderProgram.handle());
-
-	const mat4 viewProj = mProjMatrix * mCam.mViewMatrix;
-
-	// Only one texture is used when rendering SnakeTiles
-	gl::setUniform(mShaderProgram, "tex", 0);
-	glActiveTexture(GL_TEXTURE0);
-
-	// Render all SnakeTiles
-	const size_t tilesPerSide = mModel.mCfg.gridWidth*mModel.mCfg.gridWidth;
-	const float gridWidth = static_cast<float>(mModel.mCfg.gridWidth);
-	const float tileWidth = 1.0f / gridWidth;
-	const mat4 tileScaling = sfz::scalingMatrix4(tileWidth);
-	mat4 transform, tileSpaceRot, tileSpaceRotScaling;
-	vec3 snakeFloatVec;
-	SnakeTile *sidePtr, *tilePtr;
-	Position tilePos;
-	Direction3D currentSide;
-
-	for (size_t side = 0; side < 6; side++) {
-		currentSide = mCam.mSideRenderOrder[side];
-		sidePtr = mModel.getTilePtr(Position{currentSide, 0, 0});
-
-		tileSpaceRot = tileSpaceRotation(currentSide);
-		tileSpaceRotScaling = tileSpaceRot * tileScaling;
-		snakeFloatVec = toVector(currentSide) * 0.001f;
-
-		if (mCam.mRenderTileFaceFirst[side]) {
-			for (size_t i = 0; i < tilesPerSide; i++) {
-				tilePtr = sidePtr + i;
-				tilePos = mModel.getTilePosition(tilePtr);
-
-				// Calculate base transform
-				transform = tileSpaceRotScaling;
-				transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
-
-				// Render tile face
-				translation(transform, tilePosToVector(mModel, tilePos));
-				gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
-				glBindTexture(GL_TEXTURE_2D, assets.TILE_FACE.handle());
-				mTile.render();
-
-				// Render snake sprite for non-empty tiles
-				if(tilePtr->type() == s3::TileType::EMPTY) continue;
-
-				// Tile Sprite Transform
-				translation(transform, translation(transform) + snakeFloatVec);
-				gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
-				glBindTexture(GL_TEXTURE_2D,
-				     getTileTexture(tilePtr, mModel.mProgress, mModel.mGameOver).handle());
-				if (isLeftTurn(tilePtr->from(), tilePtr->to())) mXFlippedTile.render();
-				else mTile.render();
-			}
-		} else {
-			for (size_t i = 0; i < tilesPerSide; i++) {
-				tilePtr = sidePtr + i;
-				tilePos = mModel.getTilePosition(tilePtr);
-
-				// Calculate base transform
-				transform = tileSpaceRotScaling;
-				transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
-
-				// Render snake sprite for non-empty tiles
-				if(tilePtr->type() != s3::TileType::EMPTY) {
-					translation(transform, tilePosToVector(mModel, tilePos) + snakeFloatVec);
-					gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
-					glBindTexture(GL_TEXTURE_2D,
-					     getTileTexture(tilePtr, mModel.mProgress, mModel.mGameOver).handle());
-					if (isLeftTurn(tilePtr->from(), tilePtr->to())) mXFlippedTile.render();
-					else mTile.render();
-				}
-
-				// Render tile face
-				translation(transform, tilePosToVector(mModel, tilePos));
-				gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
-				glBindTexture(GL_TEXTURE_2D, assets.TILE_FACE.handle());
-				mTile.render();
-			}
-		}
-	}
-
-	// Hack to correctly render dead snake head
-	if (mModel.mGameOver) {
-		SnakeTile* deadHeadPtr = mModel.mDeadHeadPtr;
-		Position deadHeadPos = mModel.mDeadHeadPos;
-
-		// Calculate dead head transform
-		tileSpaceRot = tileSpaceRotation(deadHeadPos.side);
-		tileSpaceRotScaling = tileSpaceRot * tileScaling;
-		snakeFloatVec = toVector(deadHeadPos.side) * 0.0015f;
-		transform = tileSpaceRotScaling;
-		transform *= sfz::yRotationMatrix4(getTileAngleRad(deadHeadPos.side, deadHeadPtr->from()));
-		translation(transform, tilePosToVector(mModel, deadHeadPos) + snakeFloatVec);
-
-		// Render dead head
-		gl::setUniform(mShaderProgram, "modelViewProj", viewProj * transform);
-		glBindTexture(GL_TEXTURE_2D,
-		     getTileTexture(deadHeadPtr, mModel.mProgress, mModel.mGameOver).handle());
-		if (isLeftTurn(deadHeadPtr->from(), deadHeadPtr->to())) mXFlippedTile.render();
-		else mTile.render();
-	}
-
-	gl::FontRenderer& font = assets.fontRenderer;
-
-	font.verticalAlign(gl::VerticalAlign::TOP);
-	font.horizontalAlign(gl::HorizontalAlign::LEFT);
-
-	font.begin(state.window.drawableDimensions()/2.0f, state.window.drawableDimensions());
-
-	font.write(sfz::vec2{0.0f, (float)state.window.drawableHeight()}, 64.0f, "Score: " + std::to_string(mModel.mScore));
-
-	font.end(0, state.window.drawableDimensions(), sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
-
-	if (mModel.mGameOver) {
-		font.verticalAlign(gl::VerticalAlign::MIDDLE);
-		font.horizontalAlign(gl::HorizontalAlign::CENTER);
-
-		font.begin(state.window.drawableDimensions()/2.0f, state.window.drawableDimensions());
-
-		font.write(state.window.drawableDimensions()/2.0f, 160.0f, "Game Over");
-
-		font.end(0, state.window.drawableDimensions(), sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
-	}
-
-	// Clean up
-	glUseProgram(0);
-}
-
-void GameScreen::onResize(vec2 dimensions, vec2 drawableDimensions)
-{
-	mProjMatrix = sfz::glPerspectiveProjectionMatrix(mCam.mFov, dimensions.x/dimensions.y, 0.1f, 50.0f);
+	mClassicRenderer.render(mModel, mCam, AABB2D{state.window.drawableDimensions()/2.0f, state.window.drawableDimensions()});
 }
 
 } // namespace s3

@@ -75,7 +75,6 @@ void GlobalConfig::load() noexcept
 	
 	// [Graphics]
 	static const string grStr = "Graphics";
-	transparentCube =   ip.sanitizeBool(grStr, "bTransparentCube", true);
 	displayIndex =      ip.sanitizeInt(grStr, "iDisplayIndex", 0, 0, 32);
 	fullscreenMode =    ip.sanitizeInt(grStr, "iFullscreenMode", 0, 0, 2);
 	msaa =              ip.sanitizeInt(grStr, "iMSAA", 4, 0, 32);
@@ -102,7 +101,6 @@ void GlobalConfig::save() noexcept
 
 	// [Graphics]
 	static const string grStr = "Graphics";
-	mIniParser.setBool(grStr, "bTransparentCube", transparentCube);
 	mIniParser.setInt(grStr, "iDisplayIndex", displayIndex);
 	mIniParser.setInt(grStr, "iFullscreenMode", fullscreenMode);
 	mIniParser.setInt(grStr, "iMSAA", msaa);
@@ -132,7 +130,6 @@ void GlobalConfig::data(const ConfigData& configData) noexcept
 	this->windowHeight = configData.windowHeight;
 	this->vsync = configData.vsync;
 	this->msaa = configData.msaa;
-	this->transparentCube = configData.transparentCube;
 
 	this->modelConfig = configData.modelConfig;
 }

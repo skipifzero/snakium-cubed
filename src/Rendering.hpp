@@ -3,8 +3,8 @@
 #define S3_RENDERING_HPP
 
 #include "rendering/Assets.hpp"
-#include "rendering/GUIRendering.hpp"
-#include "rendering/S3Shaders.hpp"
+#include "rendering/Camera.hpp"
+#include "rendering/ClassicRenderer.hpp"
 #include "rendering/TileObject.hpp"
 
 #endif

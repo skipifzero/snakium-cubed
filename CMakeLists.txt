@@ -37,17 +37,13 @@ include_directories(
 
 # Source files
 set(SOURCE_BASE_FILES
-	${SRC_DIR}/Camera.hpp
-	${SRC_DIR}/Camera.cpp
-	${SRC_DIR}/GameLogic.hpp
 	${SRC_DIR}/GlobalConfig.hpp
 	${SRC_DIR}/GlobalConfig.cpp
-	${SRC_DIR}/Main.cpp
-	${SRC_DIR}/Rendering.hpp
-	${SRC_DIR}/Screens.hpp)
+	${SRC_DIR}/Main.cpp)
 source_group(snakium_cubed_root FILES ${SOURCE_BASE_FILES})
 
 set(SOURCE_GAMELOGIC_FILES
+	${SRC_DIR}/GameLogic.hpp
 	${SRC_DIR}/gamelogic/Direction.hpp
 	${SRC_DIR}/gamelogic/Direction.inl
 	${SRC_DIR}/gamelogic/Model.hpp
@@ -60,17 +56,19 @@ set(SOURCE_GAMELOGIC_FILES
 source_group(gamelogic FILES ${SOURCE_GAMELOGIC_FILES})
 
 set(SOURCE_RENDERING_FILES
+	${SRC_DIR}/Rendering.hpp
 	${SRC_DIR}/rendering/Assets.hpp
 	${SRC_DIR}/rendering/Assets.cpp
-	${SRC_DIR}/rendering/GUIRendering.hpp
-	${SRC_DIR}/rendering/GUIRendering.cpp
-	${SRC_DIR}/rendering/S3Shaders.hpp
-	${SRC_DIR}/rendering/S3Shaders.cpp
+	${SRC_DIR}/rendering/Camera.hpp
+	${SRC_DIR}/rendering/Camera.cpp
+	${SRC_DIR}/rendering/ClassicRenderer.hpp
+	${SRC_DIR}/rendering/ClassicRenderer.cpp
 	${SRC_DIR}/rendering/TileObject.hpp
 	${SRC_DIR}/rendering/TileObject.cpp)
 source_group(rendering FILES ${SOURCE_RENDERING_FILES})
 
 set(SOURCE_SCREENS_FILES
+	${SRC_DIR}/Screens.hpp
 	${SRC_DIR}/screens/GameScreen.hpp
 	${SRC_DIR}/screens/GameScreen.cpp
 	${SRC_DIR}/screens/MainMenuScreen.hpp
