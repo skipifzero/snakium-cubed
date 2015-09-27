@@ -63,6 +63,8 @@ set(SOURCE_RENDERING_FILES
 	${SRC_DIR}/rendering/Camera.cpp
 	${SRC_DIR}/rendering/ClassicRenderer.hpp
 	${SRC_DIR}/rendering/ClassicRenderer.cpp
+	${SRC_DIR}/rendering/NewRenderer.hpp
+	${SRC_DIR}/rendering/NewRenderer.cpp
 	${SRC_DIR}/rendering/TileObject.hpp
 	${SRC_DIR}/rendering/TileObject.cpp)
 source_group(rendering FILES ${SOURCE_RENDERING_FILES})
@@ -109,13 +111,21 @@ set(SOURCE_SFZ_GUI_TEMP_FILES
 	${SRC_DIR}/sfz/gui/TextItem.cpp)
 source_group(sfz_gui_temp FILES ${SOURCE_SFZ_GUI_TEMP_FILES})
 
+set(SOURCE_SFZ_GL_TEMP_FILES
+	${SRC_DIR}/sfz/gl/Model.hpp
+	${SRC_DIR}/sfz/gl/Model.cpp
+	${SRC_DIR}/sfz/gl/tiny_obj_loader.h
+	${SRC_DIR}/sfz/gl/tiny_obj_loader.cc)
+source_group(sfz_gl_temp FILES ${SOURCE_SFZ_GL_TEMP_FILES})
+
 set(SOURCE_ALL_FILES
 	${SOURCE_BASE_FILES}
 	${SOURCE_GAMELOGIC_FILES}
 	${SOURCE_RENDERING_FILES}
 	${SOURCE_SCREENS_FILES}
 	${SOURCE_SFZ_TEMP_FILES}
-	${SOURCE_SFZ_GUI_TEMP_FILES})
+	${SOURCE_SFZ_GUI_TEMP_FILES}
+	${SOURCE_SFZ_GL_TEMP_FILES})
 
 # Main executable
 add_executable(snakium-cubed ${SOURCE_ALL_FILES})

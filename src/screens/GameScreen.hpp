@@ -9,6 +9,7 @@
 
 #include "rendering/Camera.hpp"
 #include "rendering/ClassicRenderer.hpp"
+#include "rendering/NewRenderer.hpp"
 #include "rendering/TileObject.hpp"
 
 namespace s3 {
@@ -46,6 +47,7 @@ private:
 	Model mModel;
 	Camera mCam;
 	ClassicRenderer mClassicRenderer;
+	NewRenderer mNewRenderer;
 	bool mIsPaused = false;
 };
 

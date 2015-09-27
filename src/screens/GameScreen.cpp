@@ -74,7 +74,8 @@ UpdateOp GameScreen::update(UpdateState& state)
 
 void GameScreen::render(UpdateState& state)
 {
-	mClassicRenderer.render(mModel, mCam, AABB2D{state.window.drawableDimensions()/2.0f, state.window.drawableDimensions()});
+	//mClassicRenderer.render(mModel, mCam, AABB2D{state.window.drawableDimensions()/2.0f, state.window.drawableDimensions()});
+	mNewRenderer.render(mModel, mCam, AABB2D{state.window.drawableDimensions()/2.0f, state.window.drawableDimensions()});
 }
 
 } // namespace s3
