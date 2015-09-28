@@ -27,6 +27,12 @@ static const string& snakeTexturePath() noexcept
 	return SNAKE_TEXTURE_PATH;
 }
 
+static const char* modelPath() noexcept
+{
+	static const string path = assetsPath() + "models/";
+	return path.c_str();
+}
+
 // Assets: Singleton instance
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -175,7 +181,9 @@ Assets::Assets() noexcept
 	SNAKIUM_LOGO_REG{*ATLAS_1024.textureRegion("snakium_ascii_logo_1024x256.png")},
 	SKIPIFZERO_LOGO_REG{*ATLAS_1024.textureRegion("skipifzero_logo_1024x256.png")},
 	SKIPIFZERO_LOGO_SNAKIUM_VER_REG{*ATLAS_1024.textureRegion("skipifzero_snakium_logo_1024x256.png")},
-	COFFER_LOGO_REG{*ATLAS_1024.textureRegion("coffer_logo_1024x256.png")}
+	COFFER_LOGO_REG{*ATLAS_1024.textureRegion("coffer_logo_1024x256.png")},
+
+	BODY_D2U_MODEL{modelPath(), "body_d2u.obj"}
 { }
 
 } // namespace s3

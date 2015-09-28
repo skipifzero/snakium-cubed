@@ -4,6 +4,8 @@
 
 #include <sfz/GL.hpp>
 
+#include <sfz/gl/Model.hpp> // TODO: Temp
+
 namespace s3 {
 
 using gl::Texture;
@@ -110,6 +112,8 @@ public:
 	                  SKIPIFZERO_LOGO_REG,
 	                  SKIPIFZERO_LOGO_SNAKIUM_VER_REG,
 	                  COFFER_LOGO_REG;
+
+	gl::Model BODY_D2U_MODEL;
 
 private:
 	// Private constructors & destructors

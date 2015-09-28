@@ -20,12 +20,12 @@ using tinyobj::material_t;
 // Model: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Model::Model(const char* filePath, const char* materialBasePath) noexcept
+Model::Model(const char* basePath, const char* filename) noexcept
 {
 	vector<shape_t> shapes;
 	vector<material_t> materials;
 
-	string error = tinyobj::LoadObj(shapes, materials, filePath, materialBasePath);
+	string error = tinyobj::LoadObj(shapes, materials, (string(basePath) + filename).c_str(), basePath);
 
 	if (!error.empty()) {
 		std::cerr << error << std::endl;
@@ -62,7 +62,7 @@ Model::Model(const char* filePath, const char* materialBasePath) noexcept
 	glGenVertexArrays(1, &mVAO);
 	glBindVertexArray(mVAO);
 
-	auto& shape = shapes[1];
+	auto& shape = shapes[0];
 
 	// Buffer objects
 	glGenBuffers(1, &mPositionBuffer);

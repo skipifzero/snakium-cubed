@@ -19,7 +19,7 @@ public:
 	Model(const Model&) = delete;
 	Model& operator= (const Model&) = delete;
 	
-	Model(const char* filePath, const char* materialBasePath = nullptr) noexcept;
+	Model(const char* basePath, const char* filename) noexcept;
 	Model(Model&& other) noexcept;
 	Model& operator= (Model&& other) noexcept;
 	~Model() noexcept;

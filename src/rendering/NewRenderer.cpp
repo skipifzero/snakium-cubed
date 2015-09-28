@@ -53,10 +53,12 @@ static gl::Program compileStandardShaderProgram() noexcept
 	});
 }
 
-static const gl::Texture& getTileTexture(SnakeTile *tilePtr, float progress, bool gameOver) noexcept
+static gl::Model& getTileModel(SnakeTile* tilePtr, float progress, bool gameOver) noexcept
 {
 	Assets& assets = Assets::INSTANCE();
-
+	return assets.BODY_D2U_MODEL;
+	
+	/*
 	bool isTurn = s3::isTurn(tilePtr->from(), tilePtr->to());
 
 	switch (tilePtr->type()) {
@@ -115,7 +117,7 @@ static const gl::Texture& getTileTexture(SnakeTile *tilePtr, float progress, boo
 			if (!isTurn) return assets.TAIL_D2U_DIG_F2;
 			else return assets.TAIL_D2R_DIG_F2;
 		}
-	}
+	}*/
 }
 
 static float getTileAngleRad(Direction3D side, Direction2D from) noexcept
@@ -194,9 +196,7 @@ NewRenderer::NewRenderer() noexcept
 	mProgram{s3::compileStandardShaderProgram()},
 	mTile{false, false},
 	mXFlippedTile{true, false}
-{
-	mHeadModel = gl::Model{(sfz::basePath() + "assets/snakehead5.obj").c_str(), (sfz::basePath() + "assets/").c_str()};
-}
+{ }
 
 // NewRenderer: Public methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -247,7 +247,7 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 	const size_t tilesPerSide = model.mCfg.gridWidth*model.mCfg.gridWidth;
 	const float gridWidth = static_cast<float>(model.mCfg.gridWidth);
 	const float tileWidth = 1.0f / gridWidth;
-	const mat4 tileScaling = sfz::scalingMatrix4(tileWidth);
+	const mat4 tileScaling = sfz::scalingMatrix4(tileWidth/16.0f);
 	mat4 transform, tileSpaceRot, tileSpaceRotScaling;
 	vec3 snakeFloatVec;
 	SnakeTile *sidePtr, *tilePtr;
@@ -283,11 +283,10 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 				// Tile Sprite Transform
 				sfz::translation(transform, translation(transform) + snakeFloatVec);
 				gl::setUniform(mProgram, "modelViewProj", viewProj * transform);
-				glBindTexture(GL_TEXTURE_2D,
-					getTileTexture(tilePtr, model.mProgress, model.mGameOver).handle());
+				//glBindTexture(GL_TEXTURE_2D, getTileTexture(tilePtr, model.mProgress, model.mGameOver).handle());
 				//if (isLeftTurn(tilePtr->from(), tilePtr->to())) mXFlippedTile.render();
 				//else mTile.render();
-				mHeadModel.render();
+				getTileModel(tilePtr, model.mProgress, model.mGameOver).render();
 			}
 		} else {
 			for (size_t i = 0; i < tilesPerSide; i++) {
@@ -302,11 +301,10 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 				if (tilePtr->type() != s3::TileType::EMPTY) {
 					sfz::translation(transform, tilePosToVector(model, tilePos) + snakeFloatVec);
 					gl::setUniform(mProgram, "modelViewProj", viewProj * transform);
-					glBindTexture(GL_TEXTURE_2D,
-						getTileTexture(tilePtr, model.mProgress, model.mGameOver).handle());
-					mHeadModel.render();
+					//glBindTexture(GL_TEXTURE_2D, getTileTexture(tilePtr, model.mProgress, model.mGameOver).handle());
 					//if (isLeftTurn(tilePtr->from(), tilePtr->to())) mXFlippedTile.render();
 					//else mTile.render();
+					getTileModel(tilePtr, model.mProgress, model.mGameOver).render();
 				}
 
 				// Render tile face
@@ -333,10 +331,10 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 
 		// Render dead head
 		gl::setUniform(mProgram, "modelViewProj", viewProj * transform);
-		glBindTexture(GL_TEXTURE_2D,
+		/*glBindTexture(GL_TEXTURE_2D,
 			getTileTexture(deadHeadPtr, model.mProgress, model.mGameOver).handle());
 		if (isLeftTurn(deadHeadPtr->from(), deadHeadPtr->to())) mXFlippedTile.render();
-		else mTile.render();
+		else mTile.render();*/
 	}
 
 	gl::FontRenderer& font = assets.fontRenderer;

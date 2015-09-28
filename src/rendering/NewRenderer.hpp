@@ -10,8 +10,6 @@
 #include "rendering/Camera.hpp"
 #include "rendering/TileObject.hpp"
 
-#include <sfz/gl/Model.hpp>
-
 namespace s3 {
 
 using sfz::AABB2D;
@@ -39,8 +37,6 @@ private:
 	gl::Program mProgram;
 	TileObject mTile, mXFlippedTile;
 	mat4 mProjMatrix;
-	
-	gl::Model mHeadModel;
 };
 
 } // namespace s3
