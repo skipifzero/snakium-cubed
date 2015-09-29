@@ -187,9 +187,15 @@ Assets::Assets() noexcept
 	HEAD_D2U_F2_MODEL{modelPath(), "head_d2u_f2.obj"},
 
 	PRE_HEAD_D2U_F1_MODEL{modelPath(), "pre_head_d2u_f1.obj"},
+	PRE_HEAD_D2R_F1_MODEL{modelPath(), "pre_head_d2r_f1.obj"},
 
 	BODY_D2U_MODEL{modelPath(), "body_d2u.obj"},
 	BODY_D2R_MODEL{modelPath(), "body_d2r.obj"},
+
+	TAIL_D2U_F1_MODEL{modelPath(), "tail_d2u_f1.obj"},
+	TAIL_D2U_F2_MODEL{modelPath(), "tail_d2u_f2.obj"},
+	TAIL_D2R_F1_MODEL{modelPath(), "tail_d2r_f1.obj"},
+	TAIL_D2R_F2_MODEL{modelPath(), "tail_d2r_f2.obj"},
 
 	NOT_FOUND_MODEL{modelPath(), "notfound.obj"}
 { }

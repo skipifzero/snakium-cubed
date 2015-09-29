@@ -68,16 +68,25 @@ static gl::Model& getTileModel(SnakeTile* tilePtr, float progress, bool gameOver
 		
 		case TileType::PRE_HEAD:
 			if (frame1) {
-				// if is turn
-				return assets.PRE_HEAD_D2U_F1_MODEL;
+				if (isTurn) return assets.PRE_HEAD_D2R_F1_MODEL;
+				else return assets.PRE_HEAD_D2U_F1_MODEL;
 			} else {
-				// if is turn
-				return assets.BODY_D2U_MODEL;
+				if (isTurn) return assets.BODY_D2R_MODEL;
+				else return assets.BODY_D2U_MODEL;
 			}
 
 		case TileType::BODY:
 			if (isTurn) return assets.BODY_D2R_MODEL;
 			else return assets.BODY_D2U_MODEL;
+
+		case TileType::TAIL:
+			if (frame1) {
+				if (isTurn) return assets.TAIL_D2R_F1_MODEL;
+				else return assets.TAIL_D2U_F1_MODEL;
+			} else {
+				if (isTurn) return assets.TAIL_D2R_F2_MODEL;
+				else return assets.TAIL_D2U_F2_MODEL;
+			}
 	}
 	
 	return assets.NOT_FOUND_MODEL;
