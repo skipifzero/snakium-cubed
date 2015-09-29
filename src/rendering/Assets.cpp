@@ -190,7 +190,9 @@ Assets::Assets() noexcept
 	PRE_HEAD_D2R_F1_MODEL{modelPath(), "pre_head_d2r_f1.obj"},
 
 	BODY_D2U_MODEL{modelPath(), "body_d2u.obj"},
+	BODY_D2U_DIG_MODEL{modelPath(), "body_d2u_dig.obj"},
 	BODY_D2R_MODEL{modelPath(), "body_d2r.obj"},
+	BODY_D2R_DIG_MODEL{modelPath(), "body_d2r_dig.obj"},
 
 	TAIL_D2U_F1_MODEL{modelPath(), "tail_d2u_f1.obj"},
 	TAIL_D2U_F2_MODEL{modelPath(), "tail_d2u_f2.obj"},

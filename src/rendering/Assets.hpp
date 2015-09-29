@@ -120,7 +120,9 @@ public:
 	          PRE_HEAD_D2R_F1_MODEL,
 
 	          BODY_D2U_MODEL,
+	          BODY_D2U_DIG_MODEL,
 	          BODY_D2R_MODEL,
+	          BODY_D2R_DIG_MODEL,
 
 	          TAIL_D2U_F1_MODEL,
 	          TAIL_D2U_F2_MODEL,
