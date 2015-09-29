@@ -183,10 +183,15 @@ Assets::Assets() noexcept
 	SKIPIFZERO_LOGO_SNAKIUM_VER_REG{*ATLAS_1024.textureRegion("skipifzero_snakium_logo_1024x256.png")},
 	COFFER_LOGO_REG{*ATLAS_1024.textureRegion("coffer_logo_1024x256.png")},
 
-
+	HEAD_D2U_F1_MODEL{modelPath(), "head_d2u_f1.obj"},
 	HEAD_D2U_F2_MODEL{modelPath(), "head_d2u_f2.obj"},
 
-	BODY_D2U_MODEL{modelPath(), "body_d2u.obj"}
+	PRE_HEAD_D2U_F1_MODEL{modelPath(), "pre_head_d2u_f1.obj"},
+
+	BODY_D2U_MODEL{modelPath(), "body_d2u.obj"},
+	BODY_D2R_MODEL{modelPath(), "body_d2r.obj"},
+
+	NOT_FOUND_MODEL{modelPath(), "notfound.obj"}
 { }
 
 } // namespace s3

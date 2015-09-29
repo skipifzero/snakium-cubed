@@ -55,10 +55,33 @@ static gl::Program compileStandardShaderProgram() noexcept
 
 static gl::Model& getTileModel(SnakeTile* tilePtr, float progress, bool gameOver) noexcept
 {
+	using s3::TileType;
+
 	Assets& assets = Assets::INSTANCE();
-	if (tilePtr->type() == TileType::HEAD) return assets.HEAD_D2U_F2_MODEL;
-	return assets.BODY_D2U_MODEL;
+	bool frame1 = progress <= 0.5f;
+	bool isTurn = s3::isTurn(tilePtr->from(), tilePtr->to());
+
+	switch (tilePtr->type()) {
+		case TileType::HEAD:
+			if (frame1) return assets.HEAD_D2U_F1_MODEL;
+			else return assets.HEAD_D2U_F2_MODEL;
+		
+		case TileType::PRE_HEAD:
+			if (frame1) {
+				// if is turn
+				return assets.PRE_HEAD_D2U_F1_MODEL;
+			} else {
+				// if is turn
+				return assets.BODY_D2U_MODEL;
+			}
+
+		case TileType::BODY:
+			if (isTurn) return assets.BODY_D2R_MODEL;
+			else return assets.BODY_D2U_MODEL;
+	}
 	
+	return assets.NOT_FOUND_MODEL;
+
 	/*
 	bool isTurn = s3::isTurn(tilePtr->from(), tilePtr->to());
 
@@ -228,16 +251,6 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 
 	glUseProgram(mProgram.handle());
 
-
-
-
-	/*const mat4 viewProj = mProjMatrix * cam.mViewMatrix * sfz::scalingMatrix4(0.25f);
-	gl::setUniform(mProgram, "modelViewProj", viewProj);
-	mHeadModel.render();*/
-
-
-
-
 	const mat4 viewProj = mProjMatrix * cam.mViewMatrix;
 
 	// Only one texture is used when rendering SnakeTiles
@@ -287,6 +300,9 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 				//glBindTexture(GL_TEXTURE_2D, getTileTexture(tilePtr, model.mProgress, model.mGameOver).handle());
 				//if (isLeftTurn(tilePtr->from(), tilePtr->to())) mXFlippedTile.render();
 				//else mTile.render();
+				if (isLeftTurn(tilePtr->from(), tilePtr->to())) {
+					gl::setUniform(mProgram, "modelViewProj", viewProj * transform * sfz::scalingMatrix4(-1.0f, 1.0f, 1.0f));
+				}
 				getTileModel(tilePtr, model.mProgress, model.mGameOver).render();
 			}
 		} else {
@@ -305,6 +321,9 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 					//glBindTexture(GL_TEXTURE_2D, getTileTexture(tilePtr, model.mProgress, model.mGameOver).handle());
 					//if (isLeftTurn(tilePtr->from(), tilePtr->to())) mXFlippedTile.render();
 					//else mTile.render();
+					if (isLeftTurn(tilePtr->from(), tilePtr->to())) {
+						gl::setUniform(mProgram, "modelViewProj", viewProj * transform * sfz::scalingMatrix4(-1.0f, 1.0f, 1.0f));
+					}
 					getTileModel(tilePtr, model.mProgress, model.mGameOver).render();
 				}
 

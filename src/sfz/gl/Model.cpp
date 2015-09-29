@@ -32,7 +32,18 @@ Model::Model(const char* basePath, const char* filename) noexcept
 		return;
 	}
 
-	for (auto& shape : shapes) {
+	// TODO: Temp hack
+	if (shapes.size() > 1) {
+		std::cerr << filename << ": has more than 1 shape.\n";
+		std::terminate();
+	}
+	if (shapes[0].mesh.texcoords.size() > 0) {
+		std::cerr << filename << ": has uv coords\n";
+		std::terminate();
+	}
+
+
+	/*for (auto& shape : shapes) {
 
 		std::cout << "Positions:\n";
 		for (size_t i = 0; i < shape.mesh.positions.size(); i += 3) {
@@ -56,7 +67,7 @@ Model::Model(const char* basePath, const char* filename) noexcept
 		for (size_t i = 0; i < shape.mesh.indices.size(); ++i) {
 			std::cout << "[" << i << "]: " << shape.mesh.indices[i] << "\n";
 		}
-	}
+	}*/
 
 	// Creates Vertex Array Object
 	glGenVertexArrays(1, &mVAO);
