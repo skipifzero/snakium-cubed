@@ -68,8 +68,8 @@ static gl::Model& getTileModel(SnakeTile* tilePtr, float progress, bool gameOver
 		
 		case TileType::PRE_HEAD:
 			if (frame1) {
-				if (isTurn) return assets.PRE_HEAD_D2R_F1_MODEL;
-				else return assets.PRE_HEAD_D2U_F1_MODEL;
+				if (isTurn) return (!gameOver) ? assets.PRE_HEAD_D2R_F1_MODEL : assets.DEAD_PRE_HEAD_D2R_F1_MODEL;
+				else return (!gameOver) ? assets.PRE_HEAD_D2U_F1_MODEL : assets.DEAD_PRE_HEAD_D2U_F1_MODEL;
 			} else {
 				if (isTurn) return assets.BODY_D2R_MODEL;
 				else return assets.BODY_D2U_MODEL;
@@ -88,9 +88,31 @@ static gl::Model& getTileModel(SnakeTile* tilePtr, float progress, bool gameOver
 				else return assets.TAIL_D2U_F2_MODEL;
 			}
 
+		case TileType::HEAD_DIGESTING:
+			if (frame1) return assets.HEAD_D2U_F1_MODEL;
+			else return assets.HEAD_D2U_F2_MODEL;
+
+		case TileType::PRE_HEAD_DIGESTING:
+			if (frame1) {
+				if (isTurn) return (!gameOver) ? assets.PRE_HEAD_D2R_DIG_F1_MODEL : assets.DEAD_PRE_HEAD_D2R_DIG_F1_MODEL;
+				else return (!gameOver) ? assets.PRE_HEAD_D2U_DIG_F1_MODEL : assets.DEAD_PRE_HEAD_D2U_DIG_F1_MODEL;
+			} else {
+				if (isTurn) return assets.BODY_D2R_DIG_MODEL;
+				else return assets.BODY_D2U_DIG_MODEL;
+			}
+
 		case TileType::BODY_DIGESTING:
 			if (isTurn) return assets.BODY_D2R_DIG_MODEL;
 			else return assets.BODY_D2U_DIG_MODEL;
+
+		case TileType::TAIL_DIGESTING:
+			if (frame1) {
+				if (isTurn) return assets.TAIL_D2R_DIG_F1_MODEL;
+				else return assets.TAIL_D2U_DIG_F1_MODEL;
+			} else {
+				if (isTurn) return assets.TAIL_D2R_DIG_F2_MODEL;
+				else return assets.TAIL_D2U_DIG_F2_MODEL;
+			}
 	}
 	
 	return assets.NOT_FOUND_MODEL;
@@ -364,6 +386,12 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 
 		// Render dead head
 		gl::setUniform(mProgram, "modelViewProj", viewProj * transform);
+		if (isLeftTurn(deadHeadPtr->from(), deadHeadPtr->to())) {
+			gl::setUniform(mProgram, "modelViewProj", viewProj * transform * sfz::scalingMatrix4(-1.0f, 1.0f, 1.0f));
+		}
+		getTileModel(deadHeadPtr, model.mProgress, model.mGameOver).render();
+
+		//gl::setUniform(mProgram, "modelViewProj", viewProj * transform);
 		/*glBindTexture(GL_TEXTURE_2D,
 			getTileTexture(deadHeadPtr, model.mProgress, model.mGameOver).handle());
 		if (isLeftTurn(deadHeadPtr->from(), deadHeadPtr->to())) mXFlippedTile.render();
