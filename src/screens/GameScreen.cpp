@@ -55,6 +55,10 @@ UpdateOp GameScreen::update(UpdateState& state)
 			break;
 		case SDL_KEYUP:
 			switch (event.key.keysym.sym) {
+			case 'r':
+			case 'R':
+				mUseNewRenderer = !mUseNewRenderer;
+				break;
 			case SDLK_ESCAPE:
 				return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 				          std::shared_ptr<sfz::BaseScreen>{new MainMenuScreen{}}};
@@ -74,8 +78,11 @@ UpdateOp GameScreen::update(UpdateState& state)
 
 void GameScreen::render(UpdateState& state)
 {
-	//mClassicRenderer.render(mModel, mCam, AABB2D{state.window.drawableDimensions()/2.0f, state.window.drawableDimensions()});
-	mNewRenderer.render(mModel, mCam, AABB2D{state.window.drawableDimensions()/2.0f, state.window.drawableDimensions()});
+	if (mUseNewRenderer) {
+		mNewRenderer.render(mModel, mCam, AABB2D{state.window.drawableDimensions()/2.0f, state.window.drawableDimensions()});
+	} else {
+		mClassicRenderer.render(mModel, mCam, AABB2D{state.window.drawableDimensions()/2.0f, state.window.drawableDimensions()});
+	}
 }
 
 } // namespace s3

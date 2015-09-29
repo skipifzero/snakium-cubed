@@ -48,6 +48,7 @@ private:
 	Camera mCam;
 	ClassicRenderer mClassicRenderer;
 	NewRenderer mNewRenderer;
+	bool mUseNewRenderer = true;
 	bool mIsPaused = false;
 };
 
