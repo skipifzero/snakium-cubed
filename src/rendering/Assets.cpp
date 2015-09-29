@@ -183,6 +183,9 @@ Assets::Assets() noexcept
 	SKIPIFZERO_LOGO_SNAKIUM_VER_REG{*ATLAS_1024.textureRegion("skipifzero_snakium_logo_1024x256.png")},
 	COFFER_LOGO_REG{*ATLAS_1024.textureRegion("coffer_logo_1024x256.png")},
 
+
+	HEAD_D2U_F2_MODEL{modelPath(), "head_d2u_f2.obj"},
+
 	BODY_D2U_MODEL{modelPath(), "body_d2u.obj"}
 { }
 

@@ -56,6 +56,7 @@ static gl::Program compileStandardShaderProgram() noexcept
 static gl::Model& getTileModel(SnakeTile* tilePtr, float progress, bool gameOver) noexcept
 {
 	Assets& assets = Assets::INSTANCE();
+	if (tilePtr->type() == TileType::HEAD) return assets.HEAD_D2U_F2_MODEL;
 	return assets.BODY_D2U_MODEL;
 	
 	/*

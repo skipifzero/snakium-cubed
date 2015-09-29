@@ -113,7 +113,9 @@ public:
 	                  SKIPIFZERO_LOGO_SNAKIUM_VER_REG,
 	                  COFFER_LOGO_REG;
 
-	gl::Model BODY_D2U_MODEL;
+	gl::Model HEAD_D2U_F2_MODEL,
+
+	          BODY_D2U_MODEL;
 
 private:
 	// Private constructors & destructors
