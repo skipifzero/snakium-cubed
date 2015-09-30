@@ -190,16 +190,22 @@ Assets::Assets() noexcept
 	PRE_HEAD_D2U_DIG_F1_MODEL{modelPath(), "pre_head_d2u_dig_f1.obj", true, false},
 	PRE_HEAD_D2R_F1_MODEL{modelPath(), "pre_head_d2r_f1.obj", true, false},
 	PRE_HEAD_D2R_DIG_F1_MODEL{modelPath(), "pre_head_d2r_dig_f1.obj", true, false},
+	PRE_HEAD_D2L_F1_MODEL{modelPath(), "pre_head_d2l_f1.obj", true, false},
+	PRE_HEAD_D2L_DIG_F1_MODEL{modelPath(), "pre_head_d2l_dig_f1.obj", true, false},
 
 	DEAD_PRE_HEAD_D2U_F1_MODEL{modelPath(), "dead_pre_head_d2u_f1.obj", true, false},
 	DEAD_PRE_HEAD_D2U_DIG_F1_MODEL{modelPath(), "dead_pre_head_d2u_dig_f1.obj", true, false},
 	DEAD_PRE_HEAD_D2R_F1_MODEL{modelPath(), "dead_pre_head_d2r_f1.obj", true, false},
 	DEAD_PRE_HEAD_D2R_DIG_F1_MODEL{modelPath(), "dead_pre_head_d2r_dig_f1.obj", true, false},
+	DEAD_PRE_HEAD_D2L_F1_MODEL{modelPath(), "dead_pre_head_d2l_f1.obj", true, false},
+	DEAD_PRE_HEAD_D2L_DIG_F1_MODEL{modelPath(), "dead_pre_head_d2l_dig_f1.obj", true, false},
 
 	BODY_D2U_MODEL{modelPath(), "body_d2u.obj", true, false},
 	BODY_D2U_DIG_MODEL{modelPath(), "body_d2u_dig.obj", true, false},
 	BODY_D2R_MODEL{modelPath(), "body_d2r.obj", true, false},
 	BODY_D2R_DIG_MODEL{modelPath(), "body_d2r_dig.obj", true, false},
+	BODY_D2L_MODEL{modelPath(), "body_d2l.obj", true, false},
+	BODY_D2L_DIG_MODEL{modelPath(), "body_d2l_dig.obj", true, false},
 
 	TAIL_D2U_F1_MODEL{modelPath(), "tail_d2u_f1.obj", true, false},
 	TAIL_D2U_DIG_F1_MODEL{modelPath(), "tail_d2u_dig_f1.obj", true, false},
@@ -209,6 +215,10 @@ Assets::Assets() noexcept
 	TAIL_D2R_DIG_F1_MODEL{modelPath(), "tail_d2r_dig_f1.obj", true, false},
 	TAIL_D2R_F2_MODEL{modelPath(), "tail_d2r_f2.obj", true, false},
 	TAIL_D2R_DIG_F2_MODEL{modelPath(), "tail_d2r_dig_f2.obj", true, false},
+	TAIL_D2L_F1_MODEL{modelPath(), "tail_d2l_f1.obj", true, false},
+	TAIL_D2L_DIG_F1_MODEL{modelPath(), "tail_d2l_dig_f1.obj", true, false},
+	TAIL_D2L_F2_MODEL{modelPath(), "tail_d2l_f2.obj", true, false},
+	TAIL_D2L_DIG_F2_MODEL{modelPath(), "tail_d2l_dig_f2.obj", true, false},
 
 	NOT_FOUND_MODEL{modelPath(), "notfound.obj", true, false}
 { }

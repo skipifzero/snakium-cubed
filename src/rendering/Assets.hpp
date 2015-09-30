@@ -120,16 +120,22 @@ public:
 	          PRE_HEAD_D2U_DIG_F1_MODEL,
 	          PRE_HEAD_D2R_F1_MODEL,
 	          PRE_HEAD_D2R_DIG_F1_MODEL,
+	          PRE_HEAD_D2L_F1_MODEL,
+	          PRE_HEAD_D2L_DIG_F1_MODEL,
 
 	          DEAD_PRE_HEAD_D2U_F1_MODEL,
 	          DEAD_PRE_HEAD_D2U_DIG_F1_MODEL,
 	          DEAD_PRE_HEAD_D2R_F1_MODEL,
 	          DEAD_PRE_HEAD_D2R_DIG_F1_MODEL,
+	          DEAD_PRE_HEAD_D2L_F1_MODEL,
+	          DEAD_PRE_HEAD_D2L_DIG_F1_MODEL,
 
 	          BODY_D2U_MODEL,
 	          BODY_D2U_DIG_MODEL,
 	          BODY_D2R_MODEL,
 	          BODY_D2R_DIG_MODEL,
+	          BODY_D2L_MODEL,
+	          BODY_D2L_DIG_MODEL,
 
 	          TAIL_D2U_F1_MODEL,
 	          TAIL_D2U_DIG_F1_MODEL,
@@ -139,6 +145,11 @@ public:
 	          TAIL_D2R_DIG_F1_MODEL,
 	          TAIL_D2R_F2_MODEL,
 	          TAIL_D2R_DIG_F2_MODEL,
+	          TAIL_D2L_F1_MODEL,
+	          TAIL_D2L_DIG_F1_MODEL,
+	          TAIL_D2L_F2_MODEL,
+	          TAIL_D2L_DIG_F2_MODEL,
+
 
 	          NOT_FOUND_MODEL;
 

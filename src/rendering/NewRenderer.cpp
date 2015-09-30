@@ -30,67 +30,76 @@ static gl::Program compileStandardShaderProgram() noexcept
 
 static gl::Model& getTileModel(SnakeTile* tilePtr, float progress, bool gameOver) noexcept
 {
-	using s3::TileType;
-
-	Assets& assets = Assets::INSTANCE();
-	bool frame1 = progress <= 0.5f;
-	bool isTurn = s3::isTurn(tilePtr->from(), tilePtr->to());
+	Assets& a = Assets::INSTANCE();
+	const bool rightTurn = isRightTurn(tilePtr->from(), tilePtr->to());
+	const bool leftTurn = isLeftTurn(tilePtr->from(), tilePtr->to());
+	const bool frame1 = progress <= 0.5f;
 
 	switch (tilePtr->type()) {
 		case TileType::HEAD:
-			if (frame1) return assets.HEAD_D2U_F1_MODEL;
-			else return assets.HEAD_D2U_F2_MODEL;
+			if (frame1) return a.HEAD_D2U_F1_MODEL;
+			else return a.HEAD_D2U_F2_MODEL;
 		
 		case TileType::PRE_HEAD:
 			if (frame1) {
-				if (isTurn) return (!gameOver) ? assets.PRE_HEAD_D2R_F1_MODEL : assets.DEAD_PRE_HEAD_D2R_F1_MODEL;
-				else return (!gameOver) ? assets.PRE_HEAD_D2U_F1_MODEL : assets.DEAD_PRE_HEAD_D2U_F1_MODEL;
+				if (rightTurn) return (!gameOver) ? a.PRE_HEAD_D2R_F1_MODEL : a.DEAD_PRE_HEAD_D2R_F1_MODEL;
+				else if (leftTurn) return (!gameOver) ? a.PRE_HEAD_D2L_F1_MODEL : a.DEAD_PRE_HEAD_D2L_F1_MODEL;
+				else return (!gameOver) ? a.PRE_HEAD_D2U_F1_MODEL : a.DEAD_PRE_HEAD_D2U_F1_MODEL;
 			} else {
-				if (isTurn) return assets.BODY_D2R_MODEL;
-				else return assets.BODY_D2U_MODEL;
+				if (rightTurn) return a.BODY_D2R_MODEL;
+				else if (leftTurn) return a.BODY_D2L_MODEL;
+				else return a.BODY_D2U_MODEL;
 			}
 
 		case TileType::BODY:
-			if (isTurn) return assets.BODY_D2R_MODEL;
-			else return assets.BODY_D2U_MODEL;
+			if (rightTurn) return a.BODY_D2R_MODEL;
+			else if (leftTurn) return a.BODY_D2L_MODEL;
+			else return a.BODY_D2U_MODEL;
 
 		case TileType::TAIL:
 			if (frame1) {
-				if (isTurn) return assets.TAIL_D2R_F1_MODEL;
-				else return assets.TAIL_D2U_F1_MODEL;
+				if (rightTurn) return a.TAIL_D2R_F1_MODEL;
+				else if (leftTurn) return a.TAIL_D2L_F1_MODEL;
+				else return a.TAIL_D2U_F1_MODEL;
 			} else {
-				if (isTurn) return assets.TAIL_D2R_F2_MODEL;
-				else return assets.TAIL_D2U_F2_MODEL;
+				if (rightTurn) return a.TAIL_D2R_F2_MODEL;
+				else if (leftTurn) return a.TAIL_D2L_F2_MODEL;
+				else return a.TAIL_D2U_F2_MODEL;
 			}
 
 		case TileType::HEAD_DIGESTING:
-			if (frame1) return assets.HEAD_D2U_F1_MODEL;
-			else return assets.HEAD_D2U_F2_MODEL;
+			if (frame1) return a.HEAD_D2U_F1_MODEL;
+			else return a.HEAD_D2U_F2_MODEL;
 
 		case TileType::PRE_HEAD_DIGESTING:
 			if (frame1) {
-				if (isTurn) return (!gameOver) ? assets.PRE_HEAD_D2R_DIG_F1_MODEL : assets.DEAD_PRE_HEAD_D2R_DIG_F1_MODEL;
-				else return (!gameOver) ? assets.PRE_HEAD_D2U_DIG_F1_MODEL : assets.DEAD_PRE_HEAD_D2U_DIG_F1_MODEL;
+				if (rightTurn) return (!gameOver) ? a.PRE_HEAD_D2R_DIG_F1_MODEL : a.DEAD_PRE_HEAD_D2R_DIG_F1_MODEL;
+				else if (leftTurn) return (!gameOver) ? a.PRE_HEAD_D2L_DIG_F1_MODEL : a.DEAD_PRE_HEAD_D2L_DIG_F1_MODEL;
+				else return (!gameOver) ? a.PRE_HEAD_D2U_DIG_F1_MODEL : a.DEAD_PRE_HEAD_D2U_DIG_F1_MODEL;
 			} else {
-				if (isTurn) return assets.BODY_D2R_DIG_MODEL;
-				else return assets.BODY_D2U_DIG_MODEL;
+				if (rightTurn) return a.BODY_D2R_DIG_MODEL;
+				else if (leftTurn) return a.BODY_D2L_DIG_MODEL;
+				else return a.BODY_D2U_DIG_MODEL;
 			}
 
 		case TileType::BODY_DIGESTING:
-			if (isTurn) return assets.BODY_D2R_DIG_MODEL;
-			else return assets.BODY_D2U_DIG_MODEL;
+			if (rightTurn) return a.BODY_D2R_DIG_MODEL;
+			else if (leftTurn) return a.BODY_D2L_DIG_MODEL;
+			else return a.BODY_D2U_DIG_MODEL;
 
 		case TileType::TAIL_DIGESTING:
 			if (frame1) {
-				if (isTurn) return assets.TAIL_D2R_DIG_F1_MODEL;
-				else return assets.TAIL_D2U_DIG_F1_MODEL;
+				if (rightTurn) return a.TAIL_D2R_DIG_F1_MODEL;
+				else if (leftTurn) return a.TAIL_D2L_DIG_F1_MODEL;
+				else return a.TAIL_D2U_DIG_F1_MODEL;
 			} else {
-				if (isTurn) return assets.TAIL_D2R_DIG_F2_MODEL;
-				else return assets.TAIL_D2U_DIG_F2_MODEL;
+				if (rightTurn) return a.TAIL_D2R_DIG_F2_MODEL;
+				if (leftTurn) return a.TAIL_D2L_DIG_F2_MODEL;
+				else return a.TAIL_D2U_DIG_F2_MODEL;
 			}
 	}
 	
-	return assets.NOT_FOUND_MODEL;
+	return a.NOT_FOUND_MODEL;
 
 	/*
 	bool isTurn = s3::isTurn(tilePtr->from(), tilePtr->to());
@@ -289,9 +298,6 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 				mat4 transform = tileSpaceRotScaling;
 				transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
 				sfz::translation(transform, tilePosToVector(model, tilePos));
-				if (isLeftTurn(tilePtr->from(), tilePtr->to())) {
-					transform *= sfz::scalingMatrix4(-1.0f, 1.0f, 1.0f);
-				}
 
 				// Set uniforms
 				const mat4 modelViewMatrix = viewMatrix * transform;
