@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <new>
 #include <string>
 #include <vector>
 
@@ -20,7 +21,8 @@ using tinyobj::material_t;
 // Model: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Model::Model(const char* basePath, const char* filename) noexcept
+Model::Model(const char* basePath, const char* filename, bool requireNormals,
+             bool requireUVs) noexcept
 {
 	vector<shape_t> shapes;
 	vector<material_t> materials;
@@ -32,113 +34,96 @@ Model::Model(const char* basePath, const char* filename) noexcept
 		return;
 	}
 
-	// TODO: Temp hack
-	if (shapes.size() > 1) {
-		std::cerr << filename << ": has more than 1 shape.\n";
-		std::terminate();
+	// Make sure shapes has required properties
+	if (shapes.size() == 0) {
+		std::cerr << "Model \"" << filename << "\" has no shapes\n";
+		return;
 	}
-	if (shapes[0].mesh.texcoords.size() > 0) {
-		std::cerr << filename << ": has uv coords\n";
-		std::terminate();
-	}
-
-
-	/*for (auto& shape : shapes) {
-
-		std::cout << "Positions:\n";
-		for (size_t i = 0; i < shape.mesh.positions.size(); i += 3) {
-			std::cout << "[" << (i/3) << "]: {" << shape.mesh.positions[i] << ", "
-			          << shape.mesh.positions[i+1] << ", " << shape.mesh.positions[i+2] << "}\n";
+	if (requireNormals) {
+		for (size_t i = 0; i < shapes.size(); ++i) {
+			if (shapes[i].mesh.normals.size() == 0) {
+				std::cerr << "Model \"" << filename << "\" shape " << i << " has no normals\n";
+				return;
+			}
 		}
+	}
+	if (requireUVs) {
+		for (size_t i = 0; i < shapes.size(); ++i) {
+			if (shapes[i].mesh.texcoords.size() == 0) {
+				std::cerr << "Model \"" << filename << "\" shape " << i << " has no UV coords\n";
+				return;
+			}
+		}
+	}
+
+	mVAORenderingInfos = unique_ptr<VAORenderingInfo[]>{new (std::nothrow) VAORenderingInfo[shapes.size()]};
+	mVAOBufferInfos = unique_ptr<VAOBufferInfo[]>{new (std::nothrow) VAOBufferInfo[shapes.size()]};
+
+	for (size_t i = 0; i < shapes.size(); ++i) {
+		auto& shape = shapes[i];
+		auto& renderingInfo = mVAORenderingInfos[i];
+		auto& bufferInfo = mVAOBufferInfos[i];
+
+		// Creates Vertex Array Object
+		glGenVertexArrays(1, &renderingInfo.vao);
+		glBindVertexArray(renderingInfo.vao);
+
+		// Buffer objects
+		glGenBuffers(1, &bufferInfo.positionBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.positionBuffer);
+		glBufferData(GL_ARRAY_BUFFER, shape.mesh.positions.size()*sizeof(float), shape.mesh.positions.data(), GL_STATIC_DRAW);
+
+		glGenBuffers(1, &bufferInfo.normalBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.normalBuffer);
+		glBufferData(GL_ARRAY_BUFFER, shape.mesh.normals.size()*sizeof(float), shape.mesh.normals.data(), GL_STATIC_DRAW);
+
+		glGenBuffers(1, &bufferInfo.uvBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.uvBuffer);
+		glBufferData(GL_ARRAY_BUFFER, shape.mesh.texcoords.size()*sizeof(float), shape.mesh.texcoords.data(), GL_STATIC_DRAW);
+
+		glGenBuffers(1, &renderingInfo.indexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, renderingInfo.indexBuffer);
+		glBufferData(GL_ARRAY_BUFFER, shape.mesh.indices.size()*sizeof(unsigned int), shape.mesh.indices.data(), GL_STATIC_DRAW);
+		renderingInfo.numIndices = shape.mesh.indices.size();
+
+		glGenBuffers(1, &bufferInfo.materialIDBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.materialIDBuffer);
+		glBufferData(GL_ARRAY_BUFFER, shape.mesh.material_ids.size()*sizeof(int), shape.mesh.material_ids.data(), GL_STATIC_DRAW);
 		
-		std::cout << "\nNormals:\n";
-		for (size_t i = 0; i < shape.mesh.normals.size(); i += 3) {
-			std::cout << "[" << (i/3) << "]: {" << shape.mesh.normals[i] << ", "
-			          << shape.mesh.normals[i+1] << ", " << shape.mesh.normals[i+2] << "}\n";
-		}
+		// Bind buffers to VAO
+		glBindVertexArray(renderingInfo.vao);
 
-		std::cout << "\nTexCoords:\n";
-		for (size_t i = 0; i < shape.mesh.texcoords.size(); i += 2) {
-			std::cout << "[" << (i/2) << "]: {" << shape.mesh.texcoords[i] << ", "
-			          << shape.mesh.texcoords[i+1] << "}\n";
-		}
+		glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.positionBuffer);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(0);
 
-		std::cout << "\nIndices:\n";
-		for (size_t i = 0; i < shape.mesh.indices.size(); ++i) {
-			std::cout << "[" << i << "]: " << shape.mesh.indices[i] << "\n";
-		}
-	}*/
+		glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.normalBuffer);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(1);
 
-	// Creates Vertex Array Object
-	glGenVertexArrays(1, &mVAO);
-	glBindVertexArray(mVAO);
+		glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.uvBuffer);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(2);
 
-	auto& shape = shapes[0];
+		glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.materialIDBuffer);
+		glVertexAttribPointer(3, 1, GL_INT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(3);
+	}
 
-	// Buffer objects
-	glGenBuffers(1, &mPositionBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, mPositionBuffer);
-	glBufferData(GL_ARRAY_BUFFER, shape.mesh.positions.size()*sizeof(float), shape.mesh.positions.data(), GL_STATIC_DRAW);
-
-	glGenBuffers(1, &mNormalBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, mNormalBuffer);
-	glBufferData(GL_ARRAY_BUFFER, shape.mesh.normals.size()*sizeof(float), shape.mesh.normals.data(), GL_STATIC_DRAW);
-
-	glGenBuffers(1, &mUVBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, mUVBuffer);
-	glBufferData(GL_ARRAY_BUFFER, shape.mesh.texcoords.size()*sizeof(float), shape.mesh.texcoords.data(), GL_STATIC_DRAW);
-
-	glGenBuffers(1, &mIndexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, mIndexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, shape.mesh.indices.size()*sizeof(unsigned int), shape.mesh.indices.data(), GL_STATIC_DRAW);
-	mNumIndices = shape.mesh.indices.size();
-
-	// Bind buffers to VAO
-	glBindVertexArray(mVAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, mPositionBuffer);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, mNormalBuffer);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(1);
-
-	glBindBuffer(GL_ARRAY_BUFFER, mUVBuffer);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(2);
+	mNumVAOs = shapes.size();
 }
 
 Model::Model(Model&& other) noexcept
 {
-	std::swap(this->mVAO, other.mVAO);
-	std::swap(this->mPositionBuffer, other.mPositionBuffer);
-	std::swap(this->mNormalBuffer, other.mNormalBuffer);
-	std::swap(this->mUVBuffer, other.mUVBuffer);
-	std::swap(this->mIndexBuffer, other.mIndexBuffer);
-	std::swap(this->mNumIndices, other.mNumIndices);
+	std::swap(this->mVAORenderingInfos, other.mVAORenderingInfos);
+	std::swap(this->mVAOBufferInfos, other.mVAOBufferInfos);
 }
 
 Model& Model::operator= (Model&& other) noexcept
 {
-	std::swap(this->mVAO, other.mVAO);
-	std::swap(this->mPositionBuffer, other.mPositionBuffer);
-	std::swap(this->mNormalBuffer, other.mNormalBuffer);
-	std::swap(this->mUVBuffer, other.mUVBuffer);
-	std::swap(this->mIndexBuffer, other.mIndexBuffer);
-	std::swap(this->mNumIndices, other.mNumIndices);
+	std::swap(this->mVAORenderingInfos, other.mVAORenderingInfos);
+	std::swap(this->mVAOBufferInfos, other.mVAOBufferInfos);
 	return *this;
-}
-
-Model::~Model() noexcept
-{
-	// Silently ignores values == 0
-	glDeleteBuffers(1, &mPositionBuffer);
-	glDeleteBuffers(1, &mNormalBuffer);
-	glDeleteBuffers(1, &mUVBuffer);
-	glDeleteBuffers(1, &mIndexBuffer);
-	glDeleteVertexArrays(1, &mVAO);
-
 }
 
 // Model: Public methods
@@ -146,9 +131,64 @@ Model::~Model() noexcept
 
 void Model::render() noexcept
 {
-	glBindVertexArray(mVAO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexBuffer);
-	glDrawElements(GL_TRIANGLES, mNumIndices, GL_UNSIGNED_INT, 0);
+	for (size_t i = 0; i < mNumVAOs; ++i) {
+		const VAORenderingInfo& info = mVAORenderingInfos[i];
+		glBindVertexArray(info.vao);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, info.indexBuffer);
+		glDrawElements(GL_TRIANGLES, info.numIndices, GL_UNSIGNED_INT, 0);
+	}
+}
+
+// Model: Private classes
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+Model::VAORenderingInfo::VAORenderingInfo(VAORenderingInfo&& other) noexcept
+{
+	std::swap(this->vao, other.vao);
+	std::swap(this->indexBuffer, other.indexBuffer);
+	std::swap(this->numIndices, other.numIndices);
+}
+
+Model::VAORenderingInfo& Model::VAORenderingInfo::operator= (VAORenderingInfo&& other) noexcept
+{
+	std::swap(this->vao, other.vao);
+	std::swap(this->indexBuffer, other.indexBuffer);
+	std::swap(this->numIndices, other.numIndices);
+	return *this;
+}
+
+Model::VAORenderingInfo::~VAORenderingInfo() noexcept
+{
+	// Silently ignores values == 0.
+	glDeleteBuffers(1, &indexBuffer);
+	glDeleteVertexArrays(1, &vao);
+}
+
+
+Model::VAOBufferInfo::VAOBufferInfo(VAOBufferInfo&& other) noexcept
+{
+	std::swap(this->positionBuffer, other.positionBuffer);
+	std::swap(this->normalBuffer, other.normalBuffer);
+	std::swap(this->uvBuffer, other.uvBuffer);
+	std::swap(this->materialIDBuffer, other.materialIDBuffer);
+}
+
+Model::VAOBufferInfo& Model::VAOBufferInfo::operator= (VAOBufferInfo&& other) noexcept
+{
+	std::swap(this->positionBuffer, other.positionBuffer);
+	std::swap(this->normalBuffer, other.normalBuffer);
+	std::swap(this->uvBuffer, other.uvBuffer);
+	std::swap(this->materialIDBuffer, other.materialIDBuffer);
+	return *this;
+}
+
+Model::VAOBufferInfo::~VAOBufferInfo() noexcept
+{
+	// Silently ignores values == 0
+	glDeleteBuffers(1, &positionBuffer);
+	glDeleteBuffers(1, &normalBuffer);
+	glDeleteBuffers(1, &uvBuffer);
+	glDeleteBuffers(1, &materialIDBuffer);
 }
 
 } // namespace gl

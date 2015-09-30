@@ -20,35 +20,34 @@ static gl::Program compileStandardShaderProgram() noexcept
 	return gl::Program::fromSource(R"(
 		#version 330
 
-		in vec3 position;
-		in vec2 texCoordIn;
-
-		out vec2 texCoord;
+		in vec3 inPosition;
+		in vec3 inNormal;
+		in int inMaterialID;
 
 		uniform mat4 modelViewProj;
 
 		void main()
 		{
-			gl_Position = modelViewProj * vec4(position, 1);
-			texCoord = texCoordIn;
+			gl_Position = modelViewProj * vec4(inPosition, 1);
 		}
 	)", R"(
 		#version 330
 
 		precision highp float; // required by GLSL spec Sect 4.5.3
 
-		in vec2 texCoord;
 		uniform sampler2D tex;
 		
 		out vec4 fragmentColor;
 
 		void main()
 		{
-			fragmentColor = vec4(1.0, 0.0, 0.0, 1.0);//texture(tex, texCoord.xy);
+			fragmentColor = vec4(1.0, 0.0, 0.0, 1.0);
 		}
 	)", [](uint32_t shaderProgram) {
-		glBindAttribLocation(shaderProgram, 0, "position");
-		glBindAttribLocation(shaderProgram, 1, "texCoordIn");
+		glBindAttribLocation(shaderProgram, 0, "inPosition");
+		glBindAttribLocation(shaderProgram, 1, "inNormal");
+		//glBindAttribLocation(shaderProgram, 2, "inUV"); // Not available for snakium models
+		glBindAttribLocation(shaderProgram, 3, "inMaterialID");
 		glBindFragDataLocation(shaderProgram, 0, "fragmentColor");
 	});
 }
