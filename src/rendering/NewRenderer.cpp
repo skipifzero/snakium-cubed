@@ -17,33 +17,9 @@ using sfz::vec4;
 
 static gl::Program compileStandardShaderProgram() noexcept
 {
-	return gl::Program::fromSource(R"(
-		#version 330
-
-		in vec3 inPosition;
-		in vec3 inNormal;
-		in int inMaterialID;
-
-		uniform mat4 modelViewProj;
-
-		void main()
-		{
-			gl_Position = modelViewProj * vec4(inPosition, 1);
-		}
-	)", R"(
-		#version 330
-
-		precision highp float; // required by GLSL spec Sect 4.5.3
-
-		uniform sampler2D tex;
-		
-		out vec4 fragmentColor;
-
-		void main()
-		{
-			fragmentColor = vec4(1.0, 0.0, 0.0, 1.0);
-		}
-	)", [](uint32_t shaderProgram) {
+	return gl::Program::fromFile((sfz::basePath() + "assets/shaders/shader.vert").c_str(),
+	                             (sfz::basePath() + "assets/shaders/shader.frag").c_str(),
+	                             [](uint32_t shaderProgram) {
 		glBindAttribLocation(shaderProgram, 0, "inPosition");
 		glBindAttribLocation(shaderProgram, 1, "inNormal");
 		//glBindAttribLocation(shaderProgram, 2, "inUV"); // Not available for snakium models
@@ -251,9 +227,7 @@ static mat4 tileSpaceRotation(Direction3D side) noexcept
 
 NewRenderer::NewRenderer() noexcept
 :
-	mProgram{s3::compileStandardShaderProgram()},
-	mTile{false, false},
-	mXFlippedTile{true, false}
+	mProgram{s3::compileStandardShaderProgram()}
 { }
 
 // NewRenderer: Public methods
@@ -262,6 +236,8 @@ NewRenderer::NewRenderer() noexcept
 void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& viewport) noexcept
 {
 	Assets& assets = Assets::INSTANCE();
+
+	mProgram.reload();
 
 	float aspect = viewport.width() / viewport.height();
 	mProjMatrix = sfz::glPerspectiveProjectionMatrix(cam.mFov, aspect, 0.1f, 50.0f);
@@ -278,50 +254,58 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	// Disable culling
-	glDisable(GL_CULL_FACE);
+	// Enable culling
+	glEnable(GL_CULL_FACE);
 
 	glViewport(viewport.min.x, viewport.min.y, viewport.width(), viewport.height());
 
 	glUseProgram(mProgram.handle());
 
-	const mat4 viewProj = mProjMatrix * cam.mViewMatrix;
-
-	// Only one texture is used when rendering SnakeTiles
-	gl::setUniform(mProgram, "tex", 0);
-	glActiveTexture(GL_TEXTURE0);
-
+	const mat4 viewMatrix = cam.mViewMatrix;
+	gl::setUniform(mProgram, "uProjMatrix", mProjMatrix);
+	
 	// Render all SnakeTiles
 	const size_t tilesPerSide = model.mCfg.gridWidth*model.mCfg.gridWidth;
-	const float gridWidth = static_cast<float>(model.mCfg.gridWidth);
-	const float tileWidth = 1.0f / gridWidth;
-	const mat4 tileScaling = sfz::scalingMatrix4(tileWidth/16.0f);
-	mat4 transform, tileSpaceRot, tileSpaceRotScaling;
-	vec3 snakeFloatVec;
-	SnakeTile *sidePtr, *tilePtr;
-	Position tilePos;
-	Direction3D currentSide;
+	const mat4 tileScaling = sfz::scalingMatrix4(1.0f / (16.0f * (float)model.mCfg.gridWidth));
+	//vec3 snakeFloatVec;
 
 	for (size_t side = 0; side < 6; side++) {
-		currentSide = cam.mSideRenderOrder[side];
-		sidePtr = model.getTilePtr(Position{currentSide, 0, 0});
+		Direction3D currentSide = cam.mSideRenderOrder[side];
+		SnakeTile* sidePtr = model.getTilePtr(Position{currentSide, 0, 0});
 
-		tileSpaceRot = tileSpaceRotation(currentSide);
-		tileSpaceRotScaling = tileSpaceRot * tileScaling;
-		snakeFloatVec = toVector(currentSide) * 0.001f;
+		mat4 tileSpaceRot = tileSpaceRotation(currentSide);
+		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;
+		//snakeFloatVec = toVector(currentSide) * 0.001f;
 
 		if (cam.mRenderTileFaceFirst[side]) {
 			for (size_t i = 0; i < tilesPerSide; i++) {
-				tilePtr = sidePtr + i;
-				tilePos = model.getTilePosition(tilePtr);
+				SnakeTile* tilePtr = sidePtr + i;
+				Position tilePos = model.getTilePosition(tilePtr);
+
+				// Skip empty tiles
+				if (tilePtr->type() == s3::TileType::EMPTY) continue;
 
 				// Calculate base transform
-				transform = tileSpaceRotScaling;
+				mat4 transform = tileSpaceRotScaling;
 				transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
+				sfz::translation(transform, tilePosToVector(model, tilePos));
+				if (isLeftTurn(tilePtr->from(), tilePtr->to())) {
+					transform *= sfz::scalingMatrix4(-1.0f, 1.0f, 1.0f);
+				}
+
+				// Set uniforms
+				const mat4 modelViewMatrix = viewMatrix * transform;
+				const mat4 normalMatrix = sfz::inverse(sfz::transpose(modelViewMatrix));
+				gl::setUniform(mProgram, "uModelViewMatrix", modelViewMatrix);
+				gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
+
+				// Render tile model
+				getTileModel(tilePtr, model.mProgress, model.mGameOver).render();
 
 				// Render tile face
-				sfz::translation(transform, tilePosToVector(model, tilePos));
-				gl::setUniform(mProgram, "modelViewProj", viewProj * transform);
+				
+				/*gl::setUniform(mProgram, "uModelViewMatrix", viewMatrix * transform);
+				gl::setUniform(mProgram, "uNormalMatrix", sfz::inverse(sfz::transpose(viewMatrix * transform)));
 				//glBindTexture(GL_TEXTURE_2D, assets.TILE_FACE.handle());
 				//mTile.render();
 
@@ -330,18 +314,20 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 
 				// Tile Sprite Transform
 				sfz::translation(transform, translation(transform) + snakeFloatVec);
-				gl::setUniform(mProgram, "modelViewProj", viewProj * transform);
+				gl::setUniform(mProgram, "uModelViewMatrix", viewMatrix * transform);
+				gl::setUniform(mProgram, "uNormalMatrix", sfz::inverse(sfz::transpose(viewMatrix * transform)));
 				//glBindTexture(GL_TEXTURE_2D, getTileTexture(tilePtr, model.mProgress, model.mGameOver).handle());
 				//if (isLeftTurn(tilePtr->from(), tilePtr->to())) mXFlippedTile.render();
 				//else mTile.render();
 				if (isLeftTurn(tilePtr->from(), tilePtr->to())) {
-					gl::setUniform(mProgram, "modelViewProj", viewProj * transform * sfz::scalingMatrix4(-1.0f, 1.0f, 1.0f));
+					gl::setUniform(mProgram, "uModelViewMatrix", viewMatrix * transform * sfz::scalingMatrix4(-1.0f, 1.0f, 1.0f));
+					gl::setUniform(mProgram, "uNormalMatrix", sfz::inverse(sfz::transpose(viewMatrix * transform * sfz::scalingMatrix4(-1.0f, 1.0f, 1.0f))));
 				}
-				getTileModel(tilePtr, model.mProgress, model.mGameOver).render();
+				getTileModel(tilePtr, model.mProgress, model.mGameOver).render();*/
 			}
 		} else {
 			for (size_t i = 0; i < tilesPerSide; i++) {
-				tilePtr = sidePtr + i;
+				/*tilePtr = sidePtr + i;
 				tilePos = model.getTilePosition(tilePtr);
 
 				// Calculate base transform
@@ -351,15 +337,18 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 				// Render snake sprite for non-empty tiles
 				if (tilePtr->type() != s3::TileType::EMPTY) {
 					sfz::translation(transform, tilePosToVector(model, tilePos) + snakeFloatVec);
-					gl::setUniform(mProgram, "modelViewProj", viewProj * transform);
+					gl::setUniform(mProgram, "uModelViewMatrix", viewMatrix * transform);
+					gl::setUniform(mProgram, "uNormalMatrix", sfz::inverse(sfz::transpose(viewMatrix * transform)));
+
 					//glBindTexture(GL_TEXTURE_2D, getTileTexture(tilePtr, model.mProgress, model.mGameOver).handle());
 					//if (isLeftTurn(tilePtr->from(), tilePtr->to())) mXFlippedTile.render();
 					//else mTile.render();
 					if (isLeftTurn(tilePtr->from(), tilePtr->to())) {
-						gl::setUniform(mProgram, "modelViewProj", viewProj * transform * sfz::scalingMatrix4(-1.0f, 1.0f, 1.0f));
+						gl::setUniform(mProgram, "uModelViewMatrix", viewMatrix * transform * sfz::scalingMatrix4(-1.0f, 1.0f, 1.0f));
+						gl::setUniform(mProgram, "uNormalMatrix", sfz::inverse(sfz::transpose(viewMatrix * transform * sfz::scalingMatrix4(-1.0f, 1.0f, 1.0f))));
 					}
 					getTileModel(tilePtr, model.mProgress, model.mGameOver).render();
-				}
+				}*/
 
 				// Render tile face
 				//sfz::translation(transform, tilePosToVector(model, tilePos));
@@ -371,7 +360,7 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 	}
 
 	// Hack to correctly render dead snake head
-	if (model.mGameOver) {
+	/*if (model.mGameOver) {
 		SnakeTile* deadHeadPtr = model.mDeadHeadPtr;
 		Position deadHeadPos = model.mDeadHeadPos;
 
@@ -395,7 +384,7 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 			getTileTexture(deadHeadPtr, model.mProgress, model.mGameOver).handle());
 		if (isLeftTurn(deadHeadPtr->from(), deadHeadPtr->to())) mXFlippedTile.render();
 		else mTile.render();*/
-	}
+	//}*/
 
 	gl::FontRenderer& font = assets.fontRenderer;
 
