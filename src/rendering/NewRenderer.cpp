@@ -268,7 +268,7 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 		gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
 
 		// Render tile decoration
-		gl::setUniform(mProgram, "uColor", vec4{0.4f, 0.4f, 0.4f, 1.0f});
+		gl::setUniform(mProgram, "uColor", vec4{0.5f, 0.5f, 0.5f, 1.0f});
 		assets.TILE_DECORATION_MODEL.render();
 
 		// Skip empty tiles
@@ -326,9 +326,40 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 			gl::setUniform(mProgram, "uModelViewMatrix", modelViewMatrix);
 			gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
 
-			// Render cube tile opqaue
-			gl::setUniform(mProgram, "uColor", vec4{0.25f, 0.25f, 0.25f, 0.7f});
-			assets.TILE_PROJECTION_MODEL.render();
+			if (cam.mRenderTileFaceFirst[side]) {
+				
+				// Render cube tile opqaue
+				gl::setUniform(mProgram, "uColor", vec4{0.25f, 0.25f, 0.25f, 0.7f});
+				assets.TILE_PROJECTION_MODEL.render();
+				
+				if (tilePtr->type() == TileType::BODY) {
+					gl::setUniform(mProgram, "uColor", vec4{0.5f, 0.5f, 0.5f, 0.7f});
+					if (isRightTurn(tilePtr->from(), tilePtr->to())) {
+						assets.BODY_D2R_PROJECTION_MODEL.render();
+					} else if (isLeftTurn(tilePtr->from(), tilePtr->to())) {
+						assets.BODY_D2L_PROJECTION_MODEL.render();
+					} else {
+						assets.BODY_D2U_PROJECTION_MODEL.render();
+					}
+				}
+
+			} else {
+
+				if (tilePtr->type() == TileType::BODY) {
+					gl::setUniform(mProgram, "uColor", vec4{0.5f, 0.5f, 0.5f, 0.7f});
+					if (isRightTurn(tilePtr->from(), tilePtr->to())) {
+						assets.BODY_D2R_PROJECTION_MODEL.render();
+					} else if (isLeftTurn(tilePtr->from(), tilePtr->to())) {
+						assets.BODY_D2L_PROJECTION_MODEL.render();
+					} else {
+						assets.BODY_D2U_PROJECTION_MODEL.render();
+					}
+				}
+
+				// Render cube tile opqaue
+				gl::setUniform(mProgram, "uColor", vec4{0.25f, 0.25f, 0.25f, 0.7f});
+				assets.TILE_PROJECTION_MODEL.render();
+			}
 		}
 	}
 

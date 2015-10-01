@@ -201,10 +201,13 @@ Assets::Assets() noexcept
 	DEAD_PRE_HEAD_D2L_DIG_F1_MODEL{modelPath(), "dead_pre_head_d2l_dig_f1.obj", true, false},
 
 	BODY_D2U_MODEL{modelPath(), "body_d2u.obj", true, false},
+	BODY_D2U_PROJECTION_MODEL{modelPath(), "body_d2u_projection.obj", true, false},
 	BODY_D2U_DIG_MODEL{modelPath(), "body_d2u_dig.obj", true, false},
 	BODY_D2R_MODEL{modelPath(), "body_d2r.obj", true, false},
+	BODY_D2R_PROJECTION_MODEL{modelPath(), "body_d2r_projection.obj", true, false},
 	BODY_D2R_DIG_MODEL{modelPath(), "body_d2r_dig.obj", true, false},
 	BODY_D2L_MODEL{modelPath(), "body_d2l.obj", true, false},
+	BODY_D2L_PROJECTION_MODEL{modelPath(), "body_d2l_projection.obj", true, false},
 	BODY_D2L_DIG_MODEL{modelPath(), "body_d2l_dig.obj", true, false},
 
 	TAIL_D2U_F1_MODEL{modelPath(), "tail_d2u_f1.obj", true, false},
