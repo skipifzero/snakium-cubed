@@ -328,7 +328,7 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 
 			// Render cube tile opqaue
 			gl::setUniform(mProgram, "uColor", vec4{0.25f, 0.25f, 0.25f, 0.7f});
-			assets.TILE_OPAQUE_MODEL.render();
+			assets.TILE_PROJECTION_MODEL.render();
 		}
 	}
 
