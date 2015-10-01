@@ -8,7 +8,6 @@
 
 #include "gamelogic/Model.hpp"
 #include "rendering/Camera.hpp"
-#include "rendering/TileObject.hpp"
 
 namespace s3 {
 

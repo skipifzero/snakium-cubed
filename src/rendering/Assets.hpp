@@ -150,8 +150,8 @@ public:
 	          TAIL_D2L_F2_MODEL,
 	          TAIL_D2L_DIG_F2_MODEL,
 
-
-	          NOT_FOUND_MODEL;
+	          NOT_FOUND_MODEL,
+	          TILE_MODEL;
 
 private:
 	// Private constructors & destructors

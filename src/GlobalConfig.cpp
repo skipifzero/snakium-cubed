@@ -61,6 +61,11 @@ void GlobalConfig::load() noexcept
 
 	sfz::IniParser& ip = mIniParser;
 	
+
+	// [Debug]
+	static const string dStr = "Debug";
+	continuousShaderReload = ip.sanitizeBool(dStr, "bContinuousShaderReload", false);
+
 	// [GameSettings]
 	ModelConfig& mc = modelConfig;
 	static const string gsStr = "GameSettings";
@@ -88,6 +93,10 @@ void GlobalConfig::load() noexcept
 
 void GlobalConfig::save() noexcept
 {
+	// [Debug]
+	static const string dStr = "Debug";
+	mIniParser.setBool(dStr, "bContinuousShaderReload", continuousShaderReload);
+
 	// [GameSettings]
 	static const string gsStr = "GameSettings";
 	mIniParser.setBool(gsStr, "bHasBonus", modelConfig.hasBonus);

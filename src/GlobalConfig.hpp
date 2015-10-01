@@ -16,6 +16,9 @@ using std::int32_t;
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 struct ConfigData {
+	// Debug
+	bool continuousShaderReload;
+
 	// Graphics
 	int32_t displayIndex;
 	int32_t fullscreenMode; // 0 = off, 1 = windowed, 2 = exclusive

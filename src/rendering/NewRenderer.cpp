@@ -4,6 +4,7 @@
 #include <sfz/math/Vector.hpp>
 #include <sfz/util/IO.hpp>
 
+#include "GlobalConfig.hpp"
 #include "rendering/Assets.hpp"
 
 namespace s3 {
@@ -174,31 +175,31 @@ static mat4 tileSpaceRotation(Direction3D side) noexcept
 	}
 }
 
-static vec3 tileColor(const SnakeTile* tilePtr) noexcept
+static vec4 tileColor(const SnakeTile* tilePtr) noexcept
 {
 	switch (tilePtr->type()) {
 
 	case s3::TileType::OBJECT:
-		return vec3(0.0f, 1.0f, 1.0f);
+		return vec4(0.0f, 1.0f, 1.0f, 1.0f);
 
 	case s3::TileType::BONUS_OBJECT:
-		return vec3{1.0f, 0.0f, 0.0f};
+		return vec4{1.0f, 0.0f, 0.0f, 1.0f};
 
 	case s3::TileType::HEAD:
 	case s3::TileType::PRE_HEAD:
 	case s3::TileType::BODY:
 	case s3::TileType::TAIL:
-		return vec3{0.0f, 1.0f, 0.25f};
+		return vec4{0.0f, 1.0f, 0.25f, 1.0f};
 
 	case s3::TileType::HEAD_DIGESTING:
 	case s3::TileType::PRE_HEAD_DIGESTING:
 	case s3::TileType::BODY_DIGESTING:
 	case s3::TileType::TAIL_DIGESTING:
-		return vec3{0.0f, 1.0f, 0.5f};
+		return vec4{0.0f, 1.0f, 0.5f, 1.0f};
 
 	case s3::TileType::EMPTY:
 	default:
-		return vec3{1.0f, 1.0f, 1.0f};
+		return vec4{1.0f, 1.0f, 1.0f, 1.0f};
 	}
 }
 
@@ -215,9 +216,12 @@ NewRenderer::NewRenderer() noexcept
 
 void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& viewport) noexcept
 {
-	Assets& assets = Assets::INSTANCE();
+	// Recompile shader programs if continuous shader reload is enabled
+	if (GlobalConfig::INSTANCE().continuousShaderReload) {
+		mProgram.reload();
+	}
 
-	mProgram.reload();
+	Assets& assets = Assets::INSTANCE();
 
 	float aspect = viewport.width() / viewport.height();
 	mProjMatrix = sfz::glPerspectiveProjectionMatrix(cam.mFov, aspect, 0.1f, 50.0f);
@@ -262,9 +266,6 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 				SnakeTile* tilePtr = sidePtr + i;
 				Position tilePos = model.getTilePosition(tilePtr);
 
-				// Skip empty tiles
-				if (tilePtr->type() == s3::TileType::EMPTY) continue;
-
 				// Calculate base transform
 				mat4 transform = tileSpaceRotScaling;
 				transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
@@ -275,9 +276,16 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 				const mat4 normalMatrix = sfz::inverse(sfz::transpose(modelViewMatrix));
 				gl::setUniform(mProgram, "uModelViewMatrix", modelViewMatrix);
 				gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
-				gl::setUniform(mProgram, "uColor", tileColor(tilePtr));
+				
+				// Render cube tile
+				gl::setUniform(mProgram, "uColor", vec4{0.25f, 0.25f, 0.25f, 0.7f});
+				assets.TILE_MODEL.render();
+
+				// Skip empty tiles
+				if (tilePtr->type() == s3::TileType::EMPTY) continue;
 
 				// Render tile model
+				gl::setUniform(mProgram, "uColor", tileColor(tilePtr));
 				getTileModel(tilePtr, model.mProgress, model.mGameOver).render();
 			}
 		} else {
@@ -285,9 +293,6 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 				SnakeTile* tilePtr = sidePtr + i;
 				Position tilePos = model.getTilePosition(tilePtr);
 
-				// Skip empty tiles
-				if (tilePtr->type() == s3::TileType::EMPTY) continue;
-
 				// Calculate base transform
 				mat4 transform = tileSpaceRotScaling;
 				transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
@@ -298,10 +303,17 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 				const mat4 normalMatrix = sfz::inverse(sfz::transpose(modelViewMatrix));
 				gl::setUniform(mProgram, "uModelViewMatrix", modelViewMatrix);
 				gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
-				gl::setUniform(mProgram, "uColor", tileColor(tilePtr));
+				
+				// Skip empty tiles
+				if (tilePtr->type() != s3::TileType::EMPTY) {
+					// Render tile model
+					gl::setUniform(mProgram, "uColor", tileColor(tilePtr));
+					getTileModel(tilePtr, model.mProgress, model.mGameOver).render();
+				}
 
-				// Render tile model
-				getTileModel(tilePtr, model.mProgress, model.mGameOver).render();
+				// Render cube tile
+				gl::setUniform(mProgram, "uColor", vec4{0.25f, 0.25f, 0.25f, 0.7f});
+				assets.TILE_MODEL.render();
 			}
 		}
 	}
