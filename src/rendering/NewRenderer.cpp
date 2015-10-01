@@ -24,7 +24,7 @@ static gl::Program compileStandardShaderProgram() noexcept
 		glBindAttribLocation(shaderProgram, 1, "inNormal");
 		//glBindAttribLocation(shaderProgram, 2, "inUV"); // Not available for snakium models
 		glBindAttribLocation(shaderProgram, 3, "inMaterialID");
-		glBindFragDataLocation(shaderProgram, 0, "fragmentColor");
+		glBindFragDataLocation(shaderProgram, 0, "outFragColor");
 	});
 }
 
@@ -36,131 +36,74 @@ static gl::Model& getTileModel(SnakeTile* tilePtr, float progress, bool gameOver
 	const bool frame1 = progress <= 0.5f;
 
 	switch (tilePtr->type()) {
-		case TileType::HEAD:
-			if (frame1) return a.HEAD_D2U_F1_MODEL;
-			else return a.HEAD_D2U_F2_MODEL;
-		
-		case TileType::PRE_HEAD:
-			if (frame1) {
-				if (rightTurn) return (!gameOver) ? a.PRE_HEAD_D2R_F1_MODEL : a.DEAD_PRE_HEAD_D2R_F1_MODEL;
-				else if (leftTurn) return (!gameOver) ? a.PRE_HEAD_D2L_F1_MODEL : a.DEAD_PRE_HEAD_D2L_F1_MODEL;
-				else return (!gameOver) ? a.PRE_HEAD_D2U_F1_MODEL : a.DEAD_PRE_HEAD_D2U_F1_MODEL;
-			} else {
-				if (rightTurn) return a.BODY_D2R_MODEL;
-				else if (leftTurn) return a.BODY_D2L_MODEL;
-				else return a.BODY_D2U_MODEL;
-			}
+	//case s3::TileType::EMPTY: return assets.TILE_FACE;
+	//case s3::TileType::OBJECT: return assets.OBJECT;
+	//case s3::TileType::BONUS_OBJECT: return assets.BONUS_OBJECT;
 
-		case TileType::BODY:
+	case TileType::HEAD:
+		if (frame1) return a.HEAD_D2U_F1_MODEL;
+		else return a.HEAD_D2U_F2_MODEL;
+		
+	case TileType::PRE_HEAD:
+		if (frame1) {
+			if (rightTurn) return (!gameOver) ? a.PRE_HEAD_D2R_F1_MODEL : a.DEAD_PRE_HEAD_D2R_F1_MODEL;
+			else if (leftTurn) return (!gameOver) ? a.PRE_HEAD_D2L_F1_MODEL : a.DEAD_PRE_HEAD_D2L_F1_MODEL;
+			else return (!gameOver) ? a.PRE_HEAD_D2U_F1_MODEL : a.DEAD_PRE_HEAD_D2U_F1_MODEL;
+		} else {
 			if (rightTurn) return a.BODY_D2R_MODEL;
 			else if (leftTurn) return a.BODY_D2L_MODEL;
 			else return a.BODY_D2U_MODEL;
+		}
 
-		case TileType::TAIL:
-			if (frame1) {
-				if (rightTurn) return a.TAIL_D2R_F1_MODEL;
-				else if (leftTurn) return a.TAIL_D2L_F1_MODEL;
-				else return a.TAIL_D2U_F1_MODEL;
-			} else {
-				if (rightTurn) return a.TAIL_D2R_F2_MODEL;
-				else if (leftTurn) return a.TAIL_D2L_F2_MODEL;
-				else return a.TAIL_D2U_F2_MODEL;
-			}
+	case TileType::BODY:
+		if (rightTurn) return a.BODY_D2R_MODEL;
+		else if (leftTurn) return a.BODY_D2L_MODEL;
+		else return a.BODY_D2U_MODEL;
 
-		case TileType::HEAD_DIGESTING:
-			if (frame1) return a.HEAD_D2U_F1_MODEL;
-			else return a.HEAD_D2U_F2_MODEL;
+	case TileType::TAIL:
+		if (frame1) {
+			if (rightTurn) return a.TAIL_D2R_F1_MODEL;
+			else if (leftTurn) return a.TAIL_D2L_F1_MODEL;
+			else return a.TAIL_D2U_F1_MODEL;
+		} else {
+			if (rightTurn) return a.TAIL_D2R_F2_MODEL;
+			else if (leftTurn) return a.TAIL_D2L_F2_MODEL;
+			else return a.TAIL_D2U_F2_MODEL;
+		}
 
-		case TileType::PRE_HEAD_DIGESTING:
-			if (frame1) {
-				if (rightTurn) return (!gameOver) ? a.PRE_HEAD_D2R_DIG_F1_MODEL : a.DEAD_PRE_HEAD_D2R_DIG_F1_MODEL;
-				else if (leftTurn) return (!gameOver) ? a.PRE_HEAD_D2L_DIG_F1_MODEL : a.DEAD_PRE_HEAD_D2L_DIG_F1_MODEL;
-				else return (!gameOver) ? a.PRE_HEAD_D2U_DIG_F1_MODEL : a.DEAD_PRE_HEAD_D2U_DIG_F1_MODEL;
-			} else {
-				if (rightTurn) return a.BODY_D2R_DIG_MODEL;
-				else if (leftTurn) return a.BODY_D2L_DIG_MODEL;
-				else return a.BODY_D2U_DIG_MODEL;
-			}
+	case TileType::HEAD_DIGESTING:
+		if (frame1) return a.HEAD_D2U_F1_MODEL;
+		else return a.HEAD_D2U_F2_MODEL;
 
-		case TileType::BODY_DIGESTING:
+	case TileType::PRE_HEAD_DIGESTING:
+		if (frame1) {
+			if (rightTurn) return (!gameOver) ? a.PRE_HEAD_D2R_DIG_F1_MODEL : a.DEAD_PRE_HEAD_D2R_DIG_F1_MODEL;
+			else if (leftTurn) return (!gameOver) ? a.PRE_HEAD_D2L_DIG_F1_MODEL : a.DEAD_PRE_HEAD_D2L_DIG_F1_MODEL;
+			else return (!gameOver) ? a.PRE_HEAD_D2U_DIG_F1_MODEL : a.DEAD_PRE_HEAD_D2U_DIG_F1_MODEL;
+		} else {
 			if (rightTurn) return a.BODY_D2R_DIG_MODEL;
 			else if (leftTurn) return a.BODY_D2L_DIG_MODEL;
 			else return a.BODY_D2U_DIG_MODEL;
+		}
 
-		case TileType::TAIL_DIGESTING:
-			if (frame1) {
-				if (rightTurn) return a.TAIL_D2R_DIG_F1_MODEL;
-				else if (leftTurn) return a.TAIL_D2L_DIG_F1_MODEL;
-				else return a.TAIL_D2U_DIG_F1_MODEL;
-			} else {
-				if (rightTurn) return a.TAIL_D2R_DIG_F2_MODEL;
-				if (leftTurn) return a.TAIL_D2L_DIG_F2_MODEL;
-				else return a.TAIL_D2U_DIG_F2_MODEL;
-			}
+	case TileType::BODY_DIGESTING:
+		if (rightTurn) return a.BODY_D2R_DIG_MODEL;
+		else if (leftTurn) return a.BODY_D2L_DIG_MODEL;
+		else return a.BODY_D2U_DIG_MODEL;
+
+	case TileType::TAIL_DIGESTING:
+		if (frame1) {
+			if (rightTurn) return a.TAIL_D2R_DIG_F1_MODEL;
+			else if (leftTurn) return a.TAIL_D2L_DIG_F1_MODEL;
+			else return a.TAIL_D2U_DIG_F1_MODEL;
+		} else {
+			if (rightTurn) return a.TAIL_D2R_DIG_F2_MODEL;
+			if (leftTurn) return a.TAIL_D2L_DIG_F2_MODEL;
+			else return a.TAIL_D2U_DIG_F2_MODEL;
+		}
 	}
-	
+
 	return a.NOT_FOUND_MODEL;
-
-	/*
-	bool isTurn = s3::isTurn(tilePtr->from(), tilePtr->to());
-
-	switch (tilePtr->type()) {
-	case s3::TileType::EMPTY: return assets.TILE_FACE;
-	case s3::TileType::OBJECT: return assets.OBJECT;
-	case s3::TileType::BONUS_OBJECT: return assets.BONUS_OBJECT;
-
-	case s3::TileType::HEAD:
-		if (progress <= 0.5f) { // Frame 1
-			return assets.HEAD_D2U_F1;
-		} else { // Frame 2
-			return assets.HEAD_D2U_F2;
-		}
-	case s3::TileType::PRE_HEAD:
-		if (progress <= 0.5f) { // Frame 1
-			if (!isTurn) return !gameOver ? assets.PRE_HEAD_D2U_F1 : assets.DEAD_PRE_HEAD_D2U_F1;
-			else return !gameOver ? assets.PRE_HEAD_D2R_F1 : assets.DEAD_PRE_HEAD_D2R_F1;
-		} else { // Frame 2
-			if (!isTurn) return assets.BODY_D2U;
-			else return assets.BODY_D2R;
-		}
-	case s3::TileType::BODY:
-		if (!isTurn) return assets.BODY_D2U;
-		else return assets.BODY_D2R;
-	case s3::TileType::TAIL:
-		if (progress <= 0.5f) { // Frame 1
-			if (!isTurn) return assets.TAIL_D2U_F1;
-			else return assets.TAIL_D2R_F1;
-		} else { // Frame 2
-			if (!isTurn) return assets.TAIL_D2U_F2;
-			else return assets.TAIL_D2R_F2;
-		}
-
-	case s3::TileType::HEAD_DIGESTING:
-		if (progress <= 0.5f) { // Frame 1
-			return assets.HEAD_D2U_F1;
-		} else { // Frame 2
-			return assets.HEAD_D2U_F2;
-		}
-	case s3::TileType::PRE_HEAD_DIGESTING:
-		if (progress <= 0.5f) { // Frame 1
-			if (!isTurn) return !gameOver ? assets.PRE_HEAD_D2U_DIG_F1 : assets.DEAD_PRE_HEAD_D2U_DIG_F1;
-			else return !gameOver ? assets.PRE_HEAD_D2R_DIG_F1 : assets.DEAD_PRE_HEAD_D2R_DIG_F1;
-		} else { // Frame 2
-			if (!isTurn) return assets.BODY_D2U_DIG;
-			else return assets.BODY_D2R_DIG;
-		}
-	case s3::TileType::BODY_DIGESTING:
-		if (!isTurn) return assets.BODY_D2U_DIG;
-		else return assets.BODY_D2R_DIG;
-	case s3::TileType::TAIL_DIGESTING:
-		if (progress <= 0.5f) { // Frame 1
-			if (!isTurn) return assets.TAIL_D2U_DIG_F1;
-			else return assets.TAIL_D2R_DIG_F1;
-		} else { // Frame 2
-			if (!isTurn) return assets.TAIL_D2U_DIG_F2;
-			else return assets.TAIL_D2R_DIG_F2;
-		}
-	}*/
 }
 
 static float getTileAngleRad(Direction3D side, Direction2D from) noexcept
@@ -228,6 +171,34 @@ static mat4 tileSpaceRotation(Direction3D side) noexcept
 	case Direction3D::NORTH: return sfz::xRotationMatrix4(-sfz::PI()/2.0f);
 	case Direction3D::WEST: return sfz::zRotationMatrix4(sfz::PI()/2.0f);
 	case Direction3D::EAST: return sfz::zRotationMatrix4(-sfz::PI()/2.0f);
+	}
+}
+
+static vec3 tileColor(const SnakeTile* tilePtr) noexcept
+{
+	switch (tilePtr->type()) {
+
+	case s3::TileType::OBJECT:
+		return vec3(0.0f, 1.0f, 1.0f);
+
+	case s3::TileType::BONUS_OBJECT:
+		return vec3{1.0f, 0.0f, 0.0f};
+
+	case s3::TileType::HEAD:
+	case s3::TileType::PRE_HEAD:
+	case s3::TileType::BODY:
+	case s3::TileType::TAIL:
+		return vec3{0.0f, 1.0f, 0.25f};
+
+	case s3::TileType::HEAD_DIGESTING:
+	case s3::TileType::PRE_HEAD_DIGESTING:
+	case s3::TileType::BODY_DIGESTING:
+	case s3::TileType::TAIL_DIGESTING:
+		return vec3{0.0f, 1.0f, 0.5f};
+
+	case s3::TileType::EMPTY:
+	default:
+		return vec3{1.0f, 1.0f, 1.0f};
 	}
 }
 
@@ -304,93 +275,60 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 				const mat4 normalMatrix = sfz::inverse(sfz::transpose(modelViewMatrix));
 				gl::setUniform(mProgram, "uModelViewMatrix", modelViewMatrix);
 				gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
+				gl::setUniform(mProgram, "uColor", tileColor(tilePtr));
 
 				// Render tile model
 				getTileModel(tilePtr, model.mProgress, model.mGameOver).render();
-
-				// Render tile face
-				
-				/*gl::setUniform(mProgram, "uModelViewMatrix", viewMatrix * transform);
-				gl::setUniform(mProgram, "uNormalMatrix", sfz::inverse(sfz::transpose(viewMatrix * transform)));
-				//glBindTexture(GL_TEXTURE_2D, assets.TILE_FACE.handle());
-				//mTile.render();
-
-				// Render snake sprite for non-empty tiles
-				if (tilePtr->type() == s3::TileType::EMPTY) continue;
-
-				// Tile Sprite Transform
-				sfz::translation(transform, translation(transform) + snakeFloatVec);
-				gl::setUniform(mProgram, "uModelViewMatrix", viewMatrix * transform);
-				gl::setUniform(mProgram, "uNormalMatrix", sfz::inverse(sfz::transpose(viewMatrix * transform)));
-				//glBindTexture(GL_TEXTURE_2D, getTileTexture(tilePtr, model.mProgress, model.mGameOver).handle());
-				//if (isLeftTurn(tilePtr->from(), tilePtr->to())) mXFlippedTile.render();
-				//else mTile.render();
-				if (isLeftTurn(tilePtr->from(), tilePtr->to())) {
-					gl::setUniform(mProgram, "uModelViewMatrix", viewMatrix * transform * sfz::scalingMatrix4(-1.0f, 1.0f, 1.0f));
-					gl::setUniform(mProgram, "uNormalMatrix", sfz::inverse(sfz::transpose(viewMatrix * transform * sfz::scalingMatrix4(-1.0f, 1.0f, 1.0f))));
-				}
-				getTileModel(tilePtr, model.mProgress, model.mGameOver).render();*/
 			}
 		} else {
 			for (size_t i = 0; i < tilesPerSide; i++) {
-				/*tilePtr = sidePtr + i;
-				tilePos = model.getTilePosition(tilePtr);
+				SnakeTile* tilePtr = sidePtr + i;
+				Position tilePos = model.getTilePosition(tilePtr);
+
+				// Skip empty tiles
+				if (tilePtr->type() == s3::TileType::EMPTY) continue;
 
 				// Calculate base transform
-				transform = tileSpaceRotScaling;
+				mat4 transform = tileSpaceRotScaling;
 				transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
+				sfz::translation(transform, tilePosToVector(model, tilePos));
 
-				// Render snake sprite for non-empty tiles
-				if (tilePtr->type() != s3::TileType::EMPTY) {
-					sfz::translation(transform, tilePosToVector(model, tilePos) + snakeFloatVec);
-					gl::setUniform(mProgram, "uModelViewMatrix", viewMatrix * transform);
-					gl::setUniform(mProgram, "uNormalMatrix", sfz::inverse(sfz::transpose(viewMatrix * transform)));
+				// Set uniforms
+				const mat4 modelViewMatrix = viewMatrix * transform;
+				const mat4 normalMatrix = sfz::inverse(sfz::transpose(modelViewMatrix));
+				gl::setUniform(mProgram, "uModelViewMatrix", modelViewMatrix);
+				gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
+				gl::setUniform(mProgram, "uColor", tileColor(tilePtr));
 
-					//glBindTexture(GL_TEXTURE_2D, getTileTexture(tilePtr, model.mProgress, model.mGameOver).handle());
-					//if (isLeftTurn(tilePtr->from(), tilePtr->to())) mXFlippedTile.render();
-					//else mTile.render();
-					if (isLeftTurn(tilePtr->from(), tilePtr->to())) {
-						gl::setUniform(mProgram, "uModelViewMatrix", viewMatrix * transform * sfz::scalingMatrix4(-1.0f, 1.0f, 1.0f));
-						gl::setUniform(mProgram, "uNormalMatrix", sfz::inverse(sfz::transpose(viewMatrix * transform * sfz::scalingMatrix4(-1.0f, 1.0f, 1.0f))));
-					}
-					getTileModel(tilePtr, model.mProgress, model.mGameOver).render();
-				}*/
-
-				// Render tile face
-				//sfz::translation(transform, tilePosToVector(model, tilePos));
-				//gl::setUniform(mProgram, "modelViewProj", viewProj * transform);
-				//glBindTexture(GL_TEXTURE_2D, assets.TILE_FACE.handle());
-				//mTile.render();
+				// Render tile model
+				getTileModel(tilePtr, model.mProgress, model.mGameOver).render();
 			}
 		}
 	}
 
-	// Hack to correctly render dead snake head
-	/*if (model.mGameOver) {
-		SnakeTile* deadHeadPtr = model.mDeadHeadPtr;
-		Position deadHeadPos = model.mDeadHeadPos;
+	// Render dead snake head if game over
+	if (model.mGameOver) {
+		SnakeTile* tilePtr = model.mDeadHeadPtr;
+		Position tilePos = model.mDeadHeadPos;
 
-		// Calculate dead head transform
-		tileSpaceRot = tileSpaceRotation(deadHeadPos.side);
-		tileSpaceRotScaling = tileSpaceRot * tileScaling;
-		snakeFloatVec = toVector(deadHeadPos.side) * 0.0015f;
-		transform = tileSpaceRotScaling;
-		transform *= sfz::yRotationMatrix4(getTileAngleRad(deadHeadPos.side, deadHeadPtr->from()));
-		translation(transform, tilePosToVector(model, deadHeadPos) + snakeFloatVec);
+		mat4 tileSpaceRot = tileSpaceRotation(tilePos.side);
+		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;
 
-		// Render dead head
-		gl::setUniform(mProgram, "modelViewProj", viewProj * transform);
-		if (isLeftTurn(deadHeadPtr->from(), deadHeadPtr->to())) {
-			gl::setUniform(mProgram, "modelViewProj", viewProj * transform * sfz::scalingMatrix4(-1.0f, 1.0f, 1.0f));
-		}
-		getTileModel(deadHeadPtr, model.mProgress, model.mGameOver).render();
+		// Calculate base transform
+		mat4 transform = tileSpaceRotScaling;
+		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
+		sfz::translation(transform, tilePosToVector(model, tilePos));
 
-		//gl::setUniform(mProgram, "modelViewProj", viewProj * transform);
-		/*glBindTexture(GL_TEXTURE_2D,
-			getTileTexture(deadHeadPtr, model.mProgress, model.mGameOver).handle());
-		if (isLeftTurn(deadHeadPtr->from(), deadHeadPtr->to())) mXFlippedTile.render();
-		else mTile.render();*/
-	//}*/
+		// Set uniforms
+		const mat4 modelViewMatrix = viewMatrix * transform;
+		const mat4 normalMatrix = sfz::inverse(sfz::transpose(modelViewMatrix));
+		gl::setUniform(mProgram, "uModelViewMatrix", modelViewMatrix);
+		gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
+		gl::setUniform(mProgram, "uColor", tileColor(tilePtr));
+
+		// Render tile model
+		getTileModel(tilePtr, model.mProgress, model.mGameOver).render();
+	}
 
 	gl::FontRenderer& font = assets.fontRenderer;
 

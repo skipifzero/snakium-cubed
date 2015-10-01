@@ -14,6 +14,6 @@ out vec3 vsNormal;
 void main()
 {
 	vsPos = (uModelViewMatrix * vec4(inPosition, 1)).xyz;
-	vsNormal = (uNormalMatrix * vec4(inNormal, 0)).xyz;
+	vsNormal = normalize((uNormalMatrix * vec4(inNormal, 0)).xyz);
 	gl_Position = uProjMatrix * uModelViewMatrix * vec4(inPosition, 1);
 }
