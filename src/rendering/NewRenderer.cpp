@@ -107,6 +107,98 @@ static gl::Model& getTileModel(SnakeTile* tilePtr, float progress, bool gameOver
 	return a.NOT_FOUND_MODEL;
 }
 
+static gl::Model* getTileProjectionModelPtr(SnakeTile* tilePtr, float progress, bool gameOver) noexcept
+{
+	Assets& a = Assets::INSTANCE();
+	const bool rightTurn = isRightTurn(tilePtr->from(), tilePtr->to());
+	const bool leftTurn = isLeftTurn(tilePtr->from(), tilePtr->to());
+	const bool frame1 = progress <= 0.5f;
+
+	switch (tilePtr->type()) {
+	
+	case TileType::PRE_HEAD:
+		if (frame1) {
+			break;
+		} else {
+			if (rightTurn) return &a.BODY_D2R_PROJECTION_MODEL;
+			else if (leftTurn) return &a.BODY_D2L_PROJECTION_MODEL;
+			else return &a.BODY_D2U_PROJECTION_MODEL;
+		}
+
+	case TileType::BODY:
+		if (rightTurn) return &a.BODY_D2R_PROJECTION_MODEL;
+		else if (leftTurn) return &a.BODY_D2L_PROJECTION_MODEL;
+		else return &a.BODY_D2U_PROJECTION_MODEL;
+
+
+	case TileType::BODY_DIGESTING:
+		if (rightTurn) return &a.BODY_D2R_DIG_PROJECTION_MODEL;
+		else if (leftTurn) return &a.BODY_D2L_DIG_PROJECTION_MODEL;
+		else return &a.BODY_D2U_DIG_PROJECTION_MODEL;
+	}
+
+	return nullptr;
+
+	/*switch (tilePtr->type()) {
+		//case s3::TileType::EMPTY: return assets.TILE_FACE;
+		//case s3::TileType::OBJECT: return assets.OBJECT;
+		//case s3::TileType::BONUS_OBJECT: return assets.BONUS_OBJECT;
+
+	case TileType::HEAD:
+		if (frame1) return a.HEAD_D2U_F1_MODEL;
+		else return a.HEAD_D2U_F2_MODEL;
+
+	case TileType::PRE_HEAD:
+		if (frame1) {
+			if (rightTurn) return (!gameOver) ? a.PRE_HEAD_D2R_F1_MODEL : a.DEAD_PRE_HEAD_D2R_F1_MODEL;
+			else if (leftTurn) return (!gameOver) ? a.PRE_HEAD_D2L_F1_MODEL : a.DEAD_PRE_HEAD_D2L_F1_MODEL;
+			else return (!gameOver) ? a.PRE_HEAD_D2U_F1_MODEL : a.DEAD_PRE_HEAD_D2U_F1_MODEL;
+		} else {
+			if (rightTurn) return a.BODY_D2R_MODEL;
+			else if (leftTurn) return a.BODY_D2L_MODEL;
+			else return a.BODY_D2U_MODEL;
+		}
+
+	case TileType::TAIL:
+		if (frame1) {
+			if (rightTurn) return a.TAIL_D2R_F1_MODEL;
+			else if (leftTurn) return a.TAIL_D2L_F1_MODEL;
+			else return a.TAIL_D2U_F1_MODEL;
+		} else {
+			if (rightTurn) return a.TAIL_D2R_F2_MODEL;
+			else if (leftTurn) return a.TAIL_D2L_F2_MODEL;
+			else return a.TAIL_D2U_F2_MODEL;
+		}
+
+	case TileType::HEAD_DIGESTING:
+		if (frame1) return a.HEAD_D2U_F1_MODEL;
+		else return a.HEAD_D2U_F2_MODEL;
+
+	case TileType::PRE_HEAD_DIGESTING:
+		if (frame1) {
+			if (rightTurn) return (!gameOver) ? a.PRE_HEAD_D2R_DIG_F1_MODEL : a.DEAD_PRE_HEAD_D2R_DIG_F1_MODEL;
+			else if (leftTurn) return (!gameOver) ? a.PRE_HEAD_D2L_DIG_F1_MODEL : a.DEAD_PRE_HEAD_D2L_DIG_F1_MODEL;
+			else return (!gameOver) ? a.PRE_HEAD_D2U_DIG_F1_MODEL : a.DEAD_PRE_HEAD_D2U_DIG_F1_MODEL;
+		} else {
+			if (rightTurn) return a.BODY_D2R_DIG_MODEL;
+			else if (leftTurn) return a.BODY_D2L_DIG_MODEL;
+			else return a.BODY_D2U_DIG_MODEL;
+		}
+
+	case TileType::TAIL_DIGESTING:
+		if (frame1) {
+			if (rightTurn) return a.TAIL_D2R_DIG_F1_MODEL;
+			else if (leftTurn) return a.TAIL_D2L_DIG_F1_MODEL;
+			else return a.TAIL_D2U_DIG_F1_MODEL;
+		} else {
+			if (rightTurn) return a.TAIL_D2R_DIG_F2_MODEL;
+			if (leftTurn) return a.TAIL_D2L_DIG_F2_MODEL;
+			else return a.TAIL_D2U_DIG_F2_MODEL;
+		}
+	}*/
+}
+
+
 static float getTileAngleRad(Direction3D side, Direction2D from) noexcept
 {
 	float angle;
@@ -328,35 +420,23 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 
 			if (cam.mRenderTileFaceFirst[side]) {
 				
-				// Render cube tile opqaue
+				// Render cube tile projection
 				gl::setUniform(mProgram, "uColor", vec4{0.25f, 0.25f, 0.25f, 0.7f});
 				assets.TILE_PROJECTION_MODEL.render();
 				
-				if (tilePtr->type() == TileType::BODY) {
-					gl::setUniform(mProgram, "uColor", vec4{0.5f, 0.5f, 0.5f, 0.7f});
-					if (isRightTurn(tilePtr->from(), tilePtr->to())) {
-						assets.BODY_D2R_PROJECTION_MODEL.render();
-					} else if (isLeftTurn(tilePtr->from(), tilePtr->to())) {
-						assets.BODY_D2L_PROJECTION_MODEL.render();
-					} else {
-						assets.BODY_D2U_PROJECTION_MODEL.render();
-					}
-				}
+				// Render tile projection
+				gl::setUniform(mProgram, "uColor", vec4{0.5f, 0.5f, 0.5f, 0.7f});
+				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, model.mProgress, model.mGameOver);
+				if (tileProjModelPtr != nullptr) tileProjModelPtr->render();
 
 			} else {
 
-				if (tilePtr->type() == TileType::BODY) {
-					gl::setUniform(mProgram, "uColor", vec4{0.5f, 0.5f, 0.5f, 0.7f});
-					if (isRightTurn(tilePtr->from(), tilePtr->to())) {
-						assets.BODY_D2R_PROJECTION_MODEL.render();
-					} else if (isLeftTurn(tilePtr->from(), tilePtr->to())) {
-						assets.BODY_D2L_PROJECTION_MODEL.render();
-					} else {
-						assets.BODY_D2U_PROJECTION_MODEL.render();
-					}
-				}
+				// Render tile projection
+				gl::setUniform(mProgram, "uColor", vec4{0.5f, 0.5f, 0.5f, 0.7f});
+				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, model.mProgress, model.mGameOver);
+				if (tileProjModelPtr != nullptr) tileProjModelPtr->render();
 
-				// Render cube tile opqaue
+				// Render cube tile projection
 				gl::setUniform(mProgram, "uColor", vec4{0.25f, 0.25f, 0.25f, 0.7f});
 				assets.TILE_PROJECTION_MODEL.render();
 			}
