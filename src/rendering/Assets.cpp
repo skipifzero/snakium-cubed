@@ -220,8 +220,10 @@ Assets::Assets() noexcept
 	TAIL_D2L_F2_MODEL{modelPath(), "tail_d2l_f2.obj", true, false},
 	TAIL_D2L_DIG_F2_MODEL{modelPath(), "tail_d2l_dig_f2.obj", true, false},
 
-	NOT_FOUND_MODEL{modelPath(), "notfound.obj", true, false},
-	TILE_MODEL{modelPath(), "tile.obj", true, false}
+	TILE_DECORATION_MODEL{modelPath(), "tile_decoration.obj", true, false},
+	TILE_PROJECTION_MODEL{modelPath(), "tile_projection.obj", true, false},
+
+	NOT_FOUND_MODEL{modelPath(), "notfound.obj", true, false}
 { }
 
 } // namespace s3

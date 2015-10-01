@@ -226,13 +226,9 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 	float aspect = viewport.width() / viewport.height();
 	mProjMatrix = sfz::glPerspectiveProjectionMatrix(cam.mFov, aspect, 0.1f, 50.0f);
 
-	//glClearDepth(1.0f);
+	// Enable depth testing
 	glDepthFunc(GL_LESS);
 	glEnable(GL_DEPTH_TEST);
-
-	// Clearing screen
-	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Enable blending
 	glEnable(GL_BLEND);
@@ -241,84 +237,49 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 	// Enable culling
 	glEnable(GL_CULL_FACE);
 
-	glViewport(viewport.min.x, viewport.min.y, viewport.width(), viewport.height());
+	// Clearing screen
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glUseProgram(mProgram.handle());
+	glViewport(viewport.min.x, viewport.min.y, viewport.width(), viewport.height());
 
 	const mat4 viewMatrix = cam.mViewMatrix;
 	gl::setUniform(mProgram, "uProjMatrix", mProjMatrix);
-	
-	// Render all SnakeTiles
 	const size_t tilesPerSide = model.mCfg.gridWidth*model.mCfg.gridWidth;
 	const mat4 tileScaling = sfz::scalingMatrix4(1.0f / (16.0f * (float)model.mCfg.gridWidth));
-	//vec3 snakeFloatVec;
+	
+	// Render opaque objects
+	for (size_t i = 0; i < model.mTileCount; ++i) {
+		SnakeTile* tilePtr = model.mTiles + i;
+		Position tilePos = model.getTilePosition(tilePtr);
 
-	for (size_t side = 0; side < 6; side++) {
-		Direction3D currentSide = cam.mSideRenderOrder[side];
-		SnakeTile* sidePtr = model.getTilePtr(Position{currentSide, 0, 0});
-
-		mat4 tileSpaceRot = tileSpaceRotation(currentSide);
+		// Calculate base transform
+		mat4 tileSpaceRot = tileSpaceRotation(tilePos.side);
 		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;
-		//snakeFloatVec = toVector(currentSide) * 0.001f;
+		mat4 transform = tileSpaceRotScaling;
+		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
+		sfz::translation(transform, tilePosToVector(model, tilePos));
 
-		if (cam.mRenderTileFaceFirst[side]) {
-			for (size_t i = 0; i < tilesPerSide; i++) {
-				SnakeTile* tilePtr = sidePtr + i;
-				Position tilePos = model.getTilePosition(tilePtr);
+		// Set uniforms
+		const mat4 modelViewMatrix = viewMatrix * transform;
+		const mat4 normalMatrix = sfz::inverse(sfz::transpose(modelViewMatrix));
+		gl::setUniform(mProgram, "uModelViewMatrix", modelViewMatrix);
+		gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
 
-				// Calculate base transform
-				mat4 transform = tileSpaceRotScaling;
-				transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
-				sfz::translation(transform, tilePosToVector(model, tilePos));
+		// Render tile decoration
+		gl::setUniform(mProgram, "uColor", vec4{0.4f, 0.4f, 0.4f, 1.0f});
+		assets.TILE_DECORATION_MODEL.render();
 
-				// Set uniforms
-				const mat4 modelViewMatrix = viewMatrix * transform;
-				const mat4 normalMatrix = sfz::inverse(sfz::transpose(modelViewMatrix));
-				gl::setUniform(mProgram, "uModelViewMatrix", modelViewMatrix);
-				gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
-				
-				// Render cube tile
-				gl::setUniform(mProgram, "uColor", vec4{0.25f, 0.25f, 0.25f, 0.7f});
-				assets.TILE_MODEL.render();
+		// Skip empty tiles
+		if (tilePtr->type() == s3::TileType::EMPTY) continue;
 
-				// Skip empty tiles
-				if (tilePtr->type() == s3::TileType::EMPTY) continue;
-
-				// Render tile model
-				gl::setUniform(mProgram, "uColor", tileColor(tilePtr));
-				getTileModel(tilePtr, model.mProgress, model.mGameOver).render();
-			}
-		} else {
-			for (size_t i = 0; i < tilesPerSide; i++) {
-				SnakeTile* tilePtr = sidePtr + i;
-				Position tilePos = model.getTilePosition(tilePtr);
-
-				// Calculate base transform
-				mat4 transform = tileSpaceRotScaling;
-				transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
-				sfz::translation(transform, tilePosToVector(model, tilePos));
-
-				// Set uniforms
-				const mat4 modelViewMatrix = viewMatrix * transform;
-				const mat4 normalMatrix = sfz::inverse(sfz::transpose(modelViewMatrix));
-				gl::setUniform(mProgram, "uModelViewMatrix", modelViewMatrix);
-				gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
-				
-				// Skip empty tiles
-				if (tilePtr->type() != s3::TileType::EMPTY) {
-					// Render tile model
-					gl::setUniform(mProgram, "uColor", tileColor(tilePtr));
-					getTileModel(tilePtr, model.mProgress, model.mGameOver).render();
-				}
-
-				// Render cube tile
-				gl::setUniform(mProgram, "uColor", vec4{0.25f, 0.25f, 0.25f, 0.7f});
-				assets.TILE_MODEL.render();
-			}
-		}
+		// Render tile model
+		gl::setUniform(mProgram, "uColor", tileColor(tilePtr));
+		getTileModel(tilePtr, model.mProgress, model.mGameOver).render();
 	}
 
-	// Render dead snake head if game over
+	// Render dead snake head if game over (opaque)
 	if (model.mGameOver) {
 		SnakeTile* tilePtr = model.mDeadHeadPtr;
 		Position tilePos = model.mDeadHeadPos;
@@ -342,6 +303,36 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 		getTileModel(tilePtr, model.mProgress, model.mGameOver).render();
 	}
 
+	// Render transparent objects
+	for (size_t side = 0; side < 6; side++) {
+		Direction3D currentSide = cam.mSideRenderOrder[side];
+		SnakeTile* sidePtr = model.getTilePtr(Position{currentSide, 0, 0});
+
+		mat4 tileSpaceRot = tileSpaceRotation(currentSide);
+		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;
+
+		for (size_t i = 0; i < tilesPerSide; i++) {
+			SnakeTile* tilePtr = sidePtr + i;
+			Position tilePos = model.getTilePosition(tilePtr);
+
+			// Calculate base transform
+			mat4 transform = tileSpaceRotScaling;
+			transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
+			sfz::translation(transform, tilePosToVector(model, tilePos));
+
+			// Set uniforms
+			const mat4 modelViewMatrix = viewMatrix * transform;
+			const mat4 normalMatrix = sfz::inverse(sfz::transpose(modelViewMatrix));
+			gl::setUniform(mProgram, "uModelViewMatrix", modelViewMatrix);
+			gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
+
+			// Render cube tile opqaue
+			gl::setUniform(mProgram, "uColor", vec4{0.25f, 0.25f, 0.25f, 0.7f});
+			assets.TILE_OPAQUE_MODEL.render();
+		}
+	}
+
+	// Render text
 	gl::FontRenderer& font = assets.fontRenderer;
 
 	font.verticalAlign(gl::VerticalAlign::TOP);
