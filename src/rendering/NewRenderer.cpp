@@ -116,6 +116,10 @@ static gl::Model* getTileProjectionModelPtr(SnakeTile* tilePtr, float progress, 
 
 	switch (tilePtr->type()) {
 	
+	case TileType::HEAD:
+		if (frame1) return &a.HEAD_D2U_F1_PROJECTION_MODEL;
+		else return &a.HEAD_D2U_F2_PROJECTION_MODEL;
+
 	case TileType::PRE_HEAD:
 		if (frame1) {
 			break;
@@ -130,6 +134,9 @@ static gl::Model* getTileProjectionModelPtr(SnakeTile* tilePtr, float progress, 
 		else if (leftTurn) return &a.BODY_D2L_PROJECTION_MODEL;
 		else return &a.BODY_D2U_PROJECTION_MODEL;
 
+	case TileType::HEAD_DIGESTING:
+		if (frame1) return &a.HEAD_D2U_F1_PROJECTION_MODEL;
+		else return &a.HEAD_D2U_F2_PROJECTION_MODEL;
 
 	case TileType::BODY_DIGESTING:
 		if (rightTurn) return &a.BODY_D2R_DIG_PROJECTION_MODEL;
@@ -143,10 +150,6 @@ static gl::Model* getTileProjectionModelPtr(SnakeTile* tilePtr, float progress, 
 		//case s3::TileType::EMPTY: return assets.TILE_FACE;
 		//case s3::TileType::OBJECT: return assets.OBJECT;
 		//case s3::TileType::BONUS_OBJECT: return assets.BONUS_OBJECT;
-
-	case TileType::HEAD:
-		if (frame1) return a.HEAD_D2U_F1_MODEL;
-		else return a.HEAD_D2U_F2_MODEL;
 
 	case TileType::PRE_HEAD:
 		if (frame1) {
@@ -169,10 +172,6 @@ static gl::Model* getTileProjectionModelPtr(SnakeTile* tilePtr, float progress, 
 			else if (leftTurn) return a.TAIL_D2L_F2_MODEL;
 			else return a.TAIL_D2U_F2_MODEL;
 		}
-
-	case TileType::HEAD_DIGESTING:
-		if (frame1) return a.HEAD_D2U_F1_MODEL;
-		else return a.HEAD_D2U_F2_MODEL;
 
 	case TileType::PRE_HEAD_DIGESTING:
 		if (frame1) {

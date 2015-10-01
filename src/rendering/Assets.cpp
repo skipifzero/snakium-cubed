@@ -184,7 +184,9 @@ Assets::Assets() noexcept
 	COFFER_LOGO_REG{*ATLAS_1024.textureRegion("coffer_logo_1024x256.png")},
 
 	HEAD_D2U_F1_MODEL{modelPath(), "head_d2u_f1.obj", true, false},
+	HEAD_D2U_F1_PROJECTION_MODEL{modelPath(), "head_d2u_f1_projection.obj", true, false},
 	HEAD_D2U_F2_MODEL{modelPath(), "head_d2u_f2.obj", true, false},
+	HEAD_D2U_F2_PROJECTION_MODEL{modelPath(), "head_d2u_f2_projection.obj", true, false},
 
 	PRE_HEAD_D2U_F1_MODEL{modelPath(), "pre_head_d2u_f1.obj", true, false},
 	PRE_HEAD_D2U_DIG_F1_MODEL{modelPath(), "pre_head_d2u_dig_f1.obj", true, false},

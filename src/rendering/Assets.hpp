@@ -114,7 +114,9 @@ public:
 	                  COFFER_LOGO_REG;
 
 	gl::Model HEAD_D2U_F1_MODEL,
+	          HEAD_D2U_F1_PROJECTION_MODEL,
 	          HEAD_D2U_F2_MODEL,
+	          HEAD_D2U_F2_PROJECTION_MODEL,
 
 	          PRE_HEAD_D2U_F1_MODEL,
 	          PRE_HEAD_D2U_DIG_F1_MODEL,
