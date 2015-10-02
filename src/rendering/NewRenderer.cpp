@@ -337,6 +337,7 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 
 	const mat4 viewMatrix = cam.mViewMatrix;
 	gl::setUniform(mProgram, "uProjMatrix", mProjMatrix);
+	gl::setUniform(mProgram, "uViewMatrix", viewMatrix);
 	const size_t tilesPerSide = model.mCfg.gridWidth*model.mCfg.gridWidth;
 	const mat4 tileScaling = sfz::scalingMatrix4(1.0f / (16.0f * (float)model.mCfg.gridWidth));
 	
@@ -353,9 +354,8 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 		sfz::translation(transform, tilePosToVector(model, tilePos));
 
 		// Set uniforms
-		const mat4 modelViewMatrix = viewMatrix * transform;
-		const mat4 normalMatrix = sfz::inverse(sfz::transpose(modelViewMatrix));
-		gl::setUniform(mProgram, "uModelViewMatrix", modelViewMatrix);
+		const mat4 normalMatrix = sfz::inverse(sfz::transpose(viewMatrix * transform));
+		gl::setUniform(mProgram, "uModelMatrix", transform);
 		gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
 
 		// Render tile decoration
@@ -384,9 +384,8 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 		sfz::translation(transform, tilePosToVector(model, tilePos));
 
 		// Set uniforms
-		const mat4 modelViewMatrix = viewMatrix * transform;
-		const mat4 normalMatrix = sfz::inverse(sfz::transpose(modelViewMatrix));
-		gl::setUniform(mProgram, "uModelViewMatrix", modelViewMatrix);
+		const mat4 normalMatrix = sfz::inverse(sfz::transpose(viewMatrix * transform));
+		gl::setUniform(mProgram, "uModelMatrix", transform);
 		gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
 		gl::setUniform(mProgram, "uColor", tileColor(tilePtr));
 
@@ -412,9 +411,8 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 			sfz::translation(transform, tilePosToVector(model, tilePos));
 
 			// Set uniforms
-			const mat4 modelViewMatrix = viewMatrix * transform;
-			const mat4 normalMatrix = sfz::inverse(sfz::transpose(modelViewMatrix));
-			gl::setUniform(mProgram, "uModelViewMatrix", modelViewMatrix);
+			const mat4 normalMatrix = sfz::inverse(sfz::transpose(viewMatrix * transform));
+			gl::setUniform(mProgram, "uModelMatrix", transform);
 			gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
 
 			if (cam.mRenderTileFaceFirst[side]) {
