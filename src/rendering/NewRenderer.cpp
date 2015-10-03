@@ -122,6 +122,9 @@ static gl::Model* getTileProjectionModelPtr(SnakeTile* tilePtr, float progress, 
 
 	case TileType::PRE_HEAD:
 		if (frame1) {
+			if (rightTurn) return &a.PRE_HEAD_D2R_F1_PROJECTION_MODEL;
+			else if (leftTurn) return &a.PRE_HEAD_D2L_F1_PROJECTION_MODEL; 
+			else return &a.PRE_HEAD_D2U_F1_PROJECTION_MODEL;
 			break;
 		} else {
 			if (rightTurn) return &a.BODY_D2R_PROJECTION_MODEL;

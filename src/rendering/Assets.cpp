@@ -189,10 +189,13 @@ Assets::Assets() noexcept
 	HEAD_D2U_F2_PROJECTION_MODEL{modelPath(), "head_d2u_f2_projection.obj", true, false},
 
 	PRE_HEAD_D2U_F1_MODEL{modelPath(), "pre_head_d2u_f1.obj", true, false},
+	PRE_HEAD_D2U_F1_PROJECTION_MODEL{modelPath(), "pre_head_d2u_f1_projection.obj", true, false},
 	PRE_HEAD_D2U_DIG_F1_MODEL{modelPath(), "pre_head_d2u_dig_f1.obj", true, false},
 	PRE_HEAD_D2R_F1_MODEL{modelPath(), "pre_head_d2r_f1.obj", true, false},
+	PRE_HEAD_D2R_F1_PROJECTION_MODEL{modelPath(), "pre_head_d2r_f1_projection.obj", true, false},
 	PRE_HEAD_D2R_DIG_F1_MODEL{modelPath(), "pre_head_d2r_dig_f1.obj", true, false},
 	PRE_HEAD_D2L_F1_MODEL{modelPath(), "pre_head_d2l_f1.obj", true, false},
+	PRE_HEAD_D2L_F1_PROJECTION_MODEL{modelPath(), "pre_head_d2l_f1_projection.obj", true, false},
 	PRE_HEAD_D2L_DIG_F1_MODEL{modelPath(), "pre_head_d2l_dig_f1.obj", true, false},
 
 	DEAD_PRE_HEAD_D2U_F1_MODEL{modelPath(), "dead_pre_head_d2u_f1.obj", true, false},
