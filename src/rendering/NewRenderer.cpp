@@ -239,7 +239,7 @@ static vec3 tilePosToVector(const Model& model, const Position& tilePos) noexcep
 	// +0.5f to get the midpoint of the tile
 	const float e1f = static_cast<float>(tilePos.e1) + 0.5f;
 	const float e2f = static_cast<float>(tilePos.e2) + 0.5f;
-	const float tileWidth = 1.0f / static_cast<float>(model.mCfg.gridWidth);
+	const float tileWidth = 1.0f / static_cast<float>(model.config().gridWidth);
 
 	return (e1f * tileWidth - 0.5f) * directionVector(tilePos.side, Coordinate::e1) +
 		(e2f * tileWidth - 0.5f) * directionVector(tilePos.side, Coordinate::e2) +
@@ -330,8 +330,7 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 	const mat4 viewMatrix = cam.mViewMatrix;
 	gl::setUniform(mProgram, "uProjMatrix", mProjMatrix);
 	gl::setUniform(mProgram, "uViewMatrix", viewMatrix);
-	const size_t tilesPerSide = model.mCfg.gridWidth*model.mCfg.gridWidth;
-	const mat4 tileScaling = sfz::scalingMatrix4(1.0f / (16.0f * (float)model.mCfg.gridWidth));
+	const mat4 tileScaling = sfz::scalingMatrix4(1.0f / (16.0f * (float)model.config().gridWidth));
 	
 	// Render opaque objects
 	for (size_t i = 0; i < model.numTiles(); ++i) {
@@ -359,11 +358,11 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 
 		// Render tile model
 		gl::setUniform(mProgram, "uColor", tileColor(tilePtr));
-		getTileModel(tilePtr, model.mProgress, model.mGameOver).render();
+		getTileModel(tilePtr, model.progress(), model.isGameOver()).render();
 	}
 
 	// Render dead snake head if game over (opaque)
-	if (model.mGameOver) {
+	if (model.isGameOver()) {
 		const SnakeTile* tilePtr = model.deadHeadPtr();
 		Position tilePos = model.deadHeadPos();
 
@@ -382,10 +381,11 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 		gl::setUniform(mProgram, "uColor", tileColor(tilePtr));
 
 		// Render tile model
-		getTileModel(tilePtr, model.mProgress, model.mGameOver).render();
+		getTileModel(tilePtr, model.progress(), model.isGameOver()).render();
 	}
 
 	// Render transparent objects
+	const size_t tilesPerSide = model.config().gridWidth*model.config().gridWidth;
 	for (size_t side = 0; side < 6; side++) {
 		Direction3D currentSide = cam.mSideRenderOrder[side];
 		const SnakeTile* sidePtr = model.tilePtr(Position{currentSide, 0, 0});
@@ -415,14 +415,14 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 				
 				// Render tile projection
 				gl::setUniform(mProgram, "uColor", vec4{0.5f, 0.5f, 0.5f, 0.7f});
-				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, model.mProgress);
+				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, model.progress());
 				if (tileProjModelPtr != nullptr) tileProjModelPtr->render();
 
 			} else {
 
 				// Render tile projection
 				gl::setUniform(mProgram, "uColor", vec4{0.5f, 0.5f, 0.5f, 0.7f});
-				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, model.mProgress);
+				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, model.progress());
 				if (tileProjModelPtr != nullptr) tileProjModelPtr->render();
 
 				// Render cube tile projection
@@ -433,7 +433,7 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 	}
 
 	// Render dead snake head projection if game over
-	if (model.mGameOver) {
+	if (model.isGameOver()) {
 		const SnakeTile* tilePtr = model.deadHeadPtr();
 		Position tilePos = model.deadHeadPos();
 
@@ -452,7 +452,7 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 
 		// Render tile model
 		gl::setUniform(mProgram, "uColor", vec4{0.5f, 0.5f, 0.5f, 0.7f});
-		getTileProjectionModelPtr(tilePtr, model.mProgress)->render();
+		getTileProjectionModelPtr(tilePtr, model.progress())->render();
 	}
 	
 
@@ -464,11 +464,11 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 
 	font.begin(viewport); // TODO: Should not use viewport
 
-	font.write(vec2{0.0f, (float)viewport.height()}, 64.0f, "Score: " + std::to_string(model.mScore));
+	font.write(vec2{0.0f, (float)viewport.height()}, 64.0f, "Score: " + std::to_string(model.score()));
 
 	font.end(0, viewport.dimensions(), vec4{1.0f, 1.0f, 1.0f, 1.0f});
 
-	if (model.mGameOver) {
+	if (model.isGameOver()) {
 		font.verticalAlign(gl::VerticalAlign::MIDDLE);
 		font.horizontalAlign(gl::HorizontalAlign::CENTER);
 

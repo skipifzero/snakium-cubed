@@ -47,7 +47,7 @@ sfz::vec3 tilePosToVector(const Model& model, const Position& tilePos) noexcept
 	// +0.5f to get the midpoint of the tile
 	const float e1f = static_cast<float>(tilePos.e1) + 0.5f;
 	const float e2f = static_cast<float>(tilePos.e2) + 0.5f; 
-	const float tileWidth = 1.0f / static_cast<float>(model.mCfg.gridWidth);
+	const float tileWidth = 1.0f / static_cast<float>(model.config().gridWidth);
 
 	return (e1f * tileWidth - 0.5f) * directionVector(tilePos.side, Coordinate::e1) +
 	       (e2f * tileWidth - 0.5f) * directionVector(tilePos.side, Coordinate::e2) +
@@ -89,19 +89,19 @@ void Camera::update(const Model& model, float delta) noexcept
 		mLastCubeSide = headPos.side;
 		//std::cout << headPos.side << ", upDir: " << mUpDir << "\n";
 	}
-	if (mUpDir != mLastUpDir && model.mProgress > 0.5f) mLastUpDir = mUpDir;
+	if (mUpDir != mLastUpDir && model.progress() > 0.5f) mLastUpDir = mUpDir;
 
 
 	// Calculate the current position on the cube
-	const float tileWidth = 1.0f / static_cast<float>(model.mCfg.gridWidth);
+	const float tileWidth = 1.0f / static_cast<float>(model.config().gridWidth);
 	sfz::vec3 posOnCube;
-	if (model.mProgress <= 0.5f) {
+	if (model.progress() <= 0.5f) {
 		Direction3D preHeadTo = mapDefaultUp(preHeadPos.side, model.preHeadPtr()->to);
-		sfz::vec3 diff = toVector(preHeadTo) * model.mProgress * tileWidth;
+		sfz::vec3 diff = toVector(preHeadTo) * model.progress() * tileWidth;
 		posOnCube = tilePosToVector(model, preHeadPos) + diff;
 	} else {
 		Direction3D headFrom = mapDefaultUp(headPos.side, model.headPtr()->from);
-		sfz::vec3 diff = toVector(headFrom) * (1.0f - model.mProgress) * tileWidth;
+		sfz::vec3 diff = toVector(headFrom) * (1.0f - model.progress()) * tileWidth;
 		posOnCube = tilePosToVector(model, headPos) + diff;
 	}
 
@@ -117,7 +117,7 @@ void Camera::update(const Model& model, float delta) noexcept
 
 	mUpTarget = toVector(posOnCubeSideUpDir);
 	if (!approxEqual(mUp, mUpTarget)) {
-		float maxAnglePerSec = (model.mCurrentSpeed*tileWidth*3.0f) * sfz::PI()/2.0f;
+		float maxAnglePerSec = (model.currentSpeed()*tileWidth*3.0f) * sfz::PI()/2.0f;
 		float angleDiff = sfz::angle(mUp, mUpTarget);
 		sfz::vec3 rotAxis = sfz::cross(mUp, mUpTarget);
 		float angleToMove = maxAnglePerSec*delta;

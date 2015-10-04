@@ -166,7 +166,7 @@ static vec3 tilePosToVector(const Model& model, const Position& tilePos) noexcep
 	// +0.5f to get the midpoint of the tile
 	const float e1f = static_cast<float>(tilePos.e1) + 0.5f;
 	const float e2f = static_cast<float>(tilePos.e2) + 0.5f;
-	const float tileWidth = 1.0f / static_cast<float>(model.mCfg.gridWidth);
+	const float tileWidth = 1.0f / static_cast<float>(model.config().gridWidth);
 
 	return (e1f * tileWidth - 0.5f) * directionVector(tilePos.side, Coordinate::e1) +
 		(e2f * tileWidth - 0.5f) * directionVector(tilePos.side, Coordinate::e2) +
@@ -233,8 +233,8 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 	glActiveTexture(GL_TEXTURE0);
 
 	// Render all SnakeTiles
-	const size_t tilesPerSide = model.mCfg.gridWidth*model.mCfg.gridWidth;
-	const float gridWidth = static_cast<float>(model.mCfg.gridWidth);
+	const size_t tilesPerSide = model.config().gridWidth*model.config().gridWidth;
+	const float gridWidth = static_cast<float>(model.config().gridWidth);
 	const float tileWidth = 1.0f / gridWidth;
 	const mat4 tileScaling = sfz::scalingMatrix4(tileWidth);
 	mat4 transform, tileSpaceRot, tileSpaceRotScaling;
@@ -269,7 +269,7 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 				sfz::translation(transform, translation(transform) + snakeFloatVec);
 				gl::setUniform(mProgram, "modelViewProj", viewProj * transform);
 				glBindTexture(GL_TEXTURE_2D,
-					getTileTexture(tilePtr, model.mProgress, model.mGameOver).handle());
+					getTileTexture(tilePtr, model.progress(), model.isGameOver()).handle());
 				if (isLeftTurn(tilePtr->from, tilePtr->to)) mXFlippedTile.render();
 				else mTile.render();
 			}
@@ -287,7 +287,7 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 					sfz::translation(transform, tilePosToVector(model, tilePos) + snakeFloatVec);
 					gl::setUniform(mProgram, "modelViewProj", viewProj * transform);
 					glBindTexture(GL_TEXTURE_2D,
-						getTileTexture(tilePtr, model.mProgress, model.mGameOver).handle());
+						getTileTexture(tilePtr, model.progress(), model.isGameOver()).handle());
 					if (isLeftTurn(tilePtr->from, tilePtr->to)) mXFlippedTile.render();
 					else mTile.render();
 				}
@@ -302,7 +302,7 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 	}
 
 	// Hack to correctly render dead snake head
-	if (model.mGameOver) {
+	if (model.isGameOver()) {
 		const SnakeTile* deadHeadPtr = model.deadHeadPtr();
 		Position deadHeadPos = model.deadHeadPos();
 
@@ -317,7 +317,7 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 		// Render dead head
 		gl::setUniform(mProgram, "modelViewProj", viewProj * transform);
 		glBindTexture(GL_TEXTURE_2D,
-			getTileTexture(deadHeadPtr, model.mProgress, model.mGameOver).handle());
+			getTileTexture(deadHeadPtr, model.progress(), model.isGameOver()).handle());
 		if (isLeftTurn(deadHeadPtr->from, deadHeadPtr->to)) mXFlippedTile.render();
 		else mTile.render();
 	}
@@ -329,11 +329,11 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 
 	font.begin(viewport); // TODO: Should not use viewport
 
-	font.write(vec2{0.0f, (float)viewport.height()}, 64.0f, "Score: " + std::to_string(model.mScore));
+	font.write(vec2{0.0f, (float)viewport.height()}, 64.0f, "Score: " + std::to_string(model.score()));
 
 	font.end(0, viewport.dimensions(), vec4{1.0f, 1.0f, 1.0f, 1.0f});
 
-	if (model.mGameOver) {
+	if (model.isGameOver()) {
 		font.verticalAlign(gl::VerticalAlign::MIDDLE);
 		font.horizontalAlign(gl::HorizontalAlign::CENTER);
 

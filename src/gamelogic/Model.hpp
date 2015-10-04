@@ -6,16 +6,7 @@
 #include <cstdint> // uint8_t
 #include <memory>
 
-
 #include "gamelogic/ModelConfig.hpp"
-
-
-#include <cassert>
-#include <vector>
-#include <random> // std::mt19937_64, std::random_device
-#include <iostream>
-
-
 #include "gamelogic/Direction.hpp"
 #include "gamelogic/Position.hpp"
 #include "gamelogic/SnakeTile.hpp"
@@ -28,16 +19,6 @@ using std::unique_ptr;
 
 class Model final {
 public:
-	// Public Members
-	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	const ModelConfig mCfg;
-	
-	float mProgress = 0.0f;
-	long mScore = 0;
-	bool mGameOver = false;
-	float mCurrentSpeed;
-
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -66,13 +47,20 @@ public:
 	// Getters
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+	inline const ModelConfig& config() const noexcept { return mCfg; }
+
 	inline size_t numTiles() const noexcept { return mTileCount; }
 	inline const SnakeTile* headPtr() const noexcept { return mHeadPtr; }
 	inline const SnakeTile* preHeadPtr() const noexcept { return mPreHeadPtr; }
 	inline const SnakeTile* deadHeadPtr() const noexcept { return mDeadHeadPtr; }
 	inline Position deadHeadPos() const noexcept { return mDeadHeadPos; }
 
-	// Member functions
+	inline float progress() const noexcept { return mProgress; }
+	inline long score() const noexcept { return mScore; }
+	inline bool isGameOver() const noexcept { return mGameOver; }
+	inline float currentSpeed() const noexcept { return mCurrentSpeed; }
+
+	// Public methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	Position adjacent(Position pos, Direction2D to) const noexcept;
@@ -80,6 +68,8 @@ public:
 private:
 	// Private Members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	const ModelConfig mCfg;
 
 	unique_ptr<SnakeTile[]> mTiles;
 	size_t mTileCount = 0;
@@ -89,6 +79,10 @@ private:
 	SnakeTile* mDeadHeadPtr = nullptr;
 	Position mDeadHeadPos;
 
+	float mProgress = 0.0f;
+	long mScore = 0;
+	bool mGameOver = false;
+	float mCurrentSpeed = 0.0f;
 	int mTimeSinceBonus = 0;
 	int mBonusTimeLeft = 0;
 };

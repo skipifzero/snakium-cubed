@@ -1,6 +1,9 @@
 #include "gamelogic/Model.hpp"
 
+#include <iostream>
 #include <new>
+#include <random> // std::mt19937_64, std::random_device
+
 
 #include <sfz/Assert.hpp>
 
@@ -256,7 +259,7 @@ Position Model::tilePosition(const SnakeTile* tilePtr) const noexcept
 	return pos;
 }
 
-// Member functions
+// Public methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 Position Model::adjacent(Position pos, Direction2D to) const noexcept
