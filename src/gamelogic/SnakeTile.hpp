@@ -2,7 +2,6 @@
 #ifndef S3_GAMELOGIC_SNAKETILE_HPP
 #define S3_GAMELOGIC_SNAKETILE_HPP
 
-#include <cstddef> // size_t
 #include <cstdint> // uint8_t
 
 #include "gamelogic/Direction.hpp"
@@ -11,10 +10,7 @@ namespace s3 {
 
 using std::uint8_t;
 
-/**
- * @brief Enum representing the type of a SnakeTile.
- * Needs 4 bits.
- */
+/** Enum representing the type of a SnakeTile */
 enum class TileType : uint8_t {
 	EMPTY = 0,
 	OBJECT = 1,
@@ -31,25 +27,20 @@ enum class TileType : uint8_t {
 	TAIL_DIGESTING = 10
 };
 
-inline bool digesting(TileType type) noexcept;
+bool digesting(TileType type) noexcept;
 
-/**
- * Struct representing a SnakeTile.
- * Should takes up exactly one byte in memory, unless struct gets padded for some reason.
- * mBits ==  msb [ [to][from][type] ] lsb
- */
+/** Struct representing a SnakeTile */
 struct SnakeTile final {
-	uint8_t mBits;
+	SnakeTile() noexcept = default;
+	SnakeTile(const SnakeTile&) noexcept = default;
+	SnakeTile& operator= (const SnakeTile&) noexcept = default;
 
-	inline TileType type(void) const noexcept;
-	inline Direction2D from(void) const noexcept;
-	inline Direction2D to(void) const noexcept;
+	SnakeTile(TileType type, Direction2D from, Direction2D to) noexcept;
 
-	inline void setType(TileType type) noexcept;
-	inline void setFrom(Direction2D from) noexcept;
-	inline void setTo(Direction2D to) noexcept;
+	TileType type = TileType::EMPTY;
+	Direction2D from = Direction2D::DOWN;
+	Direction2D to = Direction2D::UP;
 };
 
 } // namespace s3
-#include "gamelogic/SnakeTile.inl"
 #endif

@@ -1,5 +1,7 @@
 #include "gamelogic/Model.hpp"
 
+#include <new>
+
 namespace s3 {
 
 namespace {
@@ -16,11 +18,11 @@ std::mt19937_64 createRNGGenerator(void) noexcept
 	return std::mt19937_64(rnd_dev());
 }
 
-SnakeTile* freeRandomTile(const Model& model) noexcept
+SnakeTile* freeRandomTile(Model& model) noexcept
 {
 	std::vector<SnakeTile*> freeTiles;
 	for (size_t i = 0; i < model.mTileCount; i++) {
-		if (model.mTiles[i].type() == TileType::EMPTY) freeTiles.push_back(model.mTiles + i);
+		if (model.tilePtr(i)->type == TileType::EMPTY) freeTiles.push_back(model.tilePtr(i));
 	}
 
 	if (freeTiles.size() == 0) return nullptr;
@@ -39,17 +41,9 @@ Model::Model(ModelConfig cfg) noexcept
 :
 	mCfg(cfg),
 	mTileCount{static_cast<size_t>(mCfg.gridWidth*mCfg.gridWidth*6)},
-	mTiles{new SnakeTile[mTileCount+1]}, // +1, last tile is the dead head tile
+	mTiles{new (std::nothrow) SnakeTile[mTileCount+1]}, // +1, last tile is the dead head tile
 	mCurrentSpeed{cfg.tilesPerSecond}
 {
-	// Set the type of every SnakeTile to EMPTY.
-	SnakeTile* current = mTiles;
-	SnakeTile* const max = mTiles + mTileCount + 1; // +1 to reset dead head tile
-	while (current < max) {
-		current->setType(TileType::EMPTY);
-		current++;
-	}
-
 	// Start position for snake (head)
 	Position tempPos;
 	tempPos.side = Direction3D::SOUTH;
@@ -58,53 +52,48 @@ Model::Model(ModelConfig cfg) noexcept
 	tempPos.e2 = mid;
 
 	// Head
-	SnakeTile* tile = getTilePtr(tempPos);
-	tile->setType(TileType::HEAD);
-	tile->setTo(Direction2D::UP);
-	tile->setFrom(Direction2D::DOWN);
+	SnakeTile* tile = this->tilePtr(tempPos);
+	tile->type = TileType::HEAD;
+	tile->to = Direction2D::UP;
+	tile->from = Direction2D::DOWN;
 	mHeadPtr = tile;
 
 	// Pre Head
 	tempPos = adjacent(tempPos, Direction2D::DOWN);
-	tile = getTilePtr(tempPos);
-	tile->setType(TileType::PRE_HEAD);
-	tile->setTo(Direction2D::UP);
-	tile->setFrom(Direction2D::DOWN);
+	tile = this->tilePtr(tempPos);
+	tile->type = TileType::PRE_HEAD;
+	tile->to = Direction2D::UP;
+	tile->from = Direction2D::DOWN;
 	mPreHeadPtr = tile;
 
 	// Tile
 	tempPos = adjacent(tempPos, Direction2D::DOWN);
-	tile = getTilePtr(tempPos);
-	tile->setType(TileType::TAIL);
-	tile->setTo(Direction2D::UP);
-	tile->setFrom(Direction2D::DOWN);
+	tile = this->tilePtr(tempPos);
+	tile->type = TileType::TAIL;
+	tile->to = Direction2D::UP;
+	tile->from = Direction2D::DOWN;
 	mTailPtr = tile;
 
 	// Dead Head Ptr
-	mDeadHeadPtr = mTiles + mTileCount;
+	mDeadHeadPtr = &mTiles[mTileCount]; // In range since array holds mTileCount + 1 tiles
 
 	// Object
-	freeRandomTile(*this)->setType(TileType::OBJECT);
+	freeRandomTile(*this)->type = TileType::OBJECT;
 }
 
-Model::~Model() noexcept
-{
-	delete[] mTiles;
-}
-
-// Member functions
+// Update methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 void Model::changeDirection(Direction3D upDir, Direction2D direction) noexcept
 {
 	if (mGameOver) return;
 
-	Direction3D cubeSide = getTilePosition(mHeadPtr).side;
+	Direction3D cubeSide = tilePosition(mHeadPtr).side;
 	Direction3D realDir = map(cubeSide, upDir, direction);
 	Direction2D remappedDir = unMapDefaultUp(cubeSide, realDir);
 
-	if (remappedDir == mHeadPtr->from()) return;
-	mHeadPtr->setTo(remappedDir);
+	if (remappedDir == mHeadPtr->from) return;
+	mHeadPtr->to = remappedDir;
 }
 
 void Model::update(float delta) noexcept
@@ -116,9 +105,9 @@ void Model::update(float delta) noexcept
 	mProgress -= 1.0f;
 
 	// Calculate the next head position
-	Position headPos = getTilePosition(mHeadPtr);
-	Position nextPos = adjacent(headPos, mHeadPtr->to());
-	SnakeTile* nextHeadPtr = getTilePtr(nextPos);
+	Position headPos = tilePosition(mHeadPtr);
+	Position nextPos = adjacent(headPos, mHeadPtr->to);
+	SnakeTile* nextHeadPtr = this->tilePtr(nextPos);
 
 	// Check if bonus time is over
 	if (mCfg.hasBonus) {
@@ -127,40 +116,40 @@ void Model::update(float delta) noexcept
 			// TODO: Remove O(n) loop
 			SnakeTile* bonusTile = nullptr;
 			for (size_t i = 0; i < mTileCount; i++) {
-				if ((mTiles+i)->type() == TileType::BONUS_OBJECT) {
-					bonusTile = mTiles+i;
+				if (mTiles[i].type == TileType::BONUS_OBJECT) {
+					bonusTile = &mTiles[i];
 					break;
 				}
 			}
 			if (bonusTile != nullptr) {
-				bonusTile->setType(TileType::EMPTY);
+				bonusTile->type = TileType::EMPTY;
 			}
 		}
 	}
 
 	// Check if object eaten.
 	bool objectEaten = false;
-	if (nextHeadPtr->type() == TileType::OBJECT) {
+	if (nextHeadPtr->type == TileType::OBJECT) {
 		objectEaten = true;
 		mScore += static_cast<long>(mCfg.objectValue);
 		mTimeSinceBonus += 1;
 
 		SnakeTile* freeTile = freeRandomTile(*this);
-		if (freeTile != nullptr) freeTile->setType(TileType::OBJECT);
+		if (freeTile != nullptr) freeTile->type = TileType::OBJECT;
 
 		if (mTimeSinceBonus >= mCfg.bonusFrequency) {
 			freeTile = freeRandomTile(*this);
-			if (freeTile != nullptr) freeTile->setType(TileType::BONUS_OBJECT);
+			if (freeTile != nullptr) freeTile->type = TileType::BONUS_OBJECT;
 			mTimeSinceBonus = 0;
 			mBonusTimeLeft = mCfg.bonusDuration;
 		}
 
-		nextHeadPtr->setType(TileType::EMPTY);
+		nextHeadPtr->type = TileType::EMPTY;
 	}
-	else if (nextHeadPtr->type() == TileType::BONUS_OBJECT) {
+	else if (nextHeadPtr->type == TileType::BONUS_OBJECT) {
 		objectEaten = true;
 		mScore += static_cast<long>(mCfg.bonusObjectValue);
-		nextHeadPtr->setType(TileType::EMPTY);
+		nextHeadPtr->type = TileType::EMPTY;
 	}
 
 	// Check if speed should be increased
@@ -169,48 +158,138 @@ void Model::update(float delta) noexcept
 	}
 
 	// Check if Game Over
-	if (nextHeadPtr->type() != TileType::EMPTY && nextHeadPtr->type() != TileType::TAIL) {
+	if (nextHeadPtr->type != TileType::EMPTY && nextHeadPtr->type != TileType::TAIL) {
 		nextHeadPtr = mDeadHeadPtr;
 		mDeadHeadPos = nextPos;
 		mGameOver = true;
 	}
 
 	// Calculate more next pointers
-	Position tailPos = getTilePosition(mTailPtr);
-	Position nextTailPos = (mTailPtr->type() == TileType::TAIL_DIGESTING)
-	                       ? tailPos : adjacent(tailPos, mTailPtr->to());
-	SnakeTile* nextTailPtr = getTilePtr(nextTailPos);
+	Position tailPos = tilePosition(mTailPtr);
+	Position nextTailPos = (mTailPtr->type == TileType::TAIL_DIGESTING)
+	                       ? tailPos : adjacent(tailPos, mTailPtr->to);
+	SnakeTile* nextTailPtr = this->tilePtr(nextTailPos);
 	SnakeTile* nextPreHeadPtr = mHeadPtr;
 
 	// Move tail
-	if (mTailPtr->type() == TileType::TAIL_DIGESTING) {
-		nextTailPtr->setType(TileType::TAIL);
+	if (mTailPtr->type == TileType::TAIL_DIGESTING) {
+		nextTailPtr->type = TileType::TAIL;
 	} else {
-		mTailPtr->setType(TileType::EMPTY);
-		if (digesting(nextTailPtr->type())) nextTailPtr->setType(TileType::TAIL_DIGESTING);
-		else nextTailPtr->setType(TileType::TAIL);
+		mTailPtr->type = TileType::EMPTY;
+		if (digesting(nextTailPtr->type)) nextTailPtr->type = TileType::TAIL_DIGESTING;
+		else nextTailPtr->type = TileType::TAIL;
 	}
 
 	// Move pre head
-	if (digesting(nextPreHeadPtr->type())) nextPreHeadPtr->setType(TileType::PRE_HEAD_DIGESTING);
-	else nextPreHeadPtr->setType(TileType::PRE_HEAD);
+	if (digesting(nextPreHeadPtr->type)) nextPreHeadPtr->type = TileType::PRE_HEAD_DIGESTING;
+	else nextPreHeadPtr->type = TileType::PRE_HEAD;
 	if (mPreHeadPtr != nextTailPtr) {
-		if (digesting(mPreHeadPtr->type())) mPreHeadPtr->setType(TileType::BODY_DIGESTING);
-		else mPreHeadPtr->setType(TileType::BODY);
+		if (digesting(mPreHeadPtr->type)) mPreHeadPtr->type = TileType::BODY_DIGESTING;
+		else mPreHeadPtr->type = TileType::BODY;
 	}
 
 	// Move head
-	if (objectEaten) nextHeadPtr->setType(TileType::HEAD_DIGESTING);
-	else nextHeadPtr->setType(TileType::HEAD);
-	nextHeadPtr->setFrom(opposite(
-	              convertSideDirection(headPos.side, nextPos.side, nextPreHeadPtr->to())));
-	nextHeadPtr->setTo(opposite(nextHeadPtr->from()));
+	if (objectEaten) nextHeadPtr->type = TileType::HEAD_DIGESTING;
+	else nextHeadPtr->type = TileType::HEAD;
+	nextHeadPtr->from = (opposite(
+	              convertSideDirection(headPos.side, nextPos.side, nextPreHeadPtr->to)));
+	nextHeadPtr->to = opposite(nextHeadPtr->from);
 
 	// Update pointers
 	mHeadPtr = nextHeadPtr;
 	mPreHeadPtr = nextPreHeadPtr;
 	mTailPtr = nextTailPtr;
 }
+
+// Access methods
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+const SnakeTile* Model::tilePtr(Position pos) const noexcept
+{
+#if 0
+	const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
+	return mTiles + static_cast<uint8_t>(pos.side)*sideSize + pos.e2*mCfg.gridWidth + pos.e1;
+#else
+
+	assert(0 <= pos.e1);
+	assert(0 <= pos.e2);
+	assert(0 <= static_cast<uint8_t>(pos.side));
+	assert(pos.e1 < mCfg.gridWidth);
+	assert(pos.e2 < mCfg.gridWidth);
+	assert(static_cast<uint8_t>(pos.side) <= 5);
+
+	const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
+	SnakeTile* ptr =  (&mTiles[0]) + static_cast<uint8_t>(pos.side)*sideSize + pos.e2*mCfg.gridWidth + pos.e1;
+
+	assert(ptr < (ptr + mTileCount));
+
+	return ptr;
+#endif
+}
+
+SnakeTile* Model::tilePtr(Position pos) noexcept
+{
+#if 0
+	const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
+	return mTiles + static_cast<uint8_t>(pos.side)*sideSize + pos.e2*mCfg.gridWidth + pos.e1;
+#else
+
+	assert(0 <= pos.e1);
+	assert(0 <= pos.e2);
+	assert(0 <= static_cast<uint8_t>(pos.side));
+	assert(pos.e1 < mCfg.gridWidth);
+	assert(pos.e2 < mCfg.gridWidth);
+	assert(static_cast<uint8_t>(pos.side) <= 5);
+
+	const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
+	SnakeTile* ptr =  (&mTiles[0]) + static_cast<uint8_t>(pos.side)*sideSize + pos.e2*mCfg.gridWidth + pos.e1;
+
+	assert(ptr < (ptr + mTileCount));
+
+	return ptr;
+#endif
+}
+
+Position Model::tilePosition(const SnakeTile* tilePtr) const noexcept
+{
+#if 0
+	Position pos;
+	size_t length = tilePtr - mTiles;
+
+	const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
+	size_t sideOffset = length % sideSize;
+	pos.side = static_cast<Direction3D>((length-sideOffset)/sideSize);
+
+	pos.e1 = sideOffset % mCfg.gridWidth;
+	pos.e2 = (sideOffset-pos.e1)/mCfg.gridWidth;
+
+	return pos;
+#else
+	Position pos;
+	size_t length = tilePtr - (&mTiles[0]);
+
+	assert(length < mTileCount);
+
+	const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
+	size_t sideOffset = length % sideSize;
+	pos.side = static_cast<Direction3D>((length-sideOffset)/sideSize);
+
+	pos.e1 = sideOffset % mCfg.gridWidth;
+	pos.e2 = (sideOffset-pos.e1)/mCfg.gridWidth;
+
+	assert(0 <= pos.e1);
+	assert(0 <= pos.e2);
+	assert(0 <= static_cast<uint8_t>(pos.side));
+	assert(pos.e1 < mCfg.gridWidth);
+	assert(pos.e2 < mCfg.gridWidth);
+	assert(static_cast<uint8_t>(pos.side) <= 5);
+
+	return pos;
+#endif
+}
+
+// Member functions
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 Position Model::adjacent(Position pos, Direction2D to) const noexcept
 {

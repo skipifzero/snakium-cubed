@@ -1,23 +1,28 @@
+#include "gamelogic/Position.hpp"
+
+#include <iostream>
+#include <exception> // std::terminate
+
 namespace s3 {
 
-inline int16_t Position::coordinate(Coordinate coord) noexcept
+int16_t Position::coordinate(Coordinate coord) noexcept
 {
 	return coord == Coordinate::e1 ? e1 : e2;
 }
 
-inline void Position::setCoordinate(Coordinate coord, int16_t value) noexcept
+void Position::setCoordinate(Coordinate coord, int16_t value) noexcept
 {
 	if (coord == Coordinate::e1) e1 = value;
 	else e2 = value;
 }
 
 template<typename T>
-inline int sgn(T value) noexcept
+int sgn(T value) noexcept
 {
 	return (value > static_cast<T>(0)) - (value < static_cast<T>(0));
 }
 
-inline Direction3D direction(Direction3D side, Coordinate coordinate) noexcept
+Direction3D direction(Direction3D side, Coordinate coordinate) noexcept
 {
 	switch (coordinate) {
 	case Coordinate::e1: return mapDefaultUp(side, Direction2D::RIGHT);
@@ -33,12 +38,12 @@ inline Direction3D direction(Direction3D side, Coordinate coordinate) noexcept
 	}*/
 }
 
-inline sfz::vec3 directionVector(Direction3D side, Coordinate coordinate) noexcept
+vec3 directionVector(Direction3D side, Coordinate coordinate) noexcept
 {
 	return toVector(direction(side, coordinate));
 }
 
-inline Coordinate coordinate(Direction3D side, Direction3D dir) noexcept
+Coordinate coordinate(Direction3D side, Direction3D dir) noexcept
 {
 	Direction3D e1Dir = direction(side, Coordinate::e1);
 	if (dir == e1Dir || dir == opposite(e1Dir)) return Coordinate::e1;
@@ -48,18 +53,18 @@ inline Coordinate coordinate(Direction3D side, Direction3D dir) noexcept
 	std::terminate();
 }
 
-inline Coordinate coordinate(Direction3D side, Direction2D dir) noexcept
+Coordinate coordinate(Direction3D side, Direction2D dir) noexcept
 {
 	return coordinate(side, mapDefaultUp(side, dir));
 }
 
-inline int coordinateSign(Direction3D side, Coordinate coord) noexcept
+int coordinateSign(Direction3D side, Coordinate coord) noexcept
 {
 
 	return sgn(sfz::sum(toVector(direction(side, coord))));
 }
 
-inline Coordinate other(Coordinate coord) noexcept
+Coordinate other(Coordinate coord) noexcept
 {
 	return coord != Coordinate::e1 ? Coordinate::e1 : Coordinate::e2;
 }

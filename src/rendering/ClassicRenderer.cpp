@@ -56,9 +56,9 @@ static const gl::Texture& getTileTexture(SnakeTile *tilePtr, float progress, boo
 {
 	Assets& assets = Assets::INSTANCE();
 
-	bool isTurn = s3::isTurn(tilePtr->from(), tilePtr->to());
+	bool isTurn = s3::isTurn(tilePtr->from, tilePtr->to);
 
-	switch (tilePtr->type()) {
+	switch (tilePtr->type) {
 	case s3::TileType::EMPTY: return assets.TILE_FACE;
 	case s3::TileType::OBJECT: return assets.OBJECT;
 	case s3::TileType::BONUS_OBJECT: return assets.BONUS_OBJECT;
@@ -202,7 +202,7 @@ ClassicRenderer::ClassicRenderer() noexcept
 
 void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D& viewport) noexcept
 {
-	Assets& assets = Assets::INSTANCE();
+	/*Assets& assets = Assets::INSTANCE();
 
 	float aspect = viewport.width() / viewport.height();
 	mProjMatrix = sfz::glPerspectiveProjectionMatrix(cam.mFov, aspect, 0.1f, 50.0f);
@@ -245,7 +245,7 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 
 	for (size_t side = 0; side < 6; side++) {
 		currentSide = cam.mSideRenderOrder[side];
-		sidePtr = model.getTilePtr(Position{currentSide, 0, 0});
+		sidePtr = model.tilePtr(Position{currentSide, 0, 0});
 
 		tileSpaceRot = tileSpaceRotation(currentSide);
 		tileSpaceRotScaling = tileSpaceRot * tileScaling;
@@ -258,7 +258,7 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 
 				// Calculate base transform
 				transform = tileSpaceRotScaling;
-				transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
+				transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from));
 
 				// Render tile face
 				sfz::translation(transform, tilePosToVector(model, tilePos));
@@ -267,14 +267,14 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 				mTile.render();
 
 				// Render snake sprite for non-empty tiles
-				if (tilePtr->type() == s3::TileType::EMPTY) continue;
+				if (tilePtr->type == s3::TileType::EMPTY) continue;
 
 				// Tile Sprite Transform
 				sfz::translation(transform, translation(transform) + snakeFloatVec);
 				gl::setUniform(mProgram, "modelViewProj", viewProj * transform);
 				glBindTexture(GL_TEXTURE_2D,
 					getTileTexture(tilePtr, model.mProgress, model.mGameOver).handle());
-				if (isLeftTurn(tilePtr->from(), tilePtr->to())) mXFlippedTile.render();
+				if (isLeftTurn(tilePtr->from, tilePtr->to)) mXFlippedTile.render();
 				else mTile.render();
 			}
 		} else {
@@ -284,15 +284,15 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 
 				// Calculate base transform
 				transform = tileSpaceRotScaling;
-				transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
+				transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from));
 
 				// Render snake sprite for non-empty tiles
-				if (tilePtr->type() != s3::TileType::EMPTY) {
+				if (tilePtr->type != s3::TileType::EMPTY) {
 					sfz::translation(transform, tilePosToVector(model, tilePos) + snakeFloatVec);
 					gl::setUniform(mProgram, "modelViewProj", viewProj * transform);
 					glBindTexture(GL_TEXTURE_2D,
 						getTileTexture(tilePtr, model.mProgress, model.mGameOver).handle());
-					if (isLeftTurn(tilePtr->from(), tilePtr->to())) mXFlippedTile.render();
+					if (isLeftTurn(tilePtr->from, tilePtr->to)) mXFlippedTile.render();
 					else mTile.render();
 				}
 
@@ -315,14 +315,14 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 		tileSpaceRotScaling = tileSpaceRot * tileScaling;
 		snakeFloatVec = toVector(deadHeadPos.side) * 0.0015f;
 		transform = tileSpaceRotScaling;
-		transform *= sfz::yRotationMatrix4(getTileAngleRad(deadHeadPos.side, deadHeadPtr->from()));
+		transform *= sfz::yRotationMatrix4(getTileAngleRad(deadHeadPos.side, deadHeadPtr->from));
 		translation(transform, tilePosToVector(model, deadHeadPos) + snakeFloatVec);
 
 		// Render dead head
 		gl::setUniform(mProgram, "modelViewProj", viewProj * transform);
 		glBindTexture(GL_TEXTURE_2D,
 			getTileTexture(deadHeadPtr, model.mProgress, model.mGameOver).handle());
-		if (isLeftTurn(deadHeadPtr->from(), deadHeadPtr->to())) mXFlippedTile.render();
+		if (isLeftTurn(deadHeadPtr->from, deadHeadPtr->to)) mXFlippedTile.render();
 		else mTile.render();
 	}
 
@@ -349,7 +349,7 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 	}
 
 	// Clean up
-	glUseProgram(0);
+	glUseProgram(0);*/
 }
 
 } // namespace s3

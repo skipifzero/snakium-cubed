@@ -45,14 +45,14 @@ source_group(snakium_cubed_root FILES ${SOURCE_BASE_FILES})
 set(SOURCE_GAMELOGIC_FILES
 	${SRC_DIR}/GameLogic.hpp
 	${SRC_DIR}/gamelogic/Direction.hpp
-	${SRC_DIR}/gamelogic/Direction.inl
+	${SRC_DIR}/gamelogic/Direction.cpp
 	${SRC_DIR}/gamelogic/Model.hpp
 	${SRC_DIR}/gamelogic/Model.cpp
 	${SRC_DIR}/gamelogic/ModelConfig.hpp
 	${SRC_DIR}/gamelogic/Position.hpp
-	${SRC_DIR}/gamelogic/Position.inl
+	${SRC_DIR}/gamelogic/Position.cpp
 	${SRC_DIR}/gamelogic/SnakeTile.hpp
-	${SRC_DIR}/gamelogic/SnakeTile.inl)
+	${SRC_DIR}/gamelogic/SnakeTile.cpp)
 source_group(gamelogic FILES ${SOURCE_GAMELOGIC_FILES})
 
 set(SOURCE_RENDERING_FILES

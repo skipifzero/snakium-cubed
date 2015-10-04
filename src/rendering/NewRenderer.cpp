@@ -29,14 +29,14 @@ static gl::Program compileStandardShaderProgram() noexcept
 	});
 }
 
-static gl::Model& getTileModel(SnakeTile* tilePtr, float progress, bool gameOver) noexcept
+static gl::Model& getTileModel(const SnakeTile* tilePtr, float progress, bool gameOver) noexcept
 {
 	Assets& a = Assets::INSTANCE();
-	const bool rightTurn = isRightTurn(tilePtr->from(), tilePtr->to());
-	const bool leftTurn = isLeftTurn(tilePtr->from(), tilePtr->to());
+	const bool rightTurn = isRightTurn(tilePtr->from, tilePtr->to);
+	const bool leftTurn = isLeftTurn(tilePtr->from, tilePtr->to);
 	const bool frame1 = progress <= 0.5f;
 
-	switch (tilePtr->type()) {
+	switch (tilePtr->type) {
 	//case s3::TileType::EMPTY:
 	//case s3::TileType::OBJECT:
 	//case s3::TileType::BONUS_OBJECT:
@@ -107,14 +107,14 @@ static gl::Model& getTileModel(SnakeTile* tilePtr, float progress, bool gameOver
 	return a.NOT_FOUND_MODEL;
 }
 
-static gl::Model* getTileProjectionModelPtr(SnakeTile* tilePtr, float progress, bool gameOver) noexcept
+static gl::Model* getTileProjectionModelPtr(const SnakeTile* tilePtr, float progress) noexcept
 {
 	Assets& a = Assets::INSTANCE();
-	const bool rightTurn = isRightTurn(tilePtr->from(), tilePtr->to());
-	const bool leftTurn = isLeftTurn(tilePtr->from(), tilePtr->to());
+	const bool rightTurn = isRightTurn(tilePtr->from, tilePtr->to);
+	const bool leftTurn = isLeftTurn(tilePtr->from, tilePtr->to);
 	const bool frame1 = progress <= 0.5f;
 
-	switch (tilePtr->type()) {
+	switch (tilePtr->type) {
 	
 	//case s3::TileType::EMPTY:
 	//case s3::TileType::OBJECT:
@@ -260,7 +260,7 @@ static mat4 tileSpaceRotation(Direction3D side) noexcept
 
 static vec4 tileColor(const SnakeTile* tilePtr) noexcept
 {
-	switch (tilePtr->type()) {
+	switch (tilePtr->type) {
 
 	case s3::TileType::OBJECT:
 		return vec4(0.0f, 1.0f, 1.0f, 1.0f);
@@ -335,14 +335,14 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 	
 	// Render opaque objects
 	for (size_t i = 0; i < model.mTileCount; ++i) {
-		SnakeTile* tilePtr = model.mTiles + i;
-		Position tilePos = model.getTilePosition(tilePtr);
+		const SnakeTile* tilePtr = model.tilePtr(i);
+		Position tilePos = model.tilePosition(tilePtr);
 
 		// Calculate base transform
 		mat4 tileSpaceRot = tileSpaceRotation(tilePos.side);
 		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;
 		mat4 transform = tileSpaceRotScaling;
-		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
+		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from));
 		sfz::translation(transform, tilePosToVector(model, tilePos));
 
 		// Set uniforms
@@ -355,7 +355,7 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 		assets.TILE_DECORATION_MODEL.render();
 
 		// Skip empty tiles
-		if (tilePtr->type() == s3::TileType::EMPTY) continue;
+		if (tilePtr->type == s3::TileType::EMPTY) continue;
 
 		// Render tile model
 		gl::setUniform(mProgram, "uColor", tileColor(tilePtr));
@@ -372,7 +372,7 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 
 		// Calculate base transform
 		mat4 transform = tileSpaceRotScaling;
-		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
+		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from));
 		sfz::translation(transform, tilePosToVector(model, tilePos));
 
 		// Set uniforms
@@ -388,18 +388,18 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 	// Render transparent objects
 	for (size_t side = 0; side < 6; side++) {
 		Direction3D currentSide = cam.mSideRenderOrder[side];
-		SnakeTile* sidePtr = model.getTilePtr(Position{currentSide, 0, 0});
+		const SnakeTile* sidePtr = model.tilePtr(Position{currentSide, 0, 0});
 
 		mat4 tileSpaceRot = tileSpaceRotation(currentSide);
 		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;
 
 		for (size_t i = 0; i < tilesPerSide; i++) {
-			SnakeTile* tilePtr = sidePtr + i;
-			Position tilePos = model.getTilePosition(tilePtr);
+			const SnakeTile* tilePtr = sidePtr + i;
+			Position tilePos = model.tilePosition(tilePtr);
 
 			// Calculate base transform
 			mat4 transform = tileSpaceRotScaling;
-			transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
+			transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from));
 			sfz::translation(transform, tilePosToVector(model, tilePos));
 
 			// Set uniforms
@@ -415,14 +415,14 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 				
 				// Render tile projection
 				gl::setUniform(mProgram, "uColor", vec4{0.5f, 0.5f, 0.5f, 0.7f});
-				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, model.mProgress, model.mGameOver);
+				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, model.mProgress);
 				if (tileProjModelPtr != nullptr) tileProjModelPtr->render();
 
 			} else {
 
 				// Render tile projection
 				gl::setUniform(mProgram, "uColor", vec4{0.5f, 0.5f, 0.5f, 0.7f});
-				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, model.mProgress, model.mGameOver);
+				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, model.mProgress);
 				if (tileProjModelPtr != nullptr) tileProjModelPtr->render();
 
 				// Render cube tile projection
@@ -442,7 +442,7 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 
 		// Calculate base transform
 		mat4 transform = tileSpaceRotScaling;
-		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
+		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from));
 		sfz::translation(transform, tilePosToVector(model, tilePos));
 
 		// Set uniforms
@@ -452,7 +452,7 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 
 		// Render tile model
 		gl::setUniform(mProgram, "uColor", vec4{0.5f, 0.5f, 0.5f, 0.7f});
-		getTileProjectionModelPtr(tilePtr, model.mProgress, model.mGameOver)->render();
+		getTileProjectionModelPtr(tilePtr, model.mProgress)->render();
 	}
 	
 
