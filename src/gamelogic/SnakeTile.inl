@@ -13,7 +13,7 @@ inline bool digesting(TileType type) noexcept
 	}
 }
 
-inline TileType SnakeTile::type(void) const noexcept
+/*inline TileType SnakeTile::type(void) const noexcept
 {
 	return static_cast<TileType>(mBits & 0x0F);
 }
@@ -44,6 +44,6 @@ inline void SnakeTile::setTo(Direction2D to) noexcept
 {
 	mBits &= 0x3F; // Clear previous to direction
 	mBits |= ((static_cast<uint8_t>(to) << 6) & 0xC0); // Set new to direction
-}
+}*/
 
 } // namespace s3

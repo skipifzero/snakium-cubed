@@ -38,7 +38,7 @@ inline bool digesting(TileType type) noexcept;
  * Should takes up exactly one byte in memory, unless struct gets padded for some reason.
  * mBits ==  msb [ [to][from][type] ] lsb
  */
-struct SnakeTile final {
+/*struct SnakeTile final {
 	uint8_t mBits;
 
 	inline TileType type(void) const noexcept;
@@ -48,6 +48,22 @@ struct SnakeTile final {
 	inline void setType(TileType type) noexcept;
 	inline void setFrom(Direction2D from) noexcept;
 	inline void setTo(Direction2D to) noexcept;
+};*/
+
+class SnakeTile final {
+public:
+	
+	inline TileType type() const noexcept { return mType; }
+	inline Direction2D from() const noexcept { return mFrom; }
+	inline Direction2D to() const noexcept { return mTo; }
+
+	inline void setType(TileType type) noexcept { mType = type; }
+	inline void setFrom(Direction2D from) noexcept { mFrom = from; }
+	inline void setTo(Direction2D to) noexcept { mTo = to; }
+
+private:
+	TileType mType;
+	Direction2D mFrom, mTo;
 };
 
 } // namespace s3
