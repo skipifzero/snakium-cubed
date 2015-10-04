@@ -141,10 +141,23 @@ static gl::Model* getTileProjectionModelPtr(SnakeTile* tilePtr, float progress, 
 		if (frame1) return &a.HEAD_D2U_F1_PROJECTION_MODEL;
 		else return &a.HEAD_D2U_F2_PROJECTION_MODEL;
 
+	case TileType::PRE_HEAD_DIGESTING:
+		if (frame1) {
+			if (rightTurn) return &a.PRE_HEAD_D2R_DIG_F1_PROJECTION_MODEL;
+			else if (leftTurn) return &a.PRE_HEAD_D2L_DIG_F1_PROJECTION_MODEL;
+			else return &a.PRE_HEAD_D2U_DIG_F1_PROJECTION_MODEL;
+			break;
+		} else {
+			if (rightTurn) return &a.BODY_D2R_DIG_PROJECTION_MODEL;
+			else if (leftTurn) return &a.BODY_D2L_DIG_PROJECTION_MODEL;
+			else return &a.BODY_D2U_DIG_PROJECTION_MODEL;
+		}
+
 	case TileType::BODY_DIGESTING:
 		if (rightTurn) return &a.BODY_D2R_DIG_PROJECTION_MODEL;
 		else if (leftTurn) return &a.BODY_D2L_DIG_PROJECTION_MODEL;
 		else return &a.BODY_D2U_DIG_PROJECTION_MODEL;
+
 	}
 
 	return nullptr;
@@ -174,17 +187,6 @@ static gl::Model* getTileProjectionModelPtr(SnakeTile* tilePtr, float progress, 
 			if (rightTurn) return a.TAIL_D2R_F2_MODEL;
 			else if (leftTurn) return a.TAIL_D2L_F2_MODEL;
 			else return a.TAIL_D2U_F2_MODEL;
-		}
-
-	case TileType::PRE_HEAD_DIGESTING:
-		if (frame1) {
-			if (rightTurn) return (!gameOver) ? a.PRE_HEAD_D2R_DIG_F1_MODEL : a.DEAD_PRE_HEAD_D2R_DIG_F1_MODEL;
-			else if (leftTurn) return (!gameOver) ? a.PRE_HEAD_D2L_DIG_F1_MODEL : a.DEAD_PRE_HEAD_D2L_DIG_F1_MODEL;
-			else return (!gameOver) ? a.PRE_HEAD_D2U_DIG_F1_MODEL : a.DEAD_PRE_HEAD_D2U_DIG_F1_MODEL;
-		} else {
-			if (rightTurn) return a.BODY_D2R_DIG_MODEL;
-			else if (leftTurn) return a.BODY_D2L_DIG_MODEL;
-			else return a.BODY_D2U_DIG_MODEL;
 		}
 
 	case TileType::TAIL_DIGESTING:
