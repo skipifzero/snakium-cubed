@@ -2,6 +2,8 @@
 
 #include <new>
 
+#include <sfz/Assert.hpp>
+
 namespace s3 {
 
 namespace {
@@ -21,7 +23,7 @@ std::mt19937_64 createRNGGenerator(void) noexcept
 SnakeTile* freeRandomTile(Model& model) noexcept
 {
 	std::vector<SnakeTile*> freeTiles;
-	for (size_t i = 0; i < model.mTileCount; i++) {
+	for (size_t i = 0; i < model.numTiles(); i++) {
 		if (model.tilePtr(i)->type == TileType::EMPTY) freeTiles.push_back(model.tilePtr(i));
 	}
 
@@ -41,9 +43,11 @@ Model::Model(ModelConfig cfg) noexcept
 :
 	mCfg(cfg),
 	mTileCount{static_cast<size_t>(mCfg.gridWidth*mCfg.gridWidth*6)},
-	mTiles{new (std::nothrow) SnakeTile[mTileCount+1]}, // +1, last tile is the dead head tile
 	mCurrentSpeed{cfg.tilesPerSecond}
 {
+	// +1, last tile is the dead head tile
+	mTiles = unique_ptr<SnakeTile[]>{new (std::nothrow) SnakeTile[mTileCount+1]};
+
 	// Start position for snake (head)
 	Position tempPos;
 	tempPos.side = Direction3D::SOUTH;
@@ -206,69 +210,34 @@ void Model::update(float delta) noexcept
 
 const SnakeTile* Model::tilePtr(Position pos) const noexcept
 {
-#if 0
-	const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
-	return mTiles + static_cast<uint8_t>(pos.side)*sideSize + pos.e2*mCfg.gridWidth + pos.e1;
-#else
-
-	assert(0 <= pos.e1);
-	assert(0 <= pos.e2);
-	assert(0 <= static_cast<uint8_t>(pos.side));
-	assert(pos.e1 < mCfg.gridWidth);
-	assert(pos.e2 < mCfg.gridWidth);
-	assert(static_cast<uint8_t>(pos.side) <= 5);
+	sfz_assert_debug(mTiles != nullptr);
+	sfz_assert_debug(0 <= pos.e1);
+	sfz_assert_debug(0 <= pos.e2);
+	sfz_assert_debug(0 <= static_cast<uint8_t>(pos.side));
+	sfz_assert_debug(pos.e1 < mCfg.gridWidth);
+	sfz_assert_debug(pos.e2 < mCfg.gridWidth);
+	sfz_assert_debug(static_cast<uint8_t>(pos.side) <= 5);
 
 	const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
 	SnakeTile* ptr =  (&mTiles[0]) + static_cast<uint8_t>(pos.side)*sideSize + pos.e2*mCfg.gridWidth + pos.e1;
 
-	assert(ptr < (ptr + mTileCount));
+	sfz_assert_debug(ptr < (ptr + mTileCount));
 
 	return ptr;
-#endif
 }
 
 SnakeTile* Model::tilePtr(Position pos) noexcept
 {
-#if 0
-	const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
-	return mTiles + static_cast<uint8_t>(pos.side)*sideSize + pos.e2*mCfg.gridWidth + pos.e1;
-#else
-
-	assert(0 <= pos.e1);
-	assert(0 <= pos.e2);
-	assert(0 <= static_cast<uint8_t>(pos.side));
-	assert(pos.e1 < mCfg.gridWidth);
-	assert(pos.e2 < mCfg.gridWidth);
-	assert(static_cast<uint8_t>(pos.side) <= 5);
-
-	const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
-	SnakeTile* ptr =  (&mTiles[0]) + static_cast<uint8_t>(pos.side)*sideSize + pos.e2*mCfg.gridWidth + pos.e1;
-
-	assert(ptr < (ptr + mTileCount));
-
-	return ptr;
-#endif
+	const SnakeTile* ptr = ((const Model*)this)->tilePtr(pos);
+	return const_cast<SnakeTile*>(ptr);
 }
 
 Position Model::tilePosition(const SnakeTile* tilePtr) const noexcept
 {
-#if 0
-	Position pos;
-	size_t length = tilePtr - mTiles;
-
-	const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
-	size_t sideOffset = length % sideSize;
-	pos.side = static_cast<Direction3D>((length-sideOffset)/sideSize);
-
-	pos.e1 = sideOffset % mCfg.gridWidth;
-	pos.e2 = (sideOffset-pos.e1)/mCfg.gridWidth;
-
-	return pos;
-#else
 	Position pos;
 	size_t length = tilePtr - (&mTiles[0]);
 
-	assert(length < mTileCount);
+	sfz_assert_debug(length < mTileCount);
 
 	const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
 	size_t sideOffset = length % sideSize;
@@ -277,15 +246,14 @@ Position Model::tilePosition(const SnakeTile* tilePtr) const noexcept
 	pos.e1 = sideOffset % mCfg.gridWidth;
 	pos.e2 = (sideOffset-pos.e1)/mCfg.gridWidth;
 
-	assert(0 <= pos.e1);
-	assert(0 <= pos.e2);
-	assert(0 <= static_cast<uint8_t>(pos.side));
-	assert(pos.e1 < mCfg.gridWidth);
-	assert(pos.e2 < mCfg.gridWidth);
-	assert(static_cast<uint8_t>(pos.side) <= 5);
+	sfz_assert_debug(0 <= pos.e1);
+	sfz_assert_debug(0 <= pos.e2);
+	sfz_assert_debug(0 <= static_cast<uint8_t>(pos.side));
+	sfz_assert_debug(pos.e1 < mCfg.gridWidth);
+	sfz_assert_debug(pos.e2 < mCfg.gridWidth);
+	sfz_assert_debug(static_cast<uint8_t>(pos.side) <= 5);
 
 	return pos;
-#endif
 }
 
 // Member functions

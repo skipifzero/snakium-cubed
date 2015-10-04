@@ -52,7 +52,7 @@ static gl::Program compileStandardShaderProgram() noexcept
 	});
 }
 
-static const gl::Texture& getTileTexture(SnakeTile *tilePtr, float progress, bool gameOver) noexcept
+static const gl::Texture& getTileTexture(const SnakeTile *tilePtr, float progress, bool gameOver) noexcept
 {
 	Assets& assets = Assets::INSTANCE();
 
@@ -202,7 +202,7 @@ ClassicRenderer::ClassicRenderer() noexcept
 
 void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D& viewport) noexcept
 {
-	/*Assets& assets = Assets::INSTANCE();
+	Assets& assets = Assets::INSTANCE();
 
 	float aspect = viewport.width() / viewport.height();
 	mProjMatrix = sfz::glPerspectiveProjectionMatrix(cam.mFov, aspect, 0.1f, 50.0f);
@@ -238,23 +238,19 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 	const float tileWidth = 1.0f / gridWidth;
 	const mat4 tileScaling = sfz::scalingMatrix4(tileWidth);
 	mat4 transform, tileSpaceRot, tileSpaceRotScaling;
-	vec3 snakeFloatVec;
-	SnakeTile *sidePtr, *tilePtr;
-	Position tilePos;
-	Direction3D currentSide;
 
 	for (size_t side = 0; side < 6; side++) {
-		currentSide = cam.mSideRenderOrder[side];
-		sidePtr = model.tilePtr(Position{currentSide, 0, 0});
+		Direction3D currentSide = cam.mSideRenderOrder[side];
+		const SnakeTile* sidePtr = model.tilePtr(Position{currentSide, 0, 0});
 
 		tileSpaceRot = tileSpaceRotation(currentSide);
 		tileSpaceRotScaling = tileSpaceRot * tileScaling;
-		snakeFloatVec = toVector(currentSide) * 0.001f;
+		vec3 snakeFloatVec = toVector(currentSide) * 0.001f;
 
 		if (cam.mRenderTileFaceFirst[side]) {
 			for (size_t i = 0; i < tilesPerSide; i++) {
-				tilePtr = sidePtr + i;
-				tilePos = model.getTilePosition(tilePtr);
+				const SnakeTile* tilePtr = sidePtr + i;
+				Position tilePos = model.tilePosition(tilePtr);
 
 				// Calculate base transform
 				transform = tileSpaceRotScaling;
@@ -279,8 +275,8 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 			}
 		} else {
 			for (size_t i = 0; i < tilesPerSide; i++) {
-				tilePtr = sidePtr + i;
-				tilePos = model.getTilePosition(tilePtr);
+				const SnakeTile* tilePtr = sidePtr + i;
+				Position tilePos = model.tilePosition(tilePtr);
 
 				// Calculate base transform
 				transform = tileSpaceRotScaling;
@@ -307,13 +303,13 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 
 	// Hack to correctly render dead snake head
 	if (model.mGameOver) {
-		SnakeTile* deadHeadPtr = model.mDeadHeadPtr;
-		Position deadHeadPos = model.mDeadHeadPos;
+		const SnakeTile* deadHeadPtr = model.deadHeadPtr();
+		Position deadHeadPos = model.deadHeadPos();
 
 		// Calculate dead head transform
 		tileSpaceRot = tileSpaceRotation(deadHeadPos.side);
 		tileSpaceRotScaling = tileSpaceRot * tileScaling;
-		snakeFloatVec = toVector(deadHeadPos.side) * 0.0015f;
+		vec3 snakeFloatVec = toVector(deadHeadPos.side) * 0.0015f;
 		transform = tileSpaceRotScaling;
 		transform *= sfz::yRotationMatrix4(getTileAngleRad(deadHeadPos.side, deadHeadPtr->from));
 		translation(transform, tilePosToVector(model, deadHeadPos) + snakeFloatVec);
@@ -349,7 +345,7 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 	}
 
 	// Clean up
-	glUseProgram(0);*/
+	glUseProgram(0);
 }
 
 } // namespace s3

@@ -32,10 +32,7 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	const ModelConfig mCfg;
-	const size_t mTileCount;
-	//SnakeTile* const mTiles;
-	SnakeTile *mHeadPtr, *mPreHeadPtr, *mTailPtr, *mDeadHeadPtr;
-	Position mDeadHeadPos;
+	
 	float mProgress = 0.0f;
 	long mScore = 0;
 	bool mGameOver = false;
@@ -66,6 +63,15 @@ public:
 
 	Position tilePosition(const SnakeTile* tilePtr) const noexcept;
 
+	// Getters
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	inline size_t numTiles() const noexcept { return mTileCount; }
+	inline const SnakeTile* headPtr() const noexcept { return mHeadPtr; }
+	inline const SnakeTile* preHeadPtr() const noexcept { return mPreHeadPtr; }
+	inline const SnakeTile* deadHeadPtr() const noexcept { return mDeadHeadPtr; }
+	inline Position deadHeadPos() const noexcept { return mDeadHeadPos; }
+
 	// Member functions
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -76,6 +82,12 @@ private:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	unique_ptr<SnakeTile[]> mTiles;
+	size_t mTileCount = 0;
+	SnakeTile* mHeadPtr = nullptr;
+	SnakeTile* mPreHeadPtr = nullptr;
+	SnakeTile* mTailPtr = nullptr;
+	SnakeTile* mDeadHeadPtr = nullptr;
+	Position mDeadHeadPos;
 
 	int mTimeSinceBonus = 0;
 	int mBonusTimeLeft = 0;

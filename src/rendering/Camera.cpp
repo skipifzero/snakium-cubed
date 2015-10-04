@@ -79,8 +79,8 @@ Camera::Camera() noexcept
 
 void Camera::update(const Model& model, float delta) noexcept
 {
-	Position headPos = model.tilePosition(model.mHeadPtr);
-	Position preHeadPos = model.tilePosition(model.mPreHeadPtr);
+	Position headPos = model.tilePosition(model.headPtr());
+	Position preHeadPos = model.tilePosition(model.preHeadPtr());
 
 	// Update up direction and lastCubeSide
 	if (mLastCubeSide != headPos.side) {
@@ -96,11 +96,11 @@ void Camera::update(const Model& model, float delta) noexcept
 	const float tileWidth = 1.0f / static_cast<float>(model.mCfg.gridWidth);
 	sfz::vec3 posOnCube;
 	if (model.mProgress <= 0.5f) {
-		Direction3D preHeadTo = mapDefaultUp(preHeadPos.side, model.mPreHeadPtr->to);
+		Direction3D preHeadTo = mapDefaultUp(preHeadPos.side, model.preHeadPtr()->to);
 		sfz::vec3 diff = toVector(preHeadTo) * model.mProgress * tileWidth;
 		posOnCube = tilePosToVector(model, preHeadPos) + diff;
 	} else {
-		Direction3D headFrom = mapDefaultUp(headPos.side, model.mHeadPtr->from);
+		Direction3D headFrom = mapDefaultUp(headPos.side, model.headPtr()->from);
 		sfz::vec3 diff = toVector(headFrom) * (1.0f - model.mProgress) * tileWidth;
 		posOnCube = tilePosToVector(model, headPos) + diff;
 	}

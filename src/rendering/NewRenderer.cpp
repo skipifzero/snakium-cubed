@@ -334,7 +334,7 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 	const mat4 tileScaling = sfz::scalingMatrix4(1.0f / (16.0f * (float)model.mCfg.gridWidth));
 	
 	// Render opaque objects
-	for (size_t i = 0; i < model.mTileCount; ++i) {
+	for (size_t i = 0; i < model.numTiles(); ++i) {
 		const SnakeTile* tilePtr = model.tilePtr(i);
 		Position tilePos = model.tilePosition(tilePtr);
 
@@ -364,8 +364,8 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 
 	// Render dead snake head if game over (opaque)
 	if (model.mGameOver) {
-		SnakeTile* tilePtr = model.mDeadHeadPtr;
-		Position tilePos = model.mDeadHeadPos;
+		const SnakeTile* tilePtr = model.deadHeadPtr();
+		Position tilePos = model.deadHeadPos();
 
 		mat4 tileSpaceRot = tileSpaceRotation(tilePos.side);
 		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;
@@ -434,8 +434,8 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 
 	// Render dead snake head projection if game over
 	if (model.mGameOver) {
-		SnakeTile* tilePtr = model.mDeadHeadPtr;
-		Position tilePos = model.mDeadHeadPos;
+		const SnakeTile* tilePtr = model.deadHeadPtr();
+		Position tilePos = model.deadHeadPos();
 
 		mat4 tileSpaceRot = tileSpaceRotation(tilePos.side);
 		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;
