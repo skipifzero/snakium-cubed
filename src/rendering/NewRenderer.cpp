@@ -37,9 +37,9 @@ static gl::Model& getTileModel(SnakeTile* tilePtr, float progress, bool gameOver
 	const bool frame1 = progress <= 0.5f;
 
 	switch (tilePtr->type()) {
-	//case s3::TileType::EMPTY: return assets.TILE_FACE;
-	//case s3::TileType::OBJECT: return assets.OBJECT;
-	//case s3::TileType::BONUS_OBJECT: return assets.BONUS_OBJECT;
+	//case s3::TileType::EMPTY:
+	//case s3::TileType::OBJECT:
+	//case s3::TileType::BONUS_OBJECT:
 
 	case TileType::HEAD:
 		if (frame1) return a.HEAD_D2U_F1_MODEL;
@@ -173,37 +173,20 @@ static gl::Model* getTileProjectionModelPtr(SnakeTile* tilePtr, float progress, 
 		else if (leftTurn) return &a.BODY_D2L_DIG_PROJECTION_MODEL;
 		else return &a.BODY_D2U_DIG_PROJECTION_MODEL;
 
+	case TileType::TAIL_DIGESTING:
+		if (frame1) {
+			if (rightTurn) return &a.TAIL_D2R_DIG_F1_PROJECTION_MODEL;
+			else if (leftTurn) return &a.TAIL_D2L_DIG_F1_PROJECTION_MODEL;
+			else return &a.TAIL_D2U_DIG_F1_PROJECTION_MODEL;
+		} else {
+			if (rightTurn) return &a.TAIL_D2R_DIG_F2_PROJECTION_MODEL;
+			else if (leftTurn) return &a.TAIL_D2L_DIG_F2_PROJECTION_MODEL;
+			else return &a.TAIL_D2U_DIG_F2_PROJECTION_MODEL;
+		}
+
 	}
 
 	return nullptr;
-
-	/*switch (tilePtr->type()) {
-		//case s3::TileType::EMPTY: return assets.TILE_FACE;
-		//case s3::TileType::OBJECT: return assets.OBJECT;
-		//case s3::TileType::BONUS_OBJECT: return assets.BONUS_OBJECT;
-
-	case TileType::PRE_HEAD:
-		if (frame1) {
-			if (rightTurn) return (!gameOver) ? a.PRE_HEAD_D2R_F1_MODEL : a.DEAD_PRE_HEAD_D2R_F1_MODEL;
-			else if (leftTurn) return (!gameOver) ? a.PRE_HEAD_D2L_F1_MODEL : a.DEAD_PRE_HEAD_D2L_F1_MODEL;
-			else return (!gameOver) ? a.PRE_HEAD_D2U_F1_MODEL : a.DEAD_PRE_HEAD_D2U_F1_MODEL;
-		} else {
-			if (rightTurn) return a.BODY_D2R_MODEL;
-			else if (leftTurn) return a.BODY_D2L_MODEL;
-			else return a.BODY_D2U_MODEL;
-		}
-
-	case TileType::TAIL_DIGESTING:
-		if (frame1) {
-			if (rightTurn) return a.TAIL_D2R_DIG_F1_MODEL;
-			else if (leftTurn) return a.TAIL_D2L_DIG_F1_MODEL;
-			else return a.TAIL_D2U_DIG_F1_MODEL;
-		} else {
-			if (rightTurn) return a.TAIL_D2R_DIG_F2_MODEL;
-			if (leftTurn) return a.TAIL_D2L_DIG_F2_MODEL;
-			else return a.TAIL_D2U_DIG_F2_MODEL;
-		}
-	}*/
 }
 
 
@@ -448,6 +431,30 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 			}
 		}
 	}
+
+	// Render dead snake head projection if game over
+	if (model.mGameOver) {
+		SnakeTile* tilePtr = model.mDeadHeadPtr;
+		Position tilePos = model.mDeadHeadPos;
+
+		mat4 tileSpaceRot = tileSpaceRotation(tilePos.side);
+		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;
+
+		// Calculate base transform
+		mat4 transform = tileSpaceRotScaling;
+		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from()));
+		sfz::translation(transform, tilePosToVector(model, tilePos));
+
+		// Set uniforms
+		const mat4 normalMatrix = sfz::inverse(sfz::transpose(viewMatrix * transform));
+		gl::setUniform(mProgram, "uModelMatrix", transform);
+		gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
+
+		// Render tile model
+		gl::setUniform(mProgram, "uColor", vec4{0.5f, 0.5f, 0.5f, 0.7f});
+		getTileProjectionModelPtr(tilePtr, model.mProgress, model.mGameOver)->render();
+	}
+	
 
 	// Render text
 	gl::FontRenderer& font = assets.fontRenderer;
