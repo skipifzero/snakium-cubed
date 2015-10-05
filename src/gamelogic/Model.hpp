@@ -60,12 +60,14 @@ public:
 	inline bool isGameOver() const noexcept { return mGameOver; }
 	inline float currentSpeed() const noexcept { return mCurrentSpeed; }
 
-	// Public methods
+private:
+	// Private methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	Position adjacent(Position pos, Direction2D to) const noexcept;
+	Position nextPosition(const SnakeTile* tile) const noexcept;
+	Position prevPosition(const SnakeTile* tile) const noexcept;
 
-private:
 	// Private Members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

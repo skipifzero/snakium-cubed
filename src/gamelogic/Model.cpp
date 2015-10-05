@@ -66,7 +66,7 @@ Model::Model(ModelConfig cfg) noexcept
 	mHeadPtr = tile;
 
 	// Pre Head
-	tempPos = adjacent(tempPos, Direction2D::DOWN);
+	tempPos = prevPosition(tile);
 	tile = this->tilePtr(tempPos);
 	tile->type = TileType::PRE_HEAD;
 	tile->to = Direction2D::UP;
@@ -74,7 +74,7 @@ Model::Model(ModelConfig cfg) noexcept
 	mPreHeadPtr = tile;
 
 	// Tile
-	tempPos = adjacent(tempPos, Direction2D::DOWN);
+	tempPos = prevPosition(tile);
 	tile = this->tilePtr(tempPos);
 	tile->type = TileType::TAIL;
 	tile->to = Direction2D::UP;
@@ -113,7 +113,7 @@ void Model::update(float delta) noexcept
 
 	// Calculate the next head position
 	Position headPos = tilePosition(mHeadPtr);
-	Position nextPos = adjacent(headPos, mHeadPtr->to);
+	Position nextPos = nextPosition(mHeadPtr);
 	SnakeTile* nextHeadPtr = this->tilePtr(nextPos);
 
 	// Check if bonus time is over
@@ -174,7 +174,7 @@ void Model::update(float delta) noexcept
 	// Calculate more next pointers
 	Position tailPos = tilePosition(mTailPtr);
 	Position nextTailPos = (mTailPtr->type == TileType::TAIL_DIGESTING)
-	                       ? tailPos : adjacent(tailPos, mTailPtr->to);
+	                       ? tailPos : nextPosition(mTailPtr);
 	SnakeTile* nextTailPtr = this->tilePtr(nextTailPos);
 	SnakeTile* nextPreHeadPtr = mHeadPtr;
 
@@ -259,7 +259,7 @@ Position Model::tilePosition(const SnakeTile* tilePtr) const noexcept
 	return pos;
 }
 
-// Public methods
+// Private methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 Position Model::adjacent(Position pos, Direction2D to) const noexcept
@@ -315,6 +315,16 @@ Position Model::adjacent(Position pos, Direction2D to) const noexcept
 	}
 
 	return newPos;
+}
+
+Position Model::nextPosition(const SnakeTile* tile) const noexcept
+{
+	return this->adjacent(this->tilePosition(tile), tile->to);
+}
+
+Position Model::prevPosition(const SnakeTile* tile) const noexcept
+{
+	return this->adjacent(this->tilePosition(tile), tile->from);
 }
 
 } // namespace s3
