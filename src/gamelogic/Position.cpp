@@ -22,45 +22,31 @@ int sgn(T value) noexcept
 	return (value > static_cast<T>(0)) - (value < static_cast<T>(0));
 }
 
-Direction3D direction(Direction3D side, Coordinate coordinate) noexcept
+Direction direction(Direction side, Coordinate coordinate) noexcept
 {
 	switch (coordinate) {
-	case Coordinate::e1: return mapDefaultUp(side, Direction2D::RIGHT);
+	case Coordinate::e1: return right(side, defaultUp(side));
 	case Coordinate::e2: return defaultUp(side);
 	}
-	/*switch (coordinate) {
-	case Coordinate::e1:
-		if (side == Direction3D::WEST || side == Direction3D::EAST) return Direction3D::SOUTH;
-		else return Direction3D::EAST;
-	case Coordinate::e2:
-		if (side == Direction3D::UP || side == Direction3D::DOWN) return Direction3D::SOUTH;
-		else return Direction3D::UP;
-	}*/
 }
 
-vec3 directionVector(Direction3D side, Coordinate coordinate) noexcept
+vec3 directionVector(Direction side, Coordinate coordinate) noexcept
 {
 	return toVector(direction(side, coordinate));
 }
 
-Coordinate coordinate(Direction3D side, Direction3D dir) noexcept
+Coordinate coordinate(Direction side, Direction dir) noexcept
 {
-	Direction3D e1Dir = direction(side, Coordinate::e1);
+	Direction e1Dir = direction(side, Coordinate::e1);
 	if (dir == e1Dir || dir == opposite(e1Dir)) return Coordinate::e1;
-	Direction3D e2Dir = direction(side, Coordinate::e2);
+	Direction e2Dir = direction(side, Coordinate::e2);
 	if (dir == e2Dir || dir == opposite(e2Dir)) return Coordinate::e2;
 	std::cerr << "Invalid direction, can't return coordinate." << std::endl;
 	std::terminate();
 }
 
-Coordinate coordinate(Direction3D side, Direction2D dir) noexcept
+int coordinateSign(Direction side, Coordinate coord) noexcept
 {
-	return coordinate(side, mapDefaultUp(side, dir));
-}
-
-int coordinateSign(Direction3D side, Coordinate coord) noexcept
-{
-
 	return sgn(sfz::sum(toVector(direction(side, coord))));
 }
 

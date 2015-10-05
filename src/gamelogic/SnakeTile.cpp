@@ -15,7 +15,7 @@ bool digesting(TileType type) noexcept
 	}
 }
 
-SnakeTile::SnakeTile(TileType type, Direction2D from, Direction2D to) noexcept
+SnakeTile::SnakeTile(TileType type, Direction from, Direction to) noexcept
 :
 	type{type},
 	from{from},

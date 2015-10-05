@@ -35,11 +35,11 @@ struct SnakeTile final {
 	SnakeTile(const SnakeTile&) noexcept = default;
 	SnakeTile& operator= (const SnakeTile&) noexcept = default;
 
-	SnakeTile(TileType type, Direction2D from, Direction2D to) noexcept;
+	SnakeTile(TileType type, Direction from, Direction to) noexcept;
 
 	TileType type = TileType::EMPTY;
-	Direction2D from = Direction2D::DOWN;
-	Direction2D to = Direction2D::UP;
+	Direction from = Direction::DOWN;
+	Direction to = Direction::UP;
 };
 
 } // namespace s3

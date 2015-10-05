@@ -1,95 +1,142 @@
 #include "gamelogic/Direction.hpp"
 
-#include <exception> // std::terminate
-#include <iostream>
+#include <sfz/Assert.hpp>
 
 namespace s3 {
 
-// 2D Direction enum
+// Direction functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Direction2D opposite(Direction2D direction) noexcept
+Direction opposite(Direction direction) noexcept
 {
 	switch (direction) {
-	case Direction2D::UP: return Direction2D::DOWN;
-	case Direction2D::DOWN: return Direction2D::UP;
-	case Direction2D::LEFT: return Direction2D::RIGHT;
-	case Direction2D::RIGHT: return Direction2D::LEFT;
+	case Direction::BACKWARD: return Direction::FORWARD;
+	case Direction::FORWARD: return Direction::BACKWARD;
+	case Direction::UP: return Direction::DOWN;
+	case Direction::DOWN: return Direction::UP;
+	case Direction::RIGHT: return Direction::LEFT;
+	case Direction::LEFT: return Direction::RIGHT;
 	}
+	sfz_error("Impossible enum");
 }
 
-Direction2D toLeft(Direction2D from) noexcept
-{
-	switch (from) {
-	case Direction2D::UP: return Direction2D::RIGHT;
-	case Direction2D::DOWN: return Direction2D::LEFT;
-	case Direction2D::LEFT: return Direction2D::UP;
-	case Direction2D::RIGHT: return Direction2D::DOWN;
-	}
-}
-
-Direction2D toRight(Direction2D from) noexcept
-{
-	switch (from) {
-	case Direction2D::UP: return Direction2D::LEFT;
-	case Direction2D::DOWN: return Direction2D::RIGHT;
-	case Direction2D::LEFT: return Direction2D::DOWN;
-	case Direction2D::RIGHT: return Direction2D::UP;
-	}
-}
-
-bool isTurn(Direction2D from, Direction2D to) noexcept
-{
-	return from != to && from != opposite(to);
-}
-
-bool isLeftTurn(Direction2D from, Direction2D to) noexcept
-{
-	return toLeft(from) == to;
-}
-
-bool isRightTurn(Direction2D from, Direction2D to) noexcept
-{
-	return toRight(from) == to;
-}
-
-const char* to_string(const Direction2D& direction) noexcept
+vec3 toVector(Direction direction) noexcept
 {
 	switch (direction) {
-	case Direction2D::UP: return "UP";
-	case Direction2D::DOWN: return "DOWN";
-	case Direction2D::LEFT: return "LEFT";
-	case Direction2D::RIGHT: return "RIGHT";
+	case Direction::BACKWARD: return vec3{0.0f, 0.0f, 1.0f};
+	case Direction::FORWARD: return vec3{0.0f, 0.0f, -1.0f};
+	case Direction::UP: return vec3{0.0f, 1.0f, 0.0f};
+	case Direction::DOWN: return vec3{0.0f, -1.0f, 0.0f};
+	case Direction::RIGHT: return vec3{-1.0f, 0.0f, 0.0f};
+	case Direction::LEFT: return vec3{1.0f, 0.0f, 0.0f};
 	}
+	sfz_error("Impossible enum");
 }
 
-std::ostream& operator<< (std::ostream& ostream, const Direction2D& direction) noexcept
+const char* to_string(Direction direction) noexcept
 {
-	return ostream << to_string(direction);
+	switch (direction) {
+	case Direction::BACKWARD: return "BACKWARD";
+	case Direction::FORWARD: return "FORWARD";
+	case Direction::UP: return "UP";
+	case Direction::DOWN: return "DOWN";
+	case Direction::RIGHT: return "RIGHT";
+	case Direction::LEFT: return "LEFT";
+	}
+	sfz_error("Impossible enum");
 }
+
+Direction left(Direction side, Direction up) noexcept
+{
+	sfz_assert_debug(side != up && side != opposite(side));
+	switch (side) {
+	case Direction::BACKWARD:
+		switch (up) {
+		case Direction::UP: return Direction::LEFT;
+		case Direction::DOWN: return Direction::RIGHT;
+		case Direction::RIGHT: return Direction::UP;
+		case Direction::LEFT: return Direction::DOWN;
+		}
+		break;
+	case Direction::FORWARD:
+		switch (up) {
+		case Direction::UP: return Direction::RIGHT;
+		case Direction::DOWN: return Direction::LEFT;
+		case Direction::RIGHT: return Direction::DOWN;
+		case Direction::LEFT: return Direction::UP;
+		}
+		break;
+	case Direction::UP:
+		switch (up) {
+		case Direction::BACKWARD: return Direction::RIGHT;
+		case Direction::FORWARD: return Direction::LEFT;
+		case Direction::RIGHT: return Direction::FORWARD;
+		case Direction::LEFT: return Direction::BACKWARD;
+		}
+		break;
+	case Direction::DOWN:
+		switch (up) {
+		case Direction::BACKWARD: return Direction::LEFT;
+		case Direction::FORWARD: return Direction::RIGHT;
+		case Direction::RIGHT: return Direction::BACKWARD;
+		case Direction::LEFT: return Direction::FORWARD;
+		}
+		break;
+	case Direction::RIGHT:
+		switch (up) {
+		case Direction::BACKWARD: return Direction::DOWN;
+		case Direction::FORWARD: return Direction::UP;
+		case Direction::UP: return Direction::BACKWARD;
+		case Direction::DOWN: return Direction::FORWARD;
+		}
+		break;
+	case Direction::LEFT:
+		switch (up) {
+		case Direction::BACKWARD: return Direction::UP;
+		case Direction::FORWARD: return Direction::DOWN;
+		case Direction::UP: return Direction::FORWARD;
+		case Direction::DOWN: return Direction::BACKWARD;
+		}
+		break;
+	}
+	sfz_error("Invalid input");
+}
+
+Direction right(Direction side, Direction up) noexcept
+{
+	return opposite(left(side, up));
+}
+
+bool isLeftTurn(Direction side, Direction from, Direction to) noexcept
+{
+	Direction leftDir = left(side, opposite(from));
+	return leftDir == to;
+}
+
+bool isRightTurn(Direction side, Direction from, Direction to) noexcept
+{
+	Direction rightDir = right(side, opposite(from));
+	return rightDir == to;
+}
+
+Direction defaultUp(Direction side) noexcept
+{
+	switch (side) {
+	case Direction::BACKWARD: return Direction::UP;
+	case Direction::FORWARD: return Direction::UP;
+	case Direction::UP: return Direction::BACKWARD;
+	case Direction::DOWN: return Direction::BACKWARD;
+	case Direction::RIGHT: return Direction::UP;
+	case Direction::LEFT: return Direction::UP;
+	}
+	sfz_error("Invalid enum");
+}
+
 
 // 3D Direction enum
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Direction3D opposite(Direction3D direction) noexcept
-{
-	uint8_t dir = static_cast<uint8_t>(direction);
-	if (dir % 2 == 0) {
-		return static_cast<Direction3D>(dir + 1);
-	} else {
-		return static_cast<Direction3D>(dir - 1);
-	}
-	/*switch (direction) {
-	case Direction3D::NORTH: return Direction3D::SOUTH;
-	case Direction3D::SOUTH: return Direction3D::NORTH;
-	case Direction3D::WEST: return Direction3D::EAST;
-	case Direction3D::EAST: return Direction3D::WEST;
-	case Direction3D::UP: return Direction3D::DOWN;
-	case Direction3D::DOWN: return Direction3D::UP;
-	}*/
-}
-
-Direction3D up(Direction3D side, Direction3D sideRelativeUp) noexcept
+/*Direction3D up(Direction3D side, Direction3D sideRelativeUp) noexcept
 {
 	if (side == sideRelativeUp || side == opposite(sideRelativeUp)) {
 		std::cerr << "Invalid side relative up direction, side == " << side
@@ -252,6 +299,6 @@ const char* to_string(const Direction3D& direction) noexcept
 std::ostream& operator<< (std::ostream& ostream, const Direction3D& direction) noexcept
 {
 	return ostream << to_string(direction);
-}
+}*/
 
 } // namespace s3

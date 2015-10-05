@@ -9,21 +9,40 @@
 
 namespace s3 {
 
-namespace {
+// Static functions
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Direction2D convertSideDirection(Direction3D from, Direction3D to, Direction2D fromDir) noexcept
+static Direction convertSideDirection(Direction fromSide, Direction toSide, Direction dirOnFromSide) noexcept
 {
-	if (from == to) return fromDir;
+	if (fromSide == toSide) return dirOnFromSide;
+
+	sfz_assert_debug(fromSide != opposite(toSide));
+
+	if (dirOnFromSide == toSide) {
+		return opposite(fromSide);
+	} else if (dirOnFromSide == opposite(toSide)) {
+		
+	} else if (dirOnFromSide == right(fromSide, toSide)) {
+
+	} else if (dirOnFromSide == left(fromSide, toSide)) {
+
+	} else if (dirOnFromSide == fromSide) {
+
+	} else if (dirOnFromSide == opposite(fromSide)) {
+
+	} 
+	sfz_error("Bad thing happened");
+
 	return unMapDefaultUp(to, opposite(from));
 }
 
-std::mt19937_64 createRNGGenerator(void) noexcept
+static std::mt19937_64 createRNGGenerator(void) noexcept
 {
 	static std::random_device rnd_dev;
 	return std::mt19937_64(rnd_dev());
 }
 
-SnakeTile* freeRandomTile(Model& model) noexcept
+static SnakeTile* freeRandomTile(Model& model) noexcept
 {
 	std::vector<SnakeTile*> freeTiles;
 	for (size_t i = 0; i < model.numTiles(); i++) {
@@ -36,8 +55,6 @@ SnakeTile* freeRandomTile(Model& model) noexcept
 	std::uniform_int_distribution<size_t> dist{0, freeTiles.size()-1};
 	return freeTiles[dist(ms)];
 }
-
-} // anonymous namespace
 
 // Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -53,7 +70,7 @@ Model::Model(ModelConfig cfg) noexcept
 
 	// Start position for snake (head)
 	Position tempPos;
-	tempPos.side = Direction3D::SOUTH;
+	tempPos.side = Direction::BACKWARD;
 	const int16_t mid = static_cast<int16_t>(mCfg.gridWidth/2);
 	tempPos.e1 = mid;
 	tempPos.e2 = mid;
@@ -61,24 +78,24 @@ Model::Model(ModelConfig cfg) noexcept
 	// Head
 	SnakeTile* tile = this->tilePtr(tempPos);
 	tile->type = TileType::HEAD;
-	tile->to = Direction2D::UP;
-	tile->from = Direction2D::DOWN;
+	tile->to = Direction::UP;
+	tile->from = Direction::DOWN;
 	mHeadPtr = tile;
 
 	// Pre Head
 	tempPos = prevPosition(tile);
 	tile = this->tilePtr(tempPos);
 	tile->type = TileType::PRE_HEAD;
-	tile->to = Direction2D::UP;
-	tile->from = Direction2D::DOWN;
+	tile->to = Direction::UP;
+	tile->from = Direction::DOWN;
 	mPreHeadPtr = tile;
 
 	// Tile
 	tempPos = prevPosition(tile);
 	tile = this->tilePtr(tempPos);
 	tile->type = TileType::TAIL;
-	tile->to = Direction2D::UP;
-	tile->from = Direction2D::DOWN;
+	tile->to = Direction::UP;
+	tile->from = Direction::DOWN;
 	mTailPtr = tile;
 
 	// Dead Head Ptr
@@ -91,16 +108,32 @@ Model::Model(ModelConfig cfg) noexcept
 // Update methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void Model::changeDirection(Direction3D upDir, Direction2D direction) noexcept
+void Model::changeDirection(Direction upDir, DirectionInput direction) noexcept
 {
 	if (mGameOver) return;
 
-	Direction3D cubeSide = tilePosition(mHeadPtr).side;
-	Direction3D realDir = map(cubeSide, upDir, direction);
-	Direction2D remappedDir = unMapDefaultUp(cubeSide, realDir);
+	Direction cubeSide = tilePosition(mHeadPtr).side;
+	Direction dir;
+	switch (direction) {
+	case s3::DirectionInput::UP:
+		dir = upDir;
+		break;
+	case s3::DirectionInput::DOWN:
+		dir = opposite(upDir);
+		break;
+	case s3::DirectionInput::LEFT:
+		dir = left(cubeSide, upDir);
+		break;
+	case s3::DirectionInput::RIGHT:
+		dir = right(cubeSide, upDir);
+		break;
+	case s3::DirectionInput::DIVE:
+		dir = opposite(cubeSide);
+		break;
+	}
 
-	if (remappedDir == mHeadPtr->from) return;
-	mHeadPtr->to = remappedDir;
+	if (dir == mHeadPtr->from) return;
+	mHeadPtr->to = dir;
 }
 
 void Model::update(float delta) noexcept
@@ -244,7 +277,7 @@ Position Model::tilePosition(const SnakeTile* tilePtr) const noexcept
 
 	const size_t sideSize = mCfg.gridWidth * mCfg.gridWidth;
 	size_t sideOffset = length % sideSize;
-	pos.side = static_cast<Direction3D>((length-sideOffset)/sideSize);
+	pos.side = static_cast<Direction>((length-sideOffset)/sideSize);
 
 	pos.e1 = sideOffset % mCfg.gridWidth;
 	pos.e2 = (sideOffset-pos.e1)/mCfg.gridWidth;
@@ -262,33 +295,36 @@ Position Model::tilePosition(const SnakeTile* tilePtr) const noexcept
 // Private methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Position Model::adjacent(Position pos, Direction2D to) const noexcept
+Position Model::adjacent(Position pos, Direction to) const noexcept
 {
-	Position newPos = pos;
 	const int gridWidth = mCfg.gridWidth;
+	Direction currentSide = pos.side;
+	Direction currentUp = defaultUp(currentSide);
 
-	switch (to) {
-	case Direction2D::UP:
+	Position newPos = pos;
+	Direction toSide;
+
+	if (to == currentUp) { // UP
 		newPos.e2 += 1;
 		if (newPos.e2 < gridWidth) return newPos;
-		break;
-	case Direction2D::DOWN:
+		toSide = currentUp;
+	} else if (to == opposite(currentUp)) { // DOWN
 		newPos.e2 -= 1;
 		if (newPos.e2 >= 0) return newPos;
-		break;
-	case Direction2D::LEFT:
+		toSide = opposite(currentUp);
+	} else if (to == left(currentSide, currentUp)) { // LEFT
 		newPos.e1 -= 1;
 		if (newPos.e1 >= 0) return newPos;
-		break;
-	case Direction2D::RIGHT:
+		toSide = left(currentSide, currentUp);
+	} else if (to == right(currentSide, currentUp)) { // RIGHT
 		newPos.e1 += 1;
 		if (newPos.e1 < gridWidth) return newPos;
-		break;
+		toSide = right(currentSide, currentUp);
 	}
 
-	Direction3D toSide = mapDefaultUp(pos.side, to);
-	Direction3D newDir = opposite(pos.side);
-	Coordinate fromDirCoord = coordinate(pos.side, to);
+
+	Direction newDir = opposite(currentSide);
+	Coordinate fromDirCoord = coordinate(currentSide, to);
 	Coordinate toDirCoord = coordinate(toSide, newDir);
 
 	// Set side

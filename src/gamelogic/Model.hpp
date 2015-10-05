@@ -17,6 +17,10 @@ using std::size_t;
 using std::uint8_t;
 using std::unique_ptr;
 
+enum class DirectionInput : uint8_t {
+	UP, DOWN, LEFT, RIGHT, DIVE
+};
+
 class Model final {
 public:
 	// Constructors & destructors
@@ -31,7 +35,7 @@ public:
 	// Update methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	void changeDirection(Direction3D upDir, Direction2D direction) noexcept;
+	void changeDirection(Direction upDir, DirectionInput direction) noexcept;
 	void update(float delta) noexcept;
 
 	// Access methods
@@ -64,7 +68,7 @@ private:
 	// Private methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	Position adjacent(Position pos, Direction2D to) const noexcept;
+	Position adjacent(Position pos, Direction to) const noexcept;
 	Position nextPosition(const SnakeTile* tile) const noexcept;
 	Position prevPosition(const SnakeTile* tile) const noexcept;
 

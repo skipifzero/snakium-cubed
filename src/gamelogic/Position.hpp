@@ -27,19 +27,18 @@ enum class Coordinate : uint8_t {
  * e2: y if possible, otherwise z
  */
 struct Position final {
-	Direction3D side;
+	Direction side;
 	int16_t e1, e2;
 
 	int16_t coordinate(Coordinate coord) noexcept;
 	void setCoordinate(Coordinate coord, int16_t value) noexcept;
 };
 
-Direction3D direction(Direction3D side, Coordinate coordinate) noexcept;
-vec3 directionVector(Direction3D side, Coordinate coordinate) noexcept;
-Coordinate coordinate(Direction3D side, Direction3D dir) noexcept;
-Coordinate coordinate(Direction3D side, Direction2D dir) noexcept;
-int coordinateSign(Direction3D side, Coordinate coord) noexcept;
-int coordinateSign(Direction3D side, Coordinate coord) noexcept;
+Direction direction(Direction side, Coordinate coordinate) noexcept;
+vec3 directionVector(Direction side, Coordinate coordinate) noexcept;
+Coordinate coordinate(Direction side, Direction dir) noexcept;
+int coordinateSign(Direction side, Coordinate coord) noexcept;
+int coordinateSign(Direction side, Coordinate coord) noexcept;
 Coordinate other(Coordinate coord) noexcept;
 
 } // namespace s3
