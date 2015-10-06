@@ -9,6 +9,7 @@
 namespace s3 {
 
 using sfz::vec3;
+using sfz::vec3i;
 using std::uint8_t;
 
 // Direction enum
@@ -35,6 +36,8 @@ enum class Direction : uint8_t {
 
 Direction opposite(Direction direction) noexcept;
 vec3 toVector(Direction direction) noexcept;
+vec3i toIntVector(Direction direction) noexcept;
+Direction fromIntVector(const vec3i& vector) noexcept;
 const char* to_string(Direction direction) noexcept;
 
 /**
@@ -49,6 +52,16 @@ bool isRightTurn(Direction side, Direction from, Direction to) noexcept;
 
 Direction defaultUp(Direction side) noexcept;
 
+/**
+ * @brief Converts direction from one view to another
+ * Calculates the vector with the same relative position to toSide and toUp as fromDir has to
+ * fromSide and fromUp. E.g. if fromDir = left(fromSide, fromUp) then result = left(toSide, toUp).
+ * @param fromSide & fromUp the backward and up direction of the origin camera looking at the cube
+ * @param toSide & toUp the backward and up direction of the destination camera looking at the cube
+ * @param fromDir the direction to convert from "from camera" to "to camera"
+ */
+Direction remap(Direction fromSide, Direction fromUp, Direction toSide, Direction toUp, Direction fromDir) noexcept;
+Direction remapDefaultUp(Direction fromSide, Direction toSide, Direction fromDir) noexcept;
 
 // 3D Direction enum
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
