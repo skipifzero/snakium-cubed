@@ -190,7 +190,6 @@ static gl::Model* getTileProjectionModelPtr(const SnakeTile* tilePtr, Direction 
 	return nullptr;
 }
 
-
 static float getTileAngleRad(Direction side, Direction from) noexcept
 {
 	float angle = 0.0f;
@@ -237,8 +236,8 @@ static vec3 tilePosToVector(const Model& model, const Position& tilePos) noexcep
 	const float e2f = static_cast<float>(tilePos.e2) + 0.5f;
 	const float tileWidth = 1.0f / static_cast<float>(model.config().gridWidth);
 
-	return (e1f * tileWidth - 0.5f) * directionVector(tilePos.side, Coordinate::e1) +
-		(e2f * tileWidth - 0.5f) * directionVector(tilePos.side, Coordinate::e2) +
+	return (e1f * tileWidth - 0.5f) * toVector(direction(tilePos.side, Coordinate::e1)) +
+		(e2f * tileWidth - 0.5f) * toVector(direction(tilePos.side, Coordinate::e2)) +
 		toVector(tilePos.side) * 0.5f;
 }
 

@@ -12,17 +12,6 @@ namespace s3 {
 // Static functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-static const char* to_string(DirectionInput dirInp) noexcept
-{
-	switch (dirInp) {
-	case DirectionInput::UP: return "UP";
-	case DirectionInput::DOWN: return "DOWN";
-	case DirectionInput::LEFT: return "LEFT";
-	case DirectionInput::RIGHT: return "RIGHT";
-	case DirectionInput::DIVE: return "DIVE";
-	}
-}
-
 static Direction calculateFromDirection(Direction fromSide, Direction toSide, Direction dirOnFromSide) noexcept
 {
 	if (fromSide == toSide) return opposite(dirOnFromSide);
@@ -62,35 +51,34 @@ Model::Model(ModelConfig cfg) noexcept
 	mTiles = unique_ptr<SnakeTile[]>{new (std::nothrow) SnakeTile[mTileCount+1]};
 
 	// Start position for snake (head)
-	Position tempPos;
-	tempPos.side = Direction::BACKWARD;
+	Position headPos;
+	headPos.side = Direction::BACKWARD;
 	const int16_t mid = static_cast<int16_t>(mCfg.gridWidth/2);
-	tempPos.e1 = mid;
-	tempPos.e2 = mid;
+	headPos.e1 = mid;
+	headPos.e2 = mid;
 
 	// Head
-	SnakeTile* tile = this->tilePtr(tempPos);
-	tile->type = TileType::HEAD;
-	tile->to = Direction::UP;
-	tile->from = Direction::DOWN;
-	mHeadPtr = tile;
+	SnakeTile* headTile = this->tilePtr(headPos);
+	headTile->type = TileType::HEAD;
+	headTile->to = Direction::UP;
+	headTile->from = Direction::DOWN;
+	mHeadPtr = headTile;
 
 	// Pre Head
-	tempPos = prevPosition(tile);
-	tile = this->tilePtr(tempPos);
-	tile->type = TileType::PRE_HEAD;
-	tile->to = Direction::UP;
-	tile->from = Direction::DOWN;
-	mPreHeadPtr = tile;
+	Position preHeadPos = prevPosition(headTile);
+	SnakeTile* preHeadTile = this->tilePtr(preHeadPos);
+	preHeadTile->type = TileType::PRE_HEAD;
+	preHeadTile->to = calculateFromDirection(headPos.side, preHeadPos.side, headTile->from);
+	preHeadTile->from = opposite(preHeadTile->to);
+	mPreHeadPtr = preHeadTile;
 
-	// TODO: THIS IS VERY BROKEN, NOT GUARANTEED. Fix.
 	// Tail
-	tempPos = prevPosition(tile);
-	tile = this->tilePtr(tempPos);
-	tile->type = TileType::TAIL;
-	tile->to = Direction::BACKWARD;
-	tile->from = Direction::FORWARD;
-	mTailPtr = tile;
+	Position tailPos = prevPosition(preHeadTile);
+	SnakeTile* tailTile = this->tilePtr(tailPos);
+	tailTile->type = TileType::TAIL;
+	tailTile->to = calculateFromDirection(preHeadPos.side, tailPos.side, preHeadTile->from);
+	tailTile->from = opposite(tailTile->to);
+	mTailPtr = tailTile;
 
 	// Dead Head Ptr
 	mDeadHeadPtr = &mTiles[mTileCount]; // In range since array holds mTileCount + 1 tiles
@@ -313,6 +301,8 @@ Position Model::adjacent(Position pos, Direction to) const noexcept
 		newPos.e1 += 1;
 		if (newPos.e1 < gridWidth) return newPos;
 		toSide = right(currentSide, currentUp);
+	} else {
+		sfz_error("Should not happen.");
 	}
 
 

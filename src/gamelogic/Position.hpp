@@ -35,9 +35,7 @@ struct Position final {
 };
 
 Direction direction(Direction side, Coordinate coordinate) noexcept;
-vec3 directionVector(Direction side, Coordinate coordinate) noexcept;
 Coordinate coordinate(Direction side, Direction dir) noexcept;
-int coordinateSign(Direction side, Coordinate coord) noexcept;
 int coordinateSign(Direction side, Coordinate coord) noexcept;
 Coordinate other(Coordinate coord) noexcept;
 

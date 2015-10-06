@@ -14,7 +14,7 @@ using sfz::vec4;
 // Static functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-/*static gl::Program compileStandardShaderProgram() noexcept
+static gl::Program compileStandardShaderProgram() noexcept
 {
 	return gl::Program::fromSource(R"(
 		#version 330
@@ -118,43 +118,38 @@ static const gl::Texture& getTileTexture(const SnakeTile *tilePtr, Direction sid
 	}
 }
 
-static float getTileAngleRad(Direction3D side, Direction2D from) noexcept
+static float getTileAngleRad(Direction side, Direction from) noexcept
 {
-	float angle;
-
-	switch (from) {
-	case Direction2D::UP:
+	float angle = 0.0f;
+	Direction up = defaultUp(side);
+	if (from == up) {
 		angle = 180.0f;
-		break;
-	case Direction2D::DOWN:
+	} else if (from == opposite(up)) {
 		angle = 0.0f;
-		break;
-	case Direction2D::LEFT:
+	} else if (from == left(side, up)) {
 		angle = -90.0f;
-		break;
-	case Direction2D::RIGHT:
+	} else if (from == right(side, up)) {
 		angle = 90.0f;
-		break;
 	}
 
 	// Yeah, I dunno. There probably is a pattern here to make it general, but I don't see it.
 	switch (side) {
-	case Direction3D::NORTH:
+	case Direction::FORWARD:
 		angle += 180.0f;
 		break;
-	case Direction3D::SOUTH:
+	case Direction::BACKWARD:
 		// Do nothing.
 		break;
-	case Direction3D::WEST:
+	case Direction::LEFT:
 		angle -= 90.0f;
 		break;
-	case Direction3D::EAST:
+	case Direction::RIGHT:
 		angle += 90.0f;
 		break;
-	case Direction3D::UP:
+	case Direction::UP:
 		angle += 180.0f;
 		break;
-	case Direction3D::DOWN:
+	case Direction::DOWN:
 		// Do nothing.
 		break;
 	}
@@ -169,22 +164,22 @@ static vec3 tilePosToVector(const Model& model, const Position& tilePos) noexcep
 	const float e2f = static_cast<float>(tilePos.e2) + 0.5f;
 	const float tileWidth = 1.0f / static_cast<float>(model.config().gridWidth);
 
-	return (e1f * tileWidth - 0.5f) * directionVector(tilePos.side, Coordinate::e1) +
-		(e2f * tileWidth - 0.5f) * directionVector(tilePos.side, Coordinate::e2) +
+	return (e1f * tileWidth - 0.5f) * toVector(direction(tilePos.side, Coordinate::e1)) +
+		(e2f * tileWidth - 0.5f) * toVector(direction(tilePos.side, Coordinate::e2)) +
 		toVector(tilePos.side) * 0.5f;
 }
 
-static mat4 tileSpaceRotation(Direction3D side) noexcept
+static mat4 tileSpaceRotation(Direction side) noexcept
 {
 	switch (side) {
-	case Direction3D::UP: return sfz::identityMatrix4<float>();
-	case Direction3D::DOWN: return sfz::xRotationMatrix4(sfz::PI());
-	case Direction3D::SOUTH: return sfz::xRotationMatrix4(sfz::PI()/2.0f);
-	case Direction3D::NORTH: return sfz::xRotationMatrix4(-sfz::PI()/2.0f);
-	case Direction3D::WEST: return sfz::zRotationMatrix4(sfz::PI()/2.0f);
-	case Direction3D::EAST: return sfz::zRotationMatrix4(-sfz::PI()/2.0f);
+	case Direction::BACKWARD: return sfz::xRotationMatrix4(sfz::PI()/2.0f);
+	case Direction::FORWARD: return sfz::xRotationMatrix4(-sfz::PI()/2.0f);
+	case Direction::UP: return sfz::identityMatrix4<float>();
+	case Direction::DOWN: return sfz::xRotationMatrix4(sfz::PI());
+	case Direction::RIGHT: return sfz::zRotationMatrix4(-sfz::PI()/2.0f);
+	case Direction::LEFT: return sfz::zRotationMatrix4(sfz::PI()/2.0f);
 	}
-}*/
+}
 
 // ClassicRenderer: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -203,7 +198,7 @@ ClassicRenderer::ClassicRenderer() noexcept
 
 void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D& viewport) noexcept
 {
-	/*Assets& assets = Assets::INSTANCE();
+	Assets& assets = Assets::INSTANCE();
 
 	float aspect = viewport.width() / viewport.height();
 	mProjMatrix = sfz::glPerspectiveProjectionMatrix(cam.mFov, aspect, 0.1f, 50.0f);
@@ -241,7 +236,7 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 	mat4 transform, tileSpaceRot, tileSpaceRotScaling;
 
 	for (size_t side = 0; side < 6; side++) {
-		Direction3D currentSide = cam.mSideRenderOrder[side];
+		Direction currentSide = cam.mSideRenderOrder[side];
 		const SnakeTile* sidePtr = model.tilePtr(Position{currentSide, 0, 0});
 
 		tileSpaceRot = tileSpaceRotation(currentSide);
@@ -270,8 +265,8 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 				sfz::translation(transform, translation(transform) + snakeFloatVec);
 				gl::setUniform(mProgram, "modelViewProj", viewProj * transform);
 				glBindTexture(GL_TEXTURE_2D,
-					getTileTexture(tilePtr, model.progress(), model.isGameOver()).handle());
-				if (isLeftTurn(tilePtr->from, tilePtr->to)) mXFlippedTile.render();
+					getTileTexture(tilePtr, tilePos.side, model.progress(), model.isGameOver()).handle());
+				if (isLeftTurn(tilePos.side, tilePtr->from, tilePtr->to)) mXFlippedTile.render();
 				else mTile.render();
 			}
 		} else {
@@ -288,8 +283,8 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 					sfz::translation(transform, tilePosToVector(model, tilePos) + snakeFloatVec);
 					gl::setUniform(mProgram, "modelViewProj", viewProj * transform);
 					glBindTexture(GL_TEXTURE_2D,
-						getTileTexture(tilePtr, model.progress(), model.isGameOver()).handle());
-					if (isLeftTurn(tilePtr->from, tilePtr->to)) mXFlippedTile.render();
+						getTileTexture(tilePtr, tilePos.side, model.progress(), model.isGameOver()).handle());
+					if (isLeftTurn(tilePos.side, tilePtr->from, tilePtr->to)) mXFlippedTile.render();
 					else mTile.render();
 				}
 
@@ -318,8 +313,8 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 		// Render dead head
 		gl::setUniform(mProgram, "modelViewProj", viewProj * transform);
 		glBindTexture(GL_TEXTURE_2D,
-			getTileTexture(deadHeadPtr, model.progress(), model.isGameOver()).handle());
-		if (isLeftTurn(deadHeadPtr->from, deadHeadPtr->to)) mXFlippedTile.render();
+			getTileTexture(deadHeadPtr, deadHeadPos.side, model.progress(), model.isGameOver()).handle());
+		if (isLeftTurn(deadHeadPos.side, deadHeadPtr->from, deadHeadPtr->to)) mXFlippedTile.render();
 		else mTile.render();
 	}
 
@@ -346,7 +341,7 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 	}
 
 	// Clean up
-	glUseProgram(0);*/
+	glUseProgram(0);
 }
 
 } // namespace s3

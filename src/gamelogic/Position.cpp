@@ -30,11 +30,6 @@ Direction direction(Direction side, Coordinate coordinate) noexcept
 	}
 }
 
-vec3 directionVector(Direction side, Coordinate coordinate) noexcept
-{
-	return toVector(direction(side, coordinate));
-}
-
 Coordinate coordinate(Direction side, Direction dir) noexcept
 {
 	Direction e1Dir = direction(side, Coordinate::e1);
