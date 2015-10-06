@@ -2,28 +2,32 @@
 #ifndef S3_CAMERA_HPP
 #define S3_CAMERA_HPP
 
-#include "sfz/Math.hpp"
-#include "GameLogic.hpp"
-#include <exception> // std::terminate
-#include <cmath>
+#include <sfz/math/Matrix.hpp>
+#include <sfz/math/Vector.hpp>
+
+#include "gamelogic/Direction.hpp"
+#include "gamelogic/Model.hpp"
 
 namespace s3 {
 
+using sfz::mat4;
+using sfz::vec3;
+
 class Camera {
 public:
-	sfz::mat4 mViewMatrix;
-	Direction3D mUpDir = Direction3D::UP;
+	mat4 mViewMatrix;
+	Direction mUpDir = Direction::UP;
 	float mFov = 60.0f;
-	Direction3D mSideRenderOrder[6];
+	Direction mSideRenderOrder[6];
 	bool mRenderTileFaceFirst[6];
 
 	Camera() noexcept;
 	void update(const Model& model, float delta) noexcept;
 
 private:
-	Direction3D mLastCubeSide = Direction3D::SOUTH;
-	Direction3D mLastUpDir = Direction3D::UP;
-	sfz::vec3 mPos, mUp, mUpTarget;
+	Direction mLastCubeSide = Direction::BACKWARD;
+	Direction mLastUpDir = Direction::UP;
+	vec3 mPos, mUp, mUpTarget;
 };
 
 } // namespace s3

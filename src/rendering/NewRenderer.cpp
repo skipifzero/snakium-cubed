@@ -29,11 +29,12 @@ static gl::Program compileStandardShaderProgram() noexcept
 	});
 }
 
-static gl::Model& getTileModel(const SnakeTile* tilePtr, float progress, bool gameOver) noexcept
+static gl::Model& getTileModel(const SnakeTile* tilePtr, Direction side, float progress,
+                               bool gameOver) noexcept
 {
 	Assets& a = Assets::INSTANCE();
-	const bool rightTurn = isRightTurn(tilePtr->from, tilePtr->to);
-	const bool leftTurn = isLeftTurn(tilePtr->from, tilePtr->to);
+	const bool rightTurn = isRightTurn(side, tilePtr->from, tilePtr->to);
+	const bool leftTurn = isLeftTurn(side, tilePtr->from, tilePtr->to);
 	const bool frame1 = progress <= 0.5f;
 
 	switch (tilePtr->type) {
@@ -107,11 +108,11 @@ static gl::Model& getTileModel(const SnakeTile* tilePtr, float progress, bool ga
 	return a.NOT_FOUND_MODEL;
 }
 
-static gl::Model* getTileProjectionModelPtr(const SnakeTile* tilePtr, float progress) noexcept
+static gl::Model* getTileProjectionModelPtr(const SnakeTile* tilePtr, Direction side, float progress) noexcept
 {
 	Assets& a = Assets::INSTANCE();
-	const bool rightTurn = isRightTurn(tilePtr->from, tilePtr->to);
-	const bool leftTurn = isLeftTurn(tilePtr->from, tilePtr->to);
+	const bool rightTurn = isRightTurn(side, tilePtr->from, tilePtr->to);
+	const bool leftTurn = isLeftTurn(side, tilePtr->from, tilePtr->to);
 	const bool frame1 = progress <= 0.5f;
 
 	switch (tilePtr->type) {
@@ -190,9 +191,10 @@ static gl::Model* getTileProjectionModelPtr(const SnakeTile* tilePtr, float prog
 }
 
 
-static float getTileAngleRad(Direction3D side, Direction2D from) noexcept
+static float getTileAngleRad(Direction side, Direction from) noexcept
 {
-	float angle;
+	return 0.0f;
+	/*float angle;
 
 	switch (from) {
 	case Direction2D::UP:
@@ -231,7 +233,7 @@ static float getTileAngleRad(Direction3D side, Direction2D from) noexcept
 		break;
 	}
 
-	return angle * sfz::DEG_TO_RAD();
+	return angle * sfz::DEG_TO_RAD();*/
 }
 
 static vec3 tilePosToVector(const Model& model, const Position& tilePos) noexcept
@@ -246,16 +248,24 @@ static vec3 tilePosToVector(const Model& model, const Position& tilePos) noexcep
 		toVector(tilePos.side) * 0.5f;
 }
 
-static mat4 tileSpaceRotation(Direction3D side) noexcept
+static mat4 tileSpaceRotation(Direction side) noexcept
 {
 	switch (side) {
+	case Direction::BACKWARD: return sfz::xRotationMatrix4(sfz::PI()/2.0f);
+	case Direction::FORWARD: return sfz::xRotationMatrix4(-sfz::PI()/2.0f);
+	case Direction::UP: return sfz::identityMatrix4<float>();
+	case Direction::DOWN: return sfz::xRotationMatrix4(sfz::PI());
+	case Direction::RIGHT: return sfz::zRotationMatrix4(-sfz::PI()/2.0f);
+	case Direction::LEFT: return sfz::zRotationMatrix4(sfz::PI()/2.0f);
+	}
+	/*switch (side) {
 	case Direction3D::UP: return sfz::identityMatrix4<float>();
 	case Direction3D::DOWN: return sfz::xRotationMatrix4(sfz::PI());
 	case Direction3D::SOUTH: return sfz::xRotationMatrix4(sfz::PI()/2.0f);
 	case Direction3D::NORTH: return sfz::xRotationMatrix4(-sfz::PI()/2.0f);
 	case Direction3D::WEST: return sfz::zRotationMatrix4(sfz::PI()/2.0f);
 	case Direction3D::EAST: return sfz::zRotationMatrix4(-sfz::PI()/2.0f);
-	}
+	}*/
 }
 
 static vec4 tileColor(const SnakeTile* tilePtr) noexcept
@@ -358,7 +368,7 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 
 		// Render tile model
 		gl::setUniform(mProgram, "uColor", tileColor(tilePtr));
-		getTileModel(tilePtr, model.progress(), model.isGameOver()).render();
+		getTileModel(tilePtr, tilePos.side, model.progress(), model.isGameOver()).render();
 	}
 
 	// Render dead snake head if game over (opaque)
@@ -381,13 +391,13 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 		gl::setUniform(mProgram, "uColor", tileColor(tilePtr));
 
 		// Render tile model
-		getTileModel(tilePtr, model.progress(), model.isGameOver()).render();
+		getTileModel(tilePtr, tilePos.side, model.progress(), model.isGameOver()).render();
 	}
 
 	// Render transparent objects
 	const size_t tilesPerSide = model.config().gridWidth*model.config().gridWidth;
 	for (size_t side = 0; side < 6; side++) {
-		Direction3D currentSide = cam.mSideRenderOrder[side];
+		Direction currentSide = cam.mSideRenderOrder[side];
 		const SnakeTile* sidePtr = model.tilePtr(Position{currentSide, 0, 0});
 
 		mat4 tileSpaceRot = tileSpaceRotation(currentSide);
@@ -415,14 +425,14 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 				
 				// Render tile projection
 				gl::setUniform(mProgram, "uColor", vec4{0.5f, 0.5f, 0.5f, 0.7f});
-				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, model.progress());
+				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress());
 				if (tileProjModelPtr != nullptr) tileProjModelPtr->render();
 
 			} else {
 
 				// Render tile projection
 				gl::setUniform(mProgram, "uColor", vec4{0.5f, 0.5f, 0.5f, 0.7f});
-				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, model.progress());
+				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress());
 				if (tileProjModelPtr != nullptr) tileProjModelPtr->render();
 
 				// Render cube tile projection
@@ -452,7 +462,7 @@ void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& vi
 
 		// Render tile model
 		gl::setUniform(mProgram, "uColor", vec4{0.5f, 0.5f, 0.5f, 0.7f});
-		getTileProjectionModelPtr(tilePtr, model.progress())->render();
+		getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress())->render();
 	}
 	
 

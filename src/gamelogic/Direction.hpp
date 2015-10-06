@@ -63,37 +63,5 @@ Direction defaultUp(Direction side) noexcept;
 Direction remap(Direction fromSide, Direction fromUp, Direction toSide, Direction toUp, Direction fromDir) noexcept;
 Direction remapDefaultUp(Direction fromSide, Direction toSide, Direction fromDir) noexcept;
 
-// 3D Direction enum
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-/**
- * @brief Enum representing a 3-dimensional directon.
- * For example used to determine which side of a cube a tile is on, NORTH == BACK, SOUTH == FRONT,
- * WEST == LEFT, EAST == RIGHT, UP == TOP, DOWN == BOTTOM.
- * It's also assumed that the coordinate system is a right-handed system with positive y being up.
- * I.e. SOUTH is in positive z-axis, UP is in positive y-axis and EAST is in positive x-axis.
- */
-/*enum class Direction3D : uint8_t {
-	NORTH = 0,
-	SOUTH = 1,
-	WEST = 2,
-	EAST = 3,
-	UP = 4,
-	DOWN = 5
-};
-
-Direction3D up(Direction3D side, Direction3D sideRelativeUp) noexcept;
-Direction3D down(Direction3D side, Direction3D sideRelativeUp) noexcept;
-Direction3D left(Direction3D side, Direction3D sideRelativeUp) noexcept;
-Direction3D right(Direction3D side, Direction3D sideRelativeUp) noexcept;
-Direction3D defaultUp(Direction3D side) noexcept;
-Direction3D map(Direction3D side, Direction3D sideRelativeUp, Direction2D dir) noexcept;
-Direction3D mapDefaultUp(Direction3D side, Direction2D dir) noexcept;
-Direction2D unMap(Direction3D side, Direction3D sideRelativeUp, Direction3D dir) noexcept;
-Direction2D unMapDefaultUp(Direction3D side, Direction3D dir) noexcept;
-vec3 toVector(Direction3D direction) noexcept;
-const char* to_string(const Direction3D& direction) noexcept;
-std::ostream& operator<< (std::ostream& ostream, const Direction3D& direction) noexcept;*/
-
 } // namespace s3
 #endif

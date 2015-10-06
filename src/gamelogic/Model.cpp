@@ -12,28 +12,27 @@ namespace s3 {
 // Static functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-static Direction convertSideDirection(Direction fromSide, Direction toSide, Direction dirOnFromSide) noexcept
+static const char* to_string(DirectionInput dirInp) noexcept
 {
-	if (fromSide == toSide) return dirOnFromSide;
+	switch (dirInp) {
+	case DirectionInput::UP: return "UP";
+	case DirectionInput::DOWN: return "DOWN";
+	case DirectionInput::LEFT: return "LEFT";
+	case DirectionInput::RIGHT: return "RIGHT";
+	case DirectionInput::DIVE: return "DIVE";
+	}
+}
 
-	sfz_assert_debug(fromSide != opposite(toSide));
+static Direction calculateFromDirection(Direction fromSide, Direction toSide, Direction dirOnFromSide) noexcept
+{
+	if (fromSide == toSide) return opposite(dirOnFromSide);
+	
+	if (fromSide == opposite(toSide)) return fromSide;
 
-	if (dirOnFromSide == toSide) {
-		return opposite(fromSide);
-	} else if (dirOnFromSide == opposite(toSide)) {
-		
-	} else if (dirOnFromSide == right(fromSide, toSide)) {
+	if (dirOnFromSide == toSide) return fromSide;
 
-	} else if (dirOnFromSide == left(fromSide, toSide)) {
+	sfz_assert_debug(false, "oops");
 
-	} else if (dirOnFromSide == fromSide) {
-
-	} else if (dirOnFromSide == opposite(fromSide)) {
-
-	} 
-	sfz_error("Bad thing happened");
-
-	return unMapDefaultUp(to, opposite(from));
 }
 
 static std::mt19937_64 createRNGGenerator(void) noexcept
@@ -90,12 +89,13 @@ Model::Model(ModelConfig cfg) noexcept
 	tile->from = Direction::DOWN;
 	mPreHeadPtr = tile;
 
-	// Tile
+	// TODO: THIS IS VERY BROKEN, NOT GUARANTEED. Fix.
+	// Tail
 	tempPos = prevPosition(tile);
 	tile = this->tilePtr(tempPos);
 	tile->type = TileType::TAIL;
-	tile->to = Direction::UP;
-	tile->from = Direction::DOWN;
+	tile->to = Direction::BACKWARD;
+	tile->from = Direction::FORWARD;
 	mTailPtr = tile;
 
 	// Dead Head Ptr
@@ -115,19 +115,19 @@ void Model::changeDirection(Direction upDir, DirectionInput direction) noexcept
 	Direction cubeSide = tilePosition(mHeadPtr).side;
 	Direction dir;
 	switch (direction) {
-	case s3::DirectionInput::UP:
+	case DirectionInput::UP:
 		dir = upDir;
 		break;
-	case s3::DirectionInput::DOWN:
+	case DirectionInput::DOWN:
 		dir = opposite(upDir);
 		break;
-	case s3::DirectionInput::LEFT:
+	case DirectionInput::LEFT:
 		dir = left(cubeSide, upDir);
 		break;
-	case s3::DirectionInput::RIGHT:
+	case DirectionInput::RIGHT:
 		dir = right(cubeSide, upDir);
 		break;
-	case s3::DirectionInput::DIVE:
+	case DirectionInput::DIVE:
 		dir = opposite(cubeSide);
 		break;
 	}
@@ -231,8 +231,7 @@ void Model::update(float delta) noexcept
 	// Move head
 	if (objectEaten) nextHeadPtr->type = TileType::HEAD_DIGESTING;
 	else nextHeadPtr->type = TileType::HEAD;
-	nextHeadPtr->from = (opposite(
-	              convertSideDirection(headPos.side, nextPos.side, nextPreHeadPtr->to)));
+	nextHeadPtr->from = calculateFromDirection(headPos.side, nextPos.side, nextPreHeadPtr->to);
 	nextHeadPtr->to = opposite(nextHeadPtr->from);
 
 	// Update pointers

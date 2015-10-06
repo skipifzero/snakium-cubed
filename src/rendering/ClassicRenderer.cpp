@@ -14,7 +14,7 @@ using sfz::vec4;
 // Static functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-static gl::Program compileStandardShaderProgram() noexcept
+/*static gl::Program compileStandardShaderProgram() noexcept
 {
 	return gl::Program::fromSource(R"(
 		#version 330
@@ -52,11 +52,12 @@ static gl::Program compileStandardShaderProgram() noexcept
 	});
 }
 
-static const gl::Texture& getTileTexture(const SnakeTile *tilePtr, float progress, bool gameOver) noexcept
+static const gl::Texture& getTileTexture(const SnakeTile *tilePtr, Direction side, float progress, bool gameOver) noexcept
 {
 	Assets& assets = Assets::INSTANCE();
 
-	bool isTurn = s3::isTurn(tilePtr->from, tilePtr->to);
+	bool isTurn = s3::isLeftTurn(side, tilePtr->from, tilePtr->to) ||
+	              s3::isRightTurn(side, tilePtr->from, tilePtr->to);
 
 	switch (tilePtr->type) {
 	case s3::TileType::EMPTY: return assets.TILE_FACE;
@@ -183,14 +184,14 @@ static mat4 tileSpaceRotation(Direction3D side) noexcept
 	case Direction3D::WEST: return sfz::zRotationMatrix4(sfz::PI()/2.0f);
 	case Direction3D::EAST: return sfz::zRotationMatrix4(-sfz::PI()/2.0f);
 	}
-}
+}*/
 
 // ClassicRenderer: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 ClassicRenderer::ClassicRenderer() noexcept
 :
-	mProgram{s3::compileStandardShaderProgram()},
+	mProgram{/*s3::compileStandardShaderProgram()*/},
 	mTile{false, false},
 	mXFlippedTile{true, false}
 {
@@ -202,7 +203,7 @@ ClassicRenderer::ClassicRenderer() noexcept
 
 void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D& viewport) noexcept
 {
-	Assets& assets = Assets::INSTANCE();
+	/*Assets& assets = Assets::INSTANCE();
 
 	float aspect = viewport.width() / viewport.height();
 	mProjMatrix = sfz::glPerspectiveProjectionMatrix(cam.mFov, aspect, 0.1f, 50.0f);
@@ -345,7 +346,7 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 	}
 
 	// Clean up
-	glUseProgram(0);
+	glUseProgram(0);*/
 }
 
 } // namespace s3
