@@ -26,13 +26,7 @@ static const char* to_string(DirectionInput dirInp) noexcept
 static Direction calculateFromDirection(Direction fromSide, Direction toSide, Direction dirOnFromSide) noexcept
 {
 	if (fromSide == toSide) return opposite(dirOnFromSide);
-	
-	if (fromSide == opposite(toSide)) return fromSide;
-
-	if (dirOnFromSide == toSide) return fromSide;
-
-	sfz_assert_debug(false, "oops");
-
+	return fromSide;
 }
 
 static std::mt19937_64 createRNGGenerator(void) noexcept

@@ -193,47 +193,41 @@ static gl::Model* getTileProjectionModelPtr(const SnakeTile* tilePtr, Direction 
 
 static float getTileAngleRad(Direction side, Direction from) noexcept
 {
-	return 0.0f;
-	/*float angle;
-
-	switch (from) {
-	case Direction2D::UP:
+	float angle = 0.0f;
+	Direction up = defaultUp(side);
+	if (from == up) {
 		angle = 180.0f;
-		break;
-	case Direction2D::DOWN:
+	} else if (from == opposite(up)) {
 		angle = 0.0f;
-		break;
-	case Direction2D::LEFT:
+	} else if (from == left(side, up)) {
 		angle = -90.0f;
-		break;
-	case Direction2D::RIGHT:
+	} else if (from == right(side, up)) {
 		angle = 90.0f;
-		break;
 	}
 
 	// Yeah, I dunno. There probably is a pattern here to make it general, but I don't see it.
 	switch (side) {
-	case Direction3D::NORTH:
+	case Direction::FORWARD:
 		angle += 180.0f;
 		break;
-	case Direction3D::SOUTH:
+	case Direction::BACKWARD:
 		// Do nothing.
 		break;
-	case Direction3D::WEST:
+	case Direction::LEFT:
 		angle -= 90.0f;
 		break;
-	case Direction3D::EAST:
+	case Direction::RIGHT:
 		angle += 90.0f;
 		break;
-	case Direction3D::UP:
+	case Direction::UP:
 		angle += 180.0f;
 		break;
-	case Direction3D::DOWN:
+	case Direction::DOWN:
 		// Do nothing.
 		break;
 	}
 
-	return angle * sfz::DEG_TO_RAD();*/
+	return angle * sfz::DEG_TO_RAD();
 }
 
 static vec3 tilePosToVector(const Model& model, const Position& tilePos) noexcept
@@ -258,14 +252,6 @@ static mat4 tileSpaceRotation(Direction side) noexcept
 	case Direction::RIGHT: return sfz::zRotationMatrix4(-sfz::PI()/2.0f);
 	case Direction::LEFT: return sfz::zRotationMatrix4(sfz::PI()/2.0f);
 	}
-	/*switch (side) {
-	case Direction3D::UP: return sfz::identityMatrix4<float>();
-	case Direction3D::DOWN: return sfz::xRotationMatrix4(sfz::PI());
-	case Direction3D::SOUTH: return sfz::xRotationMatrix4(sfz::PI()/2.0f);
-	case Direction3D::NORTH: return sfz::xRotationMatrix4(-sfz::PI()/2.0f);
-	case Direction3D::WEST: return sfz::zRotationMatrix4(sfz::PI()/2.0f);
-	case Direction3D::EAST: return sfz::zRotationMatrix4(-sfz::PI()/2.0f);
-	}*/
 }
 
 static vec4 tileColor(const SnakeTile* tilePtr) noexcept
