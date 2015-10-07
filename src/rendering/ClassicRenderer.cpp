@@ -19,14 +19,14 @@ static gl::Program compileStandardShaderProgram() noexcept
 	return gl::Program::fromSource(R"(
 		#version 330
 
-				in vec3 position;
+		in vec3 position;
 		in vec2 texCoordIn;
 
-				out vec2 texCoord;
+		out vec2 texCoord;
 
-				uniform mat4 modelViewProj;
+		uniform mat4 modelViewProj;
 
-				void main()
+		void main()
 		{
 			gl_Position = modelViewProj * vec4(position, 1);
 			texCoord = texCoordIn;
@@ -34,14 +34,14 @@ static gl::Program compileStandardShaderProgram() noexcept
 	)", R"(
 		#version 330
 
-				precision highp float; // required by GLSL spec Sect 4.5.3
+		precision highp float; // required by GLSL spec Sect 4.5.3
 
-				in vec2 texCoord;
+		in vec2 texCoord;
 		uniform sampler2D tex;
 		
 		out vec4 fragmentColor;
 
-				void main()
+		void main()
 		{
 			fragmentColor = texture(tex, texCoord.xy);
 		}
@@ -186,7 +186,7 @@ static mat4 tileSpaceRotation(Direction side) noexcept
 
 ClassicRenderer::ClassicRenderer() noexcept
 :
-	mProgram{/*s3::compileStandardShaderProgram()*/},
+	mProgram{s3::compileStandardShaderProgram()},
 	mTile{false, false},
 	mXFlippedTile{true, false}
 {
@@ -223,6 +223,8 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 	glUseProgram(mProgram.handle());
 
 	const mat4 viewProj = mProjMatrix * cam.mViewMatrix;
+
+	if (!mProgram.isValid()) std::cout << "PROGRAM NON VALID\n";
 
 	// Only one texture is used when rendering SnakeTiles
 	gl::setUniform(mProgram, "tex", 0);
