@@ -30,6 +30,7 @@ UpdateOp GameScreen::update(UpdateState& state)
 			switch (event.key.keysym.sym) {
 			case SDLK_SPACE:
 				mModel.changeDirection(mCam.mUpDir, DirectionInput::DIVE);
+				break;
 			case SDLK_UP:
 			case 'w':
 			case 'W':

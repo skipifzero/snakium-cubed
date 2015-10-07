@@ -214,7 +214,13 @@ void Model::update(float delta) noexcept
 	if (objectEaten) nextHeadPtr->type = TileType::HEAD_DIGESTING;
 	else nextHeadPtr->type = TileType::HEAD;
 	nextHeadPtr->from = calculateFromDirection(headPos.side, nextPos.side, nextPreHeadPtr->to);
-	nextHeadPtr->to = opposite(nextHeadPtr->from);
+
+	// Set heads next direction
+	if (opposite(nextHeadPtr->from) != nextPos.side) {
+		nextHeadPtr->to = opposite(nextHeadPtr->from);
+	} else {
+		nextHeadPtr->to = nextPreHeadPtr->from;
+	}
 
 	// Update pointers
 	mHeadPtr = nextHeadPtr;
@@ -301,6 +307,48 @@ Position Model::adjacent(Position pos, Direction to) const noexcept
 		newPos.e1 += 1;
 		if (newPos.e1 < gridWidth) return newPos;
 		toSide = right(currentSide, currentUp);
+	} else if (to == opposite(currentSide)) {
+
+		toSide = opposite(currentSide);
+		newPos.side = toSide;
+
+		Direction fromE1 = direction(currentSide, Coordinate::e1);
+		Direction fromE2 = direction(currentSide, Coordinate::e2);
+
+		Direction toE1 = direction(to, Coordinate::e1);
+		Direction toE2 = direction(to, Coordinate::e2);
+
+		if (fromE1 == toE1 && fromE2 == toE2) {
+			return newPos;
+		}
+		else if (fromE1 == opposite(toE1) && fromE2 == toE2) {
+			newPos.e1 = mCfg.gridWidth - newPos.e1 - 1;
+		}
+		else if (fromE1 == toE1 && fromE2 == opposite(toE2)) {
+			newPos.e2 = mCfg.gridWidth - newPos.e2 - 1;
+		}
+		else if (fromE1 == opposite(toE1) && fromE2 == opposite(toE2)) {
+			newPos.e1 = mCfg.gridWidth - newPos.e1 - 1;
+			newPos.e2 = mCfg.gridWidth - newPos.e2 - 1;
+		}
+		else if (fromE1 == toE2 && fromE2 == toE1) {
+			std::swap(newPos.e1, newPos.e2);
+		}
+		else if (fromE1 == opposite(toE2) && fromE2 == toE1) {
+			std::swap(newPos.e1, newPos.e2);
+			newPos.e1 = mCfg.gridWidth - newPos.e1 - 1;
+		}
+		else if (fromE1 == toE2 && fromE2 == opposite(toE1)) {
+			std::swap(newPos.e1, newPos.e2);
+			newPos.e2 = mCfg.gridWidth - newPos.e2 - 1;
+		}
+		else if (fromE1 == opposite(toE2) && fromE2 == opposite(toE1)) {
+			std::swap(newPos.e1, newPos.e2);
+			newPos.e1 = mCfg.gridWidth - newPos.e1 - 1;
+			newPos.e2 = mCfg.gridWidth - newPos.e2 - 1;
+		}
+		return newPos;
+
 	} else {
 		sfz_error("Should not happen.");
 	}
