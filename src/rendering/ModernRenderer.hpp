@@ -1,6 +1,6 @@
 #pragma once
-#ifndef SFZ_RENDERING_NEW_RENDERER_HPP
-#define SFZ_RENDERING_NEW_RENDERER_HPP
+#ifndef SFZ_RENDERING_MODERN_RENDERER_HPP
+#define SFZ_RENDERING_MODERN_RENDERER_HPP
 
 #include <sfz/gl/Program.hpp>
 #include <sfz/geometry/AABB2D.hpp>
@@ -14,15 +14,15 @@ namespace s3 {
 using sfz::AABB2D;
 using sfz::mat4;
 
-class NewRenderer final {
+class ModernRenderer final {
 public:
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	NewRenderer(const NewRenderer&) = delete;
-	NewRenderer& operator= (const NewRenderer&) = delete;
+	ModernRenderer(const ModernRenderer&) = delete;
+	ModernRenderer& operator= (const ModernRenderer&) = delete;
 
-	NewRenderer() noexcept;
+	ModernRenderer() noexcept;
 
 	// Public methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

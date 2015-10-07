@@ -61,7 +61,7 @@ UpdateOp GameScreen::update(UpdateState& state)
 				break;
 			case 'r':
 			case 'R':
-				mUseNewRenderer = !mUseNewRenderer;
+				mUseModernRenderer = !mUseModernRenderer;
 				break;
 			case SDLK_ESCAPE:
 				return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
@@ -82,8 +82,8 @@ UpdateOp GameScreen::update(UpdateState& state)
 
 void GameScreen::render(UpdateState& state)
 {
-	if (mUseNewRenderer) {
-		mNewRenderer.render(mModel, mCam, AABB2D{state.window.drawableDimensions()/2.0f, state.window.drawableDimensions()});
+	if (mUseModernRenderer) {
+		mModernRenderer.render(mModel, mCam, AABB2D{state.window.drawableDimensions()/2.0f, state.window.drawableDimensions()});
 	} else {
 		mClassicRenderer.render(mModel, mCam, AABB2D{state.window.drawableDimensions()/2.0f, state.window.drawableDimensions()});
 	}

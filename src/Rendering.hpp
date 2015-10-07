@@ -5,7 +5,7 @@
 #include "rendering/Assets.hpp"
 #include "rendering/Camera.hpp"
 #include "rendering/ClassicRenderer.hpp"
-#include "rendering/NewRenderer.hpp"
+#include "rendering/ModernRenderer.hpp"
 #include "rendering/TileObject.hpp"
 
 #endif

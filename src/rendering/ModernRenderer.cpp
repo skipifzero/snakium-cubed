@@ -1,4 +1,4 @@
-#include "rendering/NewRenderer.hpp"
+#include "rendering/ModernRenderer.hpp"
 
 #include <sfz/gl/OpenGL.hpp>
 #include <sfz/math/Vector.hpp>
@@ -281,18 +281,18 @@ static vec4 tileColor(const SnakeTile* tilePtr) noexcept
 	}
 }
 
-// NewRenderer: Constructors & destructors
+// ModernRenderer: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-NewRenderer::NewRenderer() noexcept
+ModernRenderer::ModernRenderer() noexcept
 :
 	mProgram{s3::compileStandardShaderProgram()}
 { }
 
-// NewRenderer: Public methods
+// ModernRenderer: Public methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void NewRenderer::render(const Model& model, const Camera& cam, const AABB2D& viewport) noexcept
+void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D& viewport) noexcept
 {
 	// Recompile shader programs if continuous shader reload is enabled
 	if (GlobalConfig::INSTANCE().continuousShaderReload) {

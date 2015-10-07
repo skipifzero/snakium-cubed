@@ -63,8 +63,8 @@ set(SOURCE_RENDERING_FILES
 	${SRC_DIR}/rendering/Camera.cpp
 	${SRC_DIR}/rendering/ClassicRenderer.hpp
 	${SRC_DIR}/rendering/ClassicRenderer.cpp
-	${SRC_DIR}/rendering/NewRenderer.hpp
-	${SRC_DIR}/rendering/NewRenderer.cpp
+	${SRC_DIR}/rendering/ModernRenderer.hpp
+	${SRC_DIR}/rendering/ModernRenderer.cpp
 	${SRC_DIR}/rendering/TileObject.hpp
 	${SRC_DIR}/rendering/TileObject.cpp)
 source_group(rendering FILES ${SOURCE_RENDERING_FILES})
