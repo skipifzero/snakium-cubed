@@ -149,6 +149,16 @@ bool isRightTurn(Direction side, Direction from, Direction to) noexcept
 	return rightDir == to;
 }
 
+bool isDive(Direction side, Direction to) noexcept
+{
+	return to == opposite(side);
+}
+
+bool isAscend(Direction side, Direction from) noexcept
+{
+	return from == opposite(side);
+}
+
 Direction defaultUp(Direction side) noexcept
 {
 	switch (side) {

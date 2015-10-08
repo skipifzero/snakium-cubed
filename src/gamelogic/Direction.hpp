@@ -49,6 +49,8 @@ Direction left(Direction side, Direction up) noexcept;
 Direction right(Direction side, Direction up) noexcept;
 bool isLeftTurn(Direction side, Direction from, Direction to) noexcept;
 bool isRightTurn(Direction side, Direction from, Direction to) noexcept;
+bool isDive(Direction side, Direction to) noexcept;
+bool isAscend(Direction side, Direction from) noexcept;
 
 Direction defaultUp(Direction side) noexcept;
 

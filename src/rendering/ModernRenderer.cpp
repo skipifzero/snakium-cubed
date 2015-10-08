@@ -35,6 +35,8 @@ static gl::Model& getTileModel(const SnakeTile* tilePtr, Direction side, float p
 	Assets& a = Assets::INSTANCE();
 	const bool rightTurn = isRightTurn(side, tilePtr->from, tilePtr->to);
 	const bool leftTurn = isLeftTurn(side, tilePtr->from, tilePtr->to);
+	const bool dive = isDive(side, tilePtr->to);
+	const bool ascend = isAscend(side, tilePtr->from);
 	const bool frame1 = progress <= 0.5f;
 
 	switch (tilePtr->type) {
@@ -43,13 +45,19 @@ static gl::Model& getTileModel(const SnakeTile* tilePtr, Direction side, float p
 	//case s3::TileType::BONUS_OBJECT:
 
 	case TileType::HEAD:
-		if (frame1) return a.HEAD_D2U_F1_MODEL;
-		else return a.HEAD_D2U_F2_MODEL;
-		
+		if (frame1) {
+			if (ascend) return a.HEAD_ASC_F1_MODEL;
+			else return a.HEAD_D2U_F1_MODEL;
+		} else {
+			if (ascend) return a.HEAD_ASC_F2_MODEL;
+			else return a.HEAD_D2U_F2_MODEL;
+		}
+
 	case TileType::PRE_HEAD:
 		if (frame1) {
 			if (rightTurn) return (!gameOver) ? a.PRE_HEAD_D2R_F1_MODEL : a.DEAD_PRE_HEAD_D2R_F1_MODEL;
 			else if (leftTurn) return (!gameOver) ? a.PRE_HEAD_D2L_F1_MODEL : a.DEAD_PRE_HEAD_D2L_F1_MODEL;
+			else if (dive) return a.PRE_HEAD_DIVE_F1_MODEL; // TODO: Add dead_head variant
 			else return (!gameOver) ? a.PRE_HEAD_D2U_F1_MODEL : a.DEAD_PRE_HEAD_D2U_F1_MODEL;
 		} else {
 			if (rightTurn) return a.BODY_D2R_MODEL;
@@ -113,6 +121,8 @@ static gl::Model* getTileProjectionModelPtr(const SnakeTile* tilePtr, Direction 
 	Assets& a = Assets::INSTANCE();
 	const bool rightTurn = isRightTurn(side, tilePtr->from, tilePtr->to);
 	const bool leftTurn = isLeftTurn(side, tilePtr->from, tilePtr->to);
+	const bool dive = isDive(side, tilePtr->to);
+	const bool ascend = isAscend(side, tilePtr->from);
 	const bool frame1 = progress <= 0.5f;
 
 	switch (tilePtr->type) {
@@ -122,13 +132,19 @@ static gl::Model* getTileProjectionModelPtr(const SnakeTile* tilePtr, Direction 
 	//case s3::TileType::BONUS_OBJECT:
 
 	case TileType::HEAD:
-		if (frame1) return &a.HEAD_D2U_F1_PROJECTION_MODEL;
-		else return &a.HEAD_D2U_F2_PROJECTION_MODEL;
+		if (frame1) {
+			if (ascend) return &a.HEAD_ASC_F1_PROJECTION_MODEL;
+			else return &a.HEAD_D2U_F1_PROJECTION_MODEL;
+		} else {
+			if (ascend) return &a.HEAD_ASC_F2_PROJECTION_MODEL;
+			else return &a.HEAD_D2U_F2_PROJECTION_MODEL;
+		}
 
 	case TileType::PRE_HEAD:
 		if (frame1) {
 			if (rightTurn) return &a.PRE_HEAD_D2R_F1_PROJECTION_MODEL;
 			else if (leftTurn) return &a.PRE_HEAD_D2L_F1_PROJECTION_MODEL; 
+			else if (dive) return &a.PRE_HEAD_DIVE_F1_PROJECTION_MODEL;
 			else return &a.PRE_HEAD_D2U_F1_PROJECTION_MODEL;
 			break;
 		} else {
