@@ -206,10 +206,17 @@ static gl::Model* getTileProjectionModelPtr(const SnakeTile* tilePtr, Direction 
 	return nullptr;
 }
 
-static float getTileAngleRad(Direction side, Direction from) noexcept
+static float getTileAngleRad(Direction side, const SnakeTile* tile) noexcept
 {
-	float angle = 0.0f;
 	Direction up = defaultUp(side);
+	Direction from = tile->from;
+
+	// Special case when diving/ascending
+	if (tile->from == opposite(side)) {
+		from = opposite(tile->to);
+	}
+
+	float angle = 0.0f;
 	if (from == up) {
 		angle = 180.0f;
 	} else if (from == opposite(up)) {
@@ -349,7 +356,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 		mat4 tileSpaceRot = tileSpaceRotation(tilePos.side);
 		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;
 		mat4 transform = tileSpaceRotScaling;
-		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from));
+		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr));
 		sfz::translation(transform, tilePosToVector(model, tilePos));
 
 		// Set uniforms
@@ -379,7 +386,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 
 		// Calculate base transform
 		mat4 transform = tileSpaceRotScaling;
-		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from));
+		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr));
 		sfz::translation(transform, tilePosToVector(model, tilePos));
 
 		// Set uniforms
@@ -407,7 +414,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 
 			// Calculate base transform
 			mat4 transform = tileSpaceRotScaling;
-			transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from));
+			transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr));
 			sfz::translation(transform, tilePosToVector(model, tilePos));
 
 			// Set uniforms
@@ -450,7 +457,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 
 		// Calculate base transform
 		mat4 transform = tileSpaceRotScaling;
-		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from));
+		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr));
 		sfz::translation(transform, tilePosToVector(model, tilePos));
 
 		// Set uniforms

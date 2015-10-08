@@ -118,10 +118,17 @@ static const gl::Texture& getTileTexture(const SnakeTile *tilePtr, Direction sid
 	}
 }
 
-static float getTileAngleRad(Direction side, Direction from) noexcept
+static float getTileAngleRad(Direction side, const SnakeTile* tile) noexcept
 {
-	float angle = 0.0f;
 	Direction up = defaultUp(side);
+	Direction from = tile->from;
+
+	// Special case when diving/ascending
+	if (tile->from == opposite(side)) {
+		from = opposite(tile->to);
+	}
+
+	float angle = 0.0f;
 	if (from == up) {
 		angle = 180.0f;
 	} else if (from == opposite(up)) {
@@ -249,7 +256,7 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 
 				// Calculate base transform
 				transform = tileSpaceRotScaling;
-				transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from));
+				transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr));
 
 				// Render tile face
 				sfz::translation(transform, tilePosToVector(model, tilePos));
@@ -275,7 +282,7 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 
 				// Calculate base transform
 				transform = tileSpaceRotScaling;
-				transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr->from));
+				transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr));
 
 				// Render snake sprite for non-empty tiles
 				if (tilePtr->type != s3::TileType::EMPTY) {
@@ -306,7 +313,7 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 		tileSpaceRotScaling = tileSpaceRot * tileScaling;
 		vec3 snakeFloatVec = toVector(deadHeadPos.side) * 0.0015f;
 		transform = tileSpaceRotScaling;
-		transform *= sfz::yRotationMatrix4(getTileAngleRad(deadHeadPos.side, deadHeadPtr->from));
+		transform *= sfz::yRotationMatrix4(getTileAngleRad(deadHeadPos.side, deadHeadPtr));
 		translation(transform, tilePosToVector(model, deadHeadPos) + snakeFloatVec);
 
 		// Render dead head
