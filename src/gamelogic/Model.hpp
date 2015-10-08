@@ -37,6 +37,7 @@ public:
 
 	void changeDirection(Direction upDir, DirectionInput direction) noexcept;
 	void update(float delta) noexcept;
+	void updateSetProgress(float progress) noexcept;
 
 	// Access methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

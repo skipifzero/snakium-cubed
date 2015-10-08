@@ -75,7 +75,8 @@ UpdateOp GameScreen::update(UpdateState& state)
 	if (mIsPaused) return sfz::SCREEN_NO_OP;
 
 	if (!mCam.delayModelUpdate()) mModel.update(state.delta);
-	if (!mModel.isGameOver()) mCam.update(mModel, state.delta);
+	mCam.onResize(60.0f, (float)state.window.drawableWidth()/(float)state.window.drawableHeight());
+	mCam.update(mModel, state.delta);
 
 	return sfz::SCREEN_NO_OP;
 }

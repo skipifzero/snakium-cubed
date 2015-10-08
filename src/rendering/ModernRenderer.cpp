@@ -379,7 +379,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 	// Render transparent objects
 	const size_t tilesPerSide = model.config().gridWidth*model.config().gridWidth;
 	for (size_t side = 0; side < 6; side++) {
-		Direction currentSide = cam.sideRenderOrder[side];
+		Direction currentSide = cam.sideRenderOrder(side);
 		const SnakeTile* sidePtr = model.tilePtr(Position{currentSide, 0, 0});
 
 		mat4 tileSpaceRot = tileSpaceRotation(currentSide);
@@ -399,7 +399,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 			gl::setUniform(mProgram, "uModelMatrix", transform);
 			gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
 
-			if (cam.renderTileFaceFirst[side]) {
+			if (cam.renderTileFaceFirst(side)) {
 				
 				// Render cube tile projection
 				gl::setUniform(mProgram, "uColor", vec4{0.25f, 0.25f, 0.25f, 0.7f});

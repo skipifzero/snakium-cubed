@@ -31,32 +31,31 @@ public:
 
 	inline mat4 viewMatrix() const noexcept { return mViewMatrix; }
 	inline mat4 projMatrix() const noexcept { return mProjMatrix; }
-	Direction sideRenderOrder[6];
-	bool renderTileFaceFirst[6];
 	inline Direction upDir() const noexcept { return mUpDir; }
-	inline bool delayModelUpdate() const noexcept { return mDelayModelUpdate; }
+	inline Direction sideRenderOrder(size_t i) const noexcept { return mSideRenderOrder[i]; }
+	inline bool renderTileFaceFirst(size_t i) const noexcept { return mRenderTileFaceFirst[i]; }
+	inline bool delayModelUpdate() const noexcept { return mDiveInProgress; }
 
-	void update(const Model& model, float delta) noexcept;
-
+	void update(Model& model, float delta) noexcept;
+	void onResize(float fov, float aspect) noexcept;
 
 private:
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-
-
-	Direction mLastCubeSide = Direction::BACKWARD;
-	Direction mLastUpDir = Direction::UP;
-	vec3 mUpTarget;
-
-	
-
-	vec3 mPos, mTarget{0.0f}, mUp;
-	float mFov = 60.0f, mAspect = 1.0f, mNear = 0.25f, mFar = 5.0f;
+	vec3 mCamDir, mCamUp;
+	float mCamDist;
+	float mFov, mAspect, mNear, mFar;
 	mat4 mViewMatrix, mProjMatrix;
-	Direction mUpDir = Direction::UP;
-	bool mDelayModelUpdate = false;
 
+	Direction mUpDir, mLastCubeSide;
+	vec3 mTargetCamUp;
+
+	bool mDiveInProgress, mDiveFixUpDir, mDiveInvertUpDir;
+	vec3 mDiveTargetCamDir, mDiveTargetCamDirRotAxis;
+
+	Direction mSideRenderOrder[6];
+	bool mRenderTileFaceFirst[6];
 };
 
 } // namespace s3

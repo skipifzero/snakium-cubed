@@ -115,6 +115,7 @@ void Model::changeDirection(Direction upDir, DirectionInput direction) noexcept
 	}
 
 	if (dir == mHeadPtr->from) return;
+	if (mHeadPtr->to == opposite(cubeSide)) return;
 	mHeadPtr->to = dir;
 }
 
@@ -181,7 +182,7 @@ void Model::update(float delta) noexcept
 
 	// Check if Game Over
 	if (nextHeadPtr->type != TileType::EMPTY && nextHeadPtr->type != TileType::TAIL) {
-		nextHeadPtr = mDeadHeadPtr;
+		nextHeadPtr = mDeadHeadPtr; // TODO: ... wat
 		mDeadHeadPos = nextPos;
 		mGameOver = true;
 	}
@@ -226,6 +227,12 @@ void Model::update(float delta) noexcept
 	mHeadPtr = nextHeadPtr;
 	mPreHeadPtr = nextPreHeadPtr;
 	mTailPtr = nextTailPtr;
+}
+
+void Model::updateSetProgress(float progress) noexcept
+{
+	sfz_assert_debug(mProgress <= progress && progress <= 1.0f);
+	this->update((progress - mProgress) / mCurrentSpeed);
 }
 
 // Access methods
@@ -352,7 +359,6 @@ Position Model::adjacent(Position pos, Direction to) const noexcept
 	} else {
 		sfz_error("Should not happen.");
 	}
-
 
 	Direction newDir = opposite(currentSide);
 	Coordinate fromDirCoord = coordinate(currentSide, to);

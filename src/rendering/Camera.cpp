@@ -1,13 +1,17 @@
 #include "rendering/Camera.hpp"
 
+#include <algorithm>
+
 #include <sfz/math/MathHelpers.hpp>
 
 namespace s3 {
 
+using sfz::mat3;
+
 // Statics
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-static int axisCoord(Direction dir) noexcept
+/*static size_t axisCoord(Direction dir) noexcept
 {
 	switch (dir) {
 	case Direction::BACKWARD:
@@ -20,24 +24,23 @@ static int axisCoord(Direction dir) noexcept
 	case Direction::LEFT:
 		return 0;
 	}
-}
+}*/
 
 /** Returns a value between 0.0 (down) and 1.0 (up) */
-static float upProgress(const vec3& posOnCube, Direction posOnCubeSideUpDir) noexcept
+/*static float upProgress(vec3 posOnCube, Direction posOnCubeSideUpDir) noexcept
 {
 	vec3 upAxis = toVector(posOnCubeSideUpDir);
 	int upAxisCoord = axisCoord(posOnCubeSideUpDir);
 	return std::abs(posOnCube[upAxisCoord] + 0.5f*sfz::sum(upAxis));
-}
+}*/
 
 /** Returns a value between 0.0 (left) and 1.0 (right) */
-static float rightProgress(const vec3& posOnCube,
-                    Direction posOnCubeSide, Direction posOnCubeSideUpDir) noexcept
+/*static float rightProgress(vec3 posOnCube, Direction posOnCubeSide, Direction posOnCubeSideUpDir) noexcept
 {
 	vec3 rightAxis = toVector(right(posOnCubeSide, posOnCubeSideUpDir));
 	int rightAxisCoord = axisCoord(right(posOnCubeSide, posOnCubeSideUpDir));
 	return std::abs(posOnCube[rightAxisCoord] + 0.5f*sfz::sum(rightAxis));
-}
+}*/
 
 static vec3 tilePosToVector(const Model& model, const Position& tilePos) noexcept
 {
@@ -56,63 +59,157 @@ static vec3 tilePosToVector(const Model& model, const Position& tilePos) noexcep
 
 Camera::Camera() noexcept	
 {
-	mPos = vec3{0,0,0};
-	mUp = vec3{0,1,0};
-	mUpTarget = vec3{0,1,0};
+	mCamDir = vec3{0.0f, 0.0f, 1.0f};
+	mCamUp = vec3{0.0f, 1.0f, 0.0f};
+	mCamDist = 2.0f;
+
+	mFov = 60.0f;
+	mAspect = 1.0f;
+	mNear = 0.25f;
+	mFar = 5.0f;
+
+	mUpDir = Direction::UP;
+	mLastCubeSide = Direction::BACKWARD;
+	mTargetCamUp = mCamUp;
+
+	mDiveInProgress = false;
+	mDiveFixUpDir = false;
+	mDiveInvertUpDir = false;
+	mDiveTargetCamDir = mCamDir;
+	mDiveTargetCamDirRotAxis = mCamUp;
 }
 
 // Camera: Public methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void Camera::update(const Model& model, float delta) noexcept
+void Camera::update(Model& model, float delta) noexcept
 {
-	Position headPos = model.tilePosition(model.headPtr());
-	Position preHeadPos = model.tilePosition(model.preHeadPtr());
-
-	// Update up direction and lastCubeSide
-	if (mLastCubeSide != headPos.side) {
-		if (headPos.side == mUpDir) mUpDir = opposite(mLastCubeSide);
-		else if (headPos.side == opposite(mUpDir)) mUpDir = mLastCubeSide;
-		mLastCubeSide = headPos.side;
-		//std::cout << headPos.side << ", upDir: " << mUpDir << "\n";
+	Position headPos, preHeadPos;
+	Direction headTo;
+	if (!model.isGameOver()) {
+		headPos = model.tilePosition(model.headPtr());
+		headTo = model.headPtr()->to;
+		preHeadPos = model.tilePosition(model.preHeadPtr());
+	} else {
+		headPos = model.deadHeadPos();
+		headTo = model.deadHeadPtr()->to;
+		preHeadPos = model.tilePosition(model.preHeadPtr());
 	}
-	if (mUpDir != mLastUpDir && model.progress() > 0.5f) mLastUpDir = mUpDir;
 
+	// Update and calculate target dir and up vector
+	Direction currCubeSide = headPos.side;
+	if (mLastCubeSide != currCubeSide) {
+		
+		if (currCubeSide == mUpDir) { // Upwards
+			mUpDir = opposite(mLastCubeSide);
+			mTargetCamUp = toVector(mUpDir);
+		} else if (currCubeSide == opposite(mUpDir)) { // Downwards
+			mUpDir = mLastCubeSide;
+			mTargetCamUp = toVector(mUpDir);
+		} else if (mLastCubeSide == opposite(currCubeSide)) { // Dive
+			
+			mDiveInProgress = true;
+			mDiveFixUpDir = headTo == mUpDir || headTo == opposite(mUpDir);
+			mDiveInvertUpDir = headTo == mUpDir;
+			if (mDiveFixUpDir) {
+				mUpDir = opposite(mUpDir);
+				mTargetCamUp = toVector(mUpDir);
+				mDiveFixUpDir = true;
+			}
+			mDiveTargetCamDir = normalize(tilePosToVector(model, headPos));
+			mDiveTargetCamDirRotAxis = normalize(toVector(left(preHeadPos.side, opposite(model.preHeadPtr()->from))));
+		}
+		
+		mLastCubeSide = currCubeSide;
+	}
 
 	// Calculate the current position on the cube
-	const float tileWidth = 1.0f / static_cast<float>(model.config().gridWidth);
-	vec3 posOnCube;
-	if (model.progress() <= 0.5f) {
-		vec3 diff = toVector(model.preHeadPtr()->to) * model.progress() * tileWidth;
-		posOnCube = tilePosToVector(model, preHeadPos) + diff;
-	} else {
-		vec3 diff = toVector(model.headPtr()->from) * (1.0f - model.progress()) * tileWidth;
-		posOnCube = tilePosToVector(model, headPos) + diff;
+	if (headPos.side == opposite(preHeadPos.side)) { // Special case where dive was performed
+
+		if (mDiveInProgress) { // Change side		
+			if (!sfz::approxEqual(mCamDir, mDiveTargetCamDir)) {
+
+				float diffAngle = sfz::angle(mCamDir - dot(mCamDir, mDiveTargetCamDirRotAxis)*mDiveTargetCamDirRotAxis,
+				                            mDiveTargetCamDir - dot(mDiveTargetCamDir, mDiveTargetCamDirRotAxis)*mDiveTargetCamDirRotAxis);
+				float anglePerSec = model.currentSpeed() * 1.1f;
+				float angleToMove = anglePerSec*delta;
+				if ((diffAngle - angleToMove) < 0) {
+					angleToMove = diffAngle;
+					mDiveInProgress = false;
+					model.updateSetProgress(0.75); // TODO: Ugly hack.
+				}
+				mat3 rotMat = sfz::rotationMatrix3(mDiveTargetCamDirRotAxis, angleToMove);
+				mCamDir = normalize(rotMat * mCamDir);
+				if (mDiveFixUpDir) {
+					mCamUp = normalize(sfz::cross(mDiveTargetCamDirRotAxis, mCamDir));
+					if (mDiveInvertUpDir) mCamUp = -mCamUp;
+				}
+			} else {
+				mDiveInProgress = false;
+				model.updateSetProgress(0.75); // TODO: Ugly hack.
+			}
+		}
+
+	} else { // Normal case where dive has not been performed
+		const float tileWidth = 1.0f / static_cast<float>(model.config().gridWidth);
+		if (model.progress() <= 0.5f) {
+			vec3 diff = toVector(model.preHeadPtr()->to) * model.progress() * tileWidth;
+			mCamDir = normalize(tilePosToVector(model, preHeadPos) + diff);
+		} else {
+			vec3 diff = toVector(model.headPtr()->from) * (1.0f - model.progress()) * tileWidth;
+			mCamDir = normalize(tilePosToVector(model, headPos) + diff);
+		}
 	}
 
-	// Calculates and set camera position
-	mPos = normalize(posOnCube)*2.0f;
-
-	Direction posOnCubeSide = preHeadPos.side;
-	Direction posOnCubeSideUpDir = mLastUpDir;
-	if (std::abs(posOnCube[axisCoord(posOnCubeSide)]) != 0.5f) {
-		posOnCubeSide = headPos.side;
-		posOnCubeSideUpDir = mUpDir;
+	// Approach target cam up
+	if (!sfz::approxEqual(mCamUp, mTargetCamUp) && !mDiveInProgress) {
+		const float tileWidth = 1.0f / static_cast<float>(model.config().gridWidth);
+		const float maxAnglePerSec = (model.currentSpeed()*tileWidth*3.0f) * sfz::PI()/2.0f;
+		float angleDiff = sfz::angle(mCamUp, mTargetCamUp);
+		vec3 rotAxis = sfz::cross(mCamUp, mTargetCamUp);
+		if (sfz::approxEqual(rotAxis, vec3{0.0f})) {
+			mCamUp = mTargetCamUp;
+		} else {
+			float angleToMove = maxAnglePerSec*delta;
+			if ((angleDiff-angleToMove) < 0) angleToMove = angleDiff;
+			mat4 rotMat = sfz::rotationMatrix4(rotAxis, angleToMove);
+			mCamUp = normalize(transformDir(rotMat, mCamUp));
+		}
 	}
 
-	mUpTarget = toVector(posOnCubeSideUpDir);
-	if (!sfz::approxEqual(mUp, mUpTarget)) {
-		float maxAnglePerSec = (model.currentSpeed()*tileWidth*3.0f) * sfz::PI()/2.0f;
-		float angleDiff = sfz::angle(mUp, mUpTarget);
-		sfz::vec3 rotAxis = sfz::cross(mUp, mUpTarget);
-		float angleToMove = maxAnglePerSec*delta;
-		if ((angleDiff-angleToMove) < 0) angleToMove = angleDiff;
-		sfz::mat4 rotMat = sfz::rotationMatrix4(rotAxis, angleToMove);
-		mUp = sfz::normalize(transformPoint(rotMat, mUp));
+	// Calculate matrices
+	mViewMatrix = sfz::lookAt(vec3{0.0f} + mCamDir*mCamDist, vec3{0.0f}, mCamUp);
+	mProjMatrix = sfz::glPerspectiveProjectionMatrix(mFov, mAspect, mNear, mFar);
+
+	// Calculate transparency order
+	struct TempSide {
+		Direction side;
+		float dotProd;
+	};
+
+	TempSide sideArray[6];
+	sideArray[0] = {Direction::BACKWARD, 0.0f};
+	sideArray[1] = {Direction::FORWARD, 0.0f};
+	sideArray[2] = {Direction::UP, 0.0f};
+	sideArray[3] = {Direction::DOWN, 0.0f};
+	sideArray[4] = {Direction::LEFT, 0.0f};
+	sideArray[5] = {Direction::RIGHT, 0.0f};
+
+	for (size_t i = 0; i < 6; ++i) {
+		sideArray[i].dotProd = sfz::dot(mCamDir, toVector(sideArray[i].side));
+	}
+
+	std::sort(sideArray, sideArray + 6, [](const TempSide& lhs, const TempSide& rhs) {
+		return lhs.dotProd < rhs.dotProd;
+	});
+
+	for (size_t i = 0; i < 6; ++i) {
+		mSideRenderOrder[i] = sideArray[i].side;
+		mRenderTileFaceFirst[i] = sideArray[i].dotProd >= 0.5f;
 	}
 
 
-	float upProg = upProgress(posOnCube, posOnCubeSideUpDir);
+	/*float upProg = upProgress(posOnCube, posOnCubeSideUpDir);
 	float rightProg = rightProgress(posOnCube, posOnCubeSide, posOnCubeSideUpDir);
 	float upProgClosest = upProg <= 0.5f ? upProg : (1.0f - upProg);
 	float rightProgClosest = rightProg <= 0.5f ? rightProg : (1.0f - rightProg);
@@ -137,12 +234,13 @@ void Camera::update(const Model& model, float delta) noexcept
 
 	for (size_t i = 0; i < 6; i++) {
 		renderTileFaceFirst[i] = dot(mPos, toVector(sideRenderOrder[i])) >= 0.5f;
-	}
+	}*/
+}
 
-
-	// Calculate matrices
-	mViewMatrix = sfz::lookAt(mPos, mTarget, mUp);
-	mProjMatrix = sfz::glPerspectiveProjectionMatrix(mFov, mAspect, mNear, mFar);
+void Camera::onResize(float fov, float aspect) noexcept
+{
+	mFov = fov;
+	mAspect = aspect;
 }
 
 } // namespace s3
