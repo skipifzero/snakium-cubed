@@ -29,27 +29,27 @@ UpdateOp GameScreen::update(UpdateState& state)
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
 			case SDLK_SPACE:
-				mModel.changeDirection(mCam.mUpDir, DirectionInput::DIVE);
+				mModel.changeDirection(mCam.upDir(), DirectionInput::DIVE);
 				break;
 			case SDLK_UP:
 			case 'w':
 			case 'W':
-				mModel.changeDirection(mCam.mUpDir, DirectionInput::UP);
+				mModel.changeDirection(mCam.upDir(), DirectionInput::UP);
 				break;
 			case SDLK_DOWN:
 			case 's':
 			case 'S':
-				mModel.changeDirection(mCam.mUpDir, DirectionInput::DOWN);
+				mModel.changeDirection(mCam.upDir(), DirectionInput::DOWN);
 				break;
 			case SDLK_LEFT:
 			case 'a':
 			case 'A':
-				mModel.changeDirection(mCam.mUpDir, DirectionInput::LEFT);
+				mModel.changeDirection(mCam.upDir(), DirectionInput::LEFT);
 				break;
 			case SDLK_RIGHT:
 			case 'd':
 			case 'D':
-				mModel.changeDirection(mCam.mUpDir, DirectionInput::RIGHT);
+				mModel.changeDirection(mCam.upDir(), DirectionInput::RIGHT);
 				break;
 			}
 			break;
@@ -74,7 +74,7 @@ UpdateOp GameScreen::update(UpdateState& state)
 	// Updating
 	if (mIsPaused) return sfz::SCREEN_NO_OP;
 
-	mModel.update(state.delta);
+	if (!mCam.delayModelUpdate()) mModel.update(state.delta);
 	if (!mModel.isGameOver()) mCam.update(mModel, state.delta);
 
 	return sfz::SCREEN_NO_OP;

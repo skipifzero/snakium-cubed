@@ -200,9 +200,6 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 {
 	Assets& assets = Assets::INSTANCE();
 
-	float aspect = viewport.width() / viewport.height();
-	mProjMatrix = sfz::glPerspectiveProjectionMatrix(cam.mFov, aspect, 0.1f, 50.0f);
-
 	//glClearDepth(1.0f);
 	glDepthFunc(GL_LESS);
 	glEnable(GL_DEPTH_TEST);
@@ -222,7 +219,7 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 
 	glUseProgram(mProgram.handle());
 
-	const mat4 viewProj = mProjMatrix * cam.mViewMatrix;
+	const mat4 viewProj = cam.projMatrix() * cam.viewMatrix();
 
 	if (!mProgram.isValid()) std::cout << "PROGRAM NON VALID\n";
 
@@ -238,14 +235,14 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 	mat4 transform, tileSpaceRot, tileSpaceRotScaling;
 
 	for (size_t side = 0; side < 6; side++) {
-		Direction currentSide = cam.mSideRenderOrder[side];
+		Direction currentSide = cam.sideRenderOrder[side];
 		const SnakeTile* sidePtr = model.tilePtr(Position{currentSide, 0, 0});
 
 		tileSpaceRot = tileSpaceRotation(currentSide);
 		tileSpaceRotScaling = tileSpaceRot * tileScaling;
 		vec3 snakeFloatVec = toVector(currentSide) * 0.001f;
 
-		if (cam.mRenderTileFaceFirst[side]) {
+		if (cam.renderTileFaceFirst[side]) {
 			for (size_t i = 0; i < tilesPerSide; i++) {
 				const SnakeTile* tilePtr = sidePtr + i;
 				Position tilePos = model.tilePosition(tilePtr);

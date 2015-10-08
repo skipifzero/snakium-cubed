@@ -51,7 +51,7 @@ static vec3 tilePosToVector(const Model& model, const Position& tilePos) noexcep
 	       toVector(tilePos.side) * 0.5f;
 }
 
-// Camera
+// Camera: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 Camera::Camera() noexcept	
@@ -60,6 +60,9 @@ Camera::Camera() noexcept
 	mUp = vec3{0,1,0};
 	mUpTarget = vec3{0,1,0};
 }
+
+// Camera: Public methods
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 void Camera::update(const Model& model, float delta) noexcept
 {
@@ -108,7 +111,6 @@ void Camera::update(const Model& model, float delta) noexcept
 		mUp = sfz::normalize(transformPoint(rotMat, mUp));
 	}
 
-	mViewMatrix = sfz::lookAt(mPos, vec3{0.0f}, mUp);
 
 	float upProg = upProgress(posOnCube, posOnCubeSideUpDir);
 	float rightProg = rightProgress(posOnCube, posOnCubeSide, posOnCubeSideUpDir);
@@ -116,26 +118,31 @@ void Camera::update(const Model& model, float delta) noexcept
 	float rightProgClosest = rightProg <= 0.5f ? rightProg : (1.0f - rightProg);
 	bool upClosest = upProgClosest <= rightProgClosest;
 
-	mSideRenderOrder[0] = opposite(posOnCubeSide); // Back
+	sideRenderOrder[0] = opposite(posOnCubeSide); // Back
 	if (upProg <= 0.5f) {
-		mSideRenderOrder[1] = posOnCubeSideUpDir; // Top
-		mSideRenderOrder[upClosest ? 4 : 3] = opposite(posOnCubeSideUpDir); // Bottom
+		sideRenderOrder[1] = posOnCubeSideUpDir; // Top
+		sideRenderOrder[upClosest ? 4 : 3] = opposite(posOnCubeSideUpDir); // Bottom
 	} else {
-		mSideRenderOrder[1] = opposite(posOnCubeSideUpDir); // Bottom
-		mSideRenderOrder[upClosest ? 4 : 3] = posOnCubeSideUpDir; // Top
+		sideRenderOrder[1] = opposite(posOnCubeSideUpDir); // Bottom
+		sideRenderOrder[upClosest ? 4 : 3] = posOnCubeSideUpDir; // Top
 	}
 	if (rightProg <= 0.5f) {
-		mSideRenderOrder[2] = right(posOnCubeSide, posOnCubeSideUpDir); // Right
-		mSideRenderOrder[upClosest ? 3 : 4] = left(posOnCubeSide, posOnCubeSideUpDir); // Left
+		sideRenderOrder[2] = right(posOnCubeSide, posOnCubeSideUpDir); // Right
+		sideRenderOrder[upClosest ? 3 : 4] = left(posOnCubeSide, posOnCubeSideUpDir); // Left
 	} else {
-		mSideRenderOrder[2] = left(posOnCubeSide, posOnCubeSideUpDir); // Left
-		mSideRenderOrder[upClosest ? 3 : 4] = right(posOnCubeSide, posOnCubeSideUpDir); // Right
+		sideRenderOrder[2] = left(posOnCubeSide, posOnCubeSideUpDir); // Left
+		sideRenderOrder[upClosest ? 3 : 4] = right(posOnCubeSide, posOnCubeSideUpDir); // Right
 	}
-	mSideRenderOrder[5] = posOnCubeSide; // Front
+	sideRenderOrder[5] = posOnCubeSide; // Front
 
 	for (size_t i = 0; i < 6; i++) {
-		mRenderTileFaceFirst[i] = dot(mPos, toVector(mSideRenderOrder[i])) >= 0.5f;
+		renderTileFaceFirst[i] = dot(mPos, toVector(sideRenderOrder[i])) >= 0.5f;
 	}
+
+
+	// Calculate matrices
+	mViewMatrix = sfz::lookAt(mPos, mTarget, mUp);
+	mProjMatrix = sfz::glPerspectiveProjectionMatrix(mFov, mAspect, mNear, mFar);
 }
 
 } // namespace s3

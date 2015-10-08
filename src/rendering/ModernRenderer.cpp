@@ -301,9 +301,6 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 
 	Assets& assets = Assets::INSTANCE();
 
-	float aspect = viewport.width() / viewport.height();
-	mProjMatrix = sfz::glPerspectiveProjectionMatrix(cam.mFov, aspect, 0.1f, 50.0f);
-
 	// Enable depth testing
 	glDepthFunc(GL_LESS);
 	glEnable(GL_DEPTH_TEST);
@@ -322,8 +319,8 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 	glUseProgram(mProgram.handle());
 	glViewport(viewport.min.x, viewport.min.y, viewport.width(), viewport.height());
 
-	const mat4 viewMatrix = cam.mViewMatrix;
-	gl::setUniform(mProgram, "uProjMatrix", mProjMatrix);
+	const mat4 viewMatrix = cam.viewMatrix();
+	gl::setUniform(mProgram, "uProjMatrix", cam.projMatrix());
 	gl::setUniform(mProgram, "uViewMatrix", viewMatrix);
 	const mat4 tileScaling = sfz::scalingMatrix4(1.0f / (16.0f * (float)model.config().gridWidth));
 	
@@ -382,7 +379,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 	// Render transparent objects
 	const size_t tilesPerSide = model.config().gridWidth*model.config().gridWidth;
 	for (size_t side = 0; side < 6; side++) {
-		Direction currentSide = cam.mSideRenderOrder[side];
+		Direction currentSide = cam.sideRenderOrder[side];
 		const SnakeTile* sidePtr = model.tilePtr(Position{currentSide, 0, 0});
 
 		mat4 tileSpaceRot = tileSpaceRotation(currentSide);
@@ -402,7 +399,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 			gl::setUniform(mProgram, "uModelMatrix", transform);
 			gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
 
-			if (cam.mRenderTileFaceFirst[side]) {
+			if (cam.renderTileFaceFirst[side]) {
 				
 				// Render cube tile projection
 				gl::setUniform(mProgram, "uColor", vec4{0.25f, 0.25f, 0.25f, 0.7f});

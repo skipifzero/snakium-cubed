@@ -34,7 +34,6 @@ private:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	gl::Program mProgram;
-	mat4 mProjMatrix;
 };
 
 } // namespace s3

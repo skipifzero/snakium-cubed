@@ -36,7 +36,6 @@ private:
 
 	gl::Program mProgram;
 	TileObject mTile, mXFlippedTile;
-	mat4 mProjMatrix;
 };
 
 } // namespace s3
