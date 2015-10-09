@@ -190,7 +190,7 @@ Assets::Assets() noexcept
 	HEAD_ASC_F1_MODEL{modelPath(), "head_asc_f1.obj", true, false},
 	HEAD_ASC_F1_PROJECTION_MODEL{modelPath(), "head_asc_f1_projection.obj", true, false},
 	HEAD_ASC_F2_MODEL{modelPath(), "head_asc_f2.obj", true, false},
-	HEAD_ASC_F2_PROJECTION_MODEL{modelPath(), "head_asc_f1_projection.obj", true, false},
+	HEAD_ASC_F2_PROJECTION_MODEL{modelPath(), "head_asc_f2_projection.obj", true, false},
 
 	PRE_HEAD_D2U_F1_MODEL{modelPath(), "pre_head_d2u_f1.obj", true, false},
 	PRE_HEAD_D2U_F1_PROJECTION_MODEL{modelPath(), "pre_head_d2u_f1_projection.obj", true, false},

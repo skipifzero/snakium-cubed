@@ -118,6 +118,7 @@ void Camera::update(Model& model, float delta) noexcept
 			}
 			mDiveTargetCamDir = normalize(tilePosToVector(model, headPos));
 			mDiveTargetCamDirRotAxis = normalize(toVector(left(preHeadPos.side, opposite(model.preHeadPtr()->from))));
+			model.updateSetProgress(0.51f); // TODO: Ugly hack.
 		}
 		
 		mLastCubeSide = currCubeSide;
@@ -136,7 +137,7 @@ void Camera::update(Model& model, float delta) noexcept
 				if ((diffAngle - angleToMove) < 0) {
 					angleToMove = diffAngle;
 					mDiveInProgress = false;
-					model.updateSetProgress(0.75); // TODO: Ugly hack.
+					model.updateSetProgress(0.75f); // TODO: Ugly hack.
 				}
 				mat3 rotMat = sfz::rotationMatrix3(mDiveTargetCamDirRotAxis, angleToMove);
 				mCamDir = normalize(rotMat * mCamDir);
@@ -146,7 +147,7 @@ void Camera::update(Model& model, float delta) noexcept
 				}
 			} else {
 				mDiveInProgress = false;
-				model.updateSetProgress(0.75); // TODO: Ugly hack.
+				model.updateSetProgress(0.75f); // TODO: Ugly hack.
 			}
 		}
 
