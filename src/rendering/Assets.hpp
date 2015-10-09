@@ -182,6 +182,9 @@ public:
 	          TAIL_D2L_DIG_F2_MODEL,
 	          TAIL_D2L_DIG_F2_PROJECTION_MODEL,
 
+	          OBJECT_MODEL,
+	          BONUS_OBJECT_MODEL,
+
 	          TILE_DECORATION_MODEL,
 	          TILE_PROJECTION_MODEL,
 

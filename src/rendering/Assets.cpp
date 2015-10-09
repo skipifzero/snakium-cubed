@@ -252,6 +252,9 @@ Assets::Assets() noexcept
 	TAIL_D2L_DIG_F2_MODEL{modelPath(), "tail_d2l_dig_f2.obj", true, false},
 	TAIL_D2L_DIG_F2_PROJECTION_MODEL{modelPath(), "tail_d2l_dig_f2_projection.obj", true, false},
 
+	OBJECT_MODEL{modelPath(), "object.obj", true, false},
+	BONUS_OBJECT_MODEL{modelPath(), "bonus_object.obj", true, false},
+
 	TILE_DECORATION_MODEL{modelPath(), "tile_decoration.obj", true, false},
 	TILE_PROJECTION_MODEL{modelPath(), "tile_projection.obj", true, false},
 

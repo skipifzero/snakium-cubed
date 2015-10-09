@@ -41,8 +41,8 @@ static gl::Model& getTileModel(const SnakeTile* tilePtr, Direction side, float p
 
 	switch (tilePtr->type) {
 	//case s3::TileType::EMPTY:
-	//case s3::TileType::OBJECT:
-	//case s3::TileType::BONUS_OBJECT:
+	case s3::TileType::OBJECT: return a.OBJECT_MODEL;
+	case s3::TileType::BONUS_OBJECT: return a.BONUS_OBJECT_MODEL;
 
 	case TileType::HEAD:
 		if (frame1) {
@@ -284,7 +284,7 @@ static vec4 tileColor(const SnakeTile* tilePtr) noexcept
 		return vec4(0.0f, 1.0f, 1.0f, 1.0f);
 
 	case s3::TileType::BONUS_OBJECT:
-		return vec4{1.0f, 0.0f, 0.0f, 1.0f};
+		return vec4{1.0f, 0.0f, 0.85f, 1.0f};
 
 	case s3::TileType::HEAD:
 	case s3::TileType::PRE_HEAD:
