@@ -226,6 +226,10 @@ Assets::Assets() noexcept
 	BODY_D2L_PROJECTION_MODEL{modelPath(), "body_d2l_projection.obj", true, false},
 	BODY_D2L_DIG_MODEL{modelPath(), "body_d2l_dig.obj", true, false},
 	BODY_D2L_DIG_PROJECTION_MODEL{modelPath(), "body_d2l_dig_projection.obj", true, false},
+	BODY_DIVE_MODEL{modelPath(), "body_dive.obj", true, false},
+	BODY_DIVE_PROJECTION_MODEL{modelPath(), "body_dive_projection.obj", true, false},
+	BODY_ASC_MODEL{modelPath(), "body_asc.obj", true, false},
+	BODY_ASC_PROJECTION_MODEL{modelPath(), "body_asc_projection.obj", true, false},
 
 	TAIL_D2U_F1_MODEL{modelPath(), "tail_d2u_f1.obj", true, false},
 	TAIL_D2U_F1_PROJECTION_MODEL{modelPath(), "tail_d2u_f1_projection.obj", true, false},

@@ -62,12 +62,16 @@ static gl::Model& getTileModel(const SnakeTile* tilePtr, Direction side, float p
 		} else {
 			if (rightTurn) return a.BODY_D2R_MODEL;
 			else if (leftTurn) return a.BODY_D2L_MODEL;
+			else if (dive) return a.BODY_DIVE_MODEL;
+			else if (ascend) return a.BODY_ASC_MODEL;
 			else return a.BODY_D2U_MODEL;
 		}
 
 	case TileType::BODY:
 		if (rightTurn) return a.BODY_D2R_MODEL;
 		else if (leftTurn) return a.BODY_D2L_MODEL;
+		else if (dive) return a.BODY_DIVE_MODEL;
+		else if (ascend) return a.BODY_ASC_MODEL;
 		else return a.BODY_D2U_MODEL;
 
 	case TileType::TAIL:
@@ -150,12 +154,16 @@ static gl::Model* getTileProjectionModelPtr(const SnakeTile* tilePtr, Direction 
 		} else {
 			if (rightTurn) return &a.BODY_D2R_PROJECTION_MODEL;
 			else if (leftTurn) return &a.BODY_D2L_PROJECTION_MODEL;
+			else if (dive) return &a.BODY_DIVE_PROJECTION_MODEL;
+			else if (ascend) return &a.BODY_ASC_PROJECTION_MODEL;
 			else return &a.BODY_D2U_PROJECTION_MODEL;
 		}
 
 	case TileType::BODY:
 		if (rightTurn) return &a.BODY_D2R_PROJECTION_MODEL;
 		else if (leftTurn) return &a.BODY_D2L_PROJECTION_MODEL;
+		else if (dive) return &a.BODY_DIVE_PROJECTION_MODEL;
+		else if (ascend) return &a.BODY_ASC_PROJECTION_MODEL;
 		else return &a.BODY_D2U_PROJECTION_MODEL;
 
 	case TileType::TAIL:
