@@ -324,7 +324,7 @@ static vec4 tileColor(const SnakeTile* tilePtr) noexcept
 
 static vec4 tileDecorationColor(const SnakeTile* tilePtr) noexcept
 {
-	const vec4 TILE_DECORATION_COLOR{0.5f, 0.5f, 0.5f, 1.0f};
+	const vec4 TILE_DECORATION_COLOR{0.25f, 0.5f, 0.5f, 1.0f};
 	const vec4 TILE_DECORATION_OCCUPIED_COLOR{0.0f, 1.0f, 0.25f, 1.0f};
 
 	switch (tilePtr->type) {
@@ -339,8 +339,8 @@ static vec4 tileDecorationColor(const SnakeTile* tilePtr) noexcept
 
 static vec4 tileCubeProjectionColor(const SnakeTile* tilePtr) noexcept
 {
-	const vec4 TILE_CUBE_PROJECTION_COLOR{0.25f, 0.25f, 0.25f, 0.7f};
-	const vec4 TILE_CUBE_PROJECTION_OCCUPIED_COLOR{0.25f, 0.275f, 0.25f, 0.7f};
+	const vec4 TILE_CUBE_PROJECTION_COLOR{0.25f, 0.25f, 0.25f, 0.6f};
+	const vec4 TILE_CUBE_PROJECTION_OCCUPIED_COLOR{0.25f, 0.275f, 0.25f, 0.6f};
 
 	switch (tilePtr->type) {
 	case TileType::EMPTY:
