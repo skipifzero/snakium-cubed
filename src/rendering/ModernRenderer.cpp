@@ -322,6 +322,36 @@ static vec4 tileColor(const SnakeTile* tilePtr) noexcept
 	}
 }
 
+static vec4 tileDecorationColor(const SnakeTile* tilePtr) noexcept
+{
+	const vec4 TILE_DECORATION_COLOR{0.5f, 0.5f, 0.5f, 1.0f};
+	const vec4 TILE_DECORATION_OCCUPIED_COLOR{0.0f, 1.0f, 0.25f, 1.0f};
+
+	switch (tilePtr->type) {
+	case TileType::EMPTY:
+	case TileType::OBJECT:
+	case TileType::BONUS_OBJECT:
+		return TILE_DECORATION_COLOR;
+	default:
+		return TILE_DECORATION_OCCUPIED_COLOR;
+	}
+}
+
+static vec4 tileCubeProjectionColor(const SnakeTile* tilePtr) noexcept
+{
+	const vec4 TILE_CUBE_PROJECTION_COLOR{0.25f, 0.25f, 0.25f, 0.7f};
+	const vec4 TILE_CUBE_PROJECTION_OCCUPIED_COLOR{0.25f, 0.275f, 0.25f, 0.7f};
+
+	switch (tilePtr->type) {
+	case TileType::EMPTY:
+	case TileType::OBJECT:
+	case TileType::BONUS_OBJECT:
+		return TILE_CUBE_PROJECTION_COLOR;
+	default:
+		return TILE_CUBE_PROJECTION_OCCUPIED_COLOR;
+	}
+}
+
 // ModernRenderer: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -335,6 +365,9 @@ ModernRenderer::ModernRenderer() noexcept
 
 void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D& viewport) noexcept
 {
+	// Color constants
+	const vec4 TILE_PROJECTION_COLOR{0.5f, 0.5f, 0.5f, 0.7f};
+
 	// Recompile shader programs if continuous shader reload is enabled
 	if (GlobalConfig::INSTANCE().continuousShaderReload) {
 		mProgram.reload();
@@ -383,7 +416,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 		gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
 
 		// Render tile decoration
-		gl::setUniform(mProgram, "uColor", vec4{0.5f, 0.5f, 0.5f, 1.0f});
+		gl::setUniform(mProgram, "uColor", tileDecorationColor(tilePtr));
 		assets.TILE_DECORATION_MODEL.render();
 
 		// Skip empty tiles
@@ -443,23 +476,23 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 			if (cam.renderTileFaceFirst(side)) {
 				
 				// Render cube tile projection
-				gl::setUniform(mProgram, "uColor", vec4{0.25f, 0.25f, 0.25f, 0.7f});
+				gl::setUniform(mProgram, "uColor", tileCubeProjectionColor(tilePtr));
 				assets.TILE_PROJECTION_MODEL.render();
 				
 				// Render tile projection
-				gl::setUniform(mProgram, "uColor", vec4{0.5f, 0.5f, 0.5f, 0.7f});
+				gl::setUniform(mProgram, "uColor", TILE_PROJECTION_COLOR);
 				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress());
 				if (tileProjModelPtr != nullptr) tileProjModelPtr->render();
 
 			} else {
 
 				// Render tile projection
-				gl::setUniform(mProgram, "uColor", vec4{0.5f, 0.5f, 0.5f, 0.7f});
+				gl::setUniform(mProgram, "uColor", TILE_PROJECTION_COLOR);
 				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress());
 				if (tileProjModelPtr != nullptr) tileProjModelPtr->render();
 
 				// Render cube tile projection
-				gl::setUniform(mProgram, "uColor", vec4{0.25f, 0.25f, 0.25f, 0.7f});
+				gl::setUniform(mProgram, "uColor", tileCubeProjectionColor(tilePtr));
 				assets.TILE_PROJECTION_MODEL.render();
 			}
 		}
@@ -484,7 +517,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 		gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
 
 		// Render tile model
-		gl::setUniform(mProgram, "uColor", vec4{0.5f, 0.5f, 0.5f, 0.7f});
+		gl::setUniform(mProgram, "uColor", TILE_PROJECTION_COLOR);
 		getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress())->render();
 	}
 	
