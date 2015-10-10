@@ -86,8 +86,13 @@ static gl::Model& getTileModel(const SnakeTile* tilePtr, Direction side, float p
 		}
 
 	case TileType::HEAD_DIGESTING:
-		if (frame1) return a.HEAD_D2U_F1_MODEL;
-		else return a.HEAD_D2U_F2_MODEL;
+		if (frame1) {
+			if (ascend) return a.HEAD_ASC_F1_MODEL;
+			else return a.HEAD_D2U_F1_MODEL;
+		} else {
+			if (ascend) return a.HEAD_ASC_F2_MODEL;
+			else return a.HEAD_D2U_F2_MODEL;
+		}
 
 	case TileType::PRE_HEAD_DIGESTING:
 		if (frame1) {
@@ -178,8 +183,13 @@ static gl::Model* getTileProjectionModelPtr(const SnakeTile* tilePtr, Direction 
 		}
 
 	case TileType::HEAD_DIGESTING:
-		if (frame1) return &a.HEAD_D2U_F1_PROJECTION_MODEL;
-		else return &a.HEAD_D2U_F2_PROJECTION_MODEL;
+		if (frame1) {
+			if (ascend) return &a.HEAD_ASC_F1_PROJECTION_MODEL;
+			else return &a.HEAD_D2U_F1_PROJECTION_MODEL;
+		} else {
+			if (ascend) return &a.HEAD_ASC_F2_PROJECTION_MODEL;
+			else return &a.HEAD_D2U_F2_PROJECTION_MODEL;
+		}
 
 	case TileType::PRE_HEAD_DIGESTING:
 		if (frame1) {
@@ -304,7 +314,7 @@ static vec4 tileColor(const SnakeTile* tilePtr) noexcept
 	case s3::TileType::PRE_HEAD_DIGESTING:
 	case s3::TileType::BODY_DIGESTING:
 	case s3::TileType::TAIL_DIGESTING:
-		return vec4{0.0f, 1.0f, 0.5f, 1.0f};
+		return vec4{0.0f, 1.0f, 0.25f, 1.0f};
 
 	case s3::TileType::EMPTY:
 	default:
