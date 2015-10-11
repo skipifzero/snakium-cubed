@@ -304,7 +304,8 @@ static vec4 tileDecorationColor(const SnakeTile* tilePtr) noexcept
 static vec4 tileCubeProjectionColor(const SnakeTile* tilePtr) noexcept
 {
 	const vec4 TILE_CUBE_PROJECTION_COLOR{0.25f, 0.25f, 0.25f, 0.6f};
-	const vec4 TILE_CUBE_PROJECTION_OCCUPIED_COLOR{0.25f, 0.275f, 0.25f, 0.6f};
+	return TILE_CUBE_PROJECTION_COLOR;
+	/*const vec4 TILE_CUBE_PROJECTION_OCCUPIED_COLOR{0.25f, 0.275f, 0.25f, 0.6f};
 
 	switch (tilePtr->type) {
 	case TileType::EMPTY:
@@ -313,7 +314,7 @@ static vec4 tileCubeProjectionColor(const SnakeTile* tilePtr) noexcept
 		return TILE_CUBE_PROJECTION_COLOR;
 	default:
 		return TILE_CUBE_PROJECTION_OCCUPIED_COLOR;
-	}
+	}*/
 }
 
 // ModernRenderer: Constructors & destructors

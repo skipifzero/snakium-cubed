@@ -193,7 +193,7 @@ void Model::update(float delta) noexcept
 
 	// Check if Game Over
 	if (nextHeadPtr->type != TileType::EMPTY && nextHeadPtr->type != TileType::TAIL) {
-		nextHeadPtr = mDeadHeadPtr; // TODO: ... wat
+		nextHeadPtr = mDeadHeadPtr;
 		mDeadHeadPos = nextPos;
 		mGameOver = true;
 	}
