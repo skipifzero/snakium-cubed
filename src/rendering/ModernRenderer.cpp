@@ -45,33 +45,37 @@ static gl::Model& getTileModel(const SnakeTile* tilePtr, Direction side, float p
 	case s3::TileType::BONUS_OBJECT: return a.BONUS_OBJECT_MODEL;
 
 	case TileType::HEAD:
-		if (frame1) {
+	case TileType::HEAD_DIGESTING:
+		if (frame1)  return a.HEAD_D2U_F1_MODEL;
+		else return a.HEAD_D2U_F2_MODEL;
+		
+		/*if (frame1) {
 			if (ascend) return a.HEAD_ASC_F1_MODEL;
 			else return a.HEAD_D2U_F1_MODEL;
 		} else {
 			if (ascend) return a.HEAD_ASC_F2_MODEL;
 			else return a.HEAD_D2U_F2_MODEL;
-		}
+		}*/
 
 	case TileType::PRE_HEAD:
 		if (frame1) {
 			if (rightTurn) return (!gameOver) ? a.PRE_HEAD_D2R_F1_MODEL : a.DEAD_PRE_HEAD_D2R_F1_MODEL;
 			else if (leftTurn) return (!gameOver) ? a.PRE_HEAD_D2L_F1_MODEL : a.DEAD_PRE_HEAD_D2L_F1_MODEL;
-			else if (dive) return a.PRE_HEAD_DIVE_F1_MODEL; // TODO: Add dead_head variant
+			//else if (dive) return a.PRE_HEAD_DIVE_F1_MODEL; // TODO: Add dead_head variant
 			else return (!gameOver) ? a.PRE_HEAD_D2U_F1_MODEL : a.DEAD_PRE_HEAD_D2U_F1_MODEL;
 		} else {
 			if (rightTurn) return a.BODY_D2R_MODEL;
 			else if (leftTurn) return a.BODY_D2L_MODEL;
-			else if (dive) return a.BODY_DIVE_MODEL;
-			else if (ascend) return a.BODY_ASC_MODEL;
+			//else if (dive) return a.BODY_DIVE_MODEL;
+			//else if (ascend) return a.BODY_ASC_MODEL;
 			else return a.BODY_D2U_MODEL;
 		}
 
 	case TileType::BODY:
 		if (rightTurn) return a.BODY_D2R_MODEL;
 		else if (leftTurn) return a.BODY_D2L_MODEL;
-		else if (dive) return a.BODY_DIVE_MODEL;
-		else if (ascend) return a.BODY_ASC_MODEL;
+		//else if (dive) return a.BODY_DIVE_MODEL;
+		//else if (ascend) return a.BODY_ASC_MODEL;
 		else return a.BODY_D2U_MODEL;
 
 	case TileType::TAIL:
@@ -83,15 +87,6 @@ static gl::Model& getTileModel(const SnakeTile* tilePtr, Direction side, float p
 			if (rightTurn) return a.TAIL_D2R_F2_MODEL;
 			else if (leftTurn) return a.TAIL_D2L_F2_MODEL;
 			else return a.TAIL_D2U_F2_MODEL;
-		}
-
-	case TileType::HEAD_DIGESTING:
-		if (frame1) {
-			if (ascend) return a.HEAD_ASC_F1_MODEL;
-			else return a.HEAD_D2U_F1_MODEL;
-		} else {
-			if (ascend) return a.HEAD_ASC_F2_MODEL;
-			else return a.HEAD_D2U_F2_MODEL;
 		}
 
 	case TileType::PRE_HEAD_DIGESTING:
@@ -141,34 +136,38 @@ static gl::Model* getTileProjectionModelPtr(const SnakeTile* tilePtr, Direction 
 	//case s3::TileType::BONUS_OBJECT:
 
 	case TileType::HEAD:
-		if (frame1) {
+	case TileType::HEAD_DIGESTING:
+		if (frame1) return &a.HEAD_D2U_F1_PROJECTION_MODEL;
+		else return &a.HEAD_D2U_F2_PROJECTION_MODEL;
+		
+		/*if (frame1) {
 			if (ascend) return &a.HEAD_ASC_F1_PROJECTION_MODEL;
 			else return &a.HEAD_D2U_F1_PROJECTION_MODEL;
 		} else {
 			if (ascend) return &a.HEAD_ASC_F2_PROJECTION_MODEL;
 			else return &a.HEAD_D2U_F2_PROJECTION_MODEL;
-		}
+		}*/
 
 	case TileType::PRE_HEAD:
 		if (frame1) {
 			if (rightTurn) return &a.PRE_HEAD_D2R_F1_PROJECTION_MODEL;
 			else if (leftTurn) return &a.PRE_HEAD_D2L_F1_PROJECTION_MODEL; 
-			else if (dive) return &a.PRE_HEAD_DIVE_F1_PROJECTION_MODEL;
+			//else if (dive) return &a.PRE_HEAD_DIVE_F1_PROJECTION_MODEL;
 			else return &a.PRE_HEAD_D2U_F1_PROJECTION_MODEL;
 			break;
 		} else {
 			if (rightTurn) return &a.BODY_D2R_PROJECTION_MODEL;
 			else if (leftTurn) return &a.BODY_D2L_PROJECTION_MODEL;
-			else if (dive) return &a.BODY_DIVE_PROJECTION_MODEL;
-			else if (ascend) return &a.BODY_ASC_PROJECTION_MODEL;
+			//else if (dive) return &a.BODY_DIVE_PROJECTION_MODEL;
+			//else if (ascend) return &a.BODY_ASC_PROJECTION_MODEL;
 			else return &a.BODY_D2U_PROJECTION_MODEL;
 		}
 
 	case TileType::BODY:
 		if (rightTurn) return &a.BODY_D2R_PROJECTION_MODEL;
 		else if (leftTurn) return &a.BODY_D2L_PROJECTION_MODEL;
-		else if (dive) return &a.BODY_DIVE_PROJECTION_MODEL;
-		else if (ascend) return &a.BODY_ASC_PROJECTION_MODEL;
+		//else if (dive) return &a.BODY_DIVE_PROJECTION_MODEL;
+		//else if (ascend) return &a.BODY_ASC_PROJECTION_MODEL;
 		else return &a.BODY_D2U_PROJECTION_MODEL;
 
 	case TileType::TAIL:
@@ -180,15 +179,6 @@ static gl::Model* getTileProjectionModelPtr(const SnakeTile* tilePtr, Direction 
 			if (rightTurn) return &a.TAIL_D2R_F2_PROJECTION_MODEL;
 			else if (leftTurn) return &a.TAIL_D2L_F2_PROJECTION_MODEL;
 			else return &a.TAIL_D2U_F2_PROJECTION_MODEL;
-		}
-
-	case TileType::HEAD_DIGESTING:
-		if (frame1) {
-			if (ascend) return &a.HEAD_ASC_F1_PROJECTION_MODEL;
-			else return &a.HEAD_D2U_F1_PROJECTION_MODEL;
-		} else {
-			if (ascend) return &a.HEAD_ASC_F2_PROJECTION_MODEL;
-			else return &a.HEAD_D2U_F2_PROJECTION_MODEL;
 		}
 
 	case TileType::PRE_HEAD_DIGESTING:
