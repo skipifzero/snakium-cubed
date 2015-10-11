@@ -84,7 +84,10 @@ Model::Model(ModelConfig cfg) noexcept
 	mDeadHeadPtr = &mTiles[mTileCount]; // In range since array holds mTileCount + 1 tiles
 
 	// Object
-	freeRandomTile(*this)->type = TileType::OBJECT;
+	SnakeTile* freeTile = freeRandomTile(*this);
+	freeTile->type = TileType::OBJECT;
+	freeTile->to = defaultUp(tilePosition(freeTile).side);
+	freeTile->from = opposite(freeTile->to);
 }
 
 // Update methods
@@ -158,11 +161,19 @@ void Model::update(float delta) noexcept
 		mTimeSinceBonus += 1;
 
 		SnakeTile* freeTile = freeRandomTile(*this);
-		if (freeTile != nullptr) freeTile->type = TileType::OBJECT;
+		if (freeTile != nullptr) {
+			freeTile->type = TileType::OBJECT;
+			freeTile->to = defaultUp(tilePosition(freeTile).side);
+			freeTile->from = opposite(freeTile->to);
+		}
 
 		if (mTimeSinceBonus >= mCfg.bonusFrequency) {
 			freeTile = freeRandomTile(*this);
-			if (freeTile != nullptr) freeTile->type = TileType::BONUS_OBJECT;
+			if (freeTile != nullptr) {
+				freeTile->type = TileType::BONUS_OBJECT;
+				freeTile->to = defaultUp(tilePosition(freeTile).side);
+				freeTile->from = opposite(freeTile->to);
+			}
 			mTimeSinceBonus = 0;
 			mBonusTimeLeft = mCfg.bonusDuration;
 		}

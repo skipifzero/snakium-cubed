@@ -48,34 +48,21 @@ static gl::Model& getTileModel(const SnakeTile* tilePtr, Direction side, float p
 	case TileType::HEAD_DIGESTING:
 		if (frame1)  return a.HEAD_D2U_F1_MODEL;
 		else return a.HEAD_D2U_F2_MODEL;
-		
-		/*if (frame1) {
-			if (ascend) return a.HEAD_ASC_F1_MODEL;
-			else return a.HEAD_D2U_F1_MODEL;
-		} else {
-			if (ascend) return a.HEAD_ASC_F2_MODEL;
-			else return a.HEAD_D2U_F2_MODEL;
-		}*/
 
 	case TileType::PRE_HEAD:
 		if (frame1) {
 			if (rightTurn) return (!gameOver) ? a.PRE_HEAD_D2R_F1_MODEL : a.DEAD_PRE_HEAD_D2R_F1_MODEL;
 			else if (leftTurn) return (!gameOver) ? a.PRE_HEAD_D2L_F1_MODEL : a.DEAD_PRE_HEAD_D2L_F1_MODEL;
-			//else if (dive) return a.PRE_HEAD_DIVE_F1_MODEL; // TODO: Add dead_head variant
 			else return (!gameOver) ? a.PRE_HEAD_D2U_F1_MODEL : a.DEAD_PRE_HEAD_D2U_F1_MODEL;
 		} else {
 			if (rightTurn) return a.BODY_D2R_MODEL;
 			else if (leftTurn) return a.BODY_D2L_MODEL;
-			//else if (dive) return a.BODY_DIVE_MODEL;
-			//else if (ascend) return a.BODY_ASC_MODEL;
 			else return a.BODY_D2U_MODEL;
 		}
 
 	case TileType::BODY:
 		if (rightTurn) return a.BODY_D2R_MODEL;
 		else if (leftTurn) return a.BODY_D2L_MODEL;
-		//else if (dive) return a.BODY_DIVE_MODEL;
-		//else if (ascend) return a.BODY_ASC_MODEL;
 		else return a.BODY_D2U_MODEL;
 
 	case TileType::TAIL:
@@ -139,35 +126,22 @@ static gl::Model* getTileProjectionModelPtr(const SnakeTile* tilePtr, Direction 
 	case TileType::HEAD_DIGESTING:
 		if (frame1) return &a.HEAD_D2U_F1_PROJECTION_MODEL;
 		else return &a.HEAD_D2U_F2_PROJECTION_MODEL;
-		
-		/*if (frame1) {
-			if (ascend) return &a.HEAD_ASC_F1_PROJECTION_MODEL;
-			else return &a.HEAD_D2U_F1_PROJECTION_MODEL;
-		} else {
-			if (ascend) return &a.HEAD_ASC_F2_PROJECTION_MODEL;
-			else return &a.HEAD_D2U_F2_PROJECTION_MODEL;
-		}*/
 
 	case TileType::PRE_HEAD:
 		if (frame1) {
 			if (rightTurn) return &a.PRE_HEAD_D2R_F1_PROJECTION_MODEL;
 			else if (leftTurn) return &a.PRE_HEAD_D2L_F1_PROJECTION_MODEL; 
-			//else if (dive) return &a.PRE_HEAD_DIVE_F1_PROJECTION_MODEL;
 			else return &a.PRE_HEAD_D2U_F1_PROJECTION_MODEL;
 			break;
 		} else {
 			if (rightTurn) return &a.BODY_D2R_PROJECTION_MODEL;
 			else if (leftTurn) return &a.BODY_D2L_PROJECTION_MODEL;
-			//else if (dive) return &a.BODY_DIVE_PROJECTION_MODEL;
-			//else if (ascend) return &a.BODY_ASC_PROJECTION_MODEL;
 			else return &a.BODY_D2U_PROJECTION_MODEL;
 		}
 
 	case TileType::BODY:
 		if (rightTurn) return &a.BODY_D2R_PROJECTION_MODEL;
 		else if (leftTurn) return &a.BODY_D2L_PROJECTION_MODEL;
-		//else if (dive) return &a.BODY_DIVE_PROJECTION_MODEL;
-		//else if (ascend) return &a.BODY_ASC_PROJECTION_MODEL;
 		else return &a.BODY_D2U_PROJECTION_MODEL;
 
 	case TileType::TAIL:
@@ -357,6 +331,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 {
 	// Color constants
 	const vec4 TILE_PROJECTION_COLOR{0.5f, 0.5f, 0.5f, 0.7f};
+	const vec4 TILE_DIVE_ASCEND_COLOR{0.5f, 0.0f, 0.75f, 1.0f};
 
 	// Recompile shader programs if continuous shader reload is enabled
 	if (GlobalConfig::INSTANCE().continuousShaderReload) {
@@ -412,6 +387,16 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 		// Skip empty tiles
 		if (tilePtr->type == s3::TileType::EMPTY) continue;
 
+		// Render dive & ascend models
+		if (isDive(tilePos.side, tilePtr->to)) {
+			gl::setUniform(mProgram, "uColor", TILE_DIVE_ASCEND_COLOR);
+			assets.DIVE_MODEL.render();
+		} else if (isAscend(tilePos.side, tilePtr->from) &&
+		           tilePtr->type != TileType::TAIL && tilePtr->type != TileType::TAIL_DIGESTING) {
+			gl::setUniform(mProgram, "uColor", TILE_DIVE_ASCEND_COLOR);
+			assets.ASCEND_MODEL.render();
+		}
+
 		// Render tile model
 		gl::setUniform(mProgram, "uColor", tileColor(tilePtr));
 		getTileModel(tilePtr, tilePos.side, model.progress(), model.isGameOver()).render();
@@ -434,9 +419,19 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 		const mat4 normalMatrix = sfz::inverse(sfz::transpose(viewMatrix * transform));
 		gl::setUniform(mProgram, "uModelMatrix", transform);
 		gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
-		gl::setUniform(mProgram, "uColor", tileColor(tilePtr));
+		
+		// Render dive & ascend models
+		if (isDive(tilePos.side, tilePtr->to)) {
+			gl::setUniform(mProgram, "uColor", TILE_DIVE_ASCEND_COLOR);
+			assets.DIVE_MODEL.render();
+		} else if (isAscend(tilePos.side, tilePtr->from) &&
+		           tilePtr->type != TileType::TAIL && tilePtr->type != TileType::TAIL_DIGESTING) {
+			gl::setUniform(mProgram, "uColor", TILE_DIVE_ASCEND_COLOR);
+			assets.ASCEND_MODEL.render();
+		}
 
 		// Render tile model
+		gl::setUniform(mProgram, "uColor", tileColor(tilePtr));
 		getTileModel(tilePtr, tilePos.side, model.progress(), model.isGameOver()).render();
 	}
 

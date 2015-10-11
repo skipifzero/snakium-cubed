@@ -118,7 +118,6 @@ void Camera::update(Model& model, float delta) noexcept
 			}
 			mDiveTargetCamDir = normalize(tilePosToVector(model, headPos));
 			mDiveTargetCamDirRotAxis = normalize(toVector(left(preHeadPos.side, opposite(model.preHeadPtr()->from))));
-			model.updateSetProgress(0.51f); // TODO: Ugly hack.
 		}
 		
 		mLastCubeSide = currCubeSide;
@@ -132,7 +131,7 @@ void Camera::update(Model& model, float delta) noexcept
 
 				float diffAngle = sfz::angle(mCamDir - dot(mCamDir, mDiveTargetCamDirRotAxis)*mDiveTargetCamDirRotAxis,
 				                            mDiveTargetCamDir - dot(mDiveTargetCamDir, mDiveTargetCamDirRotAxis)*mDiveTargetCamDirRotAxis);
-				float anglePerSec = model.currentSpeed() * 1.1f;
+				float anglePerSec = model.currentSpeed() * 1.2f;
 				float angleToMove = anglePerSec*delta;
 				if ((diffAngle - angleToMove) < 0) {
 					angleToMove = diffAngle;
