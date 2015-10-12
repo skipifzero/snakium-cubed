@@ -1,6 +1,7 @@
-#include "sfz/gl/Model.hpp"
+#include "sfz/gl/SimpleModel.hpp"
 
 #include <algorithm>
+#include <cstring>
 #include <iostream>
 #include <new>
 #include <string>
@@ -18,11 +19,10 @@ using std::vector;
 using tinyobj::shape_t;
 using tinyobj::material_t;
 
-// Model: Constructors & destructors
+// SimpleModel: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Model::Model(const char* basePath, const char* filename, bool requireNormals,
-             bool requireUVs) noexcept
+SimpleModel::SimpleModel(const char* basePath, const char* filename) noexcept
 {
 	vector<shape_t> shapes;
 	vector<material_t> materials;
@@ -39,21 +39,25 @@ Model::Model(const char* basePath, const char* filename, bool requireNormals,
 		std::cerr << "Model \"" << filename << "\" has no shapes\n";
 		return;
 	}
-	if (requireNormals) {
-		for (size_t i = 0; i < shapes.size(); ++i) {
-			if (shapes[i].mesh.normals.size() == 0) {
-				std::cerr << "Model \"" << filename << "\" shape " << i << " has no normals\n";
-				return;
-			}
+	for (size_t i = 0; i < shapes.size(); ++i) {
+		if (shapes[i].mesh.normals.size() == 0) {
+			std::cerr << "Model \"" << filename << "\" shape " << i << " has no normals\n";
+			return;
 		}
 	}
-	if (requireUVs) {
-		for (size_t i = 0; i < shapes.size(); ++i) {
-			if (shapes[i].mesh.texcoords.size() == 0) {
-				std::cerr << "Model \"" << filename << "\" shape " << i << " has no UV coords\n";
-				return;
-			}
+
+	// Check if all shapes has uv coords
+	size_t uvSize = 0;
+	for (size_t i = 0; i < shapes.size(); ++i) {
+		if (shapes[i].mesh.texcoords.size() == 0) {
+			uvSize = std::max(uvSize, (2*shapes[i].mesh.positions.size()/3));
 		}
+	}
+	// Allocate memory for default uv coords if necessary
+	float* defaultUVArray = nullptr;
+	if (uvSize > 0) {
+		defaultUVArray = new (std::nothrow) float[uvSize];
+		std::memset(defaultUVArray, 0, uvSize*sizeof(float));
 	}
 
 	mVAORenderingInfos = unique_ptr<VAORenderingInfo[]>{new (std::nothrow) VAORenderingInfo[shapes.size()]};
@@ -77,9 +81,15 @@ Model::Model(const char* basePath, const char* filename, bool requireNormals,
 		glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.normalBuffer);
 		glBufferData(GL_ARRAY_BUFFER, shape.mesh.normals.size()*sizeof(float), shape.mesh.normals.data(), GL_STATIC_DRAW);
 
-		glGenBuffers(1, &bufferInfo.uvBuffer);
-		glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.uvBuffer);
-		glBufferData(GL_ARRAY_BUFFER, shape.mesh.texcoords.size()*sizeof(float), shape.mesh.texcoords.data(), GL_STATIC_DRAW);
+		if (shape.mesh.texcoords.size() == 0) {
+			glGenBuffers(1, &bufferInfo.uvBuffer);
+			glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.uvBuffer);
+			glBufferData(GL_ARRAY_BUFFER, (2*shape.mesh.positions.size()/3)*sizeof(float), defaultUVArray, GL_STATIC_DRAW);
+		} else {
+			glGenBuffers(1, &bufferInfo.uvBuffer);
+			glBindBuffer(GL_ARRAY_BUFFER, bufferInfo.uvBuffer);
+			glBufferData(GL_ARRAY_BUFFER, shape.mesh.texcoords.size()*sizeof(float), shape.mesh.texcoords.data(), GL_STATIC_DRAW);
+		}
 
 		glGenBuffers(1, &renderingInfo.indexBuffer);
 		glBindBuffer(GL_ARRAY_BUFFER, renderingInfo.indexBuffer);
@@ -111,25 +121,26 @@ Model::Model(const char* basePath, const char* filename, bool requireNormals,
 	}
 
 	mNumVAOs = shapes.size();
+	delete[] defaultUVArray;
 }
 
-Model::Model(Model&& other) noexcept
+SimpleModel::SimpleModel(SimpleModel&& other) noexcept
 {
 	std::swap(this->mVAORenderingInfos, other.mVAORenderingInfos);
 	std::swap(this->mVAOBufferInfos, other.mVAOBufferInfos);
 }
 
-Model& Model::operator= (Model&& other) noexcept
+SimpleModel& SimpleModel::operator= (SimpleModel&& other) noexcept
 {
 	std::swap(this->mVAORenderingInfos, other.mVAORenderingInfos);
 	std::swap(this->mVAOBufferInfos, other.mVAOBufferInfos);
 	return *this;
 }
 
-// Model: Public methods
+// SimpleModel: Public methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void Model::render() noexcept
+void SimpleModel::render() noexcept
 {
 	for (size_t i = 0; i < mNumVAOs; ++i) {
 		const VAORenderingInfo& info = mVAORenderingInfos[i];
@@ -139,17 +150,17 @@ void Model::render() noexcept
 	}
 }
 
-// Model: Private classes
+// SimpleModel: Private classes
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Model::VAORenderingInfo::VAORenderingInfo(VAORenderingInfo&& other) noexcept
+SimpleModel::VAORenderingInfo::VAORenderingInfo(VAORenderingInfo&& other) noexcept
 {
 	std::swap(this->vao, other.vao);
 	std::swap(this->indexBuffer, other.indexBuffer);
 	std::swap(this->numIndices, other.numIndices);
 }
 
-Model::VAORenderingInfo& Model::VAORenderingInfo::operator= (VAORenderingInfo&& other) noexcept
+SimpleModel::VAORenderingInfo& SimpleModel::VAORenderingInfo::operator= (VAORenderingInfo&& other) noexcept
 {
 	std::swap(this->vao, other.vao);
 	std::swap(this->indexBuffer, other.indexBuffer);
@@ -157,7 +168,7 @@ Model::VAORenderingInfo& Model::VAORenderingInfo::operator= (VAORenderingInfo&& 
 	return *this;
 }
 
-Model::VAORenderingInfo::~VAORenderingInfo() noexcept
+SimpleModel::VAORenderingInfo::~VAORenderingInfo() noexcept
 {
 	// Silently ignores values == 0.
 	glDeleteBuffers(1, &indexBuffer);
@@ -165,7 +176,7 @@ Model::VAORenderingInfo::~VAORenderingInfo() noexcept
 }
 
 
-Model::VAOBufferInfo::VAOBufferInfo(VAOBufferInfo&& other) noexcept
+SimpleModel::VAOBufferInfo::VAOBufferInfo(VAOBufferInfo&& other) noexcept
 {
 	std::swap(this->positionBuffer, other.positionBuffer);
 	std::swap(this->normalBuffer, other.normalBuffer);
@@ -173,7 +184,7 @@ Model::VAOBufferInfo::VAOBufferInfo(VAOBufferInfo&& other) noexcept
 	std::swap(this->materialIDBuffer, other.materialIDBuffer);
 }
 
-Model::VAOBufferInfo& Model::VAOBufferInfo::operator= (VAOBufferInfo&& other) noexcept
+SimpleModel::VAOBufferInfo& SimpleModel::VAOBufferInfo::operator= (VAOBufferInfo&& other) noexcept
 {
 	std::swap(this->positionBuffer, other.positionBuffer);
 	std::swap(this->normalBuffer, other.normalBuffer);
@@ -182,7 +193,7 @@ Model::VAOBufferInfo& Model::VAOBufferInfo::operator= (VAOBufferInfo&& other) no
 	return *this;
 }
 
-Model::VAOBufferInfo::~VAOBufferInfo() noexcept
+SimpleModel::VAOBufferInfo::~VAOBufferInfo() noexcept
 {
 	// Silently ignores values == 0
 	glDeleteBuffers(1, &positionBuffer);

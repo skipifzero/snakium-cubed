@@ -112,8 +112,8 @@ set(SOURCE_SFZ_GUI_TEMP_FILES
 source_group(sfz_gui_temp FILES ${SOURCE_SFZ_GUI_TEMP_FILES})
 
 set(SOURCE_SFZ_GL_TEMP_FILES
-	${SRC_DIR}/sfz/gl/Model.hpp
-	${SRC_DIR}/sfz/gl/Model.cpp
+	${SRC_DIR}/sfz/gl/SimpleModel.hpp
+	${SRC_DIR}/sfz/gl/SimpleModel.cpp
 	${SRC_DIR}/sfz/gl/tiny_obj_loader.h
 	${SRC_DIR}/sfz/gl/tiny_obj_loader.cc)
 source_group(sfz_gl_temp FILES ${SOURCE_SFZ_GL_TEMP_FILES})

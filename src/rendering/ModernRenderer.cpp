@@ -23,13 +23,13 @@ static gl::Program compileStandardShaderProgram() noexcept
 	                             [](uint32_t shaderProgram) {
 		glBindAttribLocation(shaderProgram, 0, "inPosition");
 		glBindAttribLocation(shaderProgram, 1, "inNormal");
-		//glBindAttribLocation(shaderProgram, 2, "inUV"); // Not available for snakium models
+		glBindAttribLocation(shaderProgram, 2, "inUV"); // Not available for snakium models
 		glBindAttribLocation(shaderProgram, 3, "inMaterialID");
 		glBindFragDataLocation(shaderProgram, 0, "outFragColor");
 	});
 }
 
-static gl::Model& getTileModel(const SnakeTile* tilePtr, Direction side, float progress,
+static gl::SimpleModel& getTileModel(const SnakeTile* tilePtr, Direction side, float progress,
                                bool gameOver) noexcept
 {
 	Assets& a = Assets::INSTANCE();
@@ -107,7 +107,7 @@ static gl::Model& getTileModel(const SnakeTile* tilePtr, Direction side, float p
 	return a.NOT_FOUND_MODEL;
 }
 
-static gl::Model* getTileProjectionModelPtr(const SnakeTile* tilePtr, Direction side, float progress) noexcept
+static gl::SimpleModel* getTileProjectionModelPtr(const SnakeTile* tilePtr, Direction side, float progress) noexcept
 {
 	Assets& a = Assets::INSTANCE();
 	const bool rightTurn = isRightTurn(side, tilePtr->from, tilePtr->to);

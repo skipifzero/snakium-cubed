@@ -1,6 +1,6 @@
 #pragma once
-#ifndef SFZ_GL_MODEL_HPP
-#define SFZ_GL_MODEL_HPP
+#ifndef SFZ_GL_SIMPLE_MODEL_HPP
+#define SFZ_GL_SIMPLE_MODEL_HPP
 
 #include <cstddef>
 #include <cstdint>
@@ -13,25 +13,31 @@ using std::uint32_t;
 using std::unique_ptr;
 
 /**
+ * @brief A simple model without any materials read from a wavefront (.obj) file
+ *
+ * The following attributes will be available:
  * AttribLocation[0] = Position (vec3)
  * AttribLocation[1] = Normal (vec3)
  * AttribLocation[2] = UV Coords (vec2)
  * AttribLocation[3] = Material ID (int)
+ *
+ * If positions or normals are not available in the file the model construction will fail,
+ * however, if uv coordinates or materials ids are not available they will default to (0,0) or -1
+ * respectively.
  */
-class Model final {
+class SimpleModel final {
 public:
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	
-	Model() noexcept = default;
-	Model(const Model&) = delete;
-	Model& operator= (const Model&) = delete;
-	~Model() noexcept = default;
+	SimpleModel() noexcept = default;
+	SimpleModel(const SimpleModel&) = delete;
+	SimpleModel& operator= (const SimpleModel&) = delete;
+	~SimpleModel() noexcept = default;
 	
-	Model(const char* basePath, const char* filename, bool requireNormals = true,
-	      bool requireUVs = true) noexcept;
-	Model(Model&& other) noexcept;
-	Model& operator= (Model&& other) noexcept;
+	SimpleModel(const char* basePath, const char* filename) noexcept;
+	SimpleModel(SimpleModel&& other) noexcept;
+	SimpleModel& operator= (SimpleModel&& other) noexcept;
 	
 	// Public methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
