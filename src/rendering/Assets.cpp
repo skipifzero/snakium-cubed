@@ -185,8 +185,10 @@ Assets::Assets() noexcept
 
 	HEAD_D2U_F1_MODEL{modelPath(), "head_d2u_f1.obj"},
 	HEAD_D2U_F1_PROJECTION_MODEL{modelPath(), "head_d2u_f1_projection.obj"},
+	HEAD_D2U_DIG_F1_MODEL{modelPath(), "head_d2u_dig_f1.obj"},
 	HEAD_D2U_F2_MODEL{modelPath(), "head_d2u_f2.obj"},
 	HEAD_D2U_F2_PROJECTION_MODEL{modelPath(), "head_d2u_f2_projection.obj"},
+	HEAD_D2U_DIG_F2_MODEL{modelPath(), "head_d2u_dig_f2.obj"},
 
 	PRE_HEAD_D2U_F1_MODEL{modelPath(), "pre_head_d2u_f1.obj"},
 	PRE_HEAD_D2U_F1_PROJECTION_MODEL{modelPath(), "pre_head_d2u_f1_projection.obj"},

@@ -115,10 +115,12 @@ public:
 
 	gl::SimpleModel HEAD_D2U_F1_MODEL,
 	                HEAD_D2U_F1_PROJECTION_MODEL,
+	                HEAD_D2U_DIG_F1_MODEL,
 	                HEAD_D2U_F2_MODEL,
 	                HEAD_D2U_F2_PROJECTION_MODEL,
+	                HEAD_D2U_DIG_F2_MODEL,
 
-					PRE_HEAD_D2U_F1_MODEL,
+	                PRE_HEAD_D2U_F1_MODEL,
 	                PRE_HEAD_D2U_F1_PROJECTION_MODEL,
 	                PRE_HEAD_D2U_DIG_F1_MODEL,
 	                PRE_HEAD_D2U_DIG_F1_PROJECTION_MODEL,
@@ -135,7 +137,7 @@ public:
 	                DEAD_PRE_HEAD_D2U_DIG_F1_MODEL,
 	                DEAD_PRE_HEAD_D2R_F1_MODEL,
 	                DEAD_PRE_HEAD_D2R_DIG_F1_MODEL,
-					DEAD_PRE_HEAD_D2L_F1_MODEL,
+	                DEAD_PRE_HEAD_D2L_F1_MODEL,
 	                DEAD_PRE_HEAD_D2L_DIG_F1_MODEL,
 
 	                BODY_D2U_MODEL,
@@ -159,7 +161,7 @@ public:
 	                TAIL_D2U_F2_PROJECTION_MODEL,
 	                TAIL_D2U_DIG_F2_MODEL,
 	                TAIL_D2U_DIG_F2_PROJECTION_MODEL,
-					TAIL_D2R_F1_MODEL,
+	                TAIL_D2R_F1_MODEL,
 	                TAIL_D2R_F1_PROJECTION_MODEL,
 	                TAIL_D2R_DIG_F1_MODEL,
 	                TAIL_D2R_DIG_F1_PROJECTION_MODEL,

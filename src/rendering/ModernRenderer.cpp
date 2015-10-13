@@ -45,8 +45,7 @@ static gl::SimpleModel& getTileModel(const SnakeTile* tilePtr, Direction side, f
 	case s3::TileType::BONUS_OBJECT: return a.BONUS_OBJECT_MODEL;
 
 	case TileType::HEAD:
-	case TileType::HEAD_DIGESTING:
-		if (frame1)  return a.HEAD_D2U_F1_MODEL;
+		if (frame1) return a.HEAD_D2U_F1_MODEL;
 		else return a.HEAD_D2U_F2_MODEL;
 
 	case TileType::PRE_HEAD:
@@ -75,6 +74,10 @@ static gl::SimpleModel& getTileModel(const SnakeTile* tilePtr, Direction side, f
 			else if (leftTurn) return a.TAIL_D2L_F2_MODEL;
 			else return a.TAIL_D2U_F2_MODEL;
 		}
+
+	case TileType::HEAD_DIGESTING:
+		if (frame1) return a.HEAD_D2U_DIG_F1_MODEL;
+		else return a.HEAD_D2U_DIG_F2_MODEL;
 
 	case TileType::PRE_HEAD_DIGESTING:
 		if (frame1) {
@@ -331,7 +334,7 @@ ModernRenderer::ModernRenderer() noexcept
 void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D& viewport) noexcept
 {
 	// Color constants
-	const vec4 TILE_PROJECTION_COLOR{0.5f, 0.5f, 0.5f, 0.7f};
+	const vec4 TILE_PROJECTION_COLOR{0.5f, 0.5f, 0.5f, 0.75f};
 	const vec4 TILE_DIVE_ASCEND_COLOR{0.5f, 0.0f, 0.75f, 1.0f};
 
 	// Recompile shader programs if continuous shader reload is enabled
