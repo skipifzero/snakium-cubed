@@ -38,6 +38,9 @@ find_package(SDL2 REQUIRED) # ${SDL2_INCLUDE_DIR}, ${SDL2_LIBRARY}
 # stb nothings
 add_subdirectory(${EXTERNALS_DIR}/stb)
 
+# tinyobjloader
+add_subdirectory(${EXTERNALS_DIR}/tinyobjloader)
+
 # GLEW
 # find_package(GLEW REQUIRED) # ${GLEW_INCLUDE_DIRS}, ${GLEW_LIBRARIES}
 add_definitions(-DGLEW_STATIC)
@@ -55,6 +58,7 @@ include_directories(
 	${SDL2_INCLUDE_DIR}
 	${GLEW_INCLUDE_DIRS}
 	${STB_INCLUDE_DIRS}
+	${TINYOBJLOADER_INCLUDE_DIRS}
 	${OPENGL_INCLUDE_DIR}
 	${CATCH_INCLUDE_DIRS}
 )
@@ -99,8 +103,12 @@ set(SOURCE_GL_FILES
 	${INCLUDE_DIR}/sfz/gl/GLUtils.hpp
 	 ${SOURCE_DIR}/sfz/gl/GLUtils.cpp
 	${INCLUDE_DIR}/sfz/gl/OpenGL.hpp
+	${INCLUDE_DIR}/sfz/gl/PostProcessQuad.hpp
+	 ${SOURCE_DIR}/sfz/gl/PostProcessQuad.cpp
 	${INCLUDE_DIR}/sfz/gl/Program.hpp
 	 ${SOURCE_DIR}/sfz/gl/Program.cpp
+	${INCLUDE_DIR}/sfz/gl/SimpleModel.hpp
+	 ${SOURCE_DIR}/sfz/gl/SimpleModel.cpp
 	${INCLUDE_DIR}/sfz/gl/SpriteBatch.hpp
 	 ${SOURCE_DIR}/sfz/gl/SpriteBatch.cpp
 	${INCLUDE_DIR}/sfz/gl/Texture.hpp
@@ -167,6 +175,7 @@ target_link_libraries(
 	SkipIfZeroCommon
 
 	${SDL2_LIBRARY}
+	${TINYOBJLOADER_LIBRARIES}
 	${GLEW_LIBRARIES}
 	${OPENGL_LIBRARIES}
 )
@@ -175,12 +184,14 @@ target_link_libraries(
 set(SFZ_COMMON_INCLUDE_DIRS
 	${INCLUDE_DIR}
 	${SDL2_INCLUDE_DIR}
+	${TINYOBJLOADER_INCLUDE_DIRS}
 	${GLEW_INCLUDE_DIRS}
 	${OPENGL_INCLUDE_DIR}
 	PARENT_SCOPE)
 set(SFZ_COMMON_LIBRARIES
 	SkipIfZeroCommon
 	${SDL2_LIBRARY}
+	${TINYOBJLOADER_LIBRARIES}
 	${GLEW_LIBRARIES}
 	${OPENGL_LIBRARIES}
 	PARENT_SCOPE)

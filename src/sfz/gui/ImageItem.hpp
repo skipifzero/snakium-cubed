@@ -25,7 +25,7 @@ public:
 	ImageItem(const ImageItem&) noexcept = delete;
 	ImageItem& operator= (const ImageItem&) noexcept = delete;
 
-	ImageItem(sfz::TextureRegion imageRegion, unsigned int texture,
+	ImageItem(gl::TextureRegion imageRegion, unsigned int texture,
 	          HorizontalAlign hAlign = HorizontalAlign::CENTER,
 	          vec2 imageScale = vec2{1.0f, 1.0f}) noexcept;
 
@@ -53,7 +53,7 @@ public:
 	// Public members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	
-	sfz::TextureRegion imageRegion;
+	gl::TextureRegion imageRegion;
 	unsigned int texture;
 	HorizontalAlign hAlign;
 	vec2 imageScale;

@@ -14,7 +14,7 @@ namespace gui {
 
 using gl::FontRenderer;
 using gl::SpriteBatch;
-using sfz::TextureRegion;
+using gl::TextureRegion;
 using sfz::vec2;
 using sfz::vec4;
 

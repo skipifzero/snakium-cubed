@@ -38,6 +38,14 @@ Use the following commands to generate a Visual Studio solution:
 
 ### Mac OS X
 
+#### Installing dependencies
+
+##### SDL2
+
+Either visit the offical [website](https://www.libsdl.org/) and follow the installation instructions there or install using homebrew with the following command: `brew install sdl2`.
+
+#### Generating Xcode project
+
 The following commands will generate an Xcode project:
 
 	mkdir build

@@ -9,6 +9,28 @@
 
 namespace gl {
 
+// Statics
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+static const char* POST_PROCESS_VERTEX_SHADER_SOURCE = R"(
+	#version 330
+
+	// Input
+	in vec3 inPosition;
+	in vec3 inNormal;
+	in vec2 inUV;
+	in int inMaterialID;
+
+	// Output
+	out vec2 uvCoord;
+
+	void main()
+	{
+		gl_Position = vec4(inPosition, 1.0);
+		uvCoord = inUV;
+	}
+)";
+
 // Program: Constructor functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -107,6 +129,19 @@ Program Program::fromSource(const char* vertexSrc, const char* fragmentSrc,
 	return temp;
 }
 
+Program Program::postProcessFromSource(const char* postProcessSource) noexcept
+{
+	Program tmp;
+	tmp = Program::fromSource(POST_PROCESS_VERTEX_SHADER_SOURCE, postProcessSource, [](uint32_t shaderProgram) {
+		glBindAttribLocation(shaderProgram, 0, "inPosition");
+		glBindAttribLocation(shaderProgram, 1, "inNormal");
+		glBindAttribLocation(shaderProgram, 2, "inUV");
+		glBindAttribLocation(shaderProgram, 3, "inMaterialID");
+	});
+	tmp.mIsPostProcess = true;
+	return std::move(tmp);
+}
+
 
 Program Program::fromFile(const char* vertexPath, const char* geometryPath, const char* fragmentPath,
                           void(*bindAttribFragFunc)(uint32_t shaderProgram)) noexcept
@@ -131,6 +166,15 @@ Program Program::fromFile(const char* vertexPath, const char* fragmentPath,
 	return tmp;
 }
 
+Program Program::postProcessFromFile(const char* postProcessPath) noexcept
+{
+	Program tmp;
+	tmp.mFragmentPath = postProcessPath;
+	tmp.mIsPostProcess = true;
+	tmp.reload();
+	return tmp;
+}
+
 // Program: Public methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -140,7 +184,16 @@ bool Program::reload() noexcept
 	const string geometrySrc = sfz::readTextFile(mGeometryPath.c_str());
 	const string fragmentSrc = sfz::readTextFile(mFragmentPath.c_str());
 
-	if ((vertexSrc.size() > 0) && (geometrySrc.size() > 0) && (fragmentSrc.size() > 0)) {
+	if (mIsPostProcess && (fragmentSrc.size() > 0)) {
+		Program tmp = Program::postProcessFromSource(fragmentSrc.c_str());
+		if (!tmp.isValid()) return false;
+
+		tmp.mFragmentPath = this->mFragmentPath;
+		tmp.mIsPostProcess = true;
+		*this = std::move(tmp);
+		return true;
+	}
+	else if ((vertexSrc.size() > 0) && (geometrySrc.size() > 0) && (fragmentSrc.size() > 0)) {
 		Program tmp = Program::fromSource(vertexSrc.c_str(), geometrySrc.c_str(), fragmentSrc.c_str(),
 		                                  mBindAttribFragFunc);
 		if (!tmp.isValid()) return false;
@@ -234,6 +287,11 @@ void printShaderInfoLog(uint32_t shader) noexcept
 	glGetShaderInfoLog(shader, logLength, NULL, log);
 	std::cerr << log << std::endl;
 	delete[] log;
+}
+
+const char* postProcessVertexShaderSource() noexcept
+{
+	return POST_PROCESS_VERTEX_SHADER_SOURCE;
 }
 
 // Uniform setters: int

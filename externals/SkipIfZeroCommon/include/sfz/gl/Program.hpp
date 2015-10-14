@@ -23,6 +23,15 @@ using std::uint32_t;
 // Program class
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+/**
+ * @brief A class holding an OpenGL Program.
+ *
+ * The post process variants will create a Program using the default post process vertex shader,
+ * accessable by calling "postProcessVertexShaderSource()". This vertex shader exports a vec2
+ * called "uvCoord" to the fragment shader, i.e. the post process shader should have
+ * "in vec2 uvCoord;". To render a pass using this shader a "PostProcessQuad" should be used.
+ *
+ */
 class Program final {
 public:
 	// Constructor functions
@@ -41,6 +50,7 @@ public:
 	                          void(*bindAttribFragFunc)(uint32_t shaderProgram) = nullptr) noexcept;
 	static Program fromSource(const char* vertexSrc, const char* fragmentSrc,
 	                          void(*bindAttribFragFunc)(uint32_t shaderProgram) = nullptr) noexcept;
+	static Program postProcessFromSource(const char* postProcessSource) noexcept;
 
 	/**
 	 * @brief Constructs an OpenGL program given file paths to source
@@ -54,6 +64,7 @@ public:
 	                        void(*bindAttribFragFunc)(uint32_t shaderProgram) = nullptr) noexcept;
 	static Program fromFile(const char* vertexPath, const char* fragmentPath,
 	                        void(*bindAttribFragFunc)(uint32_t shaderProgram) = nullptr) noexcept;
+	static Program postProcessFromFile(const char* postProcessPath) noexcept;
 
 	// Public methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -94,6 +105,9 @@ private:
 	string mGeometryPath = "";
 	string mFragmentPath = "";
 
+	// Bool that specifies if program is post process or not
+	bool mIsPostProcess = false;
+
 	// Optional function used to call glBindAttribLocation() & glBindFragDataLocation()
 	void(*mBindAttribFragFunc)(uint32_t shaderProgram) = nullptr;
 };
@@ -113,6 +127,9 @@ bool linkProgram(uint32_t program) noexcept;
 
 /** Prints the shader info log, typically called if compilation (or linking) failed. */
 void printShaderInfoLog(uint32_t shader) noexcept;
+
+/** Returns the source to the default post process vertex shader. */
+const char* postProcessVertexShaderSource() noexcept;
 
 // Uniform setters
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

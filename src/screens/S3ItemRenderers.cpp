@@ -47,9 +47,9 @@ ItemRendererFactory<Button> snakiumButtonRendererFactory() noexcept
 			}
 
 			// Select the correct texture regions and font colors
-			sfz::TextureRegion* leftRegion = &assets.BUTTON_LEFT_REG;
-			sfz::TextureRegion* midRegion = nullptr;
-			sfz::TextureRegion* rightRegion = &assets.BUTTON_RIGHT_REG;
+			gl::TextureRegion* leftRegion = &assets.BUTTON_LEFT_REG;
+			gl::TextureRegion* midRegion = nullptr;
+			gl::TextureRegion* rightRegion = &assets.BUTTON_RIGHT_REG;
 			vec4 fgColor = settings.fontColor;
 			vec4 bgColor = settings.fontBgColor;
 			

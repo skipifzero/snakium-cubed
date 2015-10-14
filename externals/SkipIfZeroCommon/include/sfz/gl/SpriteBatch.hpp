@@ -18,7 +18,6 @@ using sfz::AABB2D;
 using sfz::vec2;
 using sfz::vec4;
 using sfz::mat3;
-using sfz::TextureRegion;
 
 using std::size_t;
 using std::uint32_t;

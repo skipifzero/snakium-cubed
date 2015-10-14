@@ -13,7 +13,7 @@ ItemRendererFactory<ImageItem> ImageItem::rendererFactory = defaultImageItemRend
 // ImageItem: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-ImageItem::ImageItem(sfz::TextureRegion imageRegion, unsigned int texture,
+ImageItem::ImageItem(gl::TextureRegion imageRegion, unsigned int texture,
                      HorizontalAlign hAlign, vec2 imageScale) noexcept
 :
 	imageRegion{imageRegion},

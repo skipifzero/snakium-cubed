@@ -19,8 +19,6 @@ using std::string;
 using std::uint32_t;
 using std::unordered_map;
 
-using sfz::TextureRegion;
-
 // TexturePacker
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

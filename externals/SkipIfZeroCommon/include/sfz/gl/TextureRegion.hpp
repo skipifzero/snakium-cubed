@@ -2,9 +2,11 @@
 #ifndef SFZ_GL_TEXTURE_REGION_HPP
 #define SFZ_GL_TEXTURE_REGION_HPP
 
-#include <sfz/math/Vector.hpp>
+#include "sfz/math/Vector.hpp"
 
-namespace sfz {
+namespace gl {
+
+using sfz::vec2;
 
 // TextureRegion
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -32,5 +34,5 @@ struct TextureRegion final {
 	inline vec2 dimensions() const noexcept { return mUVMax - mUVMin; }
 };
 
-} // namespace sfz
+} // namespace gl
 #endif
