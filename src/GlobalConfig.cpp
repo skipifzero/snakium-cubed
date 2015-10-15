@@ -69,6 +69,7 @@ void GlobalConfig::load() noexcept
 	// [GameSettings]
 	ModelConfig& mc = modelConfig;
 	static const string gsStr = "GameSettings";
+	inputBufferSize =           ip.sanitizeInt(gsStr, "iInputBufferSize", 2, 1, 5);
 	mc.hasBonus =               ip.sanitizeBool(gsStr, "bHasBonus", true);
 	mc.speedIncreasePerObject = ip.sanitizeFloat(gsStr, "fSpeedIncreasePerObject", 0.025f, 0.001f, 60.0f);
 	mc.tilesPerSecond =         ip.sanitizeFloat(gsStr, "fTilesPerSecond", 2.25f, 0.05f, 60.0f);
@@ -99,6 +100,7 @@ void GlobalConfig::save() noexcept
 
 	// [GameSettings]
 	static const string gsStr = "GameSettings";
+	mIniParser.setInt(gsStr, "iInputBufferSize", inputBufferSize);
 	mIniParser.setBool(gsStr, "bHasBonus", modelConfig.hasBonus);
 	mIniParser.setInt(gsStr, "iGridWidth", modelConfig.gridWidth);
 	mIniParser.setFloat(gsStr, "fSpeedIncreasePerObject", modelConfig.speedIncreasePerObject);
@@ -140,6 +142,7 @@ void GlobalConfig::data(const ConfigData& configData) noexcept
 	this->vsync = configData.vsync;
 	this->msaa = configData.msaa;
 
+	this->inputBufferSize = configData.inputBufferSize;
 	this->modelConfig = configData.modelConfig;
 }
 

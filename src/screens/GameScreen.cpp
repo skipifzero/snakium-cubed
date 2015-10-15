@@ -23,33 +23,68 @@ GameScreen::GameScreen(const ModelConfig& modelCfg) noexcept
 
 UpdateOp GameScreen::update(UpdateState& state)
 {
+	GlobalConfig& cfg = GlobalConfig::INSTANCE();
+
+	// Small dive hack
+	if (mCam.delayModelUpdate()) mInputBufferIndex = 0;
+
 	// Handle input
 	for (const SDL_Event& event : state.events) {
 		switch (event.type) {
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
 			case SDLK_SPACE:
-				mModel.changeDirection(mCam.upDir(), DirectionInput::DIVE);
+				if (mInputBufferIndex < cfg.inputBufferSize) {
+					mInputBuffer[mInputBufferIndex] = DirectionInput::DIVE;
+					mInputBufferIndex += 1;
+				} else {
+					mInputBuffer[cfg.inputBufferSize-1] = DirectionInput::DIVE;
+					mInputBufferIndex = cfg.inputBufferSize;
+				}
 				break;
 			case SDLK_UP:
 			case 'w':
 			case 'W':
-				mModel.changeDirection(mCam.upDir(), DirectionInput::UP);
+				if (mInputBufferIndex < cfg.inputBufferSize) {
+					mInputBuffer[mInputBufferIndex] = DirectionInput::UP;
+					mInputBufferIndex += 1;
+				} else {
+					mInputBuffer[cfg.inputBufferSize-1] = DirectionInput::UP;
+					mInputBufferIndex = cfg.inputBufferSize;
+				}
 				break;
 			case SDLK_DOWN:
 			case 's':
 			case 'S':
-				mModel.changeDirection(mCam.upDir(), DirectionInput::DOWN);
+				if (mInputBufferIndex < cfg.inputBufferSize) {
+					mInputBuffer[mInputBufferIndex] = DirectionInput::DOWN;
+					mInputBufferIndex += 1;
+				} else {
+					mInputBuffer[cfg.inputBufferSize-1] = DirectionInput::DOWN;
+					mInputBufferIndex = cfg.inputBufferSize;
+				}
 				break;
 			case SDLK_LEFT:
 			case 'a':
 			case 'A':
-				mModel.changeDirection(mCam.upDir(), DirectionInput::LEFT);
+				if (mInputBufferIndex < cfg.inputBufferSize) {
+					mInputBuffer[mInputBufferIndex] = DirectionInput::LEFT;
+					mInputBufferIndex += 1;
+				} else {
+					mInputBuffer[cfg.inputBufferSize-1] = DirectionInput::LEFT;
+					mInputBufferIndex = cfg.inputBufferSize;
+				}
 				break;
 			case SDLK_RIGHT:
 			case 'd':
 			case 'D':
-				mModel.changeDirection(mCam.upDir(), DirectionInput::RIGHT);
+				if (mInputBufferIndex < cfg.inputBufferSize) {
+					mInputBuffer[mInputBufferIndex] = DirectionInput::RIGHT;
+					mInputBufferIndex += 1;
+				} else {
+					mInputBuffer[cfg.inputBufferSize-1] = DirectionInput::RIGHT;
+					mInputBufferIndex = cfg.inputBufferSize;
+				}
 				break;
 			}
 			break;
@@ -74,7 +109,17 @@ UpdateOp GameScreen::update(UpdateState& state)
 	// Updating
 	if (mIsPaused) return sfz::SCREEN_NO_OP;
 
-	if (!mCam.delayModelUpdate()) mModel.update(state.delta);
+	if (mInputBufferIndex > 0) mModel.changeDirection(mCam.upDir(), mInputBuffer[0]);
+	bool changeOccured = false;
+	if (!mCam.delayModelUpdate()) mModel.update(state.delta, &changeOccured);
+
+	if (changeOccured && mInputBufferIndex > 0) {
+		mInputBufferIndex -= 1;
+		for (size_t i = 0; i < (cfg.inputBufferSize-1); ++i) {
+			mInputBuffer[i] = mInputBuffer[i+1];
+		}
+	}
+
 	mCam.onResize(60.0f, (float)state.window.drawableWidth()/(float)state.window.drawableHeight());
 	mCam.update(mModel, state.delta);
 

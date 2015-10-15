@@ -36,8 +36,8 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	void changeDirection(Direction upDir, DirectionInput direction) noexcept;
-	void update(float delta) noexcept;
-	void updateSetProgress(float progress) noexcept;
+	void update(float delta, bool* changeOccured = nullptr) noexcept;
+	void updateSetProgress(float progress, bool* changeOccured = nullptr) noexcept;
 
 	// Access methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

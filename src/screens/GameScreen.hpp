@@ -50,8 +50,10 @@ private:
 	ModernRenderer mModernRenderer;
 	bool mUseModernRenderer = true;
 	bool mIsPaused = false;
+
+	DirectionInput mInputBuffer[5];
+	size_t mInputBufferIndex = 0;
 };
 
 } // namespace s3
-
 #endif

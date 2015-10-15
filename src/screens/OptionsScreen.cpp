@@ -171,6 +171,15 @@ OptionsScreen::OptionsScreen() noexcept
 	scrollList.addItem(shared_ptr<BaseItem>{new TextItem{"Game Settings", HorizontalAlign::LEFT}}, headingDim);
 
 	scrollList.addSpacing(itemSpacing);
+	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Input Buffer Size", {"1", "2", "3", "4", "5"}, [this]() {
+		int bs = this->cfgData.inputBufferSize;
+		if (1 <= bs && bs <= 5) return bs-1;
+		return -1;
+	}, [this](int choice) {
+		this->cfgData.inputBufferSize = (choice+1);
+	}, stateAlignOffset}}, itemDim);
+
+	scrollList.addSpacing(itemSpacing);
 	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Grid Width", {"2", "3", "4", "5", "6"}, [this]() {
 		int gw = this->cfgData.modelConfig.gridWidth;
 		if (2 <= gw && gw <= 6) return gw-2;

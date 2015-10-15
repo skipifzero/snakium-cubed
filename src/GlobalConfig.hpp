@@ -28,6 +28,7 @@ struct ConfigData {
 	int32_t msaa;
 
 	// Game Settings
+	int32_t inputBufferSize;
 	ModelConfig modelConfig;
 };
 

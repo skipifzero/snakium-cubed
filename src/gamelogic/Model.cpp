@@ -122,13 +122,20 @@ void Model::changeDirection(Direction upDir, DirectionInput direction) noexcept
 	mHeadPtr->to = dir;
 }
 
-void Model::update(float delta) noexcept
+void Model::update(float delta, bool* changeOccured) noexcept
 {
-	if (mGameOver) return;
+	if (mGameOver) {
+		if (changeOccured != nullptr) *changeOccured = false;
+		return;
+	}
 
 	mProgress += delta * mCurrentSpeed;
-	if (mProgress <= 1.0f) return;
+	if (mProgress <= 1.0f) {
+		if (changeOccured != nullptr) *changeOccured = false;
+		return;
+	}
 	mProgress -= 1.0f;
+	if (changeOccured != nullptr) *changeOccured = true;
 
 	// Calculate the next head position
 	Position headPos = tilePosition(mHeadPtr);
@@ -240,10 +247,10 @@ void Model::update(float delta) noexcept
 	mTailPtr = nextTailPtr;
 }
 
-void Model::updateSetProgress(float progress) noexcept
+void Model::updateSetProgress(float progress, bool* changeOccured) noexcept
 {
 	sfz_assert_debug(mProgress <= progress && progress <= 1.0f);
-	this->update((progress - mProgress) / mCurrentSpeed);
+	this->update((progress - mProgress) / mCurrentSpeed, changeOccured);
 }
 
 // Access methods
