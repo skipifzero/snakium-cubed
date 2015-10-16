@@ -179,6 +179,12 @@ OptionsScreen::OptionsScreen() noexcept
 		this->cfgData.inputBufferSize = (choice+1);
 	}, stateAlignOffset}}, itemDim);
 
+	// CustomModel
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	scrollList.addSpacing(spacing);
+	scrollList.addItem(shared_ptr<BaseItem>{new TextItem{"Custom Model", HorizontalAlign::LEFT}}, headingDim);
+
 	scrollList.addSpacing(itemSpacing);
 	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Grid Width", {"2", "3", "4", "5", "6"}, [this]() {
 		int gw = this->cfgData.modelConfig.gridWidth;

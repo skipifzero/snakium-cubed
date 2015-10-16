@@ -61,23 +61,25 @@ void GlobalConfig::load() noexcept
 
 	sfz::IniParser& ip = mIniParser;
 	
-
+	// [CustomModel]
+	static const string cmStr = "CustomModel";
+	ModelConfig& mc = modelConfig;
+	mc.hasBonus =               ip.sanitizeBool(cmStr, "bHasBonus", true);
+	mc.speedIncreasePerObject = ip.sanitizeFloat(cmStr, "fSpeedIncreasePerObject", 0.025f, 0.001f, 60.0f);
+	mc.tilesPerSecond =         ip.sanitizeFloat(cmStr, "fTilesPerSecond", 2.25f, 0.05f, 60.0f);
+	mc.gridWidth =              ip.sanitizeInt(cmStr, "iGridWidth", 3, 2, 128);;
+	mc.bonusDuration =          ip.sanitizeInt(cmStr, "iBonusDuration", 32, 0, 4096);
+	mc.bonusFrequency =         ip.sanitizeInt(cmStr, "iBonusFrequency", 8, 1, 1024);
+	mc.bonusObjectValue =       ip.sanitizeInt(cmStr, "iBonusObjectValue", 32, 32, 4096);
+	mc.objectValue =            ip.sanitizeInt(cmStr, "iObjectValue", 8, 0, 4096);
+	
 	// [Debug]
 	static const string dStr = "Debug";
 	continuousShaderReload = ip.sanitizeBool(dStr, "bContinuousShaderReload", false);
 
 	// [GameSettings]
-	ModelConfig& mc = modelConfig;
 	static const string gsStr = "GameSettings";
-	inputBufferSize =           ip.sanitizeInt(gsStr, "iInputBufferSize", 2, 1, 5);
-	mc.hasBonus =               ip.sanitizeBool(gsStr, "bHasBonus", true);
-	mc.speedIncreasePerObject = ip.sanitizeFloat(gsStr, "fSpeedIncreasePerObject", 0.025f, 0.001f, 60.0f);
-	mc.tilesPerSecond =         ip.sanitizeFloat(gsStr, "fTilesPerSecond", 2.25f, 0.05f, 60.0f);
-	mc.gridWidth =              ip.sanitizeInt(gsStr, "iGridWidth", 3, 2, 128);;
-	mc.bonusDuration =          ip.sanitizeInt(gsStr, "iBonusDuration", 32, 0, 4096);
-	mc.bonusFrequency =         ip.sanitizeInt(gsStr, "iBonusFrequency", 8, 1, 1024);
-	mc.bonusObjectValue =       ip.sanitizeInt(gsStr, "iBonusObjectValue", 32, 32, 4096);
-	mc.objectValue =            ip.sanitizeInt(gsStr, "iObjectValue", 8, 0, 4096);
+	inputBufferSize = ip.sanitizeInt(gsStr, "iInputBufferSize", 2, 1, 5);
 	
 	// [Graphics]
 	static const string grStr = "Graphics";
@@ -94,6 +96,17 @@ void GlobalConfig::load() noexcept
 
 void GlobalConfig::save() noexcept
 {
+	// [CustomModel]
+	static const string cmStr = "CustomModel";
+	mIniParser.setBool(cmStr, "bHasBonus", modelConfig.hasBonus);
+	mIniParser.setInt(cmStr, "iGridWidth", modelConfig.gridWidth);
+	mIniParser.setFloat(cmStr, "fSpeedIncreasePerObject", modelConfig.speedIncreasePerObject);
+	mIniParser.setFloat(cmStr, "fTilesPerSecond", modelConfig.tilesPerSecond);
+	mIniParser.setInt(cmStr, "iBonusDuration", modelConfig.bonusDuration);
+	mIniParser.setInt(cmStr, "iBonusFrequency", modelConfig.bonusFrequency);
+	mIniParser.setInt(cmStr, "iBonusObjectValue", modelConfig.bonusObjectValue);
+	mIniParser.setInt(cmStr, "iObjectValue", modelConfig.objectValue);
+
 	// [Debug]
 	static const string dStr = "Debug";
 	mIniParser.setBool(dStr, "bContinuousShaderReload", continuousShaderReload);
@@ -101,14 +114,6 @@ void GlobalConfig::save() noexcept
 	// [GameSettings]
 	static const string gsStr = "GameSettings";
 	mIniParser.setInt(gsStr, "iInputBufferSize", inputBufferSize);
-	mIniParser.setBool(gsStr, "bHasBonus", modelConfig.hasBonus);
-	mIniParser.setInt(gsStr, "iGridWidth", modelConfig.gridWidth);
-	mIniParser.setFloat(gsStr, "fSpeedIncreasePerObject", modelConfig.speedIncreasePerObject);
-	mIniParser.setFloat(gsStr, "fTilesPerSecond", modelConfig.tilesPerSecond);
-	mIniParser.setInt(gsStr, "iBonusDuration", modelConfig.bonusDuration);
-	mIniParser.setInt(gsStr, "iBonusFrequency", modelConfig.bonusFrequency);
-	mIniParser.setInt(gsStr, "iBonusObjectValue", modelConfig.bonusObjectValue);
-	mIniParser.setInt(gsStr, "iObjectValue", modelConfig.objectValue);
 
 	// [Graphics]
 	static const string grStr = "Graphics";

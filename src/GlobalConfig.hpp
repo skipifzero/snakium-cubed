@@ -29,6 +29,8 @@ struct ConfigData {
 
 	// Game Settings
 	int32_t inputBufferSize;
+
+	// Custom Model
 	ModelConfig modelConfig;
 };
 
