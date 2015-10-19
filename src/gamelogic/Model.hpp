@@ -21,6 +21,8 @@ enum class DirectionInput : uint8_t {
 	UP, DOWN, LEFT, RIGHT, DIVE
 };
 
+DirectionInput opposite(DirectionInput direction) noexcept;
+
 class Model final {
 public:
 	// Constructors & destructors
@@ -38,6 +40,7 @@ public:
 	void changeDirection(Direction upDir, DirectionInput direction) noexcept;
 	void update(float delta, bool* changeOccured = nullptr) noexcept;
 	void updateSetProgress(float progress, bool* changeOccured = nullptr) noexcept;
+	bool isChangingDirection(Direction upDir, DirectionInput direction) noexcept;
 
 	// Access methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

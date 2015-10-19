@@ -10,6 +10,38 @@
 
 namespace s3 {
 
+// Static functions
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+void updateInputBuffer(Model& model, Camera& cam, DirectionInput* inputBufferPtr,
+                       size_t bufferSize, size_t& index, DirectionInput dirInput) noexcept
+{
+	GlobalConfig& cfg = GlobalConfig::INSTANCE();
+
+	sfz_assert_debug(cfg.inputBufferSize <= bufferSize);
+	sfz_assert_debug(index <= cfg.inputBufferSize);
+
+	if (index == 0) {
+		if (!model.isChangingDirection(cam.upDir(), dirInput)) {
+			return;
+		}
+		inputBufferPtr[index] = dirInput;
+		index += 1;
+	}
+	else if (index < cfg.inputBufferSize) {
+		if (inputBufferPtr[index-1] == dirInput ||
+		    inputBufferPtr[index-1] == opposite(dirInput)) {
+			return;
+		}
+		inputBufferPtr[index] = dirInput;
+		index += 1;
+	}
+	else {
+		inputBufferPtr[cfg.inputBufferSize-1] = dirInput;
+		index = cfg.inputBufferSize;
+	}
+}
+
 // GameScreen: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -34,57 +66,27 @@ UpdateOp GameScreen::update(UpdateState& state)
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
 			case SDLK_SPACE:
-				if (mInputBufferIndex < cfg.inputBufferSize) {
-					mInputBuffer[mInputBufferIndex] = DirectionInput::DIVE;
-					mInputBufferIndex += 1;
-				} else {
-					mInputBuffer[cfg.inputBufferSize-1] = DirectionInput::DIVE;
-					mInputBufferIndex = cfg.inputBufferSize;
-				}
+				updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::DIVE);
 				break;
 			case SDLK_UP:
 			case 'w':
 			case 'W':
-				if (mInputBufferIndex < cfg.inputBufferSize) {
-					mInputBuffer[mInputBufferIndex] = DirectionInput::UP;
-					mInputBufferIndex += 1;
-				} else {
-					mInputBuffer[cfg.inputBufferSize-1] = DirectionInput::UP;
-					mInputBufferIndex = cfg.inputBufferSize;
-				}
+				updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::UP);
 				break;
 			case SDLK_DOWN:
 			case 's':
 			case 'S':
-				if (mInputBufferIndex < cfg.inputBufferSize) {
-					mInputBuffer[mInputBufferIndex] = DirectionInput::DOWN;
-					mInputBufferIndex += 1;
-				} else {
-					mInputBuffer[cfg.inputBufferSize-1] = DirectionInput::DOWN;
-					mInputBufferIndex = cfg.inputBufferSize;
-				}
+				updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::DOWN);
 				break;
 			case SDLK_LEFT:
 			case 'a':
 			case 'A':
-				if (mInputBufferIndex < cfg.inputBufferSize) {
-					mInputBuffer[mInputBufferIndex] = DirectionInput::LEFT;
-					mInputBufferIndex += 1;
-				} else {
-					mInputBuffer[cfg.inputBufferSize-1] = DirectionInput::LEFT;
-					mInputBufferIndex = cfg.inputBufferSize;
-				}
+				updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::LEFT);
 				break;
 			case SDLK_RIGHT:
 			case 'd':
 			case 'D':
-				if (mInputBufferIndex < cfg.inputBufferSize) {
-					mInputBuffer[mInputBufferIndex] = DirectionInput::RIGHT;
-					mInputBufferIndex += 1;
-				} else {
-					mInputBuffer[cfg.inputBufferSize-1] = DirectionInput::RIGHT;
-					mInputBufferIndex = cfg.inputBufferSize;
-				}
+				updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::RIGHT);
 				break;
 			}
 			break;

@@ -38,7 +38,21 @@ static SnakeTile* freeRandomTile(Model& model) noexcept
 	return freeTiles[dist(ms)];
 }
 
-// Constructors & destructors
+// DirectionInput functions
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+DirectionInput opposite(DirectionInput direction) noexcept
+{
+	switch (direction) {
+	case DirectionInput::UP: return DirectionInput::DOWN;
+	case DirectionInput::DOWN: return DirectionInput::UP;
+	case DirectionInput::LEFT: return DirectionInput::RIGHT;
+	case DirectionInput::RIGHT: return DirectionInput::LEFT;
+	case DirectionInput::DIVE: return DirectionInput::DIVE;
+	}
+}
+
+// Model: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 Model::Model(ModelConfig cfg) noexcept
@@ -90,7 +104,7 @@ Model::Model(ModelConfig cfg) noexcept
 	freeTile->from = opposite(freeTile->to);
 }
 
-// Update methods
+// Model: Update methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 void Model::changeDirection(Direction upDir, DirectionInput direction) noexcept
@@ -253,7 +267,16 @@ void Model::updateSetProgress(float progress, bool* changeOccured) noexcept
 	this->update((progress - mProgress) / mCurrentSpeed, changeOccured);
 }
 
-// Access methods
+bool Model::isChangingDirection(Direction upDir, DirectionInput direction) noexcept
+{
+	Direction oldHeadTo = mHeadPtr->to;
+	this->changeDirection(upDir, direction);
+	bool isChange = mHeadPtr->to != oldHeadTo;
+	mHeadPtr->to = oldHeadTo;
+	return isChange;
+}
+
+// Model: Access methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 const SnakeTile* Model::tilePtr(Position pos) const noexcept
@@ -304,7 +327,7 @@ Position Model::tilePosition(const SnakeTile* tilePtr) const noexcept
 	return pos;
 }
 
-// Private methods
+// Model: Private methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 Position Model::adjacent(Position pos, Direction to) const noexcept
