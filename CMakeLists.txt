@@ -63,6 +63,8 @@ set(SOURCE_RENDERING_FILES
 	${SRC_DIR}/rendering/Camera.cpp
 	${SRC_DIR}/rendering/ClassicRenderer.hpp
 	${SRC_DIR}/rendering/ClassicRenderer.cpp
+	${SRC_DIR}/rendering/Framebuffers.hpp
+	${SRC_DIR}/rendering/Framebuffers.cpp
 	${SRC_DIR}/rendering/ModernRenderer.hpp
 	${SRC_DIR}/rendering/ModernRenderer.cpp
 	${SRC_DIR}/rendering/TileObject.hpp
