@@ -47,29 +47,5 @@ struct PostProcessFramebuffer final {
 	~PostProcessFramebuffer() noexcept;
 };
 
-// Shadow Map FBO
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-/** Enum used to set the amount of bits per depth value in a ShadowMap. */
-enum class ShadowMapRes : int32_t {
-	BITS_16,
-	BITS_24,
-	BITS_32
-};
-
-/** An OpenGL ShadowMap FBO. */
-struct ShadowMap {
-	uint32_t mFBO, mDepthTexture;
-	int mResolution;
-	bool mHasPCF;
-
-	ShadowMap() = delete;
-	ShadowMap(const ShadowMap&) = delete;
-	ShadowMap& operator= (const ShadowMap&) = delete;
-
-	ShadowMap(int resolution, ShadowMapRes depthRes, bool pcf, const vec4& borderColor);
-	~ShadowMap();
-};
-
 } // namespace s3
 #endif

@@ -465,8 +465,8 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 			if (cam.renderTileFaceFirst(side)) {
 				
 				// Render cube tile projection
-				gl::setUniform(mProgram, "uColor", tileCubeProjectionColor(tilePtr));
-				assets.TILE_PROJECTION_MODEL.render();
+				//gl::setUniform(mProgram, "uColor", tileCubeProjectionColor(tilePtr));
+				//assets.TILE_PROJECTION_MODEL.render();
 				
 				// Render tile projection
 				gl::setUniform(mProgram, "uColor", TILE_PROJECTION_COLOR);
@@ -481,8 +481,8 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 				if (tileProjModelPtr != nullptr) tileProjModelPtr->render();
 
 				// Render cube tile projection
-				gl::setUniform(mProgram, "uColor", tileCubeProjectionColor(tilePtr));
-				assets.TILE_PROJECTION_MODEL.render();
+				//gl::setUniform(mProgram, "uColor", tileCubeProjectionColor(tilePtr));
+				//assets.TILE_PROJECTION_MODEL.render();
 			}
 		}
 	}
