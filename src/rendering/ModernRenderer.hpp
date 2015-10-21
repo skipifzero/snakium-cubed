@@ -8,11 +8,13 @@
 
 #include "gamelogic/Model.hpp"
 #include "rendering/Camera.hpp"
+#include "rendering/Framebuffers.hpp"
 
 namespace s3 {
 
 using sfz::AABB2D;
 using sfz::mat4;
+using sfz::vec2;
 
 class ModernRenderer final {
 public:
@@ -27,13 +29,14 @@ public:
 	// Public methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	void render(const Model& model, const Camera& cam, const AABB2D& viewport) noexcept;
+	void render(const Model& model, const Camera& cam, vec2 drawableDim) noexcept;
 
 private:
-	// Private methods
+	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	gl::Program mProgram;
+	ExternalFB mExternalFB;
 };
 
 } // namespace s3

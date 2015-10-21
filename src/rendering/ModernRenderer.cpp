@@ -16,6 +16,11 @@ using sfz::vec4;
 // Static functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+static void checkGLErrorsMessage(const char* msg)
+{
+	if (gl::checkAllGLErrors()) std::cerr << msg << std::endl;
+}
+
 static gl::Program compileStandardShaderProgram() noexcept
 {
 	return gl::Program::fromFile((sfz::basePath() + "assets/shaders/shader.vert").c_str(),
@@ -331,18 +336,25 @@ ModernRenderer::ModernRenderer() noexcept
 // ModernRenderer: Public methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D& viewport) noexcept
+void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawableDim) noexcept
 {
 	// Color constants
 	const vec4 TILE_PROJECTION_COLOR{0.5f, 0.5f, 0.5f, 0.75f};
 	const vec4 TILE_DIVE_ASCEND_COLOR{0.5f, 0.0f, 0.75f, 1.0f};
 
+	GlobalConfig& cfg = GlobalConfig::INSTANCE();
+	Assets& assets = Assets::INSTANCE();
+
+	// Ensure framebuffers are of correct size
+	if (mExternalFB.dimensions() != drawableDim) {
+		mExternalFB = ExternalFB{drawableDim};
+		std::cout << "Resized xfb, new size: " << mExternalFB.dimensionsInt() << std::endl;
+	}
+	
 	// Recompile shader programs if continuous shader reload is enabled
-	if (GlobalConfig::INSTANCE().continuousShaderReload) {
+	if (cfg.continuousShaderReload) {
 		mProgram.reload();
 	}
-
-	Assets& assets = Assets::INSTANCE();
 
 	// Enable depth testing
 	glDepthFunc(GL_LESS);
@@ -355,12 +367,14 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 	// Enable culling
 	glEnable(GL_CULL_FACE);
 
+	// Binding external framebuffer
+	glUseProgram(mProgram.handle());
+	glBindFramebuffer(GL_FRAMEBUFFER, mExternalFB.fbo());
+	glViewport(0, 0, mExternalFB.dimensionsInt().x, mExternalFB.dimensionsInt().y);
+
 	// Clearing screen
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glUseProgram(mProgram.handle());
-	glViewport(viewport.min.x, viewport.min.y, viewport.width(), viewport.height());
 
 	const mat4 viewMatrix = cam.viewMatrix();
 	gl::setUniform(mProgram, "uProjMatrix", cam.projMatrix());
@@ -465,8 +479,8 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 			if (cam.renderTileFaceFirst(side)) {
 				
 				// Render cube tile projection
-				//gl::setUniform(mProgram, "uColor", tileCubeProjectionColor(tilePtr));
-				//assets.TILE_PROJECTION_MODEL.render();
+				gl::setUniform(mProgram, "uColor", tileCubeProjectionColor(tilePtr));
+				assets.TILE_PROJECTION_MODEL.render();
 				
 				// Render tile projection
 				gl::setUniform(mProgram, "uColor", TILE_PROJECTION_COLOR);
@@ -481,8 +495,8 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 				if (tileProjModelPtr != nullptr) tileProjModelPtr->render();
 
 				// Render cube tile projection
-				//gl::setUniform(mProgram, "uColor", tileCubeProjectionColor(tilePtr));
-				//assets.TILE_PROJECTION_MODEL.render();
+				gl::setUniform(mProgram, "uColor", tileCubeProjectionColor(tilePtr));
+				assets.TILE_PROJECTION_MODEL.render();
 			}
 		}
 	}
@@ -509,33 +523,18 @@ void ModernRenderer::render(const Model& model, const Camera& cam, const AABB2D&
 		gl::setUniform(mProgram, "uColor", TILE_PROJECTION_COLOR);
 		getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress())->render();
 	}
-	
 
-	// Render text
-	gl::FontRenderer& font = assets.fontRenderer;
+	// External framebuffer to window
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, drawableDim.x, drawableDim.y);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	font.verticalAlign(gl::VerticalAlign::TOP);
-	font.horizontalAlign(gl::HorizontalAlign::LEFT);
-
-	font.begin(viewport); // TODO: Should not use viewport
-
-	font.write(vec2{0.0f, (float)viewport.height()}, 64.0f, "Score: " + std::to_string(model.score()));
-
-	font.end(0, viewport.dimensions(), vec4{1.0f, 1.0f, 1.0f, 1.0f});
-
-	if (model.isGameOver()) {
-		font.verticalAlign(gl::VerticalAlign::MIDDLE);
-		font.horizontalAlign(gl::HorizontalAlign::CENTER);
-
-		font.begin(viewport);
-
-		font.write(viewport.position(), 160.0f, "Game Over");
-
-		font.end(0, viewport.dimensions(), sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
-	}
-
-	// Clean up
-	glUseProgram(0);
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, mExternalFB.fbo());
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+	glBlitFramebuffer(0, 0, mExternalFB.dimensions().x, mExternalFB.dimensions().y,
+	                  0, 0, drawableDim.x, drawableDim.y,
+	                  GL_COLOR_BUFFER_BIT, GL_LINEAR);
 }
 
 } // namespace s3

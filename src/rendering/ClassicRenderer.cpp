@@ -323,31 +323,6 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 		if (isLeftTurn(deadHeadPos.side, deadHeadPtr->from, deadHeadPtr->to)) mXFlippedTile.render();
 		else mTile.render();
 	}
-
-	gl::FontRenderer& font = assets.fontRenderer;
-
-	font.verticalAlign(gl::VerticalAlign::TOP);
-	font.horizontalAlign(gl::HorizontalAlign::LEFT);
-
-	font.begin(viewport); // TODO: Should not use viewport
-
-	font.write(vec2{0.0f, (float)viewport.height()}, 64.0f, "Score: " + std::to_string(model.score()));
-
-	font.end(0, viewport.dimensions(), vec4{1.0f, 1.0f, 1.0f, 1.0f});
-
-	if (model.isGameOver()) {
-		font.verticalAlign(gl::VerticalAlign::MIDDLE);
-		font.horizontalAlign(gl::HorizontalAlign::CENTER);
-
-		font.begin(viewport);
-
-		font.write(viewport.position(), 160.0f, "Game Over");
-
-		font.end(0, viewport.dimensions(), sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
-	}
-
-	// Clean up
-	glUseProgram(0);
 }
 
 } // namespace s3

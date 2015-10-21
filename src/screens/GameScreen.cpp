@@ -131,10 +131,42 @@ UpdateOp GameScreen::update(UpdateState& state)
 void GameScreen::render(UpdateState& state)
 {
 	if (mUseModernRenderer) {
-		mModernRenderer.render(mModel, mCam, AABB2D{state.window.drawableDimensions()/2.0f, state.window.drawableDimensions()});
+		mModernRenderer.render(mModel, mCam, state.window.drawableDimensions());
 	} else {
 		mClassicRenderer.render(mModel, mCam, AABB2D{state.window.drawableDimensions()/2.0f, state.window.drawableDimensions()});
 	}
+
+	vec2 drawableDim = state.window.drawableDimensions();
+	
+	glUseProgram(0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glViewport(0, 0, drawableDim.x, drawableDim.y);
+
+	// Render text
+	gl::FontRenderer& font = Assets::INSTANCE().fontRenderer;
+
+	font.verticalAlign(gl::VerticalAlign::TOP);
+	font.horizontalAlign(gl::HorizontalAlign::LEFT);
+
+	font.begin(drawableDim/2.0f, drawableDim);
+
+	font.write(vec2{0.0f, drawableDim.y}, 64.0f, "Score: " + std::to_string(mModel.score()));
+
+	font.end(0, drawableDim, vec4{1.0f, 1.0f, 1.0f, 1.0f});
+
+	if (mModel.isGameOver()) {
+		font.verticalAlign(gl::VerticalAlign::MIDDLE);
+		font.horizontalAlign(gl::HorizontalAlign::CENTER);
+
+		font.begin(drawableDim/2.0f, drawableDim);
+
+		font.write(drawableDim/2.0f, 160.0f, "Game Over");
+
+		font.end(0, drawableDim, sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+	}
+
+	// Clean up
+	glUseProgram(0);
 }
 
 } // namespace s3
