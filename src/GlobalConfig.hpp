@@ -26,6 +26,7 @@ struct ConfigData {
 	int32_t windowWidth, windowHeight;
 	int32_t vsync; // 0 = off, 1 = on, 2 = swap control tear
 	int32_t msaa;
+	float internalResScaling;
 
 	// Game Settings
 	int32_t inputBufferSize;

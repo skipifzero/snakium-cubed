@@ -83,6 +83,7 @@ void GlobalConfig::load() noexcept
 	
 	// [Graphics]
 	static const string grStr = "Graphics";
+	internalResScaling = ip.sanitizeFloat(grStr, "fInternalResScaling", 1.0f, 0.01f, 10.0f);
 	displayIndex =      ip.sanitizeInt(grStr, "iDisplayIndex", 0, 0, 32);
 	fullscreenMode =    ip.sanitizeInt(grStr, "iFullscreenMode", 0, 0, 2);
 	msaa =              ip.sanitizeInt(grStr, "iMSAA", 4, 0, 32);
@@ -117,6 +118,7 @@ void GlobalConfig::save() noexcept
 
 	// [Graphics]
 	static const string grStr = "Graphics";
+	mIniParser.setFloat(grStr, "fInternalResScaling", internalResScaling);
 	mIniParser.setInt(grStr, "iDisplayIndex", displayIndex);
 	mIniParser.setInt(grStr, "iFullscreenMode", fullscreenMode);
 	mIniParser.setInt(grStr, "iMSAA", msaa);
@@ -146,6 +148,7 @@ void GlobalConfig::data(const ConfigData& configData) noexcept
 	this->windowHeight = configData.windowHeight;
 	this->vsync = configData.vsync;
 	this->msaa = configData.msaa;
+	this->internalResScaling = configData.internalResScaling;
 
 	this->inputBufferSize = configData.inputBufferSize;
 	this->modelConfig = configData.modelConfig;

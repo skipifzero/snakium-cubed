@@ -346,8 +346,9 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	Assets& assets = Assets::INSTANCE();
 
 	// Ensure framebuffers are of correct size
-	if (mExternalFB.dimensions() != drawableDim) {
-		mExternalFB = ExternalFB{drawableDim};
+	vec2i internalRes{(int)(drawableDim.x*cfg.internalResScaling), (int)(drawableDim.y*cfg.internalResScaling)};
+	if (mExternalFB.dimensionsInt() != internalRes) {
+		mExternalFB = ExternalFB{internalRes};
 		std::cout << "Resized xfb, new size: " << mExternalFB.dimensionsInt() << std::endl;
 	}
 	
@@ -534,7 +535,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	glBlitFramebuffer(0, 0, mExternalFB.dimensions().x, mExternalFB.dimensions().y,
 	                  0, 0, drawableDim.x, drawableDim.y,
-	                  GL_COLOR_BUFFER_BIT, GL_LINEAR);
+	                  GL_COLOR_BUFFER_BIT, GL_NEAREST);
 }
 
 } // namespace s3
