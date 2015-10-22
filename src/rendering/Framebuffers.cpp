@@ -42,7 +42,7 @@ ExternalFB::ExternalFB(vec2i dimensions) noexcept
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mColorTexture, 0);
 
-	GLenum drawBuffers[] ={ GL_COLOR_ATTACHMENT0 };
+	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
 	glDrawBuffers(sizeof(drawBuffers)/sizeof(GLenum), drawBuffers);
 
 	// Check that framebuffer is okay

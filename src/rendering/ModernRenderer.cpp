@@ -1,5 +1,6 @@
 #include "rendering/ModernRenderer.hpp"
 
+#include <sfz/gl/ImageScaling.hpp>
 #include <sfz/gl/OpenGL.hpp>
 #include <sfz/math/Vector.hpp>
 #include <sfz/util/IO.hpp>
@@ -525,17 +526,12 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress())->render();
 	}
 
-	// External framebuffer to window
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, drawableDim.x, drawableDim.y);
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, mExternalFB.fbo());
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	glBlitFramebuffer(0, 0, mExternalFB.dimensions().x, mExternalFB.dimensions().y,
-	                  0, 0, drawableDim.x, drawableDim.y,
-	                  GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	gl::scaleCopyNearest(0, drawableDim, mExternalFB.colorTexture());
 }
 
 } // namespace s3
