@@ -17,7 +17,8 @@ using std::uint32_t;
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 enum class ResamplingAlgorithm {
-	NEAREST
+	NEAREST,
+	BILINEAR
 };
 
 // Scaling functions
@@ -30,6 +31,9 @@ void scaleCopy(uint32_t dstFBO, const AABB2D& dstViewport, uint32_t srcTex,
 
 void scaleCopyNearest(uint32_t dstFBO, vec2 dstDimensions, uint32_t srcTex) noexcept;
 void scaleCopyNearest(uint32_t dstFBO, const AABB2D& dstViewport, uint32_t srcTex) noexcept;
+
+void scaleCopyBilinear(uint32_t dstFBO, vec2 dstDimensions, uint32_t srcTex) noexcept;
+void scaleCopyBilinear(uint32_t dstFBO, const AABB2D& dstViewport, uint32_t srcTex) noexcept;
 
 } // namespace gl
 #endif

@@ -531,7 +531,8 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	gl::scaleCopyNearest(0, drawableDim, mExternalFB.colorTexture());
+	//gl::scaleCopyNearest(0, drawableDim, mExternalFB.colorTexture());
+	gl::scaleCopyBilinear(0, drawableDim, mExternalFB.colorTexture());
 }
 
 } // namespace s3
