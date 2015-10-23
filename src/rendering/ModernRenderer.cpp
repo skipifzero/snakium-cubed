@@ -1,6 +1,5 @@
 #include "rendering/ModernRenderer.hpp"
 
-#include <sfz/gl/ImageScaling.hpp>
 #include <sfz/gl/OpenGL.hpp>
 #include <sfz/math/Vector.hpp>
 #include <sfz/util/IO.hpp>
@@ -346,11 +345,15 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	GlobalConfig& cfg = GlobalConfig::INSTANCE();
 	Assets& assets = Assets::INSTANCE();
 
+	static bool HACK = false;
 	// Ensure framebuffers are of correct size
 	vec2i internalRes{(int)(drawableDim.x*cfg.internalResScaling), (int)(drawableDim.y*cfg.internalResScaling)};
 	if (mExternalFB.dimensionsInt() != internalRes) {
 		mExternalFB = ExternalFB{internalRes};
 		std::cout << "Resized xfb, new size: " << mExternalFB.dimensionsInt() << std::endl;
+		HACK = !HACK;
+		if (HACK) std::cout << "BILINEAR\n";
+		else std::cout << "NEAREST\n";
 	}
 	
 	// Recompile shader programs if continuous shader reload is enabled
@@ -531,8 +534,12 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//gl::scaleCopyNearest(0, drawableDim, mExternalFB.colorTexture());
-	gl::scaleCopyBilinear(0, drawableDim, mExternalFB.colorTexture());
+	if (HACK) {
+		mScaler.changeScalingAlgorithm(gl::ScalingAlgorithm::NEAREST);
+	} else {
+		mScaler.changeScalingAlgorithm(gl::ScalingAlgorithm::BILINEAR);
+	}
+	mScaler.scale(0, drawableDim, mExternalFB.colorTexture(), mExternalFB.dimensions());
 }
 
 } // namespace s3

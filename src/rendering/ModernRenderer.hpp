@@ -3,6 +3,7 @@
 #define SFZ_RENDERING_MODERN_RENDERER_HPP
 
 #include <sfz/gl/Program.hpp>
+#include <sfz/gl/Scaler.hpp>
 #include <sfz/geometry/AABB2D.hpp>
 #include <sfz/math/Matrix.hpp>
 
@@ -36,6 +37,7 @@ private:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	gl::Program mProgram;
+	gl::Scaler mScaler;
 	ExternalFB mExternalFB;
 };
 

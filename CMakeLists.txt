@@ -114,8 +114,8 @@ set(SOURCE_SFZ_GUI_TEMP_FILES
 source_group(sfz_gui_temp FILES ${SOURCE_SFZ_GUI_TEMP_FILES})
 
 set(SOURCE_SFZ_GL_TEMP_FILES
-	${SRC_DIR}/sfz/gl/ImageScaling.hpp
-	${SRC_DIR}/sfz/gl/ImageScaling.cpp
+	${SRC_DIR}/sfz/gl/Scaler.hpp
+	${SRC_DIR}/sfz/gl/Scaler.cpp
 	${SRC_DIR}/sfz/gl/ShadowMapFB.hpp
 	${SRC_DIR}/sfz/gl/ShadowMapFB.cpp)
 source_group(sfz_gl_temp FILES ${SOURCE_SFZ_GL_TEMP_FILES})

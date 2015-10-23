@@ -1,4 +1,6 @@
-#include "sfz/gl/ImageScaling.hpp"
+#include "sfz/gl/Scaler.hpp"
+
+#include <algorithm>
 
 #include "sfz/gl/OpenGL.hpp"
 #include "sfz/gl/PostProcessQuad.hpp"
@@ -52,35 +54,7 @@ static const char* BILINEAR_SHADER_SRC = R"(
 	}
 )";
 
-// Scaling functions
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-void scaleCopy(uint32_t dstFBO, vec2 dstDimensions, uint32_t srcTex,
-               ResamplingAlgorithm resamplingAlgo) noexcept
-{
-	scaleCopy(dstFBO, AABB2D{dstDimensions/2.0f, dstDimensions}, srcTex, resamplingAlgo);
-}
-
-void scaleCopy(uint32_t dstFBO, const AABB2D& dstViewport, uint32_t srcTex,
-               ResamplingAlgorithm resamplingAlgo) noexcept
-{
-	switch (resamplingAlgo) {
-	case ResamplingAlgorithm::NEAREST:
-		scaleCopyNearest(dstFBO, dstViewport, srcTex);
-		return;
-	case ResamplingAlgorithm::BILINEAR:
-		scaleCopyBilinear(dstFBO, dstViewport, srcTex);
-		return;
-	}
-	sfz_assert_release_m(false, "Invalid resampling algorithm or enum not handled properly.");
-}
-
-void scaleCopyNearest(uint32_t dstFBO, vec2 dstDimensions, uint32_t srcTex) noexcept
-{
-	scaleCopyNearest(dstFBO, AABB2D{dstDimensions/2.0f, dstDimensions}, srcTex);
-}
-
-void scaleCopyNearest(uint32_t dstFBO, const AABB2D& dstViewport, uint32_t srcTex) noexcept
+static void scaleCopyNearest(uint32_t dstFBO, const AABB2D& dstViewport, uint32_t srcTex) noexcept
 {
 	static PostProcessQuad quad{};
 	static Program program = Program::postProcessFromSource(NEAREST_SHADER_SRC);
@@ -96,12 +70,8 @@ void scaleCopyNearest(uint32_t dstFBO, const AABB2D& dstViewport, uint32_t srcTe
 	quad.render();
 }
 
-void scaleCopyBilinear(uint32_t dstFBO, vec2 dstDimensions, uint32_t srcTex) noexcept
-{
-	scaleCopyBilinear(dstFBO, AABB2D{dstDimensions/2.0f, dstDimensions}, srcTex);
-}
 
-void scaleCopyBilinear(uint32_t dstFBO, const AABB2D& dstViewport, uint32_t srcTex) noexcept
+static void scaleCopyBilinear(uint32_t dstFBO, const AABB2D& dstViewport, uint32_t srcTex) noexcept
 {
 	static PostProcessQuad quad{};
 	static Program program = Program::postProcessFromSource(BILINEAR_SHADER_SRC);
@@ -115,10 +85,64 @@ void scaleCopyBilinear(uint32_t dstFBO, const AABB2D& dstViewport, uint32_t srcT
 	gl::setUniform(program, "uSrcTex", 0);
 
 	vec2 fragSize{1.0f / dstViewport.width(), 1.0f / dstViewport.height()};
-	vec2 halfFragSize = fragSize / 2.0f;
+	vec2 halfFragSize = fragSize / 4.0f;
 	gl::setUniform(program, "uHalfFragSize", halfFragSize);
 
 	quad.render();
+}
+
+// Scaler: Constructors & destructors
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+Scaler::Scaler(ScalingAlgorithm scalingAlgo) noexcept
+{
+	glGenSamplers(1, &mSamplerObject);
+}
+
+Scaler::Scaler(Scaler&& other) noexcept
+{
+	std::swap(this->mScalingAlgorithm, other.mScalingAlgorithm);
+	std::swap(this->mProgram, other.mProgram);
+}
+
+Scaler& Scaler::operator= (Scaler&& other) noexcept
+{
+	std::swap(this->mScalingAlgorithm, other.mScalingAlgorithm);
+	std::swap(this->mProgram, other.mProgram);
+	return *this;
+}
+
+Scaler::~Scaler() noexcept
+{
+	glDeleteSamplers(1, &mSamplerObject);
+}
+
+// Scaler: Public methods
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+void Scaler::scale(uint32_t dstFBO, vec2 dstDimensions, uint32_t srcTex, vec2 srcDimensions) noexcept
+{
+	scale(dstFBO, AABB2D{dstDimensions/2.0f, dstDimensions}, srcTex, srcDimensions);
+}
+
+void Scaler::scale(uint32_t dstFBO, const AABB2D& dstViewport, uint32_t srcTex, vec2 srcDimensions) noexcept
+{
+	switch (mScalingAlgorithm) {
+	case ScalingAlgorithm::NEAREST:
+		scaleCopyNearest(dstFBO, dstViewport, srcTex);
+		return;
+	case ScalingAlgorithm::BILINEAR:
+		scaleCopyBilinear(dstFBO, dstViewport, srcTex);
+		return;
+	}
+	sfz_assert_release_m(false, "Invalid scaling algorithm.");
+}
+
+void Scaler::changeScalingAlgorithm(ScalingAlgorithm newAlgo) noexcept
+{
+	mScalingAlgorithm = newAlgo;
+
+	// TOOD: Fix rest of things
 }
 
 } // namespace sfz
