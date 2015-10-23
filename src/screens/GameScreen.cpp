@@ -103,6 +103,28 @@ UpdateOp GameScreen::update(UpdateState& state)
 			case SDLK_ESCAPE:
 				return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 				          std::shared_ptr<sfz::BaseScreen>{new MainMenuScreen{}}};
+
+			case '1':
+				cfg.scalingAlgorithm = 0;
+				break;
+			case '2':
+				cfg.scalingAlgorithm = 1;
+				break;
+			case '3':
+				cfg.scalingAlgorithm = 2;
+				break;
+			case '4':
+				cfg.scalingAlgorithm = 3;
+				break;
+
+			case '9':
+				cfg.internalResScaling -= 0.25f;
+				std::cout << "internalResScaling = " << cfg.internalResScaling << std::endl;
+				break;
+			case '0':
+				cfg.internalResScaling += 0.25f;
+				std::cout << "internalResScaling = " << cfg.internalResScaling << std::endl;
+				break;
 			}
 			break;
 		}

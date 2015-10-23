@@ -13,14 +13,17 @@ namespace gl {
 
 using sfz::AABB2D;
 using sfz::vec2;
+using std::int32_t;
 using std::uint32_t;
 
 // Scaling algorithm enum
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-enum class ScalingAlgorithm {
-	NEAREST,
-	BILINEAR
+enum class ScalingAlgorithm : int32_t {
+	NEAREST = 0,
+	LINEAR = 1,
+	GRID_4_NEAREST = 2,
+	GRID_4_LINEAR = 3
 };
 
 // Scaler class
