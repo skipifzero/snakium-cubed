@@ -116,6 +116,9 @@ UpdateOp GameScreen::update(UpdateState& state)
 			case '4':
 				cfg.scalingAlgorithm = 3;
 				break;
+			case '5':
+				cfg.scalingAlgorithm = 4;
+				break;
 
 			case '9':
 				cfg.internalResScaling -= 0.25f;
