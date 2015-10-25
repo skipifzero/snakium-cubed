@@ -93,7 +93,7 @@ static const char* BICUBIC_SHADER_SRC = R"(
 		// The code quality is a bit lacking, so I'm not entirely sure the given algorithm is actually correct.
 
 		vec2 texelSize = vec2(1.0) / uSrcDimensions;
-		vec2 coordFract = fract(uvCoord*uSrcDimensions); // The fractional value [0, 1] between pixels on src image
+		vec2 coordFract = fract(uvCoord * uSrcDimensions); // The fractional value [0, 1] between pixels on src image
 
 		vec4 sumNumer = vec4(0);
 		vec4 sumDenom = vec4(0);
@@ -103,8 +103,9 @@ static const char* BICUBIC_SHADER_SRC = R"(
 				vec2 offs = vec2(float(x), float(y));
 				vec4 sample = texture(uSrcTex, uvCoord + offs*texelSize);
 				
-				vec4 coeef1 = vec4(BSpline(offs.x - coordFract.x));
-				vec4 coeef2 = vec4(BSpline(-offs.y - coordFract.y));
+				float coeef1 = BSpline(offs.x - coordFract.x);
+				//float coeef2 = BSpline(-offs.y - coordFract.y);
+				float coeef2 = BSpline(offs.y - coordFract.y);
 
 				sumNumer += (sample * coeef1 * coeef2);
 				sumDenom += (coeef1 * coeef2);
