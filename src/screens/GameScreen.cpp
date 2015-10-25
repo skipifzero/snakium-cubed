@@ -106,18 +106,23 @@ UpdateOp GameScreen::update(UpdateState& state)
 
 			case '1':
 				cfg.scalingAlgorithm = 0;
+				std::cout << "NEAREST\n";
 				break;
 			case '2':
 				cfg.scalingAlgorithm = 1;
+				std::cout << "BILINEAR\n";
 				break;
 			case '3':
 				cfg.scalingAlgorithm = 2;
+				std::cout << "GRID_4_NEAREST\n";
 				break;
 			case '4':
 				cfg.scalingAlgorithm = 3;
+				std::cout << "GRID_4_BILINEAR\n";
 				break;
 			case '5':
 				cfg.scalingAlgorithm = 4;
+				std::cout << "BICUBIC_BSPLINE\n";
 				break;
 
 			case '9':

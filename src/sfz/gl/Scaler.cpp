@@ -60,7 +60,7 @@ static const char* GRID_4_SAMPLES_SHADER_SRC = R"(
 	}
 )";
 
-static const char* BICUBIC_SHADER_SRC = R"(
+static const char* BICUBIC_BSPLINE_SHADER_SRC = R"(
 	#version 330
 
 	// Input
@@ -74,45 +74,88 @@ static const char* BICUBIC_SHADER_SRC = R"(
 	// Output
 	out vec4 outFragColor;
 
-	float BSpline(float f)
+	/*// Reference implementation of the BSpline weights
+	// dist is the distance to the texel to be sampled from the sampling point
+	vec2 BSplineWeight(vec2 dist)
 	{
-		f = abs(f);
-		if (f <= 1.0) {
-			return (2.0 / 3.0) + (0.5 * pow(f,3)) - pow(f,2);
-		}
-		else if (f <= 2.0) {
-			return (1.0 / 6.0) * pow((2.0 - f), 3);
-		}
-		return 1.0;
-	}
+		dist = abs(dist);
 
+		vec2 res = vec2(0);
+		if (dist.x <= 1.0) {
+			res.x = 4.0 + (3.0 * pow(dist.x, 3)) - (6.0 * pow(dist.x, 2));
+		} else if (dist.x <= 2.0) {
+			res.x = pow(2.0 - dist.x, 3)
+		}
+		if (dist.y <= 1.0) {
+			res.y = 4.0 + (3.0 * pow(dist.y, 3)) - (6.0 * pow(dist.y, 2));
+		} else if (dist.y <= 2.0) {
+			res.y = pow(2.0 - dist.y, 3)
+		}
+		
+		return (1.0 / 6.0) * res;
+	}*/
+
+	// See: http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter20.html
+	// and: http://vec3.ca/bicubic-filtering-in-fewer-taps/
 	void main()
 	{
-		// Stupid 16 sample bicubic based on: 
-		// http://www.codeproject.com/Articles/236394/Bi-Cubic-and-Bi-Linear-Interpolation-with-GLSL#GLSLBiCubic
-		// The code quality is a bit lacking, so I'm not entirely sure the given algorithm is actually correct.
+		vec2 pixSize = vec2(1.0) / uSrcDimensions;
+		vec2 pixCoord = uvCoord * uSrcDimensions;
+		vec2 texCenter = floor(pixCoord - vec2(0.5)) + vec2(0.5); // Coordinate to nearest texel center
 
-		vec2 texelSize = vec2(1.0) / uSrcDimensions;
-		vec2 coordFract = fract(uvCoord * uSrcDimensions); // The fractional value [0, 1] between pixels on src image
+		// Offset from nearest texel center to pixCoord
+		vec2 fractOffs = pixCoord - texCenter;
+		vec2 fractOffsPow2 = fractOffs * fractOffs;
+		vec2 fractOffsPow3 = fractOffsPow2 * fractOffs;
 
-		vec4 sumNumer = vec4(0);
-		vec4 sumDenom = vec4(0);
+		// Note, below each index is off by one. I.e, index 0 is actually -1,
+		// 1 is actually 0, and 2 is 1, etc.
 
-		for (int y = -1; y <= 2; ++y) {
-			for (int x = -1; x <= 2; ++x) {
-				vec2 offs = vec2(float(x), float(y));
-				vec4 sample = texture(uSrcTex, uvCoord + offs*texelSize);
-				
-				float coeef1 = BSpline(offs.x - coordFract.x);
-				//float coeef2 = BSpline(-offs.y - coordFract.y);
-				float coeef2 = BSpline(offs.y - coordFract.y);
+		// BSpline filter weights
+		// See the reference implementation to see how these are calculated in the general case
+		// -1: abs(dist) = fractOffs + 1 => case 2
+		// 0: abs(dist) = fractOffs => case 1
+		// 1: abs(dist) = 1 - fractOffs => case 1
+		// 2: abs(dist) = 2 - fractOffs => case 2
 
-				sumNumer += (sample * coeef1 * coeef2);
-				sumDenom += (coeef1 * coeef2);
-			}
-		}
+		vec2 oneMinFractOffs = vec2(1.0) - fractOffs;
+		vec2 oneMinFractOffsPow2 = oneMinFractOffs * oneMinFractOffs;
+		vec2 oneMinFractOffsPow3 = oneMinFractOffsPow2 * oneMinFractOffs;
+		vec2 w0 = (1.0/6.0) * oneMinFractOffsPow3;
+		vec2 w1 = (1.0/6.0) * (vec2(4.0) + (3.0*fractOffsPow3) - (6.0*fractOffsPow2));
+		vec2 w2 = (1.0/6.0) * (vec2(4.0) + (3.0*oneMinFractOffsPow3) - (6.0*oneMinFractOffsPow2));
+		vec2 w3 = (1.0/6.0) * fractOffsPow3;
 
-		outFragColor = sumNumer / sumDenom;
+		/* // Optimized weight calculations, not 100% sure if correct
+		vec2 w0 = fractOffsPow2 - (0.5 * (fractOffsPow3 + fractOffs));
+		vec2 w1 = 1.5*fractOffsPow3 - 2.5*fractOffsPow2 + vec2(1.0);
+		vec2 w3 = 0.5 * (fractOffsPow3 - fractOffsPow2);
+		vec2 w2 = vec2(1.0) - w0 - w1 - w3;*/
+		
+		// Calculate sample coordinates
+		vec2 f0 = w1 / (w0 + w1);
+		vec2 f1 = w3 / (w2 + w3);
+
+		vec2 cornerCoord0 = (texCenter - vec2(1.0) + f0) * pixSize;
+		vec2 cornerCoord1 = (texCenter + vec2(1.0) + f1) * pixSize;
+
+		vec2 coord00 = cornerCoord0;
+		vec2 coord10 = vec2(cornerCoord1.x, cornerCoord0.y);
+		vec2 coord01 = vec2(cornerCoord0.x, cornerCoord1.y);
+		vec2 coord11 = cornerCoord1;
+
+		// Take samples
+		vec4 sample00 = texture(uSrcTex, coord00);
+		vec4 sample10 = texture(uSrcTex, coord10);
+		vec4 sample01 = texture(uSrcTex, coord01);
+		vec4 sample11 = texture(uSrcTex, coord11);
+
+		// Calculate scale used to scale samples
+		vec2 scale0 = w0 + w1;
+		vec2 scale1 = w2 + w3;
+
+		outFragColor = (sample00 * scale0.x + sample10 * scale1.x) * scale0.y
+		             + (sample01 * scale0.x + sample11 * scale1.x) * scale1.y;
 	}
 )";
 
@@ -189,26 +232,36 @@ void Scaler::changeScalingAlgorithm(ScalingAlgorithm newAlgo) noexcept
 		mProgram = gl::Program::postProcessFromSource(SIMPLE_1_SAMPLE_SHADER_SRC);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP);
 		break;
 	case ScalingAlgorithm::BILINEAR:
 		mProgram = gl::Program::postProcessFromSource(SIMPLE_1_SAMPLE_SHADER_SRC);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP);
 		break;
 	case ScalingAlgorithm::GRID_4_NEAREST:
 		mProgram = gl::Program::postProcessFromSource(GRID_4_SAMPLES_SHADER_SRC);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP);
 		break;
 	case ScalingAlgorithm::GRID_4_BILINEAR:
 		mProgram = gl::Program::postProcessFromSource(GRID_4_SAMPLES_SHADER_SRC);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP);
 		break;
-	case ScalingAlgorithm::BICUBIC:
-		mProgram = gl::Program::postProcessFromSource(BICUBIC_SHADER_SRC);
-		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MIN_FILTER, GL_NEAREST); // TODO: CHANGE TO LINEAR WHEN PROPER BICUBIC IMPLEMENTATION
-		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	case ScalingAlgorithm::BICUBIC_BSPLINE:
+		mProgram = gl::Program::postProcessFromSource(BICUBIC_BSPLINE_SHADER_SRC);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP);
 		break;
 	default:
 		sfz_assert_release_m(false, "Invalid scaling algorithm.");

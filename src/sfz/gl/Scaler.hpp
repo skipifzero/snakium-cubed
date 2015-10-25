@@ -24,7 +24,7 @@ enum class ScalingAlgorithm : int32_t {
 	BILINEAR = 1,
 	GRID_4_NEAREST = 2,
 	GRID_4_BILINEAR = 3,
-	BICUBIC = 4,
+	BICUBIC_BSPLINE = 4
 };
 
 // Scaler class
