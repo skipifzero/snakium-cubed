@@ -11,7 +11,7 @@ namespace gl {
 // Statics
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-static const char* SIMPLE_1_SAMPLE_SHADER_SRC = R"(
+static const char* SINGLE_SAMPLE_SHADER_SRC = R"(
 	#version 330
 
 	// Input
@@ -31,7 +31,7 @@ static const char* SIMPLE_1_SAMPLE_SHADER_SRC = R"(
 	}
 )";
 
-static const char* GRID_4_SAMPLES_SHADER_SRC = R"(
+static const char* GRID_2X2_SHADER_SRC = R"(
 	#version 330
 
 	// Input
@@ -57,6 +57,70 @@ static const char* GRID_4_SAMPLES_SHADER_SRC = R"(
 
 		outFragColor = (texture(uSrcTex, bottomLeftUV) + texture(uSrcTex, bottomRightUV)
 		             + texture(uSrcTex, topLeftUV) + texture(uSrcTex, topRightUV))/4.0f;
+	}
+)";
+
+static const char* GRID_4X4_SHADER_SRC = R"(
+	#version 330
+
+	// Input
+	in vec2 uvCoord;
+
+	// Uniforms
+	uniform sampler2D uSrcTex;
+	uniform vec2 uDstDimensions;
+	uniform vec2 uSrcDimensions;
+
+	// Output
+	out vec4 outFragColor;
+
+	void main()
+	{
+		vec2 fragSize = vec2(1.0) / uDstDimensions;
+		vec2 fragSizeDiv4 = fragSize / 4.0;
+		vec2 fragSizeDiv8 = fragSize / 8.0;
+
+		// Calculate 8x8 grid coordinates
+		vec2 coord00 = uvCoord - 3.0*fragSizeDiv8;
+		vec2 coord10 = coord00 + vec2(fragSizeDiv4.x, 0);
+		vec2 coord20 = coord10 + vec2(fragSizeDiv4.x, 0);
+		vec2 coord30 = coord20 + vec2(fragSizeDiv4.x, 0);
+
+		vec2 coord01 = coord00 + vec2(0, fragSizeDiv4.y);
+		vec2 coord11 = coord10 + vec2(0, fragSizeDiv4.y);
+		vec2 coord21 = coord20 + vec2(0, fragSizeDiv4.y);
+		vec2 coord31 = coord30 + vec2(0, fragSizeDiv4.y);
+
+		vec2 coord02 = coord01 + vec2(0, fragSizeDiv4.y);
+		vec2 coord12 = coord11 + vec2(0, fragSizeDiv4.y);
+		vec2 coord22 = coord21 + vec2(0, fragSizeDiv4.y);
+		vec2 coord32 = coord31 + vec2(0, fragSizeDiv4.y);
+
+		vec2 coord03 = coord02 + vec2(0, fragSizeDiv4.y);
+		vec2 coord13 = coord12 + vec2(0, fragSizeDiv4.y);
+		vec2 coord23 = coord22 + vec2(0, fragSizeDiv4.y);
+		vec2 coord33 = coord32 + vec2(0, fragSizeDiv4.y);
+
+		outFragColor = vec4((
+		             texture(uSrcTex, coord00).rgb
+		             + texture(uSrcTex, coord10).rgb
+		             + texture(uSrcTex, coord20).rgb
+		             + texture(uSrcTex, coord30).rgb
+
+		             + texture(uSrcTex, coord01).rgb
+		             + texture(uSrcTex, coord11).rgb
+		             + texture(uSrcTex, coord21).rgb
+		             + texture(uSrcTex, coord31).rgb
+
+		             + texture(uSrcTex, coord02).rgb
+		             + texture(uSrcTex, coord12).rgb
+		             + texture(uSrcTex, coord22).rgb
+		             + texture(uSrcTex, coord32).rgb
+
+		             + texture(uSrcTex, coord03).rgb
+		             + texture(uSrcTex, coord13).rgb
+		             + texture(uSrcTex, coord23).rgb
+		             + texture(uSrcTex, coord33).rgb) / 16.0, 1.0);
 	}
 )";
 
@@ -229,28 +293,42 @@ void Scaler::changeScalingAlgorithm(ScalingAlgorithm newAlgo) noexcept
 
 	switch (mScalingAlgorithm) {
 	case ScalingAlgorithm::NEAREST:
-		mProgram = gl::Program::postProcessFromSource(SIMPLE_1_SAMPLE_SHADER_SRC);
+		mProgram = gl::Program::postProcessFromSource(SINGLE_SAMPLE_SHADER_SRC);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP);
 		break;
 	case ScalingAlgorithm::BILINEAR:
-		mProgram = gl::Program::postProcessFromSource(SIMPLE_1_SAMPLE_SHADER_SRC);
+		mProgram = gl::Program::postProcessFromSource(SINGLE_SAMPLE_SHADER_SRC);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP);
 		break;
-	case ScalingAlgorithm::GRID_4_NEAREST:
-		mProgram = gl::Program::postProcessFromSource(GRID_4_SAMPLES_SHADER_SRC);
+	case ScalingAlgorithm::GRID_2X2_NEAREST:
+		mProgram = gl::Program::postProcessFromSource(GRID_2X2_SHADER_SRC);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP);
 		break;
-	case ScalingAlgorithm::GRID_4_BILINEAR:
-		mProgram = gl::Program::postProcessFromSource(GRID_4_SAMPLES_SHADER_SRC);
+	case ScalingAlgorithm::GRID_2X2_BILINEAR:
+		mProgram = gl::Program::postProcessFromSource(GRID_2X2_SHADER_SRC);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		break;
+	case ScalingAlgorithm::GRID_4X4_NEAREST:
+		mProgram = gl::Program::postProcessFromSource(GRID_4X4_SHADER_SRC);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		break;
+	case ScalingAlgorithm::GRID_4X4_BILINEAR:
+		mProgram = gl::Program::postProcessFromSource(GRID_4X4_SHADER_SRC);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP);

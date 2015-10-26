@@ -22,9 +22,11 @@ using std::uint32_t;
 enum class ScalingAlgorithm : int32_t {
 	NEAREST = 0,
 	BILINEAR = 1,
-	GRID_4_NEAREST = 2,
-	GRID_4_BILINEAR = 3,
-	BICUBIC_BSPLINE = 4
+	GRID_2X2_NEAREST = 2,
+	GRID_2X2_BILINEAR = 3,
+	GRID_4X4_NEAREST = 4,
+	GRID_4X4_BILINEAR = 5,
+	BICUBIC_BSPLINE = 6
 };
 
 // Scaler class
