@@ -325,6 +325,163 @@ static vec4 tileCubeProjectionColor(const SnakeTile* tilePtr) noexcept
 	}*/
 }
 
+static void renderOpaque(const Model& model, gl::Program& program, const mat4& viewMatrix) noexcept
+{
+	Assets& assets = Assets::INSTANCE();
+	const vec4 TILE_DIVE_ASCEND_COLOR{0.5f, 0.0f, 0.75f, 1.0f};
+
+	const mat4 tileScaling = sfz::scalingMatrix4(1.0f / (16.0f * (float)model.config().gridWidth));
+
+	for (size_t i = 0; i < model.numTiles(); ++i) {
+		const SnakeTile* tilePtr = model.tilePtr(i);
+		Position tilePos = model.tilePosition(tilePtr);
+
+		// Calculate base transform
+		mat4 tileSpaceRot = tileSpaceRotation(tilePos.side);
+		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;
+		mat4 transform = tileSpaceRotScaling;
+		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr));
+		sfz::translation(transform, tilePosToVector(model, tilePos));
+
+		// Set uniforms
+		const mat4 normalMatrix = sfz::inverse(sfz::transpose(viewMatrix * transform));
+		gl::setUniform(program, "uModelMatrix", transform);
+		gl::setUniform(program, "uNormalMatrix", normalMatrix);
+
+		// Render tile decoration
+		gl::setUniform(program, "uColor", tileDecorationColor(tilePtr));
+		assets.TILE_DECORATION_MODEL.render();
+
+		// Skip empty tiles
+		if (tilePtr->type == s3::TileType::EMPTY) continue;
+
+		// Render dive & ascend models
+		if (isDive(tilePos.side, tilePtr->to)) {
+			gl::setUniform(program, "uColor", TILE_DIVE_ASCEND_COLOR);
+			assets.DIVE_MODEL.render();
+		} else if (isAscend(tilePos.side, tilePtr->from) &&
+			tilePtr->type != TileType::TAIL && tilePtr->type != TileType::TAIL_DIGESTING) {
+			gl::setUniform(program, "uColor", TILE_DIVE_ASCEND_COLOR);
+			assets.ASCEND_MODEL.render();
+		}
+
+		// Render tile model
+		gl::setUniform(program, "uColor", tileColor(tilePtr));
+		getTileModel(tilePtr, tilePos.side, model.progress(), model.isGameOver()).render();
+	}
+
+	// Render dead snake head if game over (opaque)
+	if (model.isGameOver()) {
+		const SnakeTile* tilePtr = model.deadHeadPtr();
+		Position tilePos = model.deadHeadPos();
+
+		mat4 tileSpaceRot = tileSpaceRotation(tilePos.side);
+		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;
+
+		// Calculate base transform
+		mat4 transform = tileSpaceRotScaling;
+		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr));
+		sfz::translation(transform, tilePosToVector(model, tilePos));
+
+		// Set uniforms
+		const mat4 normalMatrix = sfz::inverse(sfz::transpose(viewMatrix * transform));
+		gl::setUniform(program, "uModelMatrix", transform);
+		gl::setUniform(program, "uNormalMatrix", normalMatrix);
+
+		// Render dive & ascend models
+		if (isDive(tilePos.side, tilePtr->to)) {
+			gl::setUniform(program, "uColor", TILE_DIVE_ASCEND_COLOR);
+			assets.DIVE_MODEL.render();
+		} else if (isAscend(tilePos.side, tilePtr->from) &&
+			tilePtr->type != TileType::TAIL && tilePtr->type != TileType::TAIL_DIGESTING) {
+			gl::setUniform(program, "uColor", TILE_DIVE_ASCEND_COLOR);
+			assets.ASCEND_MODEL.render();
+		}
+
+		// Render tile model
+		gl::setUniform(program, "uColor", tileColor(tilePtr));
+		getTileModel(tilePtr, tilePos.side, model.progress(), model.isGameOver()).render();
+	}
+}
+
+static void renderTransparent(const Model& model, gl::Program& program, const Camera& cam) noexcept
+{
+	Assets& assets = Assets::INSTANCE();
+	const vec4 TILE_PROJECTION_COLOR{0.5f, 0.5f, 0.5f, 0.75f};
+
+	const mat4 tileScaling = sfz::scalingMatrix4(1.0f / (16.0f * (float)model.config().gridWidth));
+
+	const size_t tilesPerSide = model.config().gridWidth*model.config().gridWidth;
+	for (size_t side = 0; side < 6; side++) {
+		Direction currentSide = cam.sideRenderOrder(side);
+		const SnakeTile* sidePtr = model.tilePtr(Position{currentSide, 0, 0});
+
+		mat4 tileSpaceRot = tileSpaceRotation(currentSide);
+		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;
+
+		for (size_t i = 0; i < tilesPerSide; i++) {
+			const SnakeTile* tilePtr = sidePtr + i;
+			Position tilePos = model.tilePosition(tilePtr);
+
+			// Calculate base transform
+			mat4 transform = tileSpaceRotScaling;
+			transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr));
+			sfz::translation(transform, tilePosToVector(model, tilePos));
+
+			// Set uniforms
+			const mat4 normalMatrix = sfz::inverse(sfz::transpose(cam.viewMatrix() * transform));
+			gl::setUniform(program, "uModelMatrix", transform);
+			gl::setUniform(program, "uNormalMatrix", normalMatrix);
+
+			if (cam.renderTileFaceFirst(side)) {
+
+				// Render cube tile projection
+				gl::setUniform(program, "uColor", tileCubeProjectionColor(tilePtr));
+				assets.TILE_PROJECTION_MODEL.render();
+
+				// Render tile projection
+				gl::setUniform(program, "uColor", TILE_PROJECTION_COLOR);
+				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress());
+				if (tileProjModelPtr != nullptr) tileProjModelPtr->render();
+
+			} else {
+
+				// Render tile projection
+				gl::setUniform(program, "uColor", TILE_PROJECTION_COLOR);
+				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress());
+				if (tileProjModelPtr != nullptr) tileProjModelPtr->render();
+
+				// Render cube tile projection
+				gl::setUniform(program, "uColor", tileCubeProjectionColor(tilePtr));
+				assets.TILE_PROJECTION_MODEL.render();
+			}
+		}
+	}
+
+	// Render dead snake head projection if game over
+	if (model.isGameOver()) {
+		const SnakeTile* tilePtr = model.deadHeadPtr();
+		Position tilePos = model.deadHeadPos();
+
+		mat4 tileSpaceRot = tileSpaceRotation(tilePos.side);
+		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;
+
+		// Calculate base transform
+		mat4 transform = tileSpaceRotScaling;
+		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr));
+		sfz::translation(transform, tilePosToVector(model, tilePos));
+
+		// Set uniforms
+		const mat4 normalMatrix = sfz::inverse(sfz::transpose(cam.viewMatrix() * transform));
+		gl::setUniform(program, "uModelMatrix", transform);
+		gl::setUniform(program, "uNormalMatrix", normalMatrix);
+
+		// Render tile model
+		gl::setUniform(program, "uColor", TILE_PROJECTION_COLOR);
+		getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress())->render();
+	}
+}
+
 // ModernRenderer: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -338,10 +495,6 @@ ModernRenderer::ModernRenderer() noexcept
 
 void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawableDim) noexcept
 {
-	// Color constants
-	const vec4 TILE_PROJECTION_COLOR{0.5f, 0.5f, 0.5f, 0.75f};
-	const vec4 TILE_DIVE_ASCEND_COLOR{0.5f, 0.0f, 0.75f, 1.0f};
-
 	GlobalConfig& cfg = GlobalConfig::INSTANCE();
 	Assets& assets = Assets::INSTANCE();
 
@@ -377,153 +530,16 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
 	const mat4 viewMatrix = cam.viewMatrix();
 	gl::setUniform(mProgram, "uProjMatrix", cam.projMatrix());
 	gl::setUniform(mProgram, "uViewMatrix", viewMatrix);
-	const mat4 tileScaling = sfz::scalingMatrix4(1.0f / (16.0f * (float)model.config().gridWidth));
 	
 	// Render opaque objects
-	for (size_t i = 0; i < model.numTiles(); ++i) {
-		const SnakeTile* tilePtr = model.tilePtr(i);
-		Position tilePos = model.tilePosition(tilePtr);
-
-		// Calculate base transform
-		mat4 tileSpaceRot = tileSpaceRotation(tilePos.side);
-		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;
-		mat4 transform = tileSpaceRotScaling;
-		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr));
-		sfz::translation(transform, tilePosToVector(model, tilePos));
-
-		// Set uniforms
-		const mat4 normalMatrix = sfz::inverse(sfz::transpose(viewMatrix * transform));
-		gl::setUniform(mProgram, "uModelMatrix", transform);
-		gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
-
-		// Render tile decoration
-		gl::setUniform(mProgram, "uColor", tileDecorationColor(tilePtr));
-		assets.TILE_DECORATION_MODEL.render();
-
-		// Skip empty tiles
-		if (tilePtr->type == s3::TileType::EMPTY) continue;
-
-		// Render dive & ascend models
-		if (isDive(tilePos.side, tilePtr->to)) {
-			gl::setUniform(mProgram, "uColor", TILE_DIVE_ASCEND_COLOR);
-			assets.DIVE_MODEL.render();
-		} else if (isAscend(tilePos.side, tilePtr->from) &&
-		           tilePtr->type != TileType::TAIL && tilePtr->type != TileType::TAIL_DIGESTING) {
-			gl::setUniform(mProgram, "uColor", TILE_DIVE_ASCEND_COLOR);
-			assets.ASCEND_MODEL.render();
-		}
-
-		// Render tile model
-		gl::setUniform(mProgram, "uColor", tileColor(tilePtr));
-		getTileModel(tilePtr, tilePos.side, model.progress(), model.isGameOver()).render();
-	}
-
-	// Render dead snake head if game over (opaque)
-	if (model.isGameOver()) {
-		const SnakeTile* tilePtr = model.deadHeadPtr();
-		Position tilePos = model.deadHeadPos();
-
-		mat4 tileSpaceRot = tileSpaceRotation(tilePos.side);
-		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;
-
-		// Calculate base transform
-		mat4 transform = tileSpaceRotScaling;
-		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr));
-		sfz::translation(transform, tilePosToVector(model, tilePos));
-
-		// Set uniforms
-		const mat4 normalMatrix = sfz::inverse(sfz::transpose(viewMatrix * transform));
-		gl::setUniform(mProgram, "uModelMatrix", transform);
-		gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
-		
-		// Render dive & ascend models
-		if (isDive(tilePos.side, tilePtr->to)) {
-			gl::setUniform(mProgram, "uColor", TILE_DIVE_ASCEND_COLOR);
-			assets.DIVE_MODEL.render();
-		} else if (isAscend(tilePos.side, tilePtr->from) &&
-		           tilePtr->type != TileType::TAIL && tilePtr->type != TileType::TAIL_DIGESTING) {
-			gl::setUniform(mProgram, "uColor", TILE_DIVE_ASCEND_COLOR);
-			assets.ASCEND_MODEL.render();
-		}
-
-		// Render tile model
-		gl::setUniform(mProgram, "uColor", tileColor(tilePtr));
-		getTileModel(tilePtr, tilePos.side, model.progress(), model.isGameOver()).render();
-	}
+	renderOpaque(model, mProgram, viewMatrix);
 
 	// Render transparent objects
-	const size_t tilesPerSide = model.config().gridWidth*model.config().gridWidth;
-	for (size_t side = 0; side < 6; side++) {
-		Direction currentSide = cam.sideRenderOrder(side);
-		const SnakeTile* sidePtr = model.tilePtr(Position{currentSide, 0, 0});
-
-		mat4 tileSpaceRot = tileSpaceRotation(currentSide);
-		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;
-
-		for (size_t i = 0; i < tilesPerSide; i++) {
-			const SnakeTile* tilePtr = sidePtr + i;
-			Position tilePos = model.tilePosition(tilePtr);
-
-			// Calculate base transform
-			mat4 transform = tileSpaceRotScaling;
-			transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr));
-			sfz::translation(transform, tilePosToVector(model, tilePos));
-
-			// Set uniforms
-			const mat4 normalMatrix = sfz::inverse(sfz::transpose(viewMatrix * transform));
-			gl::setUniform(mProgram, "uModelMatrix", transform);
-			gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
-
-			if (cam.renderTileFaceFirst(side)) {
-				
-				// Render cube tile projection
-				gl::setUniform(mProgram, "uColor", tileCubeProjectionColor(tilePtr));
-				assets.TILE_PROJECTION_MODEL.render();
-				
-				// Render tile projection
-				gl::setUniform(mProgram, "uColor", TILE_PROJECTION_COLOR);
-				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress());
-				if (tileProjModelPtr != nullptr) tileProjModelPtr->render();
-
-			} else {
-
-				// Render tile projection
-				gl::setUniform(mProgram, "uColor", TILE_PROJECTION_COLOR);
-				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress());
-				if (tileProjModelPtr != nullptr) tileProjModelPtr->render();
-
-				// Render cube tile projection
-				gl::setUniform(mProgram, "uColor", tileCubeProjectionColor(tilePtr));
-				assets.TILE_PROJECTION_MODEL.render();
-			}
-		}
-	}
-
-	// Render dead snake head projection if game over
-	if (model.isGameOver()) {
-		const SnakeTile* tilePtr = model.deadHeadPtr();
-		Position tilePos = model.deadHeadPos();
-
-		mat4 tileSpaceRot = tileSpaceRotation(tilePos.side);
-		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;
-
-		// Calculate base transform
-		mat4 transform = tileSpaceRotScaling;
-		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr));
-		sfz::translation(transform, tilePosToVector(model, tilePos));
-
-		// Set uniforms
-		const mat4 normalMatrix = sfz::inverse(sfz::transpose(viewMatrix * transform));
-		gl::setUniform(mProgram, "uModelMatrix", transform);
-		gl::setUniform(mProgram, "uNormalMatrix", normalMatrix);
-
-		// Render tile model
-		gl::setUniform(mProgram, "uColor", TILE_PROJECTION_COLOR);
-		getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress())->render();
-	}
+	renderTransparent(model, mProgram, cam);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, drawableDim.x, drawableDim.y);
