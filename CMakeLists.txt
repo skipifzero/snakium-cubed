@@ -67,6 +67,8 @@ set(SOURCE_RENDERING_FILES
 	${SRC_DIR}/rendering/Framebuffers.cpp
 	${SRC_DIR}/rendering/ModernRenderer.hpp
 	${SRC_DIR}/rendering/ModernRenderer.cpp
+	${SRC_DIR}/rendering/SpotLight.hpp
+	${SRC_DIR}/rendering/SpotLight.cpp
 	${SRC_DIR}/rendering/TileObject.hpp
 	${SRC_DIR}/rendering/TileObject.cpp)
 source_group(rendering FILES ${SOURCE_RENDERING_FILES})

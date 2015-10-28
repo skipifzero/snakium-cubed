@@ -10,6 +10,7 @@
 #include "gamelogic/Model.hpp"
 #include "rendering/Camera.hpp"
 #include "rendering/Framebuffers.hpp"
+#include "rendering/SpotLight.hpp"
 
 namespace s3 {
 
@@ -39,6 +40,7 @@ private:
 	gl::Program mProgram;
 	gl::Scaler mScaler;
 	ExternalFB mExternalFB;
+	SpotLight mSpotLight;
 };
 
 } // namespace s3

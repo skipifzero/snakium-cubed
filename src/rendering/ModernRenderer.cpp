@@ -488,7 +488,12 @@ static void renderTransparent(const Model& model, gl::Program& program, const Ca
 ModernRenderer::ModernRenderer() noexcept
 :
 	mProgram{s3::compileStandardShaderProgram()}
-{ }
+{
+	mSpotLight.pos = vec3(0.0f, 2.0f, 0.0f);
+	mSpotLight.dir = vec3(0.0f, -1.0f, 0.0f);
+	mSpotLight.angle = 90.0f;
+	mSpotLight.reach = 5.0f;
+}
 
 // ModernRenderer: Public methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -530,11 +535,18 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
+	// View Matrix and Projection Matrix uniforms
 	const mat4 viewMatrix = cam.viewMatrix();
 	gl::setUniform(mProgram, "uProjMatrix", cam.projMatrix());
 	gl::setUniform(mProgram, "uViewMatrix", viewMatrix);
 	
+	// SpotLight uniforms (wip)
+	gl::setUniform(mProgram, "uSpotLightPos", sfz::transformPoint(viewMatrix, mSpotLight.pos));
+	gl::setUniform(mProgram, "uSpotLightDir", sfz::transformDir(viewMatrix, mSpotLight.dir));
+	gl::setUniform(mProgram, "uSpotLightReach", mSpotLight.reach);
+	gl::setUniform(mProgram, "uSpotLightAngle", mSpotLight.angle);
+
+
 	// Render opaque objects
 	renderOpaque(model, mProgram, viewMatrix);
 
