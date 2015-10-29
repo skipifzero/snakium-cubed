@@ -26,5 +26,5 @@ void main()
 
 	float diffuseIntensity = clamp(dot(toLight, vsNormal), 0.0, 1.0);
 
-	outFragColor = vec4(diffuseIntensity*color.rgb, color.a);/*
+	outFragColor = vec4(diffuseIntensity*color.rgb, color.a);*/
 }

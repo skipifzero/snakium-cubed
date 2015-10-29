@@ -180,6 +180,20 @@ void Camera::update(Model& model, float delta) noexcept
 	// Calculate matrices
 	mViewMatrix = sfz::lookAt(vec3{0.0f} + mCamDir*mCamDist, vec3{0.0f}, mCamUp);
 	mProjMatrix = sfz::glPerspectiveProjectionMatrix(mFov, mAspect, mNear, mFar);
+}
+
+void Camera::onResize(float fov, float aspect) noexcept
+{
+	mFov = fov;
+	mAspect = aspect;
+}
+
+// Back-to-front sorting
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+RenderOrder calculateRenderOrder(vec3 camPos) noexcept
+{
+	vec3 camDir = normalize(-camPos); // Since cube is centered at (0, 0, 0)
 
 	// Calculate transparency order
 	struct TempSide {
@@ -196,51 +210,20 @@ void Camera::update(Model& model, float delta) noexcept
 	sideArray[5] = {Direction::RIGHT, 0.0f};
 
 	for (size_t i = 0; i < 6; ++i) {
-		sideArray[i].dotProd = sfz::dot(mCamDir, toVector(sideArray[i].side));
+		sideArray[i].dotProd = sfz::dot(camDir, toVector(sideArray[i].side));
 	}
 
 	std::sort(sideArray, sideArray + 6, [](const TempSide& lhs, const TempSide& rhs) {
 		return lhs.dotProd < rhs.dotProd;
 	});
 
+	RenderOrder tmp;
 	for (size_t i = 0; i < 6; ++i) {
-		mSideRenderOrder[i] = sideArray[i].side;
-		mRenderTileFaceFirst[i] = sideArray[i].dotProd >= 0.5f;
+		tmp.renderOrder[i] = sideArray[i].side;
+		tmp.renderTileFaceFirst[i] = sideArray[i].dotProd >= 0.5f;
 	}
 
-
-	/*float upProg = upProgress(posOnCube, posOnCubeSideUpDir);
-	float rightProg = rightProgress(posOnCube, posOnCubeSide, posOnCubeSideUpDir);
-	float upProgClosest = upProg <= 0.5f ? upProg : (1.0f - upProg);
-	float rightProgClosest = rightProg <= 0.5f ? rightProg : (1.0f - rightProg);
-	bool upClosest = upProgClosest <= rightProgClosest;
-
-	sideRenderOrder[0] = opposite(posOnCubeSide); // Back
-	if (upProg <= 0.5f) {
-		sideRenderOrder[1] = posOnCubeSideUpDir; // Top
-		sideRenderOrder[upClosest ? 4 : 3] = opposite(posOnCubeSideUpDir); // Bottom
-	} else {
-		sideRenderOrder[1] = opposite(posOnCubeSideUpDir); // Bottom
-		sideRenderOrder[upClosest ? 4 : 3] = posOnCubeSideUpDir; // Top
-	}
-	if (rightProg <= 0.5f) {
-		sideRenderOrder[2] = right(posOnCubeSide, posOnCubeSideUpDir); // Right
-		sideRenderOrder[upClosest ? 3 : 4] = left(posOnCubeSide, posOnCubeSideUpDir); // Left
-	} else {
-		sideRenderOrder[2] = left(posOnCubeSide, posOnCubeSideUpDir); // Left
-		sideRenderOrder[upClosest ? 3 : 4] = right(posOnCubeSide, posOnCubeSideUpDir); // Right
-	}
-	sideRenderOrder[5] = posOnCubeSide; // Front
-
-	for (size_t i = 0; i < 6; i++) {
-		renderTileFaceFirst[i] = dot(mPos, toVector(sideRenderOrder[i])) >= 0.5f;
-	}*/
-}
-
-void Camera::onResize(float fov, float aspect) noexcept
-{
-	mFov = fov;
-	mAspect = aspect;
+	return tmp;
 }
 
 } // namespace s3

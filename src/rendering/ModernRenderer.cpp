@@ -411,9 +411,11 @@ static void renderTransparent(const Model& model, gl::Program& program, const Ca
 
 	const mat4 tileScaling = sfz::scalingMatrix4(1.0f / (16.0f * (float)model.config().gridWidth));
 
+	RenderOrder order = calculateRenderOrder(cam.pos());
+
 	const size_t tilesPerSide = model.config().gridWidth*model.config().gridWidth;
 	for (size_t side = 0; side < 6; side++) {
-		Direction currentSide = cam.sideRenderOrder(side);
+		Direction currentSide = order.renderOrder[side];
 		const SnakeTile* sidePtr = model.tilePtr(Position{currentSide, 0, 0});
 
 		mat4 tileSpaceRot = tileSpaceRotation(currentSide);
@@ -433,7 +435,7 @@ static void renderTransparent(const Model& model, gl::Program& program, const Ca
 			gl::setUniform(program, "uModelMatrix", transform);
 			gl::setUniform(program, "uNormalMatrix", normalMatrix);
 
-			if (cam.renderTileFaceFirst(side)) {
+			if (order.renderTileFaceFirst[side]) {
 
 				// Render cube tile projection
 				gl::setUniform(program, "uColor", tileCubeProjectionColor(tilePtr));

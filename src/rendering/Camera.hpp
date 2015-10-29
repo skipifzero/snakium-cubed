@@ -32,8 +32,7 @@ public:
 	inline mat4 viewMatrix() const noexcept { return mViewMatrix; }
 	inline mat4 projMatrix() const noexcept { return mProjMatrix; }
 	inline Direction upDir() const noexcept { return mUpDir; }
-	inline Direction sideRenderOrder(size_t i) const noexcept { return mSideRenderOrder[i]; }
-	inline bool renderTileFaceFirst(size_t i) const noexcept { return mRenderTileFaceFirst[i]; }
+	inline vec3 pos() const noexcept { return normalize(-mCamDir)*mFar; }
 	inline bool delayModelUpdate() const noexcept { return mDiveInProgress; }
 
 	void update(Model& model, float delta) noexcept;
@@ -53,10 +52,17 @@ private:
 
 	bool mDiveInProgress, mDiveFixUpDir, mDiveInvertUpDir;
 	vec3 mDiveTargetCamDir, mDiveTargetCamDirRotAxis;
-
-	Direction mSideRenderOrder[6];
-	bool mRenderTileFaceFirst[6];
 };
+
+// Back-to-front sorting
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+struct RenderOrder final {
+	Direction renderOrder[6];
+	bool renderTileFaceFirst[6];
+};
+
+RenderOrder calculateRenderOrder(vec3 camPos) noexcept;
 
 } // namespace s3
 

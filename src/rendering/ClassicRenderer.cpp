@@ -241,15 +241,17 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 	const mat4 tileScaling = sfz::scalingMatrix4(tileWidth);
 	mat4 transform, tileSpaceRot, tileSpaceRotScaling;
 
+	RenderOrder order = calculateRenderOrder(cam.pos());
+
 	for (size_t side = 0; side < 6; side++) {
-		Direction currentSide = cam.sideRenderOrder(side);
+		Direction currentSide = order.renderOrder[side];
 		const SnakeTile* sidePtr = model.tilePtr(Position{currentSide, 0, 0});
 
 		tileSpaceRot = tileSpaceRotation(currentSide);
 		tileSpaceRotScaling = tileSpaceRot * tileScaling;
 		vec3 snakeFloatVec = toVector(currentSide) * 0.001f;
 
-		if (cam.renderTileFaceFirst(side)) {
+		if (order.renderTileFaceFirst[side]) {
 			for (size_t i = 0; i < tilesPerSide; i++) {
 				const SnakeTile* tilePtr = sidePtr + i;
 				Position tilePos = model.tilePosition(tilePtr);
