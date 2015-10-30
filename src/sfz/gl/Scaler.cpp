@@ -238,7 +238,7 @@ static const char* LANCZOS_SHADER_SRC = R"(
 	out vec4 outFragColor;
 
 	// Constants
-	const float A = 2.0; // 2 or 3 should be good
+	const float A = 3.0; // 2 or 3 should be good
 	const float PI = 3.14159265358979323846264338327950;
 	const float A_DIV_PI2 = A / (PI * PI);
 	const float A_INV = 1.0 / A;
@@ -252,26 +252,22 @@ static const char* LANCZOS_SHADER_SRC = R"(
 
 	void main()
 	{
-		//vec2 stepSize = vec2(1.0) / uSrcDimensions;
-	
-		//vec2 pixCoord = uvCoord * uSrcDimensions;
-		//vec2 texCenter = floor(pixCoord - vec2(0.5)) + vec2(0.5); // Coordinate to nearest texel center
-
-		vec2 texelSize = vec2(1.0) / uSrcDimensions;
-
+		vec2 texelSize = vec2(1.0 / uSrcDimensions);
+		vec2 pixCoord = uvCoord * uSrcDimensions;
+		vec2 texCenter = floor(pixCoord) + vec2(0.5); // Coordinate to nearest texel center	
+		vec2 texCenterOffs = pixCoord - texCenter;
+		
 		vec3 sum = vec3(0.0);
-
 		int N = int(A);
-		for (int x = -N; x <= N; ++x) {
+		for (int x = -N + 1; x <= N; ++x) {
 			float xf = float(x);
+			float xWeight = L(xf - texCenterOffs.x);
 			
-			float xWeight = L(xf);
-			
-			for (int y = -N; y <= N; ++y) {
+			for (int y = -N + 1; y <= N; ++y) {
 				float yf = float(y);
-				float yWeight = L(yf);
-				vec2 offs = vec2(xf, yf);
-				sum += (xWeight * yWeight * texture(uSrcTex, uvCoord + (offs * texelSize)).rgb);
+				float yWeight = L(yf - texCenterOffs.y);
+				vec2 coord = (texCenter + vec2(xf, yf)) * texelSize;
+				sum += (xWeight * yWeight * texture(uSrcTex, coord).rgb);
 			}
 		}
 		
