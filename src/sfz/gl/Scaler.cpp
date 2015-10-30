@@ -223,6 +223,62 @@ static const char* BICUBIC_BSPLINE_SHADER_SRC = R"(
 	}
 )";
 
+static const char* LANCZOS_SHADER_SRC = R"(
+	#version 330
+
+	// Input
+	in vec2 uvCoord;
+
+	// Uniforms
+	uniform sampler2D uSrcTex;
+	uniform vec2 uDstDimensions;
+	uniform vec2 uSrcDimensions;
+
+	// Output
+	out vec4 outFragColor;
+
+	// Constants
+	const float A = 2.0; // 2 or 3 should be good
+	const float PI = 3.14159265358979323846264338327950;
+	const float A_DIV_PI2 = A / (PI * PI);
+	const float A_INV = 1.0 / A;
+
+	float L(float x)
+	{
+		if (x == 0) return 1.0;
+		float PIx = PI * x;
+		return A_DIV_PI2 * ((sin(PIx) * sin(PIx * A_INV)) / (x * x));
+	}
+
+	void main()
+	{
+		//vec2 stepSize = vec2(1.0) / uSrcDimensions;
+	
+		//vec2 pixCoord = uvCoord * uSrcDimensions;
+		//vec2 texCenter = floor(pixCoord - vec2(0.5)) + vec2(0.5); // Coordinate to nearest texel center
+
+		vec2 texelSize = vec2(1.0) / uSrcDimensions;
+
+		vec3 sum = vec3(0.0);
+
+		int N = int(A);
+		for (int x = -N; x <= N; ++x) {
+			float xf = float(x);
+			
+			float xWeight = L(xf);
+			
+			for (int y = -N; y <= N; ++y) {
+				float yf = float(y);
+				float yWeight = L(yf);
+				vec2 offs = vec2(xf, yf);
+				sum += (xWeight * yWeight * texture(uSrcTex, uvCoord + (offs * texelSize)).rgb);
+			}
+		}
+		
+		outFragColor = vec4(sum, 1.0);
+	}
+)";
+
 // Scaler: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -336,6 +392,13 @@ void Scaler::changeScalingAlgorithm(ScalingAlgorithm newAlgo) noexcept
 		break;
 	case ScalingAlgorithm::BICUBIC_BSPLINE:
 		mProgram = gl::Program::postProcessFromSource(BICUBIC_BSPLINE_SHADER_SRC);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		break;
+	case ScalingAlgorithm::LANCZOS:
+		mProgram = gl::Program::postProcessFromSource(LANCZOS_SHADER_SRC);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP);

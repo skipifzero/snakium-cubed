@@ -132,6 +132,10 @@ UpdateOp GameScreen::update(UpdateState& state)
 				cfg.scalingAlgorithm = 6;
 				std::cout << "BICUBIC_BSPLINE\n";
 				break;
+			case '8':
+				cfg.scalingAlgorithm = 7;
+				std::cout << "LANCZOS\n";
+				break;
 
 			case '9':
 				cfg.internalResScaling -= 0.25f;
