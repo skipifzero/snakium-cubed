@@ -129,10 +129,6 @@ UpdateOp GameScreen::update(UpdateState& state)
 				cfg.scalingAlgorithm = (int32_t)gl::ScalingAlgorithm::LANCZOS_3;
 				std::cout << to_string((gl::ScalingAlgorithm)cfg.scalingAlgorithm) << std::endl;
 				break;
-			case '7':
-				cfg.scalingAlgorithm = (int32_t)gl::ScalingAlgorithm::LANCZOS_VARIABLE;
-				std::cout << to_string((gl::ScalingAlgorithm)cfg.scalingAlgorithm) << std::endl;
-				break;
 
 			case '9':
 				cfg.internalResScaling -= 0.25f;
