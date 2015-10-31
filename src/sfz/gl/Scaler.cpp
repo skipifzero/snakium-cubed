@@ -165,7 +165,8 @@ static const char* BICUBIC_BSPLINE_SHADER_SRC = R"(
 	{
 		vec2 pixSize = vec2(1.0) / uSrcDimensions;
 		vec2 pixCoord = uvCoord * uSrcDimensions;
-		vec2 texCenter = floor(pixCoord - vec2(0.5)) + vec2(0.5); // Coordinate to nearest texel center
+		//vec2 texCenter = floor(pixCoord - vec2(0.5)) + vec2(0.5); // Coordinate to nearest texel center
+		vec2 texCenter = floor(pixCoord) + vec2(0.5); // Coordinate to nearest texel center
 
 		// Offset from nearest texel center to pixCoord
 		vec2 fractOffs = pixCoord - texCenter;
@@ -238,17 +239,14 @@ static const char* LANCZOS_2_SHADER_SRC = R"(
 	out vec4 outFragColor;
 
 	// Constants
-	const float A = 2.0;
-	const int N = int(A);
 	const float PI = 3.14159265358979323846264338327950;
-	const float A_DIV_PI2 = A / (PI * PI);
-	const float A_INV = 1.0 / A;
+	const float A_DIV_PI2 = 2 / (PI * PI);
 
 	float L(float x)
 	{
 		if (x == 0) return 1.0;
 		float PIx = PI * x;
-		return A_DIV_PI2 * ((sin(PIx) * sin(PIx * A_INV)) / (x * x));
+		return A_DIV_PI2 * ((sin(PIx) * sin(PIx * 0.5)) / (x * x));
 	}
 
 	void main()
@@ -257,22 +255,65 @@ static const char* LANCZOS_2_SHADER_SRC = R"(
 		vec2 pixCoord = uvCoord * uSrcDimensions;
 		vec2 texCenter = floor(pixCoord) + vec2(0.5); // Coordinate to nearest texel center	
 		vec2 texCenterOffs = pixCoord - texCenter;
-		
-		vec3 sum = vec3(0.0);
-		float totalWeight = 0.0;
-		for (int x = -N + 1; x <= N; ++x) {
-			float xf = float(x);
-			float xWeight = L(xf - texCenterOffs.x);
-			
-			for (int y = -N + 1; y <= N; ++y) {
-				float yf = float(y);
-				float yWeight = L(yf - texCenterOffs.y);
-				vec2 coord = (texCenter + vec2(xf, yf)) * texelSize;
-				sum += (xWeight * yWeight * texture(uSrcTex, coord).rgb);
+	
+		// Calculate sample weights
+		vec4 xWeights;
+		xWeights[0] = L(-1.0 - texCenterOffs.x);
+		xWeights[1] = L(-texCenterOffs.x);
+		xWeights[2] = L(1.0 - texCenterOffs.x);
+		xWeights[3] = L(2.0 - texCenterOffs.x);
 
-				totalWeight += (xWeight * yWeight);
-			}
-		}
+		vec4 yWeights;
+		yWeights[0] = L(-1.0 - texCenterOffs.y);
+		yWeights[1] = L(-texCenterOffs.y);
+		yWeights[2] = L(1.0 - texCenterOffs.y);
+		yWeights[3] = L(2.0 - texCenterOffs.y);
+
+		float totalWeight = dot(xWeights, vec4(dot(yWeights, vec4(1.0)));
+	
+		// Calculate sample coordinates
+		vec2 coord00 = (texCenter + vec2(-1.0, -1.0)) * texelSize;
+		vec2 coord01 = (texCenter + vec2(-1.0, 0.0)) * texelSize;
+		vec2 coord02 = (texCenter + vec2(-1.0, 1.0)) * texelSize;
+		vec2 coord03 = (texCenter + vec2(-1.0, 2.0)) * texelSize;
+
+		vec2 coord10 = (texCenter + vec2(0.0, -1.0)) * texelSize;
+		vec2 coord11 = (texCenter + vec2(0.0, 0.0)) * texelSize;
+		vec2 coord12 = (texCenter + vec2(0.0, 1.0)) * texelSize;
+		vec2 coord13 = (texCenter + vec2(0.0, 2.0)) * texelSize;
+
+		vec2 coord20 = (texCenter + vec2(1.0, -1.0)) * texelSize;
+		vec2 coord21 = (texCenter + vec2(1.0, 0.0)) * texelSize;
+		vec2 coord22 = (texCenter + vec2(1.0, 1.0)) * texelSize;
+		vec2 coord23 = (texCenter + vec2(1.0, 2.0)) * texelSize;
+
+		vec2 coord30 = (texCenter + vec2(2.0, -1.0)) * texelSize;
+		vec2 coord31 = (texCenter + vec2(2.0, 0.0)) * texelSize;
+		vec2 coord32 = (texCenter + vec2(2.0, 1.0)) * texelSize;
+		vec2 coord33 = (texCenter + vec2(2.0, 2.0)) * texelSize;
+
+		// Sample source texture
+		vec3 sum = vec3(0.0);
+
+		sum += (xWeights[0] * yWeights[0] * texture(uSrcTex, coord00).rgb);
+		sum += (xWeights[0] * yWeights[1] * texture(uSrcTex, coord01).rgb);
+		sum += (xWeights[0] * yWeights[2] * texture(uSrcTex, coord02).rgb);
+		sum += (xWeights[0] * yWeights[3] * texture(uSrcTex, coord03).rgb);
+
+		sum += (xWeights[1] * yWeights[0] * texture(uSrcTex, coord10).rgb);
+		sum += (xWeights[1] * yWeights[1] * texture(uSrcTex, coord11).rgb);
+		sum += (xWeights[1] * yWeights[2] * texture(uSrcTex, coord12).rgb);
+		sum += (xWeights[1] * yWeights[3] * texture(uSrcTex, coord13).rgb);
+
+		sum += (xWeights[2] * yWeights[0] * texture(uSrcTex, coord20).rgb);
+		sum += (xWeights[2] * yWeights[1] * texture(uSrcTex, coord21).rgb);
+		sum += (xWeights[2] * yWeights[2] * texture(uSrcTex, coord22).rgb);
+		sum += (xWeights[2] * yWeights[3] * texture(uSrcTex, coord23).rgb);
+
+		sum += (xWeights[3] * yWeights[0] * texture(uSrcTex, coord30).rgb);
+		sum += (xWeights[3] * yWeights[1] * texture(uSrcTex, coord31).rgb);
+		sum += (xWeights[3] * yWeights[2] * texture(uSrcTex, coord32).rgb);
+		sum += (xWeights[3] * yWeights[3] * texture(uSrcTex, coord33).rgb);
 		
 		outFragColor = vec4(sum / totalWeight, 1.0);
 	}
