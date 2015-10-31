@@ -2,6 +2,7 @@
 
 #include <sfz/GL.hpp>
 #include <sfz/gl/OpenGL.hpp>
+#include <sfz/gl/Scaler.hpp>
 
 #include "GameLogic.hpp"
 #include "GlobalConfig.hpp"
@@ -105,36 +106,32 @@ UpdateOp GameScreen::update(UpdateState& state)
 				          std::shared_ptr<sfz::BaseScreen>{new MainMenuScreen{}}};
 
 			case '1':
-				cfg.scalingAlgorithm = 0;
-				std::cout << "NEAREST\n";
+				cfg.scalingAlgorithm = (int32_t)gl::ScalingAlgorithm::NEAREST;
+				std::cout << to_string((gl::ScalingAlgorithm)cfg.scalingAlgorithm) << std::endl;
 				break;
 			case '2':
-				cfg.scalingAlgorithm = 1;
-				std::cout << "BILINEAR\n";
+				cfg.scalingAlgorithm = (int32_t)gl::ScalingAlgorithm::BILINEAR;
+				std::cout << to_string((gl::ScalingAlgorithm)cfg.scalingAlgorithm) << std::endl;
 				break;
 			case '3':
-				cfg.scalingAlgorithm = 2;
-				std::cout << "GRID_2x2_NEAREST\n";
+				cfg.scalingAlgorithm = (int32_t)gl::ScalingAlgorithm::GRID_2X2_BILINEAR;
+				std::cout << to_string((gl::ScalingAlgorithm)cfg.scalingAlgorithm) << std::endl;
 				break;
 			case '4':
-				cfg.scalingAlgorithm = 3;
-				std::cout << "GRID_2x2_BILINEAR\n";
+				cfg.scalingAlgorithm = (int32_t)gl::ScalingAlgorithm::BICUBIC_BSPLINE;
+				std::cout << to_string((gl::ScalingAlgorithm)cfg.scalingAlgorithm) << std::endl;
 				break;
 			case '5':
-				cfg.scalingAlgorithm = 4;
-				std::cout << "GRID_4x4_NEAREST\n";
+				cfg.scalingAlgorithm = (int32_t)gl::ScalingAlgorithm::LANCZOS_2;
+				std::cout << to_string((gl::ScalingAlgorithm)cfg.scalingAlgorithm) << std::endl;
 				break;
 			case '6':
-				cfg.scalingAlgorithm = 5;
-				std::cout << "GRID_4x4_BILINEAR\n";
+				cfg.scalingAlgorithm = (int32_t)gl::ScalingAlgorithm::LANCZOS_3;
+				std::cout << to_string((gl::ScalingAlgorithm)cfg.scalingAlgorithm) << std::endl;
 				break;
 			case '7':
-				cfg.scalingAlgorithm = 6;
-				std::cout << "BICUBIC_BSPLINE\n";
-				break;
-			case '8':
-				cfg.scalingAlgorithm = 7;
-				std::cout << "LANCZOS\n";
+				cfg.scalingAlgorithm = (int32_t)gl::ScalingAlgorithm::LANCZOS_VARIABLE;
+				std::cout << to_string((gl::ScalingAlgorithm)cfg.scalingAlgorithm) << std::endl;
 				break;
 
 			case '9':

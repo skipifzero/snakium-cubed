@@ -223,7 +223,7 @@ static const char* BICUBIC_BSPLINE_SHADER_SRC = R"(
 	}
 )";
 
-static const char* LANCZOS_SHADER_SRC = R"(
+static const char* LANCZOS_2_SHADER_SRC = R"(
 	#version 330
 
 	// Input
@@ -238,7 +238,8 @@ static const char* LANCZOS_SHADER_SRC = R"(
 	out vec4 outFragColor;
 
 	// Constants
-	const float A = 3.0; // 2 or 3 should be good
+	const float A = 2.0;
+	const int N = int(A);
 	const float PI = 3.14159265358979323846264338327950;
 	const float A_DIV_PI2 = A / (PI * PI);
 	const float A_INV = 1.0 / A;
@@ -258,7 +259,7 @@ static const char* LANCZOS_SHADER_SRC = R"(
 		vec2 texCenterOffs = pixCoord - texCenter;
 		
 		vec3 sum = vec3(0.0);
-		int N = int(A);
+		float totalWeight = 0.0;
 		for (int x = -N + 1; x <= N; ++x) {
 			float xf = float(x);
 			float xWeight = L(xf - texCenterOffs.x);
@@ -268,12 +269,145 @@ static const char* LANCZOS_SHADER_SRC = R"(
 				float yWeight = L(yf - texCenterOffs.y);
 				vec2 coord = (texCenter + vec2(xf, yf)) * texelSize;
 				sum += (xWeight * yWeight * texture(uSrcTex, coord).rgb);
+
+				totalWeight += (xWeight * yWeight);
 			}
 		}
 		
-		outFragColor = vec4(sum, 1.0);
+		outFragColor = vec4(sum / totalWeight, 1.0);
 	}
 )";
+
+static const char* LANCZOS_3_SHADER_SRC = R"(
+	#version 330
+
+	// Input
+	in vec2 uvCoord;
+
+	// Uniforms
+	uniform sampler2D uSrcTex;
+	uniform vec2 uDstDimensions;
+	uniform vec2 uSrcDimensions;
+
+	// Output
+	out vec4 outFragColor;
+
+	// Constants
+	const float A = 3.0;
+	const int N = int(A);
+	const float PI = 3.14159265358979323846264338327950;
+	const float A_DIV_PI2 = A / (PI * PI);
+	const float A_INV = 1.0 / A;
+
+	float L(float x)
+	{
+		if (x == 0) return 1.0;
+		float PIx = PI * x;
+		return A_DIV_PI2 * ((sin(PIx) * sin(PIx * A_INV)) / (x * x));
+	}
+
+	void main()
+	{
+		vec2 texelSize = vec2(1.0 / uSrcDimensions);
+		vec2 pixCoord = uvCoord * uSrcDimensions;
+		vec2 texCenter = floor(pixCoord) + vec2(0.5); // Coordinate to nearest texel center	
+		vec2 texCenterOffs = pixCoord - texCenter;
+		
+		vec3 sum = vec3(0.0);
+		float totalWeight = 0.0;
+		for (int x = -N + 1; x <= N; ++x) {
+			float xf = float(x);
+			float xWeight = L(xf - texCenterOffs.x);
+			
+			for (int y = -N + 1; y <= N; ++y) {
+				float yf = float(y);
+				float yWeight = L(yf - texCenterOffs.y);
+				vec2 coord = (texCenter + vec2(xf, yf)) * texelSize;
+				sum += (xWeight * yWeight * texture(uSrcTex, coord).rgb);
+
+				totalWeight += (xWeight * yWeight);
+			}
+		}
+		
+		outFragColor = vec4(sum / totalWeight, 1.0);
+	}
+)";
+
+static const char* LANCZOS_VARIABLE_SHADER_SRC = R"(
+	#version 330
+
+	// Input
+	in vec2 uvCoord;
+
+	// Uniforms
+	uniform sampler2D uSrcTex;
+	uniform vec2 uDstDimensions;
+	uniform vec2 uSrcDimensions;
+
+	// Output
+	out vec4 outFragColor;
+
+	// Constants
+	const float A = 2.0;
+	const int N = int(A);
+	const float PI = 3.14159265358979323846264338327950;
+	const float A_DIV_PI2 = A / (PI * PI);
+	const float A_INV = 1.0 / A;
+
+	float L(float x)
+	{
+		if (x == 0) return 1.0;
+		float PIx = PI * x;
+		return A_DIV_PI2 * ((sin(PIx) * sin(PIx * A_INV)) / (x * x));
+	}
+
+	void main()
+	{
+		vec2 texelSize = vec2(1.0 / uSrcDimensions);
+		vec2 pixCoord = uvCoord * uSrcDimensions;
+		vec2 texCenter = floor(pixCoord) + vec2(0.5); // Coordinate to nearest texel center	
+		vec2 texCenterOffs = pixCoord - texCenter;
+		
+		vec3 sum = vec3(0.0);
+		float totalWeight = 0.0;
+		for (int x = -N + 1; x <= N; ++x) {
+			float xf = float(x);
+			float xWeight = L(xf - texCenterOffs.x);
+			
+			for (int y = -N + 1; y <= N; ++y) {
+				float yf = float(y);
+				float yWeight = L(yf - texCenterOffs.y);
+				vec2 coord = (texCenter + vec2(xf, yf)) * texelSize;
+				sum += (xWeight * yWeight * texture(uSrcTex, coord).rgb);
+
+				totalWeight += (xWeight * yWeight);
+			}
+		}
+		
+		outFragColor = vec4(sum / totalWeight, 1.0);
+	}
+)";
+
+// Scaling algorithm enum
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+const char* to_string(ScalingAlgorithm algorithm) noexcept
+{
+	switch (algorithm) {
+	case ScalingAlgorithm::NEAREST: return "NEAREST";
+	case ScalingAlgorithm::BILINEAR: return "BILINEAR";
+	case ScalingAlgorithm::GRID_2X2_NEAREST: return "GRID_2X2_NEAREST";
+	case ScalingAlgorithm::GRID_2X2_BILINEAR: return "GRID_2X2_BILINEAR";
+	case ScalingAlgorithm::GRID_4X4_NEAREST: return "GRID_4X4_NEAREST";
+	case ScalingAlgorithm::GRID_4X4_BILINEAR: return "GRID_4X4_BILINEAR";
+	case ScalingAlgorithm::BICUBIC_BSPLINE: return "BICUBIC_BSPLINE";
+	case ScalingAlgorithm::LANCZOS_2: return "LANCZOS_2";
+	case ScalingAlgorithm::LANCZOS_3: return "LANCZOS_3";
+	case ScalingAlgorithm::LANCZOS_VARIABLE: return "LANCZOS_VARIABLE";
+	default:
+		sfz_assert_release_m(false, "Invalid or unhandled enum type.");
+	}
+}
 
 // Scaler: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -393,8 +527,22 @@ void Scaler::changeScalingAlgorithm(ScalingAlgorithm newAlgo) noexcept
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP);
 		break;
-	case ScalingAlgorithm::LANCZOS:
-		mProgram = gl::Program::postProcessFromSource(LANCZOS_SHADER_SRC);
+	case ScalingAlgorithm::LANCZOS_2:
+		mProgram = gl::Program::postProcessFromSource(LANCZOS_VARIABLE_SHADER_SRC);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		break;
+	case ScalingAlgorithm::LANCZOS_3:
+		mProgram = gl::Program::postProcessFromSource(LANCZOS_2_SHADER_SRC);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP);
+		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP);
+		break;
+	case ScalingAlgorithm::LANCZOS_VARIABLE:
+		mProgram = gl::Program::postProcessFromSource(LANCZOS_3_SHADER_SRC);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP);

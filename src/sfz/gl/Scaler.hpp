@@ -27,8 +27,12 @@ enum class ScalingAlgorithm : int32_t {
 	GRID_4X4_NEAREST = 4,
 	GRID_4X4_BILINEAR = 5,
 	BICUBIC_BSPLINE = 6,
-	LANCZOS = 7
+	LANCZOS_2 = 7,
+	LANCZOS_3 = 8,
+	LANCZOS_VARIABLE = 9
 };
+
+const char* to_string(ScalingAlgorithm algorithm) noexcept;
 
 // Scaler class
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
