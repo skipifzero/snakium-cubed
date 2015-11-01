@@ -11,37 +11,6 @@ using sfz::mat3;
 // Statics
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-/*static size_t axisCoord(Direction dir) noexcept
-{
-	switch (dir) {
-	case Direction::BACKWARD:
-	case Direction::FORWARD:
-		return 2;
-	case Direction::UP:
-	case Direction::DOWN:
-		return 1;
-	case Direction::RIGHT:
-	case Direction::LEFT:
-		return 0;
-	}
-}*/
-
-/** Returns a value between 0.0 (down) and 1.0 (up) */
-/*static float upProgress(vec3 posOnCube, Direction posOnCubeSideUpDir) noexcept
-{
-	vec3 upAxis = toVector(posOnCubeSideUpDir);
-	int upAxisCoord = axisCoord(posOnCubeSideUpDir);
-	return std::abs(posOnCube[upAxisCoord] + 0.5f*sfz::sum(upAxis));
-}*/
-
-/** Returns a value between 0.0 (left) and 1.0 (right) */
-/*static float rightProgress(vec3 posOnCube, Direction posOnCubeSide, Direction posOnCubeSideUpDir) noexcept
-{
-	vec3 rightAxis = toVector(right(posOnCubeSide, posOnCubeSideUpDir));
-	int rightAxisCoord = axisCoord(right(posOnCubeSide, posOnCubeSideUpDir));
-	return std::abs(posOnCube[rightAxisCoord] + 0.5f*sfz::sum(rightAxis));
-}*/
-
 static vec3 tilePosToVector(const Model& model, const Position& tilePos) noexcept
 {
 	// +0.5f to get the midpoint of the tile
@@ -61,7 +30,7 @@ Camera::Camera() noexcept
 {
 	mCamDir = vec3{0.0f, 0.0f, 1.0f};
 	mCamUp = vec3{0.0f, 1.0f, 0.0f};
-	mCamDist = 2.0f;
+	mCamDist = 2.5f;
 
 	mFov = 60.0f;
 	mAspect = 1.0f;

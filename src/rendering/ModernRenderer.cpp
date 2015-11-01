@@ -484,6 +484,20 @@ static void renderTransparent(const Model& model, gl::Program& program, const Ca
 	}
 }
 
+static void renderSkySphere(gl::Program& program, const Camera& cam) noexcept
+{
+	Assets& assets = Assets::INSTANCE();
+
+	// Set uniforms
+	const mat4 modelMatrix = sfz::scalingMatrix4(5.0f);
+	const mat4 normalMatrix = sfz::inverse(sfz::transpose(cam.viewMatrix() * modelMatrix));
+	gl::setUniform(program, "uModelMatrix", modelMatrix);
+	gl::setUniform(program, "uNormalMatrix", normalMatrix);
+	gl::setUniform(program, "uColor", vec4{0.2f, 0.2f, 0.2f, 1.0f});
+
+	assets.SKYSPHERE_MODEL.render();
+}
+
 // ModernRenderer: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -548,6 +562,8 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	gl::setUniform(mProgram, "uSpotLightReach", mSpotLight.reach);
 	gl::setUniform(mProgram, "uSpotLightAngle", mSpotLight.angle);
 
+	// Render skysphere
+	renderSkySphere(mProgram, cam);
 
 	// Render opaque objects
 	renderOpaque(model, mProgram, viewMatrix);

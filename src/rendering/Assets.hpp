@@ -187,6 +187,7 @@ public:
 	                TILE_DECORATION_MODEL,
 	                TILE_PROJECTION_MODEL,
 	
+	                SKYSPHERE_MODEL,
 	                NOT_FOUND_MODEL;
 
 private:
