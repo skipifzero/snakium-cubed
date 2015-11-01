@@ -258,6 +258,8 @@ Assets::Assets() noexcept
 	TILE_PROJECTION_MODEL{modelPath(), "tile_projection.obj"},
 
 	SKYSPHERE_MODEL{modelPath(), "skysphere.obj"},
+	GROUND_MODEL{modelPath(), "ground.obj"},
+
 	NOT_FOUND_MODEL{modelPath(), "notfound.obj"}
 { }
 

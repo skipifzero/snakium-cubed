@@ -32,7 +32,10 @@ public:
 	inline mat4 viewMatrix() const noexcept { return mViewMatrix; }
 	inline mat4 projMatrix() const noexcept { return mProjMatrix; }
 	inline Direction upDir() const noexcept { return mUpDir; }
-	inline vec3 pos() const noexcept { return normalize(-mCamDir)*mFar; }
+	inline vec3 pos() const noexcept { return normalize(-mCamDir)*mCamDist; }
+	inline vec3 dir() const noexcept { return mCamDir; }
+	inline vec3 up() const noexcept { return mCamUp; }
+	inline float dist() const noexcept { return mCamDist; }
 	inline bool delayModelUpdate() const noexcept { return mDiveInProgress; }
 
 	void update(Model& model, float delta) noexcept;

@@ -484,18 +484,30 @@ static void renderTransparent(const Model& model, gl::Program& program, const Ca
 	}
 }
 
-static void renderSkySphere(gl::Program& program, const Camera& cam) noexcept
+static void renderBackground(gl::Program& program, const mat4& viewMatrix) noexcept
 {
-	Assets& assets = Assets::INSTANCE();
+	const vec4 SKY_COLOR{0.2f, 0.2f, 0.2f, 1.0f};
+	const vec4 GROUND_COLOR{0.5f, 0.5f, 0.5f, 1.0f};
 
+	Assets& assets = Assets::INSTANCE();
+	
 	// Set uniforms
-	const mat4 modelMatrix = sfz::scalingMatrix4(5.0f);
-	const mat4 normalMatrix = sfz::inverse(sfz::transpose(cam.viewMatrix() * modelMatrix));
-	gl::setUniform(program, "uModelMatrix", modelMatrix);
-	gl::setUniform(program, "uNormalMatrix", normalMatrix);
-	gl::setUniform(program, "uColor", vec4{0.2f, 0.2f, 0.2f, 1.0f});
+	const mat4 skyModelMatrix = sfz::scalingMatrix4(5.0f);
+	const mat4 skyNormalMatrix = sfz::inverse(sfz::transpose(viewMatrix * skyModelMatrix));
+	gl::setUniform(program, "uModelMatrix", skyModelMatrix);
+	gl::setUniform(program, "uNormalMatrix", skyNormalMatrix);
+	gl::setUniform(program, "uColor", SKY_COLOR);
 
 	assets.SKYSPHERE_MODEL.render();
+
+	// Set uniforms
+	const mat4 groundModelMatrix = sfz::translationMatrix(vec3{0.0f, -0.75, 0.0f}) * sfz::scalingMatrix4(2.5f, 1.0f, 2.5f);
+	const mat4 groundNormalMatrix = sfz::inverse(sfz::transpose(viewMatrix * groundModelMatrix));
+	gl::setUniform(program, "uModelMatrix", groundModelMatrix);
+	gl::setUniform(program, "uNormalMatrix", groundNormalMatrix);
+	gl::setUniform(program, "uColor", GROUND_COLOR);
+
+	assets.GROUND_MODEL.render();
 }
 
 // ModernRenderer: Constructors & destructors
@@ -553,6 +565,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 
 	// View Matrix and Projection Matrix uniforms
 	const mat4 viewMatrix = cam.viewMatrix();
+	//const mat4 invViewMatrix = sfz::inverse(viewMatrix);
 	gl::setUniform(mProgram, "uProjMatrix", cam.projMatrix());
 	gl::setUniform(mProgram, "uViewMatrix", viewMatrix);
 	
@@ -562,8 +575,8 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	gl::setUniform(mProgram, "uSpotLightReach", mSpotLight.reach);
 	gl::setUniform(mProgram, "uSpotLightAngle", mSpotLight.angle);
 
-	// Render skysphere
-	renderSkySphere(mProgram, cam);
+	// Render background
+	renderBackground(mProgram, viewMatrix);
 
 	// Render opaque objects
 	renderOpaque(model, mProgram, viewMatrix);

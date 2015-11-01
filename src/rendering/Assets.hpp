@@ -188,6 +188,8 @@ public:
 	                TILE_PROJECTION_MODEL,
 	
 	                SKYSPHERE_MODEL,
+	                GROUND_MODEL,
+
 	                NOT_FOUND_MODEL;
 
 private:
