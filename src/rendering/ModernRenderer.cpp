@@ -33,6 +33,19 @@ static gl::Program compileStandardShaderProgram() noexcept
 		glBindFragDataLocation(shaderProgram, 0, "outFragColor");
 	});
 }
+ 
+static gl::Program compileShadowMapShaderProgram() noexcept
+{
+	return gl::Program::fromFile((sfz::basePath() + "assets/shaders/shadow_map.vert").c_str(),
+	                             (sfz::basePath() + "assets/shaders/shadow_map.frag").c_str(),
+	                             [](uint32_t shaderProgram) {
+		glBindAttribLocation(shaderProgram, 0, "inPosition");
+		glBindAttribLocation(shaderProgram, 1, "inNormal");
+		glBindAttribLocation(shaderProgram, 2, "inUV"); // Not available for snakium models
+		glBindAttribLocation(shaderProgram, 3, "inMaterialID");
+		glBindFragDataLocation(shaderProgram, 0, "outFragColor");
+	});
+}
 
 static gl::SimpleModel& getTileModel(const SnakeTile* tilePtr, Direction side, float progress,
                                bool gameOver) noexcept
@@ -309,22 +322,6 @@ static vec4 tileDecorationColor(const SnakeTile* tilePtr) noexcept
 	}
 }
 
-static vec4 tileCubeProjectionColor(const SnakeTile* tilePtr) noexcept
-{
-	const vec4 TILE_CUBE_PROJECTION_COLOR{0.25f, 0.25f, 0.25f, 0.6f};
-	return TILE_CUBE_PROJECTION_COLOR;
-	/*const vec4 TILE_CUBE_PROJECTION_OCCUPIED_COLOR{0.25f, 0.275f, 0.25f, 0.6f};
-
-	switch (tilePtr->type) {
-	case TileType::EMPTY:
-	case TileType::OBJECT:
-	case TileType::BONUS_OBJECT:
-		return TILE_CUBE_PROJECTION_COLOR;
-	default:
-		return TILE_CUBE_PROJECTION_OCCUPIED_COLOR;
-	}*/
-}
-
 static void renderOpaque(const Model& model, gl::Program& program, const mat4& viewMatrix) noexcept
 {
 	Assets& assets = Assets::INSTANCE();
@@ -404,14 +401,14 @@ static void renderOpaque(const Model& model, gl::Program& program, const mat4& v
 	}
 }
 
-static void renderTransparent(const Model& model, gl::Program& program, const Camera& cam) noexcept
+static void renderSnakeProjection(const Model& model, gl::Program& program, const mat4& viewMatrix, vec3 camPos) noexcept
 {
 	Assets& assets = Assets::INSTANCE();
 	const vec4 TILE_PROJECTION_COLOR{0.5f, 0.5f, 0.5f, 0.75f};
 
 	const mat4 tileScaling = sfz::scalingMatrix4(1.0f / (16.0f * (float)model.config().gridWidth));
 
-	RenderOrder order = calculateRenderOrder(cam.pos());
+	RenderOrder order = calculateRenderOrder(camPos);
 
 	const size_t tilesPerSide = model.config().gridWidth*model.config().gridWidth;
 	for (size_t side = 0; side < 6; side++) {
@@ -431,34 +428,16 @@ static void renderTransparent(const Model& model, gl::Program& program, const Ca
 			sfz::translation(transform, tilePosToVector(model, tilePos));
 
 			// Set uniforms
-			const mat4 normalMatrix = sfz::inverse(sfz::transpose(cam.viewMatrix() * transform));
+			const mat4 normalMatrix = sfz::inverse(sfz::transpose(viewMatrix * transform));
 			gl::setUniform(program, "uModelMatrix", transform);
 			gl::setUniform(program, "uNormalMatrix", normalMatrix);
 
-			if (order.renderTileFaceFirst[side]) {
-
-				// Render cube tile projection
-				gl::setUniform(program, "uColor", tileCubeProjectionColor(tilePtr));
-				assets.TILE_PROJECTION_MODEL.render();
-
-				// Render tile projection
-				gl::setUniform(program, "uColor", TILE_PROJECTION_COLOR);
-				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress());
-				if (tileProjModelPtr != nullptr) tileProjModelPtr->render();
-
-			} else {
-
-				// Render tile projection
-				gl::setUniform(program, "uColor", TILE_PROJECTION_COLOR);
-				auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress());
-				if (tileProjModelPtr != nullptr) tileProjModelPtr->render();
-
-				// Render cube tile projection
-				gl::setUniform(program, "uColor", tileCubeProjectionColor(tilePtr));
-				assets.TILE_PROJECTION_MODEL.render();
-			}
+			// Render tile projection
+			gl::setUniform(program, "uColor", TILE_PROJECTION_COLOR);
+			auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress());
+			if (tileProjModelPtr != nullptr) tileProjModelPtr->render();
 		}
-	}
+	}	
 
 	// Render dead snake head projection if game over
 	if (model.isGameOver()) {
@@ -474,13 +453,46 @@ static void renderTransparent(const Model& model, gl::Program& program, const Ca
 		sfz::translation(transform, tilePosToVector(model, tilePos));
 
 		// Set uniforms
-		const mat4 normalMatrix = sfz::inverse(sfz::transpose(cam.viewMatrix() * transform));
+		const mat4 normalMatrix = sfz::inverse(sfz::transpose(viewMatrix * transform));
 		gl::setUniform(program, "uModelMatrix", transform);
 		gl::setUniform(program, "uNormalMatrix", normalMatrix);
 
 		// Render tile model
 		gl::setUniform(program, "uColor", TILE_PROJECTION_COLOR);
 		getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress())->render();
+	}
+}
+
+static void renderTransparentCube(const Model& model, gl::Program& program, const mat4& viewMatrix, vec3 camPos) noexcept
+{
+	const vec4 TILE_CUBE_PROJECTION_COLOR{0.25f, 0.25f, 0.25f, 0.6f};
+
+	Assets& assets = Assets::INSTANCE();
+
+	const mat4 tileScaling = sfz::scalingMatrix4(1.0f / 16.0f);
+
+	RenderOrder order = calculateRenderOrder(camPos);
+
+	const size_t tilesPerSide = model.config().gridWidth*model.config().gridWidth;
+	for (size_t side = 0; side < 6; side++) {
+		Direction currentSide = order.renderOrder[side];
+		const SnakeTile* sidePtr = model.tilePtr(Position{currentSide, 0, 0});
+
+		mat4 tileSpaceRot = tileSpaceRotation(currentSide);
+		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;
+
+		// Calculate base transform
+		mat4 transform = tileSpaceRotScaling;
+		sfz::translation(transform, toVector(currentSide) * 0.5f);
+
+		// Set uniforms
+		const mat4 normalMatrix = sfz::inverse(sfz::transpose(viewMatrix * transform));
+		gl::setUniform(program, "uModelMatrix", transform);
+		gl::setUniform(program, "uNormalMatrix", normalMatrix);
+
+		// Render cube tile projection
+		gl::setUniform(program, "uColor", TILE_CUBE_PROJECTION_COLOR);
+		assets.TILE_PROJECTION_MODEL.render();
 	}
 }
 
@@ -515,12 +527,15 @@ static void renderBackground(gl::Program& program, const mat4& viewMatrix) noexc
 
 ModernRenderer::ModernRenderer() noexcept
 :
-	mProgram{s3::compileStandardShaderProgram()}
+	mProgram{compileStandardShaderProgram()},
+	mShadowMapProgram{compileShadowMapShaderProgram()}
 {
 	mSpotLight.pos = vec3(0.0f, 2.0f, 0.0f);
 	mSpotLight.dir = vec3(0.0f, -1.0f, 0.0f);
 	mSpotLight.angle = 90.0f;
 	mSpotLight.reach = 5.0f;
+
+	mShadowMapFB = sfz::ShadowMapFB{sfz::vec2i{4096}, sfz::ShadowMapDepthRes::BITS_32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
 }
 
 // ModernRenderer: Public methods
@@ -554,6 +569,27 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	// Enable culling
 	glEnable(GL_CULL_FACE);
 
+	
+	// Shadow Map rendering for spotlight (wip)
+	glUseProgram(mShadowMapProgram.handle());
+	glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapFB.fbo());
+	glViewport(0, 0, mShadowMapFB.resolutionInt().x, mShadowMapFB.resolutionInt().y);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClearDepth(1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glEnable(GL_POLYGON_OFFSET_FILL);
+	glPolygonOffset(5.0f, 25.0f);
+	//glCullFace(GL_FRONT);
+
+	gl::setUniform(mShadowMapProgram, "uProjMatrix", mSpotLight.projMatrix());
+	gl::setUniform(mShadowMapProgram, "uViewMatrix", mSpotLight.viewMatrix());
+
+	renderOpaque(model, mShadowMapProgram, mSpotLight.viewMatrix());
+
+	glDisable(GL_POLYGON_OFFSET_FILL);
+
+
 	// Binding external framebuffer
 	glUseProgram(mProgram.handle());
 	glBindFramebuffer(GL_FRAMEBUFFER, mExternalFB.fbo());
@@ -565,7 +601,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 
 	// View Matrix and Projection Matrix uniforms
 	const mat4 viewMatrix = cam.viewMatrix();
-	//const mat4 invViewMatrix = sfz::inverse(viewMatrix);
+	const mat4 invViewMatrix = inverse(viewMatrix);
 	gl::setUniform(mProgram, "uProjMatrix", cam.projMatrix());
 	gl::setUniform(mProgram, "uViewMatrix", viewMatrix);
 	
@@ -574,6 +610,10 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	gl::setUniform(mProgram, "uSpotLightDir", sfz::transformDir(viewMatrix, mSpotLight.dir));
 	gl::setUniform(mProgram, "uSpotLightReach", mSpotLight.reach);
 	gl::setUniform(mProgram, "uSpotLightAngle", mSpotLight.angle);
+	gl::setUniform(mProgram, "uLightMatrix", mSpotLight.lightMatrix(invViewMatrix));
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mShadowMapFB.depthTexture());
+	gl::setUniform(mProgram, "uShadowMap", 0);
 
 	// Render background
 	renderBackground(mProgram, viewMatrix);
@@ -581,8 +621,11 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	// Render opaque objects
 	renderOpaque(model, mProgram, viewMatrix);
 
-	// Render transparent objects
-	renderTransparent(model, mProgram, cam);
+	// Render snake projection
+	renderSnakeProjection(model, mProgram, viewMatrix, cam.pos());
+
+	// Render transparent cube
+	renderTransparentCube(model, mProgram, viewMatrix, cam.pos());
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, drawableDim.x, drawableDim.y);

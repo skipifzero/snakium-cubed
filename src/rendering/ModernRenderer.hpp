@@ -4,6 +4,7 @@
 
 #include <sfz/gl/Program.hpp>
 #include <sfz/gl/Scaler.hpp>
+#include <sfz/gl/ShadowMapFB.hpp>
 #include <sfz/geometry/AABB2D.hpp>
 #include <sfz/math/Matrix.hpp>
 
@@ -37,10 +38,11 @@ private:
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	gl::Program mProgram;
+	gl::Program mProgram, mShadowMapProgram;
 	gl::Scaler mScaler;
 	ExternalFB mExternalFB;
 	SpotLight mSpotLight;
+	sfz::ShadowMapFB mShadowMapFB;
 };
 
 } // namespace s3

@@ -4,7 +4,10 @@ namespace s3 {
 
 mat4 SpotLight::viewMatrix() const noexcept
 {
-	return sfz::lookAt(pos, pos + dir, normalize(cross(pos, dir)));
+	vec3 up = cross(pos, dir);
+	if (up == vec3(0.0)) up = vec3{dir.y, dir.z, dir.x};
+	up = normalize(up);
+	return sfz::lookAt(pos, pos + dir, up);
 }
 
 mat4 SpotLight::projMatrix() const noexcept
