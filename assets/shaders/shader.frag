@@ -19,16 +19,17 @@ uniform float uSpotLightReach;
 uniform float uSpotLightAngle;
 uniform mat4 uLightMatrix;
 uniform sampler2DShadow uShadowMap;
+uniform sampler2DShadow uShadowMap2;
 
 // Constants
 const float materialShininess = 8.0;
 const vec3 ambientLight = vec3(0.2);
 
-float sampleShadowMap(vec3 vsSamplePos)
+float sampleShadowMap(sampler2DShadow shadowMap, vec3 vsSamplePos)
 {
 	float shadow = 0.0;
 	vec4 smCoord = uLightMatrix * vec4(vsSamplePos, 1.0);
-	if (smCoord.z > 0.0) shadow = textureProj(uShadowMap, smCoord);
+	if (smCoord.z > 0.0) shadow = textureProj(shadowMap, smCoord);
 	return shadow;
 }
 
@@ -67,7 +68,8 @@ void main()
 	vec3 specularContribution = specularIntensity * materialSpecular;
 
 	// Shadow
-	float shadow = sampleShadowMap(vsPos);
+	float shadow = sampleShadowMap(uShadowMap, vsPos) * 0.5
+	             + sampleShadowMap(uShadowMap2, vsPos) * 0.5;
 
 	// Total shading and output
 	vec3 shading = ambientContribution

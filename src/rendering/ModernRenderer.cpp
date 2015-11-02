@@ -532,10 +532,11 @@ ModernRenderer::ModernRenderer() noexcept
 {
 	mSpotLight.pos = vec3(0.0f, 2.0f, 0.0f);
 	mSpotLight.dir = vec3(0.0f, -1.0f, 0.0f);
-	mSpotLight.angle = 90.0f;
+	mSpotLight.angle = 50.0f;
 	mSpotLight.reach = 5.0f;
 
 	mShadowMapFB = sfz::ShadowMapFB{sfz::vec2i{4096}, sfz::ShadowMapDepthRes::BITS_32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
+	mShadowMapFB2 = sfz::ShadowMapFB{sfz::vec2i{4096}, sfz::ShadowMapDepthRes::BITS_32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
 }
 
 // ModernRenderer: Public methods
@@ -572,11 +573,6 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	
 	// Shadow Map rendering for spotlight (wip)
 	glUseProgram(mShadowMapProgram.handle());
-	glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapFB.fbo());
-	glViewport(0, 0, mShadowMapFB.resolutionInt().x, mShadowMapFB.resolutionInt().y);
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glClearDepth(1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glEnable(GL_POLYGON_OFFSET_FILL);
 	glPolygonOffset(5.0f, 25.0f);
@@ -585,7 +581,22 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	gl::setUniform(mShadowMapProgram, "uProjMatrix", mSpotLight.projMatrix());
 	gl::setUniform(mShadowMapProgram, "uViewMatrix", mSpotLight.viewMatrix());
 
+	glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapFB.fbo());
+	glViewport(0, 0, mShadowMapFB.resolutionInt().x, mShadowMapFB.resolutionInt().y);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClearDepth(1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	renderOpaque(model, mShadowMapProgram, mSpotLight.viewMatrix());
+
+	glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapFB2.fbo());
+	glViewport(0, 0, mShadowMapFB2.resolutionInt().x, mShadowMapFB2.resolutionInt().y);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	glClearDepth(1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	renderOpaque(model, mShadowMapProgram, mSpotLight.viewMatrix());
+	renderSnakeProjection(model, mShadowMapProgram, mSpotLight.viewMatrix(), mSpotLight.pos);
 
 	glDisable(GL_POLYGON_OFFSET_FILL);
 
@@ -614,6 +625,9 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, mShadowMapFB.depthTexture());
 	gl::setUniform(mProgram, "uShadowMap", 0);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, mShadowMapFB2.depthTexture());
+	gl::setUniform(mProgram, "uShadowMap2", 1);
 
 	// Render background
 	renderBackground(mProgram, viewMatrix);

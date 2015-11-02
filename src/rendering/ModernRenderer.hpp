@@ -42,7 +42,7 @@ private:
 	gl::Scaler mScaler;
 	ExternalFB mExternalFB;
 	SpotLight mSpotLight;
-	sfz::ShadowMapFB mShadowMapFB;
+	sfz::ShadowMapFB mShadowMapFB, mShadowMapFB2;
 };
 
 } // namespace s3
