@@ -401,7 +401,7 @@ static void renderOpaque(const Model& model, gl::Program& program, const mat4& v
 	}
 }
 
-static void renderSnakeProjection(const Model& model, gl::Program& program, const mat4& viewMatrix, vec3 camPos) noexcept
+static void renderSnakeProjection(const Model& model, gl::Program& program, const mat4& viewMatrix, vec3 camPos, size_t firstSide = 0, size_t lastSide = 5) noexcept
 {
 	Assets& assets = Assets::INSTANCE();
 	const vec4 TILE_PROJECTION_COLOR{0.5f, 0.5f, 0.5f, 0.75f};
@@ -411,7 +411,7 @@ static void renderSnakeProjection(const Model& model, gl::Program& program, cons
 	RenderOrder order = calculateRenderOrder(camPos);
 
 	const size_t tilesPerSide = model.config().gridWidth*model.config().gridWidth;
-	for (size_t side = 0; side < 6; side++) {
+	for (size_t side = firstSide; side <= lastSide; side++) {
 		Direction currentSide = order.renderOrder[side];
 		const SnakeTile* sidePtr = model.tilePtr(Position{currentSide, 0, 0});
 
@@ -463,7 +463,7 @@ static void renderSnakeProjection(const Model& model, gl::Program& program, cons
 	}
 }
 
-static void renderTransparentCube(const Model& model, gl::Program& program, const mat4& viewMatrix, vec3 camPos) noexcept
+static void renderTransparentCube(const Model& model, gl::Program& program, const mat4& viewMatrix, vec3 camPos, size_t firstSide = 0, size_t lastSide = 5) noexcept
 {
 	const vec4 TILE_CUBE_PROJECTION_COLOR{0.25f, 0.25f, 0.25f, 0.6f};
 
@@ -474,7 +474,7 @@ static void renderTransparentCube(const Model& model, gl::Program& program, cons
 	RenderOrder order = calculateRenderOrder(camPos);
 
 	const size_t tilesPerSide = model.config().gridWidth*model.config().gridWidth;
-	for (size_t side = 0; side < 6; side++) {
+	for (size_t side = firstSide; side <= lastSide; side++) {
 		Direction currentSide = order.renderOrder[side];
 		const SnakeTile* sidePtr = model.tilePtr(Position{currentSide, 0, 0});
 
@@ -639,7 +639,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	renderSnakeProjection(model, mProgram, viewMatrix, cam.pos());
 
 	// Render transparent cube
-	renderTransparentCube(model, mProgram, viewMatrix, cam.pos());
+	renderTransparentCube(model, mProgram, viewMatrix, cam.pos(), 3, 5);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, drawableDim.x, drawableDim.y);
