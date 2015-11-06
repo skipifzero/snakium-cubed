@@ -122,7 +122,7 @@ static void calculateCharInfo(CharInfo& info, void* chardata, vec2 pixelToUV, ui
 // FontRenderer: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-FontRenderer::FontRenderer(const string& fontPath, uint32_t texWidth, uint32_t texHeight,
+FontRenderer::FontRenderer(const char* fontPath, uint32_t texWidth, uint32_t texHeight,
 	                       float fontSize, size_t numCharsPerBatch, TextureFiltering filtering) noexcept
 :
 	mFontSize{fontSize},
@@ -142,7 +142,7 @@ FontRenderer::FontRenderer(const string& fontPath, uint32_t texWidth, uint32_t t
 
 	stbtt_PackSetOversampling(&packContext, 2, 2);
 
-	std::vector<uint8_t> ttfBuffer = sfz::readBinaryFile(fontPath.c_str());
+	std::vector<uint8_t> ttfBuffer = sfz::readBinaryFile(fontPath);
 	if (ttfBuffer.size() == 0) {
 		std::cerr << "Couldn't open TTF file at: " << fontPath << std::endl;
 		std::terminate();
@@ -211,7 +211,7 @@ void FontRenderer::begin(vec2 cameraPosition, vec2 cameraDimensions) noexcept
 	mSpriteBatch.begin(cameraPosition, cameraDimensions);
 }
 
-float FontRenderer::write(vec2 position, float size, const string& text) noexcept
+float FontRenderer::write(vec2 position, float size, const char* text) noexcept
 {
 	const float scale = size / mFontSize;
 
@@ -227,7 +227,9 @@ float FontRenderer::write(vec2 position, float size, const string& text) noexcep
 	CharInfo info;
 	uint32_t codepoint;
 	uint32_t state = 0;
-	for (uint8_t c : text) {
+	const char* textItr = text;
+	uint8_t c;
+	while ((c = *textItr++)) {
 		if (decode(&state, &codepoint, c)) continue;
 		codepoint -= FIRST_CHAR;
 		if (LAST_CHAR < codepoint) codepoint = UNKNOWN_CHAR - FIRST_CHAR;
@@ -256,14 +258,16 @@ void FontRenderer::end(uint32_t fbo, const AABB2D& viewport, vec4 textColor) noe
 	mSpriteBatch.end(fbo, viewport, mFontTexture);
 }
 
-float FontRenderer::measureStringWidth(float size, const string& text) const noexcept
+float FontRenderer::measureStringWidth(float size, const char* text) const noexcept
 {
 	const float scale = size / mFontSize;
 	CharInfo info;
 	vec2 currPos = vec2{0.0f};
 	uint32_t codepoint;
 	uint32_t state = 0;
-	for (uint8_t c : text) {
+	const char* textItr = text;
+	uint8_t c;
+	while ((c = *textItr++)) {
 		if (decode(&state, &codepoint, c)) continue;
 		codepoint -= FIRST_CHAR;
 		if (LAST_CHAR < codepoint) codepoint = UNKNOWN_CHAR - FIRST_CHAR;

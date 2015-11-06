@@ -139,6 +139,69 @@ TEST_CASE("Sphere vs Sphere test", "[sfz::Intersection]")
 	REQUIRE(!intersects(mid, aBitOff));
 }
 
+TEST_CASE("Circle vs Circle test", "[sfz::Intersection]")
+{
+	using namespace sfz;
+
+	Circle mid{vec2{0.0f}, 1.0f};
+	Circle midBig{vec2{0.0f}, 2.0f};
+	Circle left{vec2{-2.1f, 0.0f}, 1.0f};
+
+	REQUIRE(overlaps(mid, midBig));
+	REQUIRE(!overlaps(mid, left));
+	REQUIRE(overlaps(midBig, left));
+}
+
+TEST_CASE("AABB2D vs AABB2D test", "[sfz::Intersection]")
+{
+	using namespace sfz;
+
+	AABB2D mid{vec2{0.0f}, vec2{2.0f}};
+	AABB2D midBig{vec2{0.0f}, vec2{4.0f}};
+	AABB2D left{vec2{-2.1f, 0.0f}, vec2{2.0f}};
+
+	REQUIRE(overlaps(mid, midBig));
+	REQUIRE(!overlaps(mid, left));
+	REQUIRE(overlaps(midBig, left));
+}
+
+TEST_CASE("AABB2D vs Circle test", "[sfz::Intersection]")
+{
+	using namespace sfz;
+
+	AABB2D rMid{vec2{0.0f}, vec2{2.0f}};
+	AABB2D rMidBig{vec2{0.0f}, vec2{4.0f}};
+	AABB2D rLeft{vec2{-2.1f, 0.0f}, vec2{2.0f}};
+
+	Circle cMid{vec2{0.0f}, 1.0f};
+	Circle cMidBig{vec2{0.0f}, 2.0f};
+	Circle cLeft{vec2{-2.1f, 0.0f}, 1.0f};
+
+	REQUIRE(overlaps(rMid, cMid));
+	REQUIRE(overlaps(rMid, cMidBig));
+	REQUIRE(!overlaps(rMid, cLeft));
+
+	REQUIRE(overlaps(rMidBig, cMid));
+	REQUIRE(overlaps(rMidBig, cMidBig));
+	REQUIRE(overlaps(rMidBig, cLeft));
+
+	REQUIRE(!overlaps(rLeft, cMid));
+	REQUIRE(overlaps(rLeft, cMidBig));
+	REQUIRE(overlaps(rLeft, cLeft));
+
+	REQUIRE(overlaps(cMid, rMid));
+	REQUIRE(overlaps(cMid, rMidBig));
+	REQUIRE(!overlaps(cMid, rLeft));
+
+	REQUIRE(overlaps(cMidBig, rMid));
+	REQUIRE(overlaps(cMidBig, rMidBig));
+	REQUIRE(overlaps(cMidBig, rLeft));
+
+	REQUIRE(!overlaps(cLeft, rMid));
+	REQUIRE(overlaps(cLeft, rMidBig));
+	REQUIRE(overlaps(cLeft, rLeft));
+}
+
 TEST_CASE("Plane vs AABB test", "[sfz::Intersection]")
 {
 	using namespace sfz;

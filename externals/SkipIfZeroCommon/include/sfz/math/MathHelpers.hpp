@@ -14,7 +14,7 @@ namespace sfz {
 using std::size_t;
 
 template<typename T>
-T defaultEpsilon() { return static_cast<T>(0.0001); }
+T defaultEpsilon() { return T(0.0001); }
 
 template<typename T>
 bool approxEqual(T lhs, T rhs, T epsilon) noexcept;

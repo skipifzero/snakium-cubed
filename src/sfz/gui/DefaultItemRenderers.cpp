@@ -60,16 +60,16 @@ ItemRendererFactory<Button> defaultButtonRendererFactory() noexcept
 			if (settings.fontRenderBg) {
 				const vec2 bgOffs = settings.fontBgOffsetScale * size;
 				font.begin(cam);
-				font.write(pos + bgOffs, size, b.text);
+				font.write(pos + bgOffs, size, b.text.c_str());
 				if (settings.fontRenderDualBg) {
-					font.write(pos - bgOffs, size, b.text);
+					font.write(pos - bgOffs, size, b.text.c_str());
 				}
 				font.end(fbo, viewport, bgColor);
 			}
 
 			// Render (foreground) text
 			font.begin(cam);
-			font.write(pos, size, b.text);
+			font.write(pos, size, b.text.c_str());
 			font.end(fbo, viewport, fgColor);
 		}
 	};
@@ -171,7 +171,7 @@ ItemRendererFactory<MultiChoiceSelector> defaultMultiChoiceSelectorRendererFacto
 
 			// State calculations and string
 			vec2 statePos = pos;
-			statePos.x += std::max(mc.stateAlignOffset, font.measureStringWidth(size, mc.text + " "));
+			statePos.x += std::max(mc.stateAlignOffset, font.measureStringWidth(size, (mc.text + " ").c_str()));
 			int state = mc.checkStateFunc();
 			bool stateInRange = 0 <= state && state <= ((int)mc.choiceNames.size()-1);
 			static const string otherStr{"other"};
@@ -185,16 +185,16 @@ ItemRendererFactory<MultiChoiceSelector> defaultMultiChoiceSelectorRendererFacto
 			if (settings.fontRenderBg) {
 				const vec2 bgOffs = settings.fontBgOffsetScale * size;
 				font.begin(cam);
-				font.write(pos + bgOffs, size, mc.text);
+				font.write(pos + bgOffs, size, mc.text.c_str());
 				vec2 statePosCpy = statePos + bgOffs;
 				if (stateInRange && state != 0) statePosCpy.x = font.write(statePosCpy, size, "< ");
-				statePosCpy.x = font.write(statePosCpy, size, stateStr);
+				statePosCpy.x = font.write(statePosCpy, size, stateStr.c_str());
 				if (stateInRange && state != ((int)mc.choiceNames.size()-1)) statePosCpy.x = font.write(statePosCpy, size, " >");
 				if (settings.fontRenderDualBg) {
-					font.write(pos - bgOffs, size, mc.text);
+					font.write(pos - bgOffs, size, mc.text.c_str());
 					vec2 statePosCpy2 = statePos - bgOffs;
 					if (stateInRange && state != 0) statePosCpy2.x = font.write(statePosCpy2, size, "< ");
-					statePosCpy2.x = font.write(statePosCpy2, size, stateStr);
+					statePosCpy2.x = font.write(statePosCpy2, size, stateStr.c_str());
 					if (stateInRange && state != ((int)mc.choiceNames.size()-1)) statePosCpy2.x = font.write(statePosCpy2, size, " >");
 				}
 				font.end(fbo, viewport, bgColor);
@@ -202,10 +202,10 @@ ItemRendererFactory<MultiChoiceSelector> defaultMultiChoiceSelectorRendererFacto
 
 			// Render (foreground) text
 			font.begin(cam);
-			font.write(pos, size, mc.text);
+			font.write(pos, size, mc.text.c_str());
 			vec2 statePosCpy = statePos;
 			if (stateInRange && state != 0) statePosCpy.x = font.write(statePosCpy, size, "< ");
-			statePosCpy.x = font.write(statePosCpy, size, stateStr);
+			statePosCpy.x = font.write(statePosCpy, size, stateStr.c_str());
 			if (stateInRange && state != ((int)mc.choiceNames.size()-1)) statePosCpy.x = font.write(statePosCpy, size, " >");
 			font.end(fbo, viewport, fgColor);
 		}
@@ -259,13 +259,13 @@ ItemRendererFactory<OnOffSelector> defaultOnOffSelectorRendererFactory() noexcep
 
 			// State calculations and string
 			vec2 offPos = pos;
-			offPos.x += std::max(oo.stateAlignOffset, font.measureStringWidth(size, oo.text + " "));
+			offPos.x += std::max(oo.stateAlignOffset, font.measureStringWidth(size, (oo.text + " ").c_str()));
 			bool state = oo.checkStateFunc();
 			static const string onStr = "On";
 			static const string offStr = "Off";
 			static const string offSpaceStr = "Off ";
 			vec2 onPos = offPos;
-			onPos.x += font.measureStringWidth(size, offSpaceStr);
+			onPos.x += font.measureStringWidth(size, offSpaceStr.c_str());
 
 			// Set font alignment settings
 			font.horizontalAlign(gl::HorizontalAlign::LEFT);
@@ -275,36 +275,36 @@ ItemRendererFactory<OnOffSelector> defaultOnOffSelectorRendererFactory() noexcep
 			if (settings.fontRenderBg) {
 				const vec2 bgOffs = settings.fontBgOffsetScale * size;
 				font.begin(cam);
-				font.write(pos + bgOffs, size, oo.text);
-				if (state) font.write(onPos + bgOffs, size, onStr);
-				else font.write(offPos + bgOffs, size, offStr);
+				font.write(pos + bgOffs, size, oo.text.c_str());
+				if (state) font.write(onPos + bgOffs, size, onStr.c_str());
+				else font.write(offPos + bgOffs, size, offStr.c_str());
 				if (settings.fontRenderDualBg) {
-					font.write(pos - bgOffs, size, oo.text);
-					if (state) font.write(onPos - bgOffs, size, onStr);
-					else font.write(offPos - bgOffs, size, offStr);
+					font.write(pos - bgOffs, size, oo.text.c_str());
+					if (state) font.write(onPos - bgOffs, size, onStr.c_str());
+					else font.write(offPos - bgOffs, size, offStr.c_str());
 				}
 				font.end(fbo, viewport, bgColor);
 
 				font.begin(cam);
-				if (state) font.write(offPos + bgOffs, size, offStr);
-				else font.write(onPos + bgOffs, size, onStr);
+				if (state) font.write(offPos + bgOffs, size, offStr.c_str());
+				else font.write(onPos + bgOffs, size, onStr.c_str());
 				if (settings.fontRenderDualBg) {
-					if (state) font.write(offPos - bgOffs, size, offStr);
-					else font.write(onPos - bgOffs, size, onStr);
+					if (state) font.write(offPos - bgOffs, size, offStr.c_str());
+					else font.write(onPos - bgOffs, size, onStr.c_str());
 				}
 				font.end(fbo, viewport, settings.fontBgDisabledColor);
 			}
 
 			// Render (foreground) text
 			font.begin(cam);
-			font.write(pos, size, oo.text);
-			if (state) font.write(onPos, size, onStr);
-			else font.write(offPos, size, offStr);
+			font.write(pos, size, oo.text.c_str());
+			if (state) font.write(onPos, size, onStr.c_str());
+			else font.write(offPos, size, offStr.c_str());
 			font.end(fbo, viewport, fgColor);
 
 			font.begin(cam);
-			if (state) font.write(offPos, size, offStr); 
-			else font.write(onPos, size, onStr);
+			if (state) font.write(offPos, size, offStr.c_str());
+			else font.write(onPos, size, onStr.c_str());
 			font.end(fbo, viewport, settings.fontDisabledColor);
 		}
 	};
@@ -415,7 +415,7 @@ ItemRendererFactory<TextItem> defaultTextItemRendererFactory() noexcept
 
 			// Calculate position and size
 			const float size = ti.dim.y * settings.fontScale;
-			const float stringWidth = font.measureStringWidth(size, ti.text);
+			const float stringWidth = font.measureStringWidth(size, ti.text.c_str());
 			vec2 pos = basePos + ti.offset;
 			float alignSign = (float)(int8_t)ti.hAlign;
 			pos.x += (alignSign * (ti.dim.x/2.0f));
@@ -429,16 +429,16 @@ ItemRendererFactory<TextItem> defaultTextItemRendererFactory() noexcept
 			if (settings.fontRenderBg) {
 				const vec2 bgOffs = settings.fontBgOffsetScale * size;
 				font.begin(cam);
-				font.write(pos + bgOffs, size, ti.text);
+				font.write(pos + bgOffs, size, ti.text.c_str());
 				if (settings.fontRenderDualBg) {
-					font.write(pos - bgOffs, size, ti.text);
+					font.write(pos - bgOffs, size, ti.text.c_str());
 				}
 				font.end(fbo, viewport, settings.fontBgColor);
 			}
 
 			// Render (foreground) text
 			font.begin(cam);
-			font.write(pos, size, ti.text);
+			font.write(pos, size, ti.text.c_str());
 			font.end(fbo, viewport, settings.fontColor);
 		}
 	};

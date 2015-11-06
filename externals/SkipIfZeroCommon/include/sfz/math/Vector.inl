@@ -245,17 +245,13 @@ Vector<T,3> UNIT_Z() noexcept
 template<typename T, size_t N>
 T length(const Vector<T,N>& vector) noexcept
 {
-	return T(std::sqrt(squaredLength(vector)));
+	return T(std::sqrt(dot(vector, vector)));
 }
 
 template<typename T, size_t N>
 T squaredLength(const Vector<T,N>& vector) noexcept
 {
-	T squaredSum = 0;
-	for (size_t i = 0; i < N; ++i) {
-		squaredSum += vector.elements[i]*vector.elements[i];
-	}
-	return squaredSum;
+	return dot(vector, vector);
 }
 
 template<typename T, size_t N>
@@ -321,6 +317,68 @@ Vector<T,2> rotate(Vector<T,2> vector, T angleRadians) noexcept
 	T cos = std::cos(angleRadians);
 	T sin = std::sin(angleRadians);
 	return Vector<T,2>{vector.x*cos - vector.y*sin, vector.x*sin + vector.y*cos};
+}
+
+template<typename T, size_t N>
+Vector<T,N> min(const Vector<T,N>& left, const Vector<T,N>& right) noexcept
+{
+	Vector<T,N> temp;
+	for (size_t i = 0; i < N; ++i) {
+		temp[i] = std::min(left[i], right[i]);
+	}
+	return temp;
+}
+
+template<typename T, size_t N>
+Vector<T,N> max(const Vector<T,N>& left, const Vector<T,N>& right) noexcept
+{
+	Vector<T,N> temp;
+	for (size_t i = 0; i < N; ++i) {
+		temp[i] = std::max(left[i], right[i]);
+	}
+	return temp;
+}
+
+template<typename T, size_t N>
+Vector<T,N> min(const Vector<T,N>& vector, T scalar) noexcept
+{
+	Vector<T,N> temp;
+	for (size_t i = 0; i < N; ++i) {
+		temp[i] = std::min(vector[i], scalar);
+	}
+	return temp;
+}
+
+template<typename T, size_t N>
+Vector<T,N> min(T scalar, const Vector<T,N>& vector) noexcept
+{
+	return min(vector, scalar);
+}
+
+template<typename T, size_t N>
+Vector<T,N> max(const Vector<T,N>& vector, T scalar) noexcept
+{
+	Vector<T,N> temp;
+	for (size_t i = 0; i < N; ++i) {
+		temp[i] = std::max(vector[i], scalar);
+	}
+	return temp;
+}
+
+template<typename T, size_t N>
+Vector<T,N> max(T scalar, const Vector<T,N>& vector) noexcept
+{
+	return max(vector, scalar);
+}
+
+template<typename T, size_t N>
+Vector<T,N> abs(const Vector<T,N>& vector) noexcept
+{
+	Vector<T,N> temp;
+	for (size_t i = 0; i < N; ++i) {
+		temp[i] = std::abs(vector[i]);
+	}
+	return temp;
 }
 
 template<typename T, size_t N>

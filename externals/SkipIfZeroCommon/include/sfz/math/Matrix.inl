@@ -6,6 +6,7 @@ namespace sfz {
 template<typename T, size_t M, size_t N>
 Matrix<T,M,N>::Matrix(const T* arrayPtr, bool rowMajorData) noexcept
 {
+	static_assert(sizeof(elements) == (M*N*sizeof(T)), "Matrix is padded.");
 	T* data = this->data();
 	if (rowMajorData) {
 		for (size_t i = 0; i < M; ++i) {
@@ -23,26 +24,21 @@ Matrix<T,M,N>::Matrix(const T* arrayPtr, bool rowMajorData) noexcept
 template<typename T, size_t M, size_t N>
 Matrix<T,M,N>::Matrix(std::initializer_list<std::initializer_list<T>> list) noexcept
 {
-	sfz_assert_debug(list.size() <= M);
-	size_t i = 0;
-	for (auto& rowList : list) {
-		sfz_assert_debug(rowList.size() <= N);
-		size_t j = 0;
-		for (T element : rowList) {
-			elements[j][i] = element;
-			j++;
+	static_assert(sizeof(elements) == (M*N*sizeof(T)), "Matrix is padded.");
+
+	for (size_t j = 0; j < N; ++j) {
+		for (size_t i = 0; i < M; ++i) {
+			elements[j][i] = T(0);
 		}
-		while (j < N) {
-			elements[j][i] = 0;
-			j++;
-		}
-		i++;
 	}
-	while (i < M) {
-		for (size_t j = 0; j < N; j++) {
-			elements[j][i] = 0;
+
+	sfz_assert_debug(list.size() <= M);
+	const std::initializer_list<T>* rowsPtr = list.begin();
+	for (size_t i = 0; i < list.size(); ++i) {
+		sfz_assert_debug(rowsPtr[i].size() <= N);
+		for (size_t j = 0; j < rowsPtr[i].size(); ++j) {
+			elements[j][i] = rowsPtr[i].begin()[j];
 		}
-		i++;
 	}
 }
 

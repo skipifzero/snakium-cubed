@@ -93,16 +93,16 @@ ItemRendererFactory<Button> snakiumButtonRendererFactory() noexcept
 			if (settings.fontRenderBg) {
 				const vec2 bgOffs = settings.fontBgOffsetScale * size;
 				font.begin(cam);
-				font.write(pos + bgOffs, size, b.text);
+				font.write(pos + bgOffs, size, b.text.c_str());
 				if (settings.fontRenderDualBg) {
-					font.write(pos - bgOffs, size, b.text);
+					font.write(pos - bgOffs, size, b.text.c_str());
 				}
 				font.end(fbo, viewport, bgColor);
 			}
 
 			// Render (foreground) text
 			font.begin(cam);
-			font.write(pos, size, b.text);
+			font.write(pos, size, b.text.c_str());
 			font.end(fbo, viewport, fgColor);
 		}
 	};

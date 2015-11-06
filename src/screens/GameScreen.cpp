@@ -185,7 +185,7 @@ void GameScreen::render(UpdateState& state)
 
 	font.begin(drawableDim/2.0f, drawableDim);
 
-	font.write(vec2{0.0f, drawableDim.y}, 64.0f, "Score: " + std::to_string(mModel.score()));
+	font.write(vec2{0.0f, drawableDim.y}, 64.0f, ("Score: " + std::to_string(mModel.score())).c_str());
 
 	font.end(0, drawableDim, vec4{1.0f, 1.0f, 1.0f, 1.0f});
 

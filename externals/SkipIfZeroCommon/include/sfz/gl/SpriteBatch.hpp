@@ -19,6 +19,7 @@ using sfz::vec2;
 using sfz::vec4;
 using sfz::mat3;
 
+using std::int32_t;
 using std::size_t;
 using std::uint32_t;
 using std::unique_ptr;
@@ -78,6 +79,7 @@ private:
 	mat3 mCamProj;
 
 	gl::Program mShader;
+	int32_t mTextureUniformLoc = 0;
 	uint32_t mVAO;
 	uint32_t mVertexBuffer, mIndexBuffer, mTransformBuffer, mUVBuffer;
 	unique_ptr<mat3[]> mTransformArray;

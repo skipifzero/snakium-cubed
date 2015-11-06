@@ -48,7 +48,7 @@ Assets& Assets::INSTANCE() noexcept
 Assets::Assets() noexcept
 :
 	spriteBatch{3000},
-	fontRenderer{assetsPath() + "fonts/SaniTrixieSans.ttf", 2048, 2048, 125.0f, 3000},
+	fontRenderer{(assetsPath() + "fonts/SaniTrixieSans.ttf").c_str(), 2048, 2048, 125.0f, 3000},
 
 
 	HEAD_D2U_F1{Texture::fromFile((snakeTexturePath() + "head_d2u_f1_128.png").c_str())},

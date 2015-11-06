@@ -16,7 +16,7 @@ namespace sfz {
  * @brief Class representing a Plane.
  *
  * Mathematical definition (plane normal = n, position on plane = p, position to test = x):
- * f(x) = dot(n, x - p) = dot(n, q) - d
+ * f(x) = dot(n, x - p) = dot(n, x) - d
  * d = dot(n, p)
  * 
  * @author Peter Hillerström
@@ -74,6 +74,5 @@ struct hash<sfz::Plane> {
 };
 
 } // namespace std
-
 #include "sfz/geometry/Plane.inl"
 #endif

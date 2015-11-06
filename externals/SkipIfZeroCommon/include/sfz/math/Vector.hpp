@@ -2,6 +2,7 @@
 #ifndef SFZ_MATH_VECTOR_HPP
 #define SFZ_MATH_VECTOR_HPP
 
+#include <algorithm> // std::min & std::max
 #include <cstddef> // std::size_t
 #include <cstdint> // std::int32_t
 #include <functional> // std::hash
@@ -198,6 +199,30 @@ T angle(Vector<T,2> vector) noexcept;
 /** @brief Rotates a 2-dimensional vector with the specified angle (in radians) around origo */
 template<typename T>
 Vector<T,2> rotate(Vector<T,2> vector, T angleRadians) noexcept;
+
+/** @brief Returns the element-wise minimum of two vectors. */
+template<typename T, size_t N>
+Vector<T,N> min(const Vector<T,N>& left, const Vector<T,N>& right) noexcept;
+
+/** @brief Returns the element-wise maximum of two vectors. */
+template<typename T, size_t N>
+Vector<T,N> max(const Vector<T,N>& left, const Vector<T,N>& right) noexcept;
+
+/** @brief Returns the element-wise minimum of a vector and a scalar. */
+template<typename T, size_t N>
+Vector<T,N> min(const Vector<T,N>& vector, T scalar) noexcept;
+template<typename T, size_t N>
+Vector<T,N> min(T scalar, const Vector<T,N>& vector) noexcept;
+
+/** @brief Returns the element-wise maximum of a vector and a scalar. */
+template<typename T, size_t N>
+Vector<T,N> max(const Vector<T,N>& vector, T scalar) noexcept;
+template<typename T, size_t N>
+Vector<T,N> max(T scalar, const Vector<T,N>& vector) noexcept;
+
+/** @brief Returns the element-wise abs() of the vector. */
+template<typename T, size_t N>
+Vector<T,N> abs(const Vector<T,N>& vector) noexcept;
 
 /** @brief Hashes the vector */
 template<typename T, size_t N>

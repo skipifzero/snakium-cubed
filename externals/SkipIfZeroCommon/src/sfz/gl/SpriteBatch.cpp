@@ -85,7 +85,6 @@ SpriteBatch::SpriteBatch(size_t capacity, const char* fragmentShaderSrc) noexcep
 :
 	mCapacity{capacity},
 	mCurrentDrawCount{0},
-	mShader{compileSpriteBatchShaderProgram(VERTEX_SHADER_SRC, fragmentShaderSrc)},
 	mTransformArray{new (std::nothrow) mat3[mCapacity]},
 	mUVArray{new (std::nothrow) vec4[mCapacity]}
 {
@@ -141,6 +140,10 @@ SpriteBatch::SpriteBatch(size_t capacity, const char* fragmentShaderSrc) noexcep
 	glBindBuffer(GL_ARRAY_BUFFER, mUVBuffer);
 	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(4);
+
+	// Create shader program and bind uniform
+	mShader = compileSpriteBatchShaderProgram(VERTEX_SHADER_SRC, fragmentShaderSrc);
+	mTextureUniformLoc = glGetUniformLocation(mShader.handle(), "uTexture");
 
 	if (gl::checkAllGLErrors()) {
 		std::cerr << "^^^ Above errors caused by SpriteBatch constructor" << std::endl;
@@ -294,7 +297,7 @@ void SpriteBatch::end(uint32_t fbo, const AABB2D& viewport, uint32_t texture) no
 	// Uniforms
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture);
-	gl::setUniform(mShader, "uTexture", 0);
+	gl::setUniform(mTextureUniformLoc, 0);
 
 	// Drawing instances
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIndexBuffer);

@@ -10,12 +10,10 @@
 
 #include <cstddef> // size_t
 #include <cstdint> // uint8_t
-#include <string>
 
 namespace gl {
 
 using std::size_t;
-using std::string;
 using std::uint8_t;
 using std::uint32_t;
 
@@ -37,7 +35,7 @@ public:
 	FontRenderer& operator= (const FontRenderer&) = delete;
 	FontRenderer& operator= (FontRenderer&&) = delete;
 
-	FontRenderer(const string& fontPath, uint32_t texWidth, uint32_t texHeight,
+	FontRenderer(const char* fontPath, uint32_t texWidth, uint32_t texHeight,
 	             float fontSize, size_t numCharsPerBatch,
 	             TextureFiltering filtering = TextureFiltering::ANISOTROPIC_16) noexcept;
 	~FontRenderer() noexcept;
@@ -49,14 +47,14 @@ public:
 	void begin(vec2 cameraPosition, vec2 cameraDimensions) noexcept;
 
 	/** @return The position to write the next char at. */
-	float write(vec2 position, float size, const string& text) noexcept;
+	float write(vec2 position, float size, const char* text) noexcept;
 
 	void writeBitmapFont(vec2 position, vec2 dimensions) noexcept;
 
 	void end(uint32_t fbo, vec2 viewportDimensions, vec4 textColor) noexcept;
 	void end(uint32_t fbo, const AABB2D& viewport, vec4 textColor) noexcept;
 
-	float measureStringWidth(float size, const string& text) const noexcept;
+	float measureStringWidth(float size, const char* text) const noexcept;
 
 	// Getters / setters
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
