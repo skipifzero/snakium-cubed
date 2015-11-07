@@ -13,9 +13,9 @@ out vec4 outFragColor;
 uniform vec4 uColor;
 
 // wip light uniforms
-uniform vec3 uSpotLightPos;
-uniform vec3 uSpotLightDir;
-uniform float uSpotLightReach;
+uniform vec3 uSpotLightVSPos;
+uniform vec3 uSpotLightVSDir;
+uniform float uSpotLightRange;
 uniform float uSpotLightAngle;
 uniform mat4 uLightMatrix;
 uniform sampler2DShadow uShadowMap;
@@ -33,6 +33,14 @@ float sampleShadowMap(sampler2DShadow shadowMap, vec3 vsSamplePos)
 	return shadow;
 }
 
+float calcQuadraticLightScale(vec3 samplePos)
+{
+	float lightDist = length(uSpotLightVSPos - samplePos);
+	float rangeSquared = uSpotLightRange * uSpotLightRange;
+	float lightDistSquared = lightDist * lightDist;
+	return max((-1.0 / rangeSquared) * (lightDistSquared - rangeSquared), 0);
+}
+
 void main()
 {
 	// Materials
@@ -43,7 +51,7 @@ void main()
 
 	// Vectors
 	vec3 toCam = normalize(-vsPos);
-	vec3 toLight = normalize(uSpotLightPos - vsPos);
+	vec3 toLight = normalize(uSpotLightVSPos - vsPos);
 	vec3 halfVec = normalize(toLight + toCam);
 
 	// Ambient lighting
@@ -71,10 +79,13 @@ void main()
 	float shadow = sampleShadowMap(uShadowMap, vsPos) * 0.5
 	             + sampleShadowMap(uShadowMap2, vsPos) * 0.5;
 
+	// Spotlight scaling
+	float lightScale = calcQuadraticLightScale(vsPos);
+
 	// Total shading and output
 	vec3 shading = ambientContribution
-	             + diffuseContribution * shadow
-	             + specularContribution * shadow
+	             + diffuseContribution * shadow * lightScale
+	             + specularContribution * shadow * lightScale
 	             + materialEmissive;
 
 	outFragColor = vec4(shading, uColor.a);

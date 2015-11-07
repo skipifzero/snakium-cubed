@@ -12,7 +12,7 @@ using sfz::vec3;
 
 struct SpotLight final {
 	vec3 pos, dir;
-	float angle, reach;
+	float angle, range;
 
 	float near = 0.01;
 

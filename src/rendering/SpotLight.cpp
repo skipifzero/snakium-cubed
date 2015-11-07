@@ -12,7 +12,7 @@ mat4 SpotLight::viewMatrix() const noexcept
 
 mat4 SpotLight::projMatrix() const noexcept
 {
-	return sfz::glPerspectiveProjectionMatrix(angle, 1.0, near, reach);
+	return sfz::glPerspectiveProjectionMatrix(angle, 1.0, near, range);
 }
 
 mat4 SpotLight::lightMatrix(const mat4& inverseViewMatrix) const noexcept

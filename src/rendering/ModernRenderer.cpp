@@ -533,7 +533,7 @@ ModernRenderer::ModernRenderer() noexcept
 	mSpotLight.pos = vec3(0.0f, 2.0f, 0.0f);
 	mSpotLight.dir = vec3(0.0f, -1.0f, 0.0f);
 	mSpotLight.angle = 50.0f;
-	mSpotLight.reach = 5.0f;
+	mSpotLight.range = 3.0f;
 
 	mShadowMapFB = sfz::ShadowMapFB{sfz::vec2i{4096}, sfz::ShadowMapDepthRes::BITS_32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
 	mShadowMapFB2 = sfz::ShadowMapFB{sfz::vec2i{4096}, sfz::ShadowMapDepthRes::BITS_32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
@@ -617,9 +617,9 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	gl::setUniform(mProgram, "uViewMatrix", viewMatrix);
 	
 	// SpotLight uniforms (wip)
-	gl::setUniform(mProgram, "uSpotLightPos", sfz::transformPoint(viewMatrix, mSpotLight.pos));
-	gl::setUniform(mProgram, "uSpotLightDir", sfz::transformDir(viewMatrix, mSpotLight.dir));
-	gl::setUniform(mProgram, "uSpotLightReach", mSpotLight.reach);
+	gl::setUniform(mProgram, "uSpotLightVSPos", sfz::transformPoint(viewMatrix, mSpotLight.pos));
+	gl::setUniform(mProgram, "uSpotLightVSDir", sfz::transformDir(viewMatrix, mSpotLight.dir));
+	gl::setUniform(mProgram, "uSpotLightRange", mSpotLight.range);
 	gl::setUniform(mProgram, "uSpotLightAngle", mSpotLight.angle);
 	gl::setUniform(mProgram, "uLightMatrix", mSpotLight.lightMatrix(invViewMatrix));
 	glActiveTexture(GL_TEXTURE0);
