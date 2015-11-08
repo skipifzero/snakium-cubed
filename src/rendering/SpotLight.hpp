@@ -12,7 +12,8 @@ using sfz::vec3;
 
 struct SpotLight final {
 	vec3 pos, dir;
-	float angle, range;
+	vec3 color;
+	float range, fov;
 
 	float near = 0.01;
 
@@ -20,6 +21,8 @@ struct SpotLight final {
 	mat4 projMatrix() const noexcept;
 	mat4 lightMatrix(const mat4& inverseViewMatrix) const noexcept;
 };
+
+
 
 } // namespace s3
 #endif

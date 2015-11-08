@@ -1,6 +1,19 @@
 #version 330
 
-precision highp float; // required by GLSL spec Sect 4.5.3
+// Structs
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+struct SpotLight {
+	vec3 vsPos;
+	vec3 vsDir;
+	vec3 color;
+	float range;
+	float fov;
+	mat4 lightMatrix;
+};
+
+// Input, output and uniforms
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Input
 in vec3 vsPos;
@@ -13,53 +26,54 @@ out vec4 outFragColor;
 uniform vec4 uColor;
 
 // wip light uniforms
-uniform vec3 uSpotLightVSPos;
-uniform vec3 uSpotLightVSDir;
-uniform float uSpotLightRange;
-uniform float uSpotLightAngle;
-uniform mat4 uLightMatrix;
+uniform SpotLight uSpotLight;
 uniform sampler2DShadow uShadowMap;
 uniform sampler2DShadow uShadowMap2;
 
 // Constants
 const float materialShininess = 8.0;
-const vec3 ambientLight = vec3(0.2);
+
+// Helper functions
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 float sampleShadowMap(sampler2DShadow shadowMap, vec3 vsSamplePos)
 {
 	float shadow = 0.0;
-	vec4 smCoord = uLightMatrix * vec4(vsSamplePos, 1.0);
+	vec4 smCoord = uSpotLight.lightMatrix * vec4(vsSamplePos, 1.0);
 	if (smCoord.z > 0.0) shadow = textureProj(shadowMap, smCoord);
 	return shadow;
 }
 
 float calcQuadraticLightScale(vec3 samplePos)
 {
-	float lightDist = length(uSpotLightVSPos - samplePos);
-	float rangeSquared = uSpotLightRange * uSpotLightRange;
+	float lightDist = length(uSpotLight.vsPos - samplePos);
+	float rangeSquared = uSpotLight.range * uSpotLight.range;
 	float lightDistSquared = lightDist * lightDist;
 	return max((-1.0 / rangeSquared) * (lightDistSquared - rangeSquared), 0);
 }
 
+// Main
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
 void main()
 {
 	// Materials
-	vec3 materialAmbient = uColor.rgb;
-	vec3 materialDiffuse = uColor.rgb;
-	vec3 materialSpecular = uColor.rgb;
+	vec3 materialAmbient = uColor.rgb * 0.1;
+	vec3 materialDiffuse = uColor.rgb * 0.5;
+	vec3 materialSpecular = uColor.rgb * 0.75;
 	vec3 materialEmissive = vec3(0.0);
 
 	// Vectors
 	vec3 toCam = normalize(-vsPos);
-	vec3 toLight = normalize(uSpotLightVSPos - vsPos);
+	vec3 toLight = normalize(uSpotLight.vsPos - vsPos);
 	vec3 halfVec = normalize(toLight + toCam);
 
 	// Ambient lighting
-	vec3 ambientContribution = ambientLight * materialAmbient;
+	vec3 ambientContribution = materialAmbient * uSpotLight.color;
 
 	// Diffuse lighting
 	float diffuseIntensity = clamp(dot(toLight, vsNormal), 0.0, 1.0);
-	vec3 diffuseContribution = diffuseIntensity * materialDiffuse;
+	vec3 diffuseContribution = diffuseIntensity * materialDiffuse * uSpotLight.color;
 
 	// Fresnel effect
 	float fresnelBase = clamp(1.0 - clamp(dot(vsNormal, toCam), 0.0, 1.0), 0.0, 1.0);
@@ -72,8 +86,8 @@ void main()
 		specularAngle = clamp(dot(vsNormal, halfVec), 0.0, 1.0);
 	}
 	float specularIntensity = pow(specularAngle, materialShininess);
-	//specularIntensity *= ((materialShininess + 2.0) / 8.0); // Normalization
-	vec3 specularContribution = specularIntensity * materialSpecular;
+	specularIntensity *= ((materialShininess + 2.0) / 8.0); // Normalization
+	vec3 specularContribution = specularIntensity * materialSpecular * uSpotLight.color;
 
 	// Shadow
 	float shadow = sampleShadowMap(uShadowMap, vsPos) * 0.5
