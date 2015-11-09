@@ -6,6 +6,7 @@
 
 #include "GlobalConfig.hpp"
 #include "rendering/Assets.hpp"
+#include "rendering/Material.hpp"
 
 namespace s3 {
 
@@ -279,53 +280,87 @@ static mat4 tileSpaceRotation(Direction side) noexcept
 	}
 }
 
-static vec4 tileColor(const SnakeTile* tilePtr) noexcept
+static const Material& tileMaterial(const SnakeTile* tilePtr) noexcept
 {
+	static Material deflt;
+	static Material objectMaterial = []() {
+		Material tmp;
+		tmp.diffuse = vec3{0.0f, 1.0f, 1.0f};
+		return tmp;
+	}();
+	static Material bonusObjectMaterial = []() {
+		Material tmp;
+		tmp.diffuse = vec3{1.0f, 0.0f, 0.85f};
+		return tmp;
+	}();
+	static Material snakeMaterial = []() {
+		Material tmp;
+		tmp.diffuse = vec3{0.0f, 1.0f, 0.25f};
+		return tmp;
+	}();
+	static Material snakeDigMaterial = []() {
+		Material tmp;
+		tmp.diffuse = vec3{0.0f, 1.0f, 0.25f};
+		return tmp;
+	}();
+
 	switch (tilePtr->type) {
 
 	case s3::TileType::OBJECT:
-		return vec4(0.0f, 1.0f, 1.0f, 1.0f);
+		return objectMaterial;
 
 	case s3::TileType::BONUS_OBJECT:
-		return vec4{1.0f, 0.0f, 0.85f, 1.0f};
+		return bonusObjectMaterial;
 
 	case s3::TileType::HEAD:
 	case s3::TileType::PRE_HEAD:
 	case s3::TileType::BODY:
 	case s3::TileType::TAIL:
-		return vec4{0.0f, 1.0f, 0.25f, 1.0f};
+		return snakeMaterial;
 
 	case s3::TileType::HEAD_DIGESTING:
 	case s3::TileType::PRE_HEAD_DIGESTING:
 	case s3::TileType::BODY_DIGESTING:
 	case s3::TileType::TAIL_DIGESTING:
-		return vec4{0.0f, 1.0f, 0.25f, 1.0f};
+		return snakeDigMaterial;
 
 	case s3::TileType::EMPTY:
 	default:
-		return vec4{1.0f, 1.0f, 1.0f, 1.0f};
+		return deflt;
 	}
 }
 
-static vec4 tileDecorationColor(const SnakeTile* tilePtr) noexcept
+static const Material& tileDecorationMaterial(const SnakeTile* tilePtr) noexcept
 {
-	const vec4 TILE_DECORATION_COLOR{0.25f, 0.5f, 0.5f, 1.0f};
-	const vec4 TILE_DECORATION_OCCUPIED_COLOR{0.0f, 1.0f, 0.25f, 1.0f};
+	static Material decorationMaterial = []() {
+		Material tmp;
+		tmp.diffuse = vec3{0.25f, 0.5f, 0.5f};
+		return tmp;
+	}();
+	static Material decorationOccupiedMaterial = []() {
+		Material tmp;
+		tmp.diffuse = vec3{0.0f, 1.0f, 0.25f};
+		return tmp;
+	}();
 
 	switch (tilePtr->type) {
 	case TileType::EMPTY:
 	case TileType::OBJECT:
 	case TileType::BONUS_OBJECT:
-		return TILE_DECORATION_COLOR;
+		return decorationMaterial;
 	default:
-		return TILE_DECORATION_OCCUPIED_COLOR;
+		return decorationOccupiedMaterial;
 	}
 }
 
 static void renderOpaque(const Model& model, gl::Program& program, const mat4& viewMatrix) noexcept
 {
 	Assets& assets = Assets::INSTANCE();
-	const vec4 TILE_DIVE_ASCEND_COLOR{0.5f, 0.0f, 0.75f, 1.0f};
+	static Material tileDiveAscendMaterial = []() {
+		Material tmp;
+		tmp.diffuse = vec3{0.5f, 0.0f, 0.75f};
+		return tmp;
+	}();
 
 	const mat4 tileScaling = sfz::scalingMatrix4(1.0f / (16.0f * (float)model.config().gridWidth));
 
@@ -346,7 +381,7 @@ static void renderOpaque(const Model& model, gl::Program& program, const mat4& v
 		gl::setUniform(program, "uNormalMatrix", normalMatrix);
 
 		// Render tile decoration
-		gl::setUniform(program, "uColor", tileDecorationColor(tilePtr));
+		setUniformMaterial(program, "uMaterial", tileDecorationMaterial(tilePtr));
 		assets.TILE_DECORATION_MODEL.render();
 
 		// Skip empty tiles
@@ -354,16 +389,16 @@ static void renderOpaque(const Model& model, gl::Program& program, const mat4& v
 
 		// Render dive & ascend models
 		if (isDive(tilePos.side, tilePtr->to)) {
-			gl::setUniform(program, "uColor", TILE_DIVE_ASCEND_COLOR);
+			setUniformMaterial(program, "uMaterial", tileDiveAscendMaterial);
 			assets.DIVE_MODEL.render();
 		} else if (isAscend(tilePos.side, tilePtr->from) &&
 			tilePtr->type != TileType::TAIL && tilePtr->type != TileType::TAIL_DIGESTING) {
-			gl::setUniform(program, "uColor", TILE_DIVE_ASCEND_COLOR);
+			setUniformMaterial(program, "uMaterial", tileDiveAscendMaterial);
 			assets.ASCEND_MODEL.render();
 		}
 
 		// Render tile model
-		gl::setUniform(program, "uColor", tileColor(tilePtr));
+		setUniformMaterial(program, "uMaterial", tileMaterial(tilePtr));
 		getTileModel(tilePtr, tilePos.side, model.progress(), model.isGameOver()).render();
 	}
 
@@ -387,16 +422,16 @@ static void renderOpaque(const Model& model, gl::Program& program, const mat4& v
 
 		// Render dive & ascend models
 		if (isDive(tilePos.side, tilePtr->to)) {
-			gl::setUniform(program, "uColor", TILE_DIVE_ASCEND_COLOR);
+			setUniformMaterial(program, "uMaterial", tileDiveAscendMaterial);
 			assets.DIVE_MODEL.render();
 		} else if (isAscend(tilePos.side, tilePtr->from) &&
 			tilePtr->type != TileType::TAIL && tilePtr->type != TileType::TAIL_DIGESTING) {
-			gl::setUniform(program, "uColor", TILE_DIVE_ASCEND_COLOR);
+			setUniformMaterial(program, "uMaterial", tileDiveAscendMaterial);
 			assets.ASCEND_MODEL.render();
 		}
 
 		// Render tile model
-		gl::setUniform(program, "uColor", tileColor(tilePtr));
+		setUniformMaterial(program, "uMaterial", tileMaterial(tilePtr));
 		getTileModel(tilePtr, tilePos.side, model.progress(), model.isGameOver()).render();
 	}
 }
@@ -404,7 +439,13 @@ static void renderOpaque(const Model& model, gl::Program& program, const mat4& v
 static void renderSnakeProjection(const Model& model, gl::Program& program, const mat4& viewMatrix, vec3 camPos, size_t firstSide = 0, size_t lastSide = 5) noexcept
 {
 	Assets& assets = Assets::INSTANCE();
-	const vec4 TILE_PROJECTION_COLOR{0.5f, 0.5f, 0.5f, 0.75f};
+
+	static Material tileProjectionMaterial = []() {
+		Material tmp;
+		tmp.diffuse = vec3{0.5f, 0.5f, 0.5f};
+		tmp.opaque = 0.75f;
+		return tmp;
+	}();
 
 	const mat4 tileScaling = sfz::scalingMatrix4(1.0f / (16.0f * (float)model.config().gridWidth));
 
@@ -433,7 +474,7 @@ static void renderSnakeProjection(const Model& model, gl::Program& program, cons
 			gl::setUniform(program, "uNormalMatrix", normalMatrix);
 
 			// Render tile projection
-			gl::setUniform(program, "uColor", TILE_PROJECTION_COLOR);
+			setUniformMaterial(program, "uMaterial", tileProjectionMaterial);
 			auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress());
 			if (tileProjModelPtr != nullptr) tileProjModelPtr->render();
 		}
@@ -458,14 +499,19 @@ static void renderSnakeProjection(const Model& model, gl::Program& program, cons
 		gl::setUniform(program, "uNormalMatrix", normalMatrix);
 
 		// Render tile model
-		gl::setUniform(program, "uColor", TILE_PROJECTION_COLOR);
+		setUniformMaterial(program, "uMaterial", tileProjectionMaterial);
 		getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress())->render();
 	}
 }
 
 static void renderTransparentCube(const Model& model, gl::Program& program, const mat4& viewMatrix, vec3 camPos, size_t firstSide = 0, size_t lastSide = 5) noexcept
 {
-	const vec4 TILE_CUBE_PROJECTION_COLOR{0.25f, 0.25f, 0.25f, 0.6f};
+	static Material tileCubeProjectionMaterial = []() {
+		Material tmp;
+		tmp.diffuse = vec3{0.25f, 0.25f, 0.25f};
+		tmp.opaque = 0.6f;
+		return tmp;
+	}();
 
 	Assets& assets = Assets::INSTANCE();
 
@@ -491,16 +537,23 @@ static void renderTransparentCube(const Model& model, gl::Program& program, cons
 		gl::setUniform(program, "uNormalMatrix", normalMatrix);
 
 		// Render cube tile projection
-		gl::setUniform(program, "uColor", TILE_CUBE_PROJECTION_COLOR);
+		setUniformMaterial(program, "uMaterial", tileCubeProjectionMaterial);
 		assets.TILE_PROJECTION_MODEL.render();
 	}
 }
 
 static void renderBackground(gl::Program& program, const mat4& viewMatrix) noexcept
 {
-	const vec4 SKY_COLOR{0.2f, 0.2f, 0.2f, 1.0f};
-	const vec4 GROUND_COLOR{0.5f, 0.5f, 0.5f, 1.0f};
-
+	static Material skyMaterial = []() {
+		Material tmp;
+		tmp.diffuse = vec3{0.2f, 0.2f, 0.2f};
+		return tmp;
+	}();
+	static Material groundMaterial = []() {
+		Material tmp;
+		tmp.diffuse = vec3{0.5f, 0.5f, 0.5f};
+		return tmp;
+	}();
 	Assets& assets = Assets::INSTANCE();
 	
 	// Set uniforms
@@ -508,7 +561,7 @@ static void renderBackground(gl::Program& program, const mat4& viewMatrix) noexc
 	const mat4 skyNormalMatrix = sfz::inverse(sfz::transpose(viewMatrix * skyModelMatrix));
 	gl::setUniform(program, "uModelMatrix", skyModelMatrix);
 	gl::setUniform(program, "uNormalMatrix", skyNormalMatrix);
-	gl::setUniform(program, "uColor", SKY_COLOR);
+	setUniformMaterial(program, "uMaterial", skyMaterial);
 
 	assets.SKYSPHERE_MODEL.render();
 
@@ -517,7 +570,7 @@ static void renderBackground(gl::Program& program, const mat4& viewMatrix) noexc
 	const mat4 groundNormalMatrix = sfz::inverse(sfz::transpose(viewMatrix * groundModelMatrix));
 	gl::setUniform(program, "uModelMatrix", groundModelMatrix);
 	gl::setUniform(program, "uNormalMatrix", groundNormalMatrix);
-	gl::setUniform(program, "uColor", GROUND_COLOR);
+	setUniformMaterial(program, "uMaterial", groundMaterial);
 
 	assets.GROUND_MODEL.render();
 }
