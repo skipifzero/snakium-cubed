@@ -38,9 +38,9 @@ private:
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	gl::Program mProgram, mShadowMapProgram;
+	gl::Program mGBufferGenProgram, mShadowMapProgram;
 	gl::Scaler mScaler;
-	ExternalFB mExternalFB;
+	GBuffer mGBuffer;
 	SpotLight mSpotLight;
 	sfz::ShadowMapFB mShadowMapFB, mShadowMapFB2;
 };

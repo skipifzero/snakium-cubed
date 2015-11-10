@@ -49,7 +49,7 @@ int main()
 	Window window{"snakium³", cfg.windowWidth, cfg.windowHeight,
 	     {WindowFlags::OPENGL, WindowFlags::RESIZABLE, WindowFlags::ALLOW_HIGHDPI}};
 
-	gl::Context glContext{window.mPtr, 3, 3, gl::GLContextProfile::CORE};
+	gl::Context glContext{window.mPtr, 4, 1, gl::GLContextProfile::CORE};
 
 	// Sets correct displaymode
 	SDL_DisplayMode cfgDataMode;

@@ -22,32 +22,6 @@ static void checkGLErrorsMessage(const char* msg)
 	if (gl::checkAllGLErrors()) std::cerr << msg << std::endl;
 }
 
-static gl::Program compileStandardShaderProgram() noexcept
-{
-	return gl::Program::fromFile((sfz::basePath() + "assets/shaders/shader.vert").c_str(),
-	                             (sfz::basePath() + "assets/shaders/shader.frag").c_str(),
-	                             [](uint32_t shaderProgram) {
-		glBindAttribLocation(shaderProgram, 0, "inPosition");
-		glBindAttribLocation(shaderProgram, 1, "inNormal");
-		glBindAttribLocation(shaderProgram, 2, "inUV"); // Not available for snakium models
-		glBindAttribLocation(shaderProgram, 3, "inMaterialID");
-		glBindFragDataLocation(shaderProgram, 0, "outFragColor");
-	});
-}
- 
-static gl::Program compileShadowMapShaderProgram() noexcept
-{
-	return gl::Program::fromFile((sfz::basePath() + "assets/shaders/shadow_map.vert").c_str(),
-	                             (sfz::basePath() + "assets/shaders/shadow_map.frag").c_str(),
-	                             [](uint32_t shaderProgram) {
-		glBindAttribLocation(shaderProgram, 0, "inPosition");
-		glBindAttribLocation(shaderProgram, 1, "inNormal");
-		glBindAttribLocation(shaderProgram, 2, "inUV"); // Not available for snakium models
-		glBindAttribLocation(shaderProgram, 3, "inMaterialID");
-		glBindFragDataLocation(shaderProgram, 0, "outFragColor");
-	});
-}
-
 static gl::SimpleModel& getTileModel(const SnakeTile* tilePtr, Direction side, float progress,
                                bool gameOver) noexcept
 {
@@ -585,10 +559,34 @@ static void renderBackground(gl::Program& program, const mat4& viewMatrix) noexc
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 ModernRenderer::ModernRenderer() noexcept
-:
-	mProgram{compileStandardShaderProgram()},
-	mShadowMapProgram{compileShadowMapShaderProgram()}
 {
+	/*mProgram = gl::Program::fromFile((sfz::basePath() + "assets/shaders/shader.vert").c_str(),
+		(sfz::basePath() + "assets/shaders/shader.frag").c_str(),
+		[](uint32_t shaderProgram) {
+		glBindAttribLocation(shaderProgram, 0, "inPosition");
+		glBindAttribLocation(shaderProgram, 1, "inNormal");
+		glBindFragDataLocation(shaderProgram, 0, "outFragColor");
+	});*/
+
+	mGBufferGenProgram = gl::Program::fromFile((sfz::basePath() + "assets/shaders/GBufferGen.vert").c_str(),
+	                                           (sfz::basePath() + "assets/shaders/GBufferGen.frag").c_str(),
+		[](uint32_t shaderProgram) {
+		glBindAttribLocation(shaderProgram, 0, "inPosition");
+		glBindAttribLocation(shaderProgram, 1, "inNormal");
+		glBindFragDataLocation(shaderProgram, 0, "outFragPosition");
+		glBindFragDataLocation(shaderProgram, 1, "outFragNormal");
+		glBindFragDataLocation(shaderProgram, 2, "outFragEmissive");
+		glBindFragDataLocation(shaderProgram, 3, "outFragMaterialIndex");
+	});
+
+	mShadowMapProgram = gl::Program::fromFile((sfz::basePath() + "assets/shaders/shadow_map.vert").c_str(),
+		(sfz::basePath() + "assets/shaders/shadow_map.frag").c_str(),
+		[](uint32_t shaderProgram) {
+		glBindAttribLocation(shaderProgram, 0, "inPosition");
+		glBindAttribLocation(shaderProgram, 1, "inNormal");
+		glBindFragDataLocation(shaderProgram, 0, "outFragColor");
+	});
+
 	mSpotLight.pos = vec3(0.0f, 2.0f, 0.0f);
 	mSpotLight.dir = vec3(0.0f, -1.0f, 0.0f);
 	mSpotLight.color = vec3(0.9f, 1.0f, 0.9f);
@@ -609,14 +607,15 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 
 	// Ensure framebuffers are of correct size
 	vec2i internalRes{(int)(drawableDim.x*cfg.internalResScaling), (int)(drawableDim.y*cfg.internalResScaling)};
-	if (mExternalFB.dimensionsInt() != internalRes) {
-		mExternalFB = ExternalFB{internalRes};
-		std::cout << "Resized xfb, new size: " << mExternalFB.dimensionsInt() << std::endl;
+	if (mGBuffer.dimensionsInt() != internalRes) {
+		mGBuffer = GBuffer{internalRes};
+		std::cout << "Resized xfb, new size: " << mGBuffer.dimensionsInt() << std::endl;
 	}
 	
 	// Recompile shader programs if continuous shader reload is enabled
 	if (cfg.continuousShaderReload) {
-		mProgram.reload();
+		mGBufferGenProgram.reload();
+		mShadowMapProgram.reload();
 	}
 
 	// Enable depth testing
@@ -630,8 +629,10 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	// Enable culling
 	glEnable(GL_CULL_FACE);
 
-	
-	// Shadow Map rendering for spotlight (wip)
+	// Rendering Shadow Map
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	/*// Shadow Map rendering for spotlight (wip)
 	glUseProgram(mShadowMapProgram.handle());
 
 	glEnable(GL_POLYGON_OFFSET_FILL);
@@ -650,19 +651,52 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	renderOpaque(model, mShadowMapProgram, mSpotLight.viewMatrix());
 	renderSnakeProjection(model, mShadowMapProgram, mSpotLight.viewMatrix(), mSpotLight.pos);
 
-	/*glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapFB2.fbo());
-	glViewport(0, 0, mShadowMapFB2.resolutionInt().x, mShadowMapFB2.resolutionInt().y);
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glClearDepth(1.0f);
+	//glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapFB2.fbo());
+	//glViewport(0, 0, mShadowMapFB2.resolutionInt().x, mShadowMapFB2.resolutionInt().y);
+	//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+	//glClearDepth(1.0f);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//renderOpaque(model, mShadowMapProgram, mSpotLight.viewMatrix());
+	//renderSnakeProjection(model, mShadowMapProgram, mSpotLight.viewMatrix(), mSpotLight.pos);
+
+	glDisable(GL_POLYGON_OFFSET_FILL);*/
+
+	// Rendering GBuffer
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	// Binding GBufferGen program and GBuffer
+	glUseProgram(mGBufferGenProgram.handle());
+	glBindFramebuffer(GL_FRAMEBUFFER, mGBuffer.fbo());
+	glViewport(0, 0, mGBuffer.dimensionsInt().x, mGBuffer.dimensionsInt().y);
+
+	// Clearing GBuffer
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	renderOpaque(model, mShadowMapProgram, mSpotLight.viewMatrix());
-	renderSnakeProjection(model, mShadowMapProgram, mSpotLight.viewMatrix(), mSpotLight.pos);*/
+	// View Matrix and Projection Matrix uniforms
+	const mat4 viewMatrix = cam.viewMatrix();
+	const mat4 invViewMatrix = inverse(viewMatrix);
+	gl::setUniform(mGBufferGenProgram, "uProjMatrix", cam.projMatrix());
+	gl::setUniform(mGBufferGenProgram, "uViewMatrix", viewMatrix);
 
-	glDisable(GL_POLYGON_OFFSET_FILL);
+	// Render background
+	renderBackground(mGBufferGenProgram, viewMatrix);
+
+	// Render opaque objects
+	renderOpaque(model, mGBufferGenProgram, viewMatrix);
+
+	// Render snake projection
+	renderSnakeProjection(model, mGBufferGenProgram, viewMatrix, cam.pos());
+
+	// Render transparent cube
+	//renderTransparentCube(model, mProgram, viewMatrix, cam.pos(), 3, 5);
+
+	// Rendering ???
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 
-	// Binding external framebuffer
+	/*// Binding external framebuffer
 	glUseProgram(mProgram.handle());
 	glBindFramebuffer(GL_FRAMEBUFFER, mExternalFB.fbo());
 	glViewport(0, 0, mExternalFB.dimensionsInt().x, mExternalFB.dimensionsInt().y);
@@ -701,7 +735,10 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	renderSnakeProjection(model, mProgram, viewMatrix, cam.pos());
 
 	// Render transparent cube
-	//renderTransparentCube(model, mProgram, viewMatrix, cam.pos(), 3, 5);
+	//renderTransparentCube(model, mProgram, viewMatrix, cam.pos(), 3, 5);*/
+
+	// Scale and draw resulting image to screen
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, drawableDim.x, drawableDim.y);
@@ -709,7 +746,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	mScaler.changeScalingAlgorithm(static_cast<gl::ScalingAlgorithm>(cfg.scalingAlgorithm));
-	mScaler.scale(0, drawableDim, mExternalFB.colorTexture(), mExternalFB.dimensions());
+	mScaler.scale(0, drawableDim, mGBuffer.normalTexture(), mGBuffer.dimensions());
 }
 
 } // namespace s3

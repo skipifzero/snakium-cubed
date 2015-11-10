@@ -6,15 +6,15 @@
 
 namespace s3 {
 
-// ExternalFB: Constructors & destructors
+// GBuffer: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-ExternalFB::ExternalFB(vec2 dimensions) noexcept
+GBuffer::GBuffer(vec2 dimensions) noexcept
 :
-	ExternalFB{vec2i{(int)dimensions.x, (int)dimensions.y}}
+	GBuffer{vec2i{(int)dimensions.x, (int)dimensions.y}}
 { }
 
-ExternalFB::ExternalFB(vec2i dimensions) noexcept
+GBuffer::GBuffer(vec2i dimensions) noexcept
 {
 	sfz_assert_debug(dimensions.x > 0);
 	sfz_assert_debug(dimensions.y > 0);
@@ -32,17 +32,48 @@ ExternalFB::ExternalFB(vec2i dimensions) noexcept
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mDepthBuffer, 0);
 
-	// Color texture
-	glGenTextures(1, &mColorTexture);
-	glBindTexture(GL_TEXTURE_2D, mColorTexture);
+	// Position texture
+	glGenTextures(1, &mPositionTexture);
+	glBindTexture(GL_TEXTURE_2D, mPositionTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, mDim.x, mDim.y, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mPositionTexture, 0);
+
+	// Normal texture
+	glGenTextures(1, &mNormalTexture);
+	glBindTexture(GL_TEXTURE_2D, mNormalTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB32F, mDim.x, mDim.y, 0, GL_RGB, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, mNormalTexture, 0);
+
+	// Emissive texture
+	glGenTextures(1, &mEmissiveTexture);
+	glBindTexture(GL_TEXTURE_2D, mEmissiveTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, mDim.x, mDim.y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mColorTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, mEmissiveTexture, 0);
 
-	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+	// Material Index texture
+	glGenTextures(1, &mMaterialIndexTexture);
+	glBindTexture(GL_TEXTURE_2D, mMaterialIndexTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8UI, mDim.x, mDim.y, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, mMaterialIndexTexture, 0);
+
+	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2,
+	                         GL_COLOR_ATTACHMENT3 };
 	glDrawBuffers(sizeof(drawBuffers)/sizeof(GLenum), drawBuffers);
 
 	// Check that framebuffer is okay
@@ -53,27 +84,36 @@ ExternalFB::ExternalFB(vec2i dimensions) noexcept
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-ExternalFB::ExternalFB(ExternalFB&& other) noexcept
+GBuffer::GBuffer(GBuffer&& other) noexcept
 {
 	std::swap(this->mFBO, other.mFBO);
 	std::swap(this->mDepthBuffer, other.mDepthBuffer);
-	std::swap(this->mColorTexture, other.mColorTexture);
+	std::swap(this->mPositionTexture, other.mPositionTexture);
+	std::swap(this->mNormalTexture, other.mNormalTexture);
+	std::swap(this->mEmissiveTexture, other.mEmissiveTexture);
+	std::swap(this->mMaterialIndexTexture, other.mMaterialIndexTexture);
 	std::swap(this->mDim, other.mDim);
 }
 
-ExternalFB& ExternalFB::operator= (ExternalFB&& other) noexcept
+GBuffer& GBuffer::operator= (GBuffer&& other) noexcept
 {
 	std::swap(this->mFBO, other.mFBO);
 	std::swap(this->mDepthBuffer, other.mDepthBuffer);
-	std::swap(this->mColorTexture, other.mColorTexture);
+	std::swap(this->mPositionTexture, other.mPositionTexture);
+	std::swap(this->mNormalTexture, other.mNormalTexture);
+	std::swap(this->mEmissiveTexture, other.mEmissiveTexture);
+	std::swap(this->mMaterialIndexTexture, other.mMaterialIndexTexture);
 	std::swap(this->mDim, other.mDim);
 	return *this;
 }
 
-ExternalFB::~ExternalFB() noexcept
+GBuffer::~GBuffer() noexcept
 {
 	glDeleteTextures(1, &mDepthBuffer);
-	glDeleteTextures(1, &mColorTexture);
+	glDeleteTextures(1, &mPositionTexture);
+	glDeleteTextures(1, &mNormalTexture);
+	glDeleteTextures(1, &mEmissiveTexture);
+	glDeleteTextures(1, &mMaterialIndexTexture);
 	glDeleteFramebuffers(1, &mFBO);
 }
 
