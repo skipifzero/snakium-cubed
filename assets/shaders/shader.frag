@@ -87,12 +87,12 @@ void main()
 		specularAngle = clamp(dot(vsNormal, halfVec), 0.0, 1.0);
 	}
 	float specularIntensity = pow(specularAngle, uMaterial.shininess);
-	specularIntensity *= ((uMaterial.shininess + 2.0) / 8.0); // Normalization
+	///specularIntensity *= ((uMaterial.shininess + 2.0) / 8.0); // Normalization
 	vec3 specularContribution = specularIntensity * materialSpecular * uSpotLight.color;
 
 	// Shadow
-	float shadow = sampleShadowMap(uShadowMap, vsPos) * 0.5
-	             + sampleShadowMap(uShadowMap2, vsPos) * 0.5;
+	float shadow = sampleShadowMap(uShadowMap, vsPos);// * 0.5
+	//             + sampleShadowMap(uShadowMap2, vsPos) * 0.5;
 
 	// Spotlight scaling
 	float lightScale = calcQuadraticLightScale(vsPos);

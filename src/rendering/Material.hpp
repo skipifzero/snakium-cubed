@@ -10,11 +10,11 @@ namespace s3 {
 using sfz::vec3;
 
 struct Material final {
-	vec3 ambient = vec3{0.0f};
+	vec3 ambient = vec3{0.025f};
 	vec3 diffuse = vec3{0.0f};
-	vec3 specular = vec3{0.0f};
+	vec3 specular = vec3{0.25f};
 	vec3 emissive = vec3{0.0f};
-	float shininess = 8.0f;
+	float shininess = 6.0f;
 	float opaque = 1.0f;
 };
 

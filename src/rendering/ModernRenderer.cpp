@@ -285,22 +285,26 @@ static const Material& tileMaterial(const SnakeTile* tilePtr) noexcept
 	static Material deflt;
 	static Material objectMaterial = []() {
 		Material tmp;
-		tmp.diffuse = vec3{0.0f, 1.0f, 1.0f};
+		tmp.diffuse = vec3{0.0f, 1.0f, 1.0f} * 0.25f;
+		tmp.emissive = vec3{0.0f, 1.0f, 1.0f} * 0.6f;
 		return tmp;
 	}();
 	static Material bonusObjectMaterial = []() {
 		Material tmp;
-		tmp.diffuse = vec3{1.0f, 0.0f, 0.85f};
+		tmp.diffuse = vec3{1.0f, 0.0f, 0.85f} * 0.25f;
+		tmp.emissive = vec3{1.0f, 0.0f, 0.85f} * 0.6f;
 		return tmp;
 	}();
 	static Material snakeMaterial = []() {
 		Material tmp;
-		tmp.diffuse = vec3{0.0f, 1.0f, 0.25f};
+		tmp.diffuse = vec3{0.0f, 1.0f, 0.25f} * 0.25f;
+		tmp.emissive = vec3{0.0f, 1.0f, 0.25f} * 0.6f;
 		return tmp;
 	}();
 	static Material snakeDigMaterial = []() {
 		Material tmp;
-		tmp.diffuse = vec3{0.0f, 1.0f, 0.25f};
+		tmp.diffuse = vec3{0.0f, 1.0f, 0.25f} * 0.25f;
+		tmp.emissive = vec3{0.0f, 1.0f, 0.25f} * 0.6f;
 		return tmp;
 	}();
 
@@ -358,7 +362,8 @@ static void renderOpaque(const Model& model, gl::Program& program, const mat4& v
 	Assets& assets = Assets::INSTANCE();
 	static Material tileDiveAscendMaterial = []() {
 		Material tmp;
-		tmp.diffuse = vec3{0.5f, 0.0f, 0.75f};
+		tmp.diffuse = vec3{0.5f, 0.0f, 0.75f} * 0.25f;
+		tmp.emissive = vec3{0.5f, 0.0f, 0.75f} * 0.6f;
 		return tmp;
 	}();
 
@@ -442,8 +447,9 @@ static void renderSnakeProjection(const Model& model, gl::Program& program, cons
 
 	static Material tileProjectionMaterial = []() {
 		Material tmp;
-		tmp.diffuse = vec3{0.5f, 0.5f, 0.5f};
-		tmp.opaque = 0.75f;
+		tmp.diffuse = vec3{0.5f, 0.5f, 0.5f} * 0.4f;
+		tmp.emissive = vec3{0.5f, 0.5f, 0.5f} * 0.15f;
+		tmp.opaque = 1.0f;
 		return tmp;
 	}();
 
@@ -572,7 +578,7 @@ static void renderBackground(gl::Program& program, const mat4& viewMatrix) noexc
 	gl::setUniform(program, "uNormalMatrix", groundNormalMatrix);
 	setUniformMaterial(program, "uMaterial", groundMaterial);
 
-	assets.GROUND_MODEL.render();
+	//assets.GROUND_MODEL.render();
 }
 
 // ModernRenderer: Constructors & destructors
@@ -642,15 +648,16 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	renderOpaque(model, mShadowMapProgram, mSpotLight.viewMatrix());
+	renderSnakeProjection(model, mShadowMapProgram, mSpotLight.viewMatrix(), mSpotLight.pos);
 
-	glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapFB2.fbo());
+	/*glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapFB2.fbo());
 	glViewport(0, 0, mShadowMapFB2.resolutionInt().x, mShadowMapFB2.resolutionInt().y);
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	renderOpaque(model, mShadowMapProgram, mSpotLight.viewMatrix());
-	renderSnakeProjection(model, mShadowMapProgram, mSpotLight.viewMatrix(), mSpotLight.pos);
+	renderSnakeProjection(model, mShadowMapProgram, mSpotLight.viewMatrix(), mSpotLight.pos);*/
 
 	glDisable(GL_POLYGON_OFFSET_FILL);
 
@@ -694,7 +701,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	renderSnakeProjection(model, mProgram, viewMatrix, cam.pos());
 
 	// Render transparent cube
-	renderTransparentCube(model, mProgram, viewMatrix, cam.pos(), 3, 5);
+	//renderTransparentCube(model, mProgram, viewMatrix, cam.pos(), 3, 5);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, drawableDim.x, drawableDim.y);
