@@ -329,6 +329,31 @@ void setUniform(const Program& program, const char* name, const int* intArray, s
 	setUniform(loc, intArray, count);
 }
 
+// Uniform setters: uint
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+void setUniform(int location, uint32_t u) noexcept
+{
+	glUniform1ui(location, u);
+}
+
+void setUniform(const Program& program, const char* name, uint32_t u) noexcept
+{
+	int loc = glGetUniformLocation(program.handle(), name);
+	setUniform(loc, u);
+}
+
+void setUniform(int location, const uint32_t* uintArray, size_t count) noexcept
+{
+	glUniform1uiv(location, count, uintArray);
+}
+
+void setUniform(const Program& program, const char* name, const uint32_t* uintArray, size_t count) noexcept
+{
+	int loc = glGetUniformLocation(program.handle(), name);
+	setUniform(loc, uintArray, count);
+}
+
 // Uniform setters: float
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

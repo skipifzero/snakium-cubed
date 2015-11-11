@@ -144,6 +144,11 @@ void setUniform(const Program& program, const char* name, int i) noexcept;
 void setUniform(int location, const int* intArray, size_t count) noexcept;
 void setUniform(const Program& program, const char* name, const int* intArray, size_t count) noexcept;
 
+void setUniform(int location, uint32_t u) noexcept;
+void setUniform(const Program& program, const char* name, uint32_t u) noexcept;
+void setUniform(int location, const uint32_t* uintArray, size_t count) noexcept;
+void setUniform(const Program& program, const char* name, const uint32_t* uintArray, size_t count) noexcept;
+
 void setUniform(int location, float f) noexcept;
 void setUniform(const Program& program, const char* name, float f) noexcept;
 void setUniform(int location, const float* floatArray, size_t count) noexcept;
