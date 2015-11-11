@@ -62,15 +62,15 @@ GBuffer::GBuffer(vec2i dimensions) noexcept
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, mEmissiveTexture, 0);
 
-	// Material Index texture
-	glGenTextures(1, &mMaterialIndexTexture);
-	glBindTexture(GL_TEXTURE_2D, mMaterialIndexTexture);
+	// Material Id texture
+	glGenTextures(1, &mMaterialIdTexture);
+	glBindTexture(GL_TEXTURE_2D, mMaterialIdTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8UI, mDim.x, mDim.y, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, mMaterialIndexTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, mMaterialIdTexture, 0);
 
 	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2,
 	                         GL_COLOR_ATTACHMENT3 };
@@ -91,7 +91,7 @@ GBuffer::GBuffer(GBuffer&& other) noexcept
 	std::swap(this->mPositionTexture, other.mPositionTexture);
 	std::swap(this->mNormalTexture, other.mNormalTexture);
 	std::swap(this->mEmissiveTexture, other.mEmissiveTexture);
-	std::swap(this->mMaterialIndexTexture, other.mMaterialIndexTexture);
+	std::swap(this->mMaterialIdTexture, other.mMaterialIdTexture);
 	std::swap(this->mDim, other.mDim);
 }
 
@@ -102,7 +102,7 @@ GBuffer& GBuffer::operator= (GBuffer&& other) noexcept
 	std::swap(this->mPositionTexture, other.mPositionTexture);
 	std::swap(this->mNormalTexture, other.mNormalTexture);
 	std::swap(this->mEmissiveTexture, other.mEmissiveTexture);
-	std::swap(this->mMaterialIndexTexture, other.mMaterialIndexTexture);
+	std::swap(this->mMaterialIdTexture, other.mMaterialIdTexture);
 	std::swap(this->mDim, other.mDim);
 	return *this;
 }
@@ -113,7 +113,7 @@ GBuffer::~GBuffer() noexcept
 	glDeleteTextures(1, &mPositionTexture);
 	glDeleteTextures(1, &mNormalTexture);
 	glDeleteTextures(1, &mEmissiveTexture);
-	glDeleteTextures(1, &mMaterialIndexTexture);
+	glDeleteTextures(1, &mMaterialIdTexture);
 	glDeleteFramebuffers(1, &mFBO);
 }
 

@@ -6,7 +6,7 @@
 #include "rendering/Camera.hpp"
 #include "rendering/ClassicRenderer.hpp"
 #include "rendering/Framebuffers.hpp"
-#include "rendering/Material.hpp"
+#include "rendering/Materials.hpp"
 #include "rendering/ModernRenderer.hpp"
 #include "rendering/SpotLight.hpp"
 #include "rendering/TileObject.hpp"
