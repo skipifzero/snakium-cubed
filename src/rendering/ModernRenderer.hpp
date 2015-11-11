@@ -38,7 +38,8 @@ private:
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	gl::Program mGBufferGenProgram, mShadowMapProgram;
+	gl::PostProcessQuad mPostProcessQuad;
+	gl::Program mGBufferGenProgram, mShadowMapProgram, mSpotLightShadingProgram;
 	gl::Scaler mScaler;
 	GBuffer mGBuffer;
 	SpotLight mSpotLight;

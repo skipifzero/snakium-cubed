@@ -25,19 +25,24 @@ struct Material {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 // Input
-in vec3 vsPos;
-in vec3 vsNormal;
+in vec2 uvCoord;
 
 // Output
 out vec4 outFragColor;
 
 // Uniforms
-uniform Material uMaterial;
+uniform sampler2D uPositionTexture;
+uniform sampler2D uNormalTexture;
+uniform sampler2D uEmissiveTexture;
+uniform usampler2D uMaterialTexture;
+
+uniform Material uMaterials[20];
+uniform unsigned int uMaterialId;
 
 // wip light uniforms
 uniform SpotLight uSpotLight;
 uniform sampler2DShadow uShadowMap;
-uniform sampler2DShadow uShadowMap2;
+//uniform sampler2DShadow uShadowMap2;
 
 // Helper functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -63,7 +68,13 @@ float calcQuadraticLightScale(vec3 samplePos)
 
 void main()
 {
-	// Vectors
+	// Values from GBuffer
+	vec3 vsPos = texture(uPositionTexture, uvCoord).xyz;
+	vec3 vsNormal = texture(uNormalTexture, uvCoord).xyz;
+	vec3 emissive = texture(uEmissiveTexture, uvCoord).rgb;
+	unsigned int materialId = texture(uMaterialTexture, uvCoord).r;
+
+	/*// Vectors
 	vec3 toCam = normalize(-vsPos);
 	vec3 toLight = normalize(uSpotLight.vsPos - vsPos);
 	vec3 halfVec = normalize(toLight + toCam);
@@ -103,5 +114,7 @@ void main()
 	             + specularContribution * shadow * lightScale
 	             + uMaterial.emissive;
 
-	outFragColor = vec4(shading, uMaterial.opaque);
+	outFragColor = vec4(shading, uMaterial.opaque);*/
+
+	outFragColor = vec4(1, 0, 0, 1);
 }

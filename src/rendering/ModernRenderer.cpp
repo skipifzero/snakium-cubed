@@ -491,16 +491,8 @@ static void renderBackground(gl::Program& program, const mat4& viewMatrix) noexc
 
 ModernRenderer::ModernRenderer() noexcept
 {
-	/*mProgram = gl::Program::fromFile((sfz::basePath() + "assets/shaders/shader.vert").c_str(),
-		(sfz::basePath() + "assets/shaders/shader.frag").c_str(),
-		[](uint32_t shaderProgram) {
-		glBindAttribLocation(shaderProgram, 0, "inPosition");
-		glBindAttribLocation(shaderProgram, 1, "inNormal");
-		glBindFragDataLocation(shaderProgram, 0, "outFragColor");
-	});*/
-
-	mGBufferGenProgram = gl::Program::fromFile((sfz::basePath() + "assets/shaders/GBufferGen.vert").c_str(),
-	                                           (sfz::basePath() + "assets/shaders/GBufferGen.frag").c_str(),
+	mGBufferGenProgram = gl::Program::fromFile((sfz::basePath() + "assets/shaders/gbuffer_gen.vert").c_str(),
+	                                           (sfz::basePath() + "assets/shaders/gbuffer_gen.frag").c_str(),
 		[](uint32_t shaderProgram) {
 		glBindAttribLocation(shaderProgram, 0, "inPosition");
 		glBindAttribLocation(shaderProgram, 1, "inNormal");
@@ -511,12 +503,14 @@ ModernRenderer::ModernRenderer() noexcept
 	});
 
 	mShadowMapProgram = gl::Program::fromFile((sfz::basePath() + "assets/shaders/shadow_map.vert").c_str(),
-		(sfz::basePath() + "assets/shaders/shadow_map.frag").c_str(),
+	                                          (sfz::basePath() + "assets/shaders/shadow_map.frag").c_str(),
 		[](uint32_t shaderProgram) {
 		glBindAttribLocation(shaderProgram, 0, "inPosition");
 		glBindAttribLocation(shaderProgram, 1, "inNormal");
 		glBindFragDataLocation(shaderProgram, 0, "outFragColor");
 	});
+
+	mSpotLightShadingProgram = gl::Program::postProcessFromFile((sfz::basePath() + "assets/shaders/spot_light_shading.frag").c_str());
 
 	mSpotLight.pos = vec3(0.0f, 2.0f, 0.0f);
 	mSpotLight.dir = vec3(0.0f, -1.0f, 0.0f);

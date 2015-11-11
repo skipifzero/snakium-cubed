@@ -2,7 +2,6 @@
 
 in vec3 inPosition;
 in vec3 inNormal;
-in int inMaterialID;
 
 uniform mat4 uProjMatrix;
 uniform mat4 uViewMatrix;
