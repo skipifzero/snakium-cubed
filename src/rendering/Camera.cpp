@@ -30,7 +30,7 @@ Camera::Camera() noexcept
 {
 	mCamDir = vec3{0.0f, 0.0f, 1.0f};
 	mCamUp = vec3{0.0f, 1.0f, 0.0f};
-	mCamDist = 2.5f;
+	mCamDist = 2.0f;
 
 	mFov = 60.0f;
 	mAspect = 1.0f;

@@ -172,7 +172,12 @@ void GameScreen::render(UpdateState& state)
 	}
 
 	vec2 drawableDim = state.window.drawableDimensions();
-	
+
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_CULL_FACE);
+
 	glUseProgram(0);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glViewport(0, 0, drawableDim.x, drawableDim.y);

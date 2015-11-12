@@ -23,11 +23,11 @@ in vec3 vsNormal;
 layout(location = 0) out vec4 outFragPosition;
 layout(location = 1) out vec4 outFragNormal;
 layout(location = 2) out vec4 outFragEmissive;
-layout(location = 3) out unsigned int outFragMaterialId;
+layout(location = 3) out uint outFragMaterialId;
 
 // Uniforms
 uniform Material uMaterials[20];
-uniform unsigned int uMaterialId;
+uniform uint uMaterialId;
 
 // Main
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

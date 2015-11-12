@@ -32,9 +32,6 @@ public:
 	GBuffer(GBuffer&& other) noexcept;
 	GBuffer& operator= (GBuffer&& other) noexcept;
 	~GBuffer() noexcept;
-	
-	// Public methods
-	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	// Getters
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -60,21 +57,40 @@ private:
 	vec2i mDim{-1};
 };
 
-// Post Process FBO
+// Post Process Framebuffer
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-struct PostProcessFramebuffer final {
-	uint32_t mFBO, mTexture;
-	int mWidth, mHeight;
+class PostProcessFB final {
+public:
+	// Constructors & destructors
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	PostProcessFramebuffer() = delete;
-	PostProcessFramebuffer(const PostProcessFramebuffer&) = delete;
-	PostProcessFramebuffer& operator= (const PostProcessFramebuffer&) = delete;
+	PostProcessFB() noexcept = default;
+	PostProcessFB(const PostProcessFB&) = delete;
+	PostProcessFB& operator= (const PostProcessFB&) = delete;
 
-	PostProcessFramebuffer(int width, int height) noexcept;
-	PostProcessFramebuffer(PostProcessFramebuffer&& other) noexcept;
-	PostProcessFramebuffer& operator= (PostProcessFramebuffer&& other) noexcept;
-	~PostProcessFramebuffer() noexcept;
+	PostProcessFB(vec2 dimensions) noexcept;
+	PostProcessFB(vec2i dimensions) noexcept;
+	
+	PostProcessFB(PostProcessFB&& other) noexcept;
+	PostProcessFB& operator= (PostProcessFB&& other) noexcept;
+	~PostProcessFB() noexcept;
+
+	// Getters
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	inline uint32_t fbo() const noexcept { return mFBO; }
+	inline uint32_t colorTexture() const noexcept { return mColorTexture; }
+	inline vec2 dimensions() const noexcept { return vec2{(float)mDim.x, (float)mDim.y}; }
+	inline vec2i dimensionsInt() const noexcept { return mDim; }
+
+private:
+	// Private members
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	uint32_t mFBO = 0;
+	uint32_t mColorTexture = 0;
+	vec2i mDim{-1};
 };
 
 } // namespace s3

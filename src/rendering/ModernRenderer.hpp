@@ -39,9 +39,10 @@ private:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	gl::PostProcessQuad mPostProcessQuad;
-	gl::Program mGBufferGenProgram, mShadowMapProgram, mSpotLightShadingProgram;
+	gl::Program mGBufferGenProgram, mShadowMapProgram, mSpotLightShadingProgram, mGlobalShadingProgram;
 	gl::Scaler mScaler;
 	GBuffer mGBuffer;
+	PostProcessFB mSpotLightShadingFB, mGlobalShadingFB;
 	SpotLight mSpotLight;
 	sfz::ShadowMapFB mShadowMapFB, mShadowMapFB2;
 };

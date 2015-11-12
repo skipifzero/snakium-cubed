@@ -117,27 +117,36 @@ GBuffer::~GBuffer() noexcept
 	glDeleteFramebuffers(1, &mFBO);
 }
 
-// Post Process FBO
+// PostProcessFB: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-PostProcessFramebuffer::PostProcessFramebuffer(int width, int height) noexcept
+PostProcessFB::PostProcessFB(vec2 dimensions) noexcept
 :
-	mWidth{width},
-	mHeight{height}
+	PostProcessFB{vec2i{(int)dimensions.x, (int)dimensions.y}}
+{ }
+
+PostProcessFB::PostProcessFB(vec2i dimensions) noexcept
 {
+	sfz_assert_debug(dimensions.x > 0);
+	sfz_assert_debug(dimensions.y > 0);
+	mDim = dimensions;
+
 	// Generate framebuffer
 	glGenFramebuffers(1, &mFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 
 	// Color texture
-	glGenTextures(1, &mTexture);
-	glBindTexture(GL_TEXTURE_2D, mTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+	glGenTextures(1, &mColorTexture);
+	glBindTexture(GL_TEXTURE_2D, mColorTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, mDim.x, mDim.y, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTexture, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mColorTexture, 0);
+
+	GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(sizeof(drawBuffers)/sizeof(GLenum), drawBuffers);
 
 	// Check that framebuffer is okay
 	sfz_assert_release((glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE));
@@ -147,28 +156,24 @@ PostProcessFramebuffer::PostProcessFramebuffer(int width, int height) noexcept
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-PostProcessFramebuffer::PostProcessFramebuffer(PostProcessFramebuffer&& other) noexcept
+PostProcessFB::PostProcessFB(PostProcessFB&& other) noexcept
 {
-	glGenFramebuffers(1, &mFBO);
-	glGenTextures(1, &mTexture);
-	std::swap(mFBO, other.mFBO);
-	std::swap(mTexture, other.mTexture);
-	std::swap(mWidth, other.mWidth);
-	std::swap(mHeight, other.mHeight);
+	std::swap(this->mFBO, other.mFBO);
+	std::swap(this->mColorTexture, other.mColorTexture);
+	std::swap(this->mDim, other.mDim);
 }
 
-PostProcessFramebuffer& PostProcessFramebuffer::operator= (PostProcessFramebuffer&& other) noexcept
+PostProcessFB& PostProcessFB::operator= (PostProcessFB&& other) noexcept
 {
-	std::swap(mFBO, other.mFBO);
-	std::swap(mTexture, other.mTexture);
-	std::swap(mWidth, other.mWidth);
-	std::swap(mHeight, other.mHeight);
+	std::swap(this->mFBO, other.mFBO);
+	std::swap(this->mColorTexture, other.mColorTexture);
+	std::swap(this->mDim, other.mDim);
 	return *this;
 }
 
-PostProcessFramebuffer::~PostProcessFramebuffer() noexcept
+PostProcessFB::~PostProcessFB() noexcept
 {
-	glDeleteTextures(1, &mTexture);
+	glDeleteTextures(1, &mColorTexture);
 	glDeleteFramebuffers(1, &mFBO);
 }
 
