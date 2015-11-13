@@ -86,7 +86,6 @@ void GlobalConfig::load() noexcept
 	internalResScaling = ip.sanitizeFloat(grStr, "fInternalResScaling", 1.0f, 0.01f, 10.0f);
 	displayIndex =      ip.sanitizeInt(grStr, "iDisplayIndex", 0, 0, 32);
 	fullscreenMode =    ip.sanitizeInt(grStr, "iFullscreenMode", 0, 0, 2);
-	msaa =              ip.sanitizeInt(grStr, "iMSAA", 4, 0, 32);
 	refreshRate =       ip.sanitizeInt(grStr, "iRefreshRate", 60, 15, 240);
 	resolutionX =       ip.sanitizeInt(grStr, "iResolutionX", 1920, 200, 30720);
 	resolutionY =       ip.sanitizeInt(grStr, "iResolutionY", 1080, 200, 17280);
@@ -122,7 +121,6 @@ void GlobalConfig::save() noexcept
 	mIniParser.setFloat(grStr, "fInternalResScaling", internalResScaling);
 	mIniParser.setInt(grStr, "iDisplayIndex", displayIndex);
 	mIniParser.setInt(grStr, "iFullscreenMode", fullscreenMode);
-	mIniParser.setInt(grStr, "iMSAA", msaa);
 	mIniParser.setInt(grStr, "iRefreshRate", refreshRate);
 	mIniParser.setInt(grStr, "iResolutionX", resolutionX);
 	mIniParser.setInt(grStr, "iResolutionY", resolutionY);
@@ -149,7 +147,6 @@ void GlobalConfig::data(const ConfigData& configData) noexcept
 	this->windowWidth = configData.windowWidth;
 	this->windowHeight = configData.windowHeight;
 	this->vsync = configData.vsync;
-	this->msaa = configData.msaa;
 	this->internalResScaling = configData.internalResScaling;
 	this->scalingAlgorithm = configData.scalingAlgorithm;
 

@@ -517,8 +517,8 @@ ModernRenderer::ModernRenderer() noexcept
 	mSpotLight.pos = vec3(0.0f, 2.0f, 0.0f);
 	mSpotLight.dir = vec3(0.0f, -1.0f, 0.0f);
 	mSpotLight.color = vec3(0.85f, 1.0f, 0.85f);
-	mSpotLight.range = 3.0f;
-	mSpotLight.fov = 50.0f;
+	mSpotLight.range = 12.0f;
+	mSpotLight.fov = 45.0f;
 
 	mShadowMapFB = sfz::ShadowMapFB{sfz::vec2i{4096}, sfz::ShadowMapDepthRes::BITS_32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
 	mShadowMapFB2 = sfz::ShadowMapFB{sfz::vec2i{4096}, sfz::ShadowMapDepthRes::BITS_32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};

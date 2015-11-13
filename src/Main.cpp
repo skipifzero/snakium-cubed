@@ -40,12 +40,6 @@ int main()
 		cfg.save();
 	}
 
-	// Must be set before creating window apparently
-	if (cfg.msaa > 0) {
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, cfg.msaa);
-	}
-
 	Window window{"snakium³", cfg.windowWidth, cfg.windowHeight,
 	     {WindowFlags::OPENGL, WindowFlags::RESIZABLE, WindowFlags::ALLOW_HIGHDPI}};
 
