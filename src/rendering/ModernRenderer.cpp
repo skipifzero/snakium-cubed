@@ -510,15 +510,22 @@ ModernRenderer::ModernRenderer() noexcept
 		glBindFragDataLocation(shaderProgram, 0, "outFragColor");
 	});
 
-	mSpotLightShadingProgram = gl::Program::postProcessFromFile((sfz::basePath() + "assets/shaders/spot_light_shading.frag").c_str());
+	mSpotlightShadingProgram = gl::Program::postProcessFromFile((sfz::basePath() + "assets/shaders/spotlight_shading.frag").c_str());
 
 	mGlobalShadingProgram = gl::Program::postProcessFromFile((sfz::basePath() + "assets/shaders/global_shading.frag").c_str());
 
-	mSpotLight.pos = vec3(0.0f, 2.0f, 0.0f);
-	mSpotLight.dir = vec3(0.0f, -1.0f, 0.0f);
-	mSpotLight.color = vec3(0.85f, 1.0f, 0.85f);
-	mSpotLight.range = 12.0f;
-	mSpotLight.fov = 45.0f;
+	Spotlight spotlightTemp;
+	spotlightTemp.color = vec3{0.6f, 1.0f, 0.6f};
+	spotlightTemp.range = 12.0f;
+	spotlightTemp.fov = 45.0f;
+	
+	spotlightTemp.pos = vec3(0.0f, 1.25f, 0.0f);
+	spotlightTemp.dir = vec3(0.0f, -1.0f, 0.0f);
+	mSpotlights.push_back(spotlightTemp);
+
+	spotlightTemp.pos = vec3(-1.25f, 0.0f, 0.0f);
+	spotlightTemp.dir = vec3(1.0f, 0.0f, 0.0f);
+	mSpotlights.push_back(spotlightTemp);
 
 	mShadowMapFB = sfz::ShadowMapFB{sfz::vec2i{4096}, sfz::ShadowMapDepthRes::BITS_32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
 	mShadowMapFB2 = sfz::ShadowMapFB{sfz::vec2i{4096}, sfz::ShadowMapDepthRes::BITS_32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
@@ -536,7 +543,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	vec2i internalRes{(int)(drawableDim.x*cfg.internalResScaling), (int)(drawableDim.y*cfg.internalResScaling)};
 	if (mGBuffer.dimensionsInt() != internalRes) {
 		mGBuffer = GBuffer{internalRes};
-		mSpotLightShadingFB = PostProcessFB{internalRes};
+		mSpotlightShadingFB = PostProcessFB{internalRes};
 		mGlobalShadingFB = PostProcessFB{internalRes};
 		std::cout << "Resized xfb, new size: " << mGBuffer.dimensionsInt() << std::endl;
 	}
@@ -545,7 +552,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	if (cfg.continuousShaderReload) {
 		mGBufferGenProgram.reload();
 		mShadowMapProgram.reload();
-		mSpotLightShadingProgram.reload();
+		mSpotlightShadingProgram.reload();
 		mGlobalShadingProgram.reload();
 	}
 
@@ -629,82 +636,88 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	//renderTransparentCube(model, mProgram, viewMatrix, cam.pos(), 3, 5);
 
 
-	// Spotlight (Shadow Map)
+	// Spotlights (Shadow Map + Shading)
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-	glDisable(GL_BLEND);
-	glEnable(GL_CULL_FACE);
-
-	glEnable(GL_POLYGON_OFFSET_FILL);
-	glPolygonOffset(5.0f, 25.0f);
-	//glCullFace(GL_FRONT);
-
-	glUseProgram(mShadowMapProgram.handle());
-	glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapFB.fbo());
-	glViewport(0, 0, mShadowMapFB.resolutionInt().x, mShadowMapFB.resolutionInt().y);
-
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glClearDepth(1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	gl::setUniform(mShadowMapProgram, "uProjMatrix", mSpotLight.projMatrix());
-	gl::setUniform(mShadowMapProgram, "uViewMatrix", mSpotLight.viewMatrix());
-
-	renderOpaque(model, mShadowMapProgram, mSpotLight.viewMatrix());
-	renderSnakeProjection(model, mShadowMapProgram, mSpotLight.viewMatrix(), mSpotLight.pos);
-
-	glDisable(GL_POLYGON_OFFSET_FILL);
-
-
-	// Spotlight (Shading)
-	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
-	glDisable(GL_CULL_FACE);
-
-	glUseProgram(mSpotLightShadingProgram.handle());
-	glBindFramebuffer(GL_FRAMEBUFFER, mSpotLightShadingFB.fbo());
-	glViewport(0, 0, mSpotLightShadingFB.dimensionsInt().x, mSpotLightShadingFB.dimensionsInt().y);
-
+	// Clear Spotlight shading texture
+	glUseProgram(mSpotlightShadingProgram.handle());
+	glBindFramebuffer(GL_FRAMEBUFFER, mSpotlightShadingFB.fbo());
+	glViewport(0, 0, mSpotlightShadingFB.dimensionsInt().x, mSpotlightShadingFB.dimensionsInt().y);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	stupidSetUniformMaterials(mSpotLightShadingProgram, "uMaterials");
-
+	// Set common uniforms
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, mGBuffer.positionTexture());
-	gl::setUniform(mSpotLightShadingProgram, "uPositionTexture", 0);
+	gl::setUniform(mSpotlightShadingProgram, "uPositionTexture", 0);
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, mGBuffer.normalTexture());
-	gl::setUniform(mSpotLightShadingProgram, "uNormalTexture", 1);
+	gl::setUniform(mSpotlightShadingProgram, "uNormalTexture", 1);
 
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, mGBuffer.emissiveTexture());
-	gl::setUniform(mSpotLightShadingProgram, "uEmissiveTexture", 2);
+	gl::setUniform(mSpotlightShadingProgram, "uEmissiveTexture", 2);
 
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, mGBuffer.materialIdTexture());
-	gl::setUniform(mSpotLightShadingProgram, "uMaterialIdTexture", 3);
+	gl::setUniform(mSpotlightShadingProgram, "uMaterialIdTexture", 3);
 
-	// Spotlight uniforms (wip)
-	gl::setUniform(mSpotLightShadingProgram, "uSpotLight.vsPos", sfz::transformPoint(viewMatrix, mSpotLight.pos));
-	gl::setUniform(mSpotLightShadingProgram, "uSpotLight.vsDir", sfz::transformDir(viewMatrix, mSpotLight.dir));
-	gl::setUniform(mSpotLightShadingProgram, "uSpotLight.color", mSpotLight.color);
-	gl::setUniform(mSpotLightShadingProgram, "uSpotLight.range", mSpotLight.range);
-	gl::setUniform(mSpotLightShadingProgram, "uSpotLight.fov", mSpotLight.fov);
-	gl::setUniform(mSpotLightShadingProgram, "uSpotLight.lightMatrix", mSpotLight.lightMatrix(invViewMatrix));
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, mShadowMapFB.depthTexture());
-	gl::setUniform(mSpotLightShadingProgram, "uShadowMap", 4);
-	//glActiveTexture(GL_TEXTURE1);
-	//glBindTexture(GL_TEXTURE_2D, mShadowMapFB2.depthTexture());
-	//gl::setUniform(mProgram, "uShadowMap2", 1);
+	glBindTexture(GL_TEXTURE_2D, mSpotlightShadingFB.colorTexture());
+	gl::setUniform(mSpotlightShadingProgram, "uSpotlightTexture", 4);
 
-	mPostProcessQuad.render();
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, mShadowMapFB.depthTexture());
+	gl::setUniform(mSpotlightShadingProgram, "uShadowMap", 5);
+
+	//glActiveTexture(GL_TEXTURE5);
+	//glBindTexture(GL_TEXTURE_2D, mShadowMapFB2.depthTexture());
+	//gl::setUniform(mProgram, "uShadowMap2", 5);
+
+	stupidSetUniformMaterials(mSpotlightShadingProgram, "uMaterials");
+
+	glDisable(GL_BLEND);
+
+	for (size_t i = 0; i < mSpotlights.size(); ++i) {
+		auto& spotlight = mSpotlights[i];
+
+		// Set shadow map program & fbo and clear it
+		glUseProgram(mShadowMapProgram.handle());
+		glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapFB.fbo());
+		glViewport(0, 0, mShadowMapFB.resolutionInt().x, mShadowMapFB.resolutionInt().y);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClearDepth(1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+		//glEnable(GL_POLYGON_OFFSET_FILL);
+		//glPolygonOffset(5.0f, 25.0f);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+
+		gl::setUniform(mShadowMapProgram, "uViewProjMatrix", spotlight.projMatrix() * spotlight.viewMatrix());
+
+		// Renders objects to shadow map
+		renderOpaque(model, mShadowMapProgram, spotlight.viewMatrix());
+		renderSnakeProjection(model, mShadowMapProgram, spotlight.viewMatrix(), spotlight.pos);
+
+		//glDisable(GL_POLYGON_OFFSET_FILL);
+		glCullFace(GL_BACK);
+		
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_CULL_FACE);
+
+		// Spotlight shading 
+		glUseProgram(mSpotlightShadingProgram.handle());
+		glBindFramebuffer(GL_FRAMEBUFFER, mSpotlightShadingFB.fbo());
+		glViewport(0, 0, mSpotlightShadingFB.dimensionsInt().x, mSpotlightShadingFB.dimensionsInt().y);
+
+		stupidSetSpotLightUniform(mSpotlightShadingProgram, "uSpotlight", spotlight, viewMatrix, invViewMatrix);
+		
+		mPostProcessQuad.render();
+	}
 
 
 	// Global shading
@@ -740,8 +753,8 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	gl::setUniform(mGlobalShadingProgram, "uMaterialIdTexture", 3);
 
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, mSpotLightShadingFB.colorTexture());
-	gl::setUniform(mGlobalShadingProgram, "uSpotLightShadingTexture", 4);
+	glBindTexture(GL_TEXTURE_2D, mSpotlightShadingFB.colorTexture());
+	gl::setUniform(mGlobalShadingProgram, "uSpotlightShadingTexture", 4);
 
 	mPostProcessQuad.render();
 

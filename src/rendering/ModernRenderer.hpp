@@ -2,6 +2,8 @@
 #ifndef SFZ_RENDERING_MODERN_RENDERER_HPP
 #define SFZ_RENDERING_MODERN_RENDERER_HPP
 
+#include <vector>
+
 #include <sfz/gl/Program.hpp>
 #include <sfz/gl/Scaler.hpp>
 #include <sfz/gl/ShadowMapFB.hpp>
@@ -11,13 +13,14 @@
 #include "gamelogic/Model.hpp"
 #include "rendering/Camera.hpp"
 #include "rendering/Framebuffers.hpp"
-#include "rendering/SpotLight.hpp"
+#include "rendering/Spotlight.hpp"
 
 namespace s3 {
 
 using sfz::AABB2D;
 using sfz::mat4;
 using sfz::vec2;
+using std::vector;
 
 class ModernRenderer final {
 public:
@@ -39,11 +42,11 @@ private:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	gl::PostProcessQuad mPostProcessQuad;
-	gl::Program mGBufferGenProgram, mShadowMapProgram, mSpotLightShadingProgram, mGlobalShadingProgram;
+	gl::Program mGBufferGenProgram, mShadowMapProgram, mSpotlightShadingProgram, mGlobalShadingProgram;
 	gl::Scaler mScaler;
 	GBuffer mGBuffer;
-	PostProcessFB mSpotLightShadingFB, mGlobalShadingFB;
-	SpotLight mSpotLight;
+	PostProcessFB mSpotlightShadingFB, mGlobalShadingFB;
+	vector<Spotlight> mSpotlights;
 	sfz::ShadowMapFB mShadowMapFB, mShadowMapFB2;
 };
 

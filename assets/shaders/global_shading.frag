@@ -26,7 +26,7 @@ uniform sampler2D uPositionTexture;
 uniform sampler2D uNormalTexture;
 uniform sampler2D uEmissiveTexture;
 uniform usampler2D uMaterialIdTexture;
-uniform sampler2D uSpotLightShadingTexture;
+uniform sampler2D uSpotlightShadingTexture;
 
 uniform Material uMaterials[20];
 
@@ -44,7 +44,7 @@ void main()
 	uint materialId = texture(uMaterialIdTexture, uvCoord).r;
 	Material mtl = uMaterials[materialId];
 
-	vec3 spotlightShading = texture(uSpotLightShadingTexture, uvCoord).rgb;
+	vec3 spotlightShading = texture(uSpotlightShadingTexture, uvCoord).rgb;
 
 	// Ambient lighting
 	vec3 ambientContribution = mtl.ambient * AMBIENT_LIGHT;
