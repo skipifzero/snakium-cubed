@@ -1,4 +1,4 @@
-#include "sfz/gl/GaussianBlur.hpp"
+#include "sfz/gl/BoxBlur.hpp"
 
 #include <algorithm>
 
@@ -17,19 +17,38 @@ static const char* HORIZONTAL_SOURCE = R"(
 
 	uniform sampler2D uSrcTex;
 	uniform vec2 uSrcDim;
-
-	const float offsets[9] = float[9](-7.302940716, -5.35180578, -3.403984807, -1.458429517, 0.0, 1.458429517, 3.403984807, 5.35180578, 7.302940716);
-	const float weights[9] = float[9](0.0125949685786212, 0.0513831777608629, 0.1359278107392780, 0.2333084327472980, 0.1335712203478790, 0.2333084327472980, 0.1359278107392780, 0.0513831777608629, 0.0125949685786212);
+	uniform int uRadius;
 
 	void main()
 	{
+		// Somewhat smarter version with 2 pixels per sample
+		vec2 offs = vec2(1.0 / uSrcDim.x, 0.0);
+		vec2 halfOffs = offs * 0.5;
+		float weight = 1.0 / float((uRadius * 2) + 1);
+
 		vec4 result = vec4(0.0);
 
-		for (int i = 0; i < 9; ++i) {
-			result += texture(uSrcTex, uvCoord + vec2(offsets[i] / uSrcDim.x, 0.0)) * weights[i];
+		for (int i = 1; i < uRadius; i += 2) {
+			vec2 currOffs = (float(i) * offs) + halfOffs;
+			result += texture(uSrcTex, uvCoord + currOffs);
+			result += texture(uSrcTex, uvCoord - currOffs);
 		}
 
+		result *= 2.0; // Linear sampling (2 pixels per fetch)
+		result += texture(uSrcTex, uvCoord); // Pixel 0
+		result *= weight;
 		outFragColor = result;
+
+
+		/* // Naive version with 1 sample per pixel
+		vec2 offs = vec2(1.0 / uSrcDim.x, 0.0);
+		float weight = 1.0 / float((uRadius * 2) + 1);
+
+		vec4 result = vec4(0.0);
+		for (int i = -uRadius; i <= uRadius; ++i) {
+			result += texture(uSrcTex, uvCoord + (float(i)*offs));
+		}
+		outFragColor = result * weight;*/
 	}
 )";
 
@@ -41,26 +60,45 @@ static const char* VERTICAL_SOURCE = R"(
 
 	uniform sampler2D uSrcTex;
 	uniform vec2 uSrcDim;
-
-	const float offsets[9] = float[9](-7.302940716, -5.35180578, -3.403984807, -1.458429517, 0.0, 1.458429517, 3.403984807, 5.35180578, 7.302940716);
-	const float weights[9] = float[9](0.0125949685786212, 0.0513831777608629, 0.1359278107392780, 0.2333084327472980, 0.1335712203478790, 0.2333084327472980, 0.1359278107392780, 0.0513831777608629, 0.0125949685786212);
+	uniform int uRadius;
 
 	void main()
 	{
+		// Somewhat smarter version with 2 pixels per sample
+		vec2 offs = vec2(0.0, 1.0 / uSrcDim.y);
+		vec2 halfOffs = offs * 0.5;
+		float weight = 1.0 / float((uRadius * 2) + 1);
+
 		vec4 result = vec4(0.0);
 
-		for (int i = 0; i < 9; ++i) {
-			result += texture(uSrcTex, uvCoord + vec2(0.0, offsets[i] / uSrcDim.y)) * weights[i];
+		for (int i = 1; i < uRadius; i += 2) {
+			vec2 currOffs = (float(i) * offs) + halfOffs;
+			result += texture(uSrcTex, uvCoord + currOffs);
+			result += texture(uSrcTex, uvCoord - currOffs);
 		}
 
+		result *= 2.0; // Linear sampling (2 pixels per fetch)
+		result += texture(uSrcTex, uvCoord); // Pixel 0
+		result *= weight;
 		outFragColor = result;
+
+
+		/* // Naive version with 1 sample per pixel
+		vec2 offs = vec2(0.0, 1.0 / uSrcDim.y);
+		float weight = 1.0 / float((uRadius * 2) + 1);
+
+		vec4 result = vec4(0.0);
+		for (int i = -uRadius; i <= uRadius; ++i) {
+			result += texture(uSrcTex, uvCoord + (float(i)*offs));
+		}
+		outFragColor = result * weight;*/
 	}
 )";
 
-// GaussianBlur: Constructors & destructors
+// BoxBlur: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-GaussianBlur::GaussianBlur(vec2i dimensions) noexcept
+BoxBlur::BoxBlur(vec2i dimensions) noexcept
 :
 	mHorizontalBlurProgram{Program::postProcessFromSource(HORIZONTAL_SOURCE)},
 	mVerticalBlurProgram{Program::postProcessFromSource(VERTICAL_SOURCE)},
@@ -73,7 +111,7 @@ GaussianBlur::GaussianBlur(vec2i dimensions) noexcept
 	glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP);
 }
 
-GaussianBlur::GaussianBlur(GaussianBlur&& other) noexcept
+BoxBlur::BoxBlur(BoxBlur&& other) noexcept
 {
 	mHorizontalBlurProgram = std::move(other.mHorizontalBlurProgram);
 	mVerticalBlurProgram = std::move(other.mVerticalBlurProgram);
@@ -82,7 +120,7 @@ GaussianBlur::GaussianBlur(GaussianBlur&& other) noexcept
 	std::swap(this->mSamplerObject, other.mSamplerObject);
 }
 
-GaussianBlur& GaussianBlur::operator= (GaussianBlur&& other) noexcept
+BoxBlur& BoxBlur::operator= (BoxBlur&& other) noexcept
 {
 	mHorizontalBlurProgram = std::move(other.mHorizontalBlurProgram);
 	mVerticalBlurProgram = std::move(other.mVerticalBlurProgram);
@@ -92,17 +130,18 @@ GaussianBlur& GaussianBlur::operator= (GaussianBlur&& other) noexcept
 	return *this;
 }
 
-GaussianBlur::~GaussianBlur() noexcept
+BoxBlur::~BoxBlur() noexcept
 {
 	glDeleteSamplers(1, &mSamplerObject);
 }
 
-// GaussianBlur: Public methods
+// BoxBlur: Public methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void GaussianBlur::apply(uint32_t dstFBO, uint32_t srcTexture, vec2i srcDimensions) noexcept
+void BoxBlur::apply(uint32_t dstFBO, uint32_t srcTexture, vec2i srcDimensions, int32_t radius) noexcept
 {
 	sfz_assert_debug(srcDimensions == mTempFB.dimensions());
+	sfz_assert_debug(((radius % 2) == 0));
 	vec2 srcDimFloat{(float)srcDimensions.x, (float)srcDimensions.y};
 
 	glUseProgram(mHorizontalBlurProgram.handle());
@@ -116,6 +155,7 @@ void GaussianBlur::apply(uint32_t dstFBO, uint32_t srcTexture, vec2i srcDimensio
 	gl::setUniform(mHorizontalBlurProgram, "uSrcTex", 0);
 	glBindSampler(0, mSamplerObject);
 	gl::setUniform(mHorizontalBlurProgram, "uSrcDim", srcDimFloat);
+	gl::setUniform(mHorizontalBlurProgram, "uRadius", radius);
 
 	mPostProcessQuad.render();
 
@@ -130,6 +170,7 @@ void GaussianBlur::apply(uint32_t dstFBO, uint32_t srcTexture, vec2i srcDimensio
 	gl::setUniform(mVerticalBlurProgram, "uSrcTex", 0);
 	glBindSampler(0, mSamplerObject);
 	gl::setUniform(mVerticalBlurProgram, "uSrcDim", srcDimFloat);
+	gl::setUniform(mVerticalBlurProgram, "uRadius", radius);
 
 	mPostProcessQuad.render();
 

@@ -54,6 +54,7 @@ void main()
 	// Total shading and output
 	vec3 shading = ambientContribution
 	             + spotlightShading
+	             + blurredEmissive * 3.0
 	             + emissive;
 
 	outFragColor = vec4(shading, 1.0);

@@ -4,6 +4,7 @@
 
 #include <vector>
 
+#include <sfz/gl/BoxBlur.hpp>
 #include <sfz/gl/GaussianBlur.hpp>
 #include <sfz/gl/Program.hpp>
 #include <sfz/gl/PostProcessFB.hpp>
@@ -47,6 +48,7 @@ private:
 	gl::Program mGBufferGenProgram, mShadowMapProgram, mSpotlightShadingProgram, mGlobalShadingProgram;
 	gl::Scaler mScaler;
 	gl::GaussianBlur mGaussianBlur;
+	gl::BoxBlur mBoxBlur;
 	GBuffer mGBuffer;
 	gl::PostProcessFB mBlurredEmissiveFB, mSpotlightShadingFB, mGlobalShadingFB;
 	vector<Spotlight> mSpotlights;

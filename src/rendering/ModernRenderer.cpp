@@ -546,6 +546,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		mSpotlightShadingFB = gl::PostProcessFB{internalRes};
 		mGlobalShadingFB = gl::PostProcessFB{internalRes};
 		mGaussianBlur = gl::GaussianBlur{internalRes};
+		mBoxBlur = gl::BoxBlur{internalRes};
 		mBlurredEmissiveFB = gl::PostProcessFB{internalRes};
 		std::cout << "Resized xfb, new size: " << mGBuffer.dimensionsInt() << std::endl;
 	}
@@ -598,7 +599,12 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	// Blurred emissive texture
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	
-	mGaussianBlur.apply(mBlurredEmissiveFB.fbo(), mGBuffer.emissiveTexture(), mGBuffer.dimensionsInt());
+	//mGaussianBlur.apply(mBlurredEmissiveFB.fbo(), mGBuffer.emissiveTexture(), mGBuffer.dimensionsInt());
+	// Stupidly approximating gaussian blur with repeated box blur
+	const int blurRadius = 20;
+	mBoxBlur.apply(mBlurredEmissiveFB.fbo(), mGBuffer.emissiveTexture(), mGBuffer.dimensionsInt(), blurRadius);
+	mBoxBlur.apply(mBlurredEmissiveFB.fbo(), mBlurredEmissiveFB.colorTexture(), mBlurredEmissiveFB.dimensions(), blurRadius);
+	mBoxBlur.apply(mBlurredEmissiveFB.fbo(), mBlurredEmissiveFB.colorTexture(), mBlurredEmissiveFB.dimensions(), blurRadius);
 
 
 	// Spotlights (Shadow Map + Shading)
