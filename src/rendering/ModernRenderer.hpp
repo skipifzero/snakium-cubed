@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <sfz/gl/Program.hpp>
+#include <sfz/gl/PostProcessFB.hpp>
 #include <sfz/gl/Scaler.hpp>
 #include <sfz/gl/ShadowMapFB.hpp>
 #include <sfz/geometry/AABB2D.hpp>
@@ -45,7 +46,7 @@ private:
 	gl::Program mGBufferGenProgram, mShadowMapProgram, mSpotlightShadingProgram, mGlobalShadingProgram;
 	gl::Scaler mScaler;
 	GBuffer mGBuffer;
-	PostProcessFB mSpotlightShadingFB, mGlobalShadingFB;
+	sfz::PostProcessFB mSpotlightShadingFB, mGlobalShadingFB;
 	vector<Spotlight> mSpotlights;
 	sfz::ShadowMapFB mShadowMapFB, mShadowMapFB2;
 };

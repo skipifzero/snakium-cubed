@@ -61,11 +61,6 @@ ShadowMapFB::ShadowMapFB(vec2i resolution, ShadowMapDepthRes depthRes, bool pcf,
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-ShadowMapFB::ShadowMapFB(vec2 resolution, ShadowMapDepthRes depthRes, bool pcf, vec4 borderColor) noexcept
-:
-	ShadowMapFB{vec2i{(int)resolution.x, (int)resolution.y}, depthRes, pcf, borderColor}
-{ }
-
 ShadowMapFB::ShadowMapFB(ShadowMapFB&& other) noexcept
 {
 	std::swap(this->mFBO, other.mFBO);

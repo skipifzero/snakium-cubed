@@ -57,41 +57,5 @@ private:
 	vec2i mDim{-1};
 };
 
-// Post Process Framebuffer
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-class PostProcessFB final {
-public:
-	// Constructors & destructors
-	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	PostProcessFB() noexcept = default;
-	PostProcessFB(const PostProcessFB&) = delete;
-	PostProcessFB& operator= (const PostProcessFB&) = delete;
-
-	PostProcessFB(vec2 dimensions) noexcept;
-	PostProcessFB(vec2i dimensions) noexcept;
-	
-	PostProcessFB(PostProcessFB&& other) noexcept;
-	PostProcessFB& operator= (PostProcessFB&& other) noexcept;
-	~PostProcessFB() noexcept;
-
-	// Getters
-	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	inline uint32_t fbo() const noexcept { return mFBO; }
-	inline uint32_t colorTexture() const noexcept { return mColorTexture; }
-	inline vec2 dimensions() const noexcept { return vec2{(float)mDim.x, (float)mDim.y}; }
-	inline vec2i dimensionsInt() const noexcept { return mDim; }
-
-private:
-	// Private members
-	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	uint32_t mFBO = 0;
-	uint32_t mColorTexture = 0;
-	vec2i mDim{-1};
-};
-
 } // namespace s3
 #endif

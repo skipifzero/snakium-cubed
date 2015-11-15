@@ -543,8 +543,8 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	vec2i internalRes{(int)(drawableDim.x*cfg.internalResScaling), (int)(drawableDim.y*cfg.internalResScaling)};
 	if (mGBuffer.dimensionsInt() != internalRes) {
 		mGBuffer = GBuffer{internalRes};
-		mSpotlightShadingFB = PostProcessFB{internalRes};
-		mGlobalShadingFB = PostProcessFB{internalRes};
+		mSpotlightShadingFB = sfz::PostProcessFB{internalRes};
+		mGlobalShadingFB = sfz::PostProcessFB{internalRes};
 		std::cout << "Resized xfb, new size: " << mGBuffer.dimensionsInt() << std::endl;
 	}
 	
@@ -556,49 +556,6 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		mGlobalShadingProgram.reload();
 	}
 
-	// Enable depth testing
-	glDepthFunc(GL_LESS);
-	glEnable(GL_DEPTH_TEST);
-
-	// Enable blending
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	// Enable culling
-	glEnable(GL_CULL_FACE);
-
-	// Rendering Shadow Map
-	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	/*// Shadow Map rendering for spotlight (wip)
-	glUseProgram(mShadowMapProgram.handle());
-
-	glEnable(GL_POLYGON_OFFSET_FILL);
-	glPolygonOffset(5.0f, 25.0f);
-	//glCullFace(GL_FRONT);
-
-	gl::setUniform(mShadowMapProgram, "uProjMatrix", mSpotLight.projMatrix());
-	gl::setUniform(mShadowMapProgram, "uViewMatrix", mSpotLight.viewMatrix());
-
-	glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapFB.fbo());
-	glViewport(0, 0, mShadowMapFB.resolutionInt().x, mShadowMapFB.resolutionInt().y);
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glClearDepth(1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	renderOpaque(model, mShadowMapProgram, mSpotLight.viewMatrix());
-	renderSnakeProjection(model, mShadowMapProgram, mSpotLight.viewMatrix(), mSpotLight.pos);
-
-	//glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapFB2.fbo());
-	//glViewport(0, 0, mShadowMapFB2.resolutionInt().x, mShadowMapFB2.resolutionInt().y);
-	//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	//glClearDepth(1.0f);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	//renderOpaque(model, mShadowMapProgram, mSpotLight.viewMatrix());
-	//renderSnakeProjection(model, mShadowMapProgram, mSpotLight.viewMatrix(), mSpotLight.pos);
-
-	glDisable(GL_POLYGON_OFFSET_FILL);*/
 
 	// Rendering GBuffer
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -633,7 +590,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	renderBackground(mGBufferGenProgram, viewMatrix);
 	renderOpaque(model, mGBufferGenProgram, viewMatrix);
 	renderSnakeProjection(model, mGBufferGenProgram, viewMatrix, cam.pos());
-	//renderTransparentCube(model, mProgram, viewMatrix, cam.pos(), 3, 5);
+	//renderTransparentCube(model, mGBufferGenProgram, viewMatrix, cam.pos(), 3, 5);
 
 
 	// Spotlights (Shadow Map + Shading)
@@ -642,7 +599,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	// Clear Spotlight shading texture
 	glUseProgram(mSpotlightShadingProgram.handle());
 	glBindFramebuffer(GL_FRAMEBUFFER, mSpotlightShadingFB.fbo());
-	glViewport(0, 0, mSpotlightShadingFB.dimensionsInt().x, mSpotlightShadingFB.dimensionsInt().y);
+	glViewport(0, 0, mSpotlightShadingFB.width(), mSpotlightShadingFB.height());
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -685,7 +642,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		// Set shadow map program & fbo and clear it
 		glUseProgram(mShadowMapProgram.handle());
 		glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapFB.fbo());
-		glViewport(0, 0, mShadowMapFB.resolutionInt().x, mShadowMapFB.resolutionInt().y);
+		glViewport(0, 0, mShadowMapFB.width(), mShadowMapFB.height());
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -712,7 +669,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		// Spotlight shading 
 		glUseProgram(mSpotlightShadingProgram.handle());
 		glBindFramebuffer(GL_FRAMEBUFFER, mSpotlightShadingFB.fbo());
-		glViewport(0, 0, mSpotlightShadingFB.dimensionsInt().x, mSpotlightShadingFB.dimensionsInt().y);
+		glViewport(0, 0, mSpotlightShadingFB.width(), mSpotlightShadingFB.height());
 
 		stupidSetSpotLightUniform(mSpotlightShadingProgram, "uSpotlight", spotlight, viewMatrix, invViewMatrix);
 		
@@ -729,7 +686,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 
 	glUseProgram(mGlobalShadingProgram.handle());
 	glBindFramebuffer(GL_FRAMEBUFFER, mGlobalShadingFB.fbo());
-	glViewport(0, 0, mGlobalShadingFB.dimensionsInt().x, mGlobalShadingFB.dimensionsInt().y);
+	glViewport(0, 0, mGlobalShadingFB.width(), mGlobalShadingFB.height());
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -759,51 +716,6 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	mPostProcessQuad.render();
 
 
-	// Rendering ???
-	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-
-	/*// Binding external framebuffer
-	glUseProgram(mProgram.handle());
-	glBindFramebuffer(GL_FRAMEBUFFER, mExternalFB.fbo());
-	glViewport(0, 0, mExternalFB.dimensionsInt().x, mExternalFB.dimensionsInt().y);
-
-	// Clearing screen
-	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// View Matrix and Projection Matrix uniforms
-	const mat4 viewMatrix = cam.viewMatrix();
-	const mat4 invViewMatrix = inverse(viewMatrix);
-	gl::setUniform(mProgram, "uProjMatrix", cam.projMatrix());
-	gl::setUniform(mProgram, "uViewMatrix", viewMatrix);
-	
-	// Spotlight uniforms (wip)
-	gl::setUniform(mProgram, "uSpotLight.vsPos", sfz::transformPoint(viewMatrix, mSpotLight.pos));
-	gl::setUniform(mProgram, "uSpotLight.vsDir", sfz::transformDir(viewMatrix, mSpotLight.dir));
-	gl::setUniform(mProgram, "uSpotLight.color", mSpotLight.color);
-	gl::setUniform(mProgram, "uSpotLight.range", mSpotLight.range);
-	gl::setUniform(mProgram, "uSpotLight.fov", mSpotLight.fov);
-	gl::setUniform(mProgram, "uSpotLight.lightMatrix", mSpotLight.lightMatrix(invViewMatrix));
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, mShadowMapFB.depthTexture());
-	gl::setUniform(mProgram, "uShadowMap", 0);
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, mShadowMapFB2.depthTexture());
-	gl::setUniform(mProgram, "uShadowMap2", 1);
-
-	// Render background
-	renderBackground(mProgram, viewMatrix);
-
-	// Render opaque objects
-	renderOpaque(model, mProgram, viewMatrix);
-
-	// Render snake projection
-	renderSnakeProjection(model, mProgram, viewMatrix, cam.pos());
-
-	// Render transparent cube
-	//renderTransparentCube(model, mProgram, viewMatrix, cam.pos(), 3, 5);*/
-
 	// Scale and draw resulting image to screen
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -813,7 +725,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	mScaler.changeScalingAlgorithm(static_cast<gl::ScalingAlgorithm>(cfg.scalingAlgorithm));
-	mScaler.scale(0, drawableDim, mGlobalShadingFB.colorTexture(), mGlobalShadingFB.dimensions());
+	mScaler.scale(0, drawableDim, mGlobalShadingFB.colorTexture(), mGlobalShadingFB.dimensionsFloat());
 }
 
 } // namespace s3

@@ -8,6 +8,7 @@
 
 namespace sfz {
 
+using std::int32_t;
 using std::uint32_t;
 
 // Shadow Map FB
@@ -32,8 +33,6 @@ public:
 
 	ShadowMapFB(vec2i resolution, ShadowMapDepthRes depthRes = ShadowMapDepthRes::BITS_32,
 	            bool pcf = true, vec4 borderColor = vec4(0.0f, 0.0f, 0.0f, 1.0f)) noexcept;
-	ShadowMapFB(vec2 resolution, ShadowMapDepthRes depthRes = ShadowMapDepthRes::BITS_32,
-	            bool pcf = true, vec4 borderColor = vec4(0.0f, 0.0f, 0.0f, 1.0f)) noexcept;
 
 	ShadowMapFB(ShadowMapFB&& other) noexcept;
 	ShadowMapFB& operator= (ShadowMapFB&& other) noexcept;
@@ -50,8 +49,10 @@ public:
 	inline uint32_t fbo() const noexcept { return mFBO; }
 	inline uint32_t depthTexture() const noexcept { return mDepthTexture; }
 	inline bool hasPCF() const noexcept { return mHasPCF; }
-	inline vec2 resolution() const noexcept { return vec2{(float)mResolution.x, (float)mResolution.y}; }
-	inline vec2i resolutionInt() const noexcept { return mResolution; }
+	inline vec2i resolution() const noexcept { return mResolution; }
+	inline int32_t width() const noexcept { return mResolution.x; }
+	inline int32_t height() const noexcept { return mResolution.y; }
+	inline vec2 resolutionFloat() const noexcept{ return vec2{(float)width(), (float)height()}; }
 
 private: 
 	// Private members
