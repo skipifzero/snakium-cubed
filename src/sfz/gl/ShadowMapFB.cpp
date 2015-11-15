@@ -2,7 +2,7 @@
 
 #include "sfz/gl/OpenGL.hpp"
 
-namespace sfz {
+namespace gl {
 
 // Statics
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -84,4 +84,4 @@ ShadowMapFB::~ShadowMapFB() noexcept
 	glDeleteFramebuffers(1, &mFBO);
 }
 
-} // namespace sfz
+} // namespace gl

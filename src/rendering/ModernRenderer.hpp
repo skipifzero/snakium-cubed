@@ -4,6 +4,7 @@
 
 #include <vector>
 
+#include <sfz/gl/GaussianBlur.hpp>
 #include <sfz/gl/Program.hpp>
 #include <sfz/gl/PostProcessFB.hpp>
 #include <sfz/gl/Scaler.hpp>
@@ -45,10 +46,11 @@ private:
 	gl::PostProcessQuad mPostProcessQuad;
 	gl::Program mGBufferGenProgram, mShadowMapProgram, mSpotlightShadingProgram, mGlobalShadingProgram;
 	gl::Scaler mScaler;
+	gl::GaussianBlur mGaussianBlur;
 	GBuffer mGBuffer;
-	sfz::PostProcessFB mSpotlightShadingFB, mGlobalShadingFB;
+	gl::PostProcessFB mBlurredEmissiveFB, mSpotlightShadingFB, mGlobalShadingFB;
 	vector<Spotlight> mSpotlights;
-	sfz::ShadowMapFB mShadowMapFB, mShadowMapFB2;
+	gl::ShadowMapFB mShadowMapFB, mShadowMapFB2;
 };
 
 } // namespace s3

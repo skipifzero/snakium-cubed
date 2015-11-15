@@ -527,8 +527,8 @@ ModernRenderer::ModernRenderer() noexcept
 	spotlightTemp.dir = vec3(1.0f, 0.0f, 0.0f);
 	mSpotlights.push_back(spotlightTemp);
 
-	mShadowMapFB = sfz::ShadowMapFB{sfz::vec2i{4096}, sfz::ShadowMapDepthRes::BITS_32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
-	mShadowMapFB2 = sfz::ShadowMapFB{sfz::vec2i{4096}, sfz::ShadowMapDepthRes::BITS_32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
+	mShadowMapFB = gl::ShadowMapFB{sfz::vec2i{4096}, gl::ShadowMapDepthRes::BITS_32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
+	mShadowMapFB2 = gl::ShadowMapFB{sfz::vec2i{4096}, gl::ShadowMapDepthRes::BITS_32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
 }
 
 // ModernRenderer: Public methods
@@ -543,8 +543,10 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	vec2i internalRes{(int)(drawableDim.x*cfg.internalResScaling), (int)(drawableDim.y*cfg.internalResScaling)};
 	if (mGBuffer.dimensionsInt() != internalRes) {
 		mGBuffer = GBuffer{internalRes};
-		mSpotlightShadingFB = sfz::PostProcessFB{internalRes};
-		mGlobalShadingFB = sfz::PostProcessFB{internalRes};
+		mSpotlightShadingFB = gl::PostProcessFB{internalRes};
+		mGlobalShadingFB = gl::PostProcessFB{internalRes};
+		mGaussianBlur = gl::GaussianBlur{internalRes};
+		mBlurredEmissiveFB = gl::PostProcessFB{internalRes};
 		std::cout << "Resized xfb, new size: " << mGBuffer.dimensionsInt() << std::endl;
 	}
 	
@@ -593,6 +595,12 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	//renderTransparentCube(model, mGBufferGenProgram, viewMatrix, cam.pos(), 3, 5);
 
 
+	// Blurred emissive texture
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	
+	mGaussianBlur.apply(mBlurredEmissiveFB.fbo(), mGBuffer.emissiveTexture(), mGBuffer.dimensionsInt());
+
+
 	// Spotlights (Shadow Map + Shading)
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -613,20 +621,16 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	gl::setUniform(mSpotlightShadingProgram, "uNormalTexture", 1);
 
 	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, mGBuffer.emissiveTexture());
-	gl::setUniform(mSpotlightShadingProgram, "uEmissiveTexture", 2);
+	glBindTexture(GL_TEXTURE_2D, mGBuffer.materialIdTexture());
+	gl::setUniform(mSpotlightShadingProgram, "uMaterialIdTexture", 2);
 
 	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, mGBuffer.materialIdTexture());
-	gl::setUniform(mSpotlightShadingProgram, "uMaterialIdTexture", 3);
+	glBindTexture(GL_TEXTURE_2D, mSpotlightShadingFB.colorTexture());
+	gl::setUniform(mSpotlightShadingProgram, "uSpotlightTexture", 3);
 
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, mSpotlightShadingFB.colorTexture());
-	gl::setUniform(mSpotlightShadingProgram, "uSpotlightTexture", 4);
-
-	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, mShadowMapFB.depthTexture());
-	gl::setUniform(mSpotlightShadingProgram, "uShadowMap", 5);
+	gl::setUniform(mSpotlightShadingProgram, "uShadowMap", 4);
 
 	//glActiveTexture(GL_TEXTURE5);
 	//glBindTexture(GL_TEXTURE_2D, mShadowMapFB2.depthTexture());
@@ -712,6 +716,10 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, mSpotlightShadingFB.colorTexture());
 	gl::setUniform(mGlobalShadingProgram, "uSpotlightShadingTexture", 4);
+
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, mBlurredEmissiveFB.colorTexture());
+	gl::setUniform(mGlobalShadingProgram, "uBlurredEmissiveTexture", 5);
 
 	mPostProcessQuad.render();
 

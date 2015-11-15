@@ -33,7 +33,6 @@ out vec4 outFragColor;
 // Uniforms
 uniform sampler2D uPositionTexture;
 uniform sampler2D uNormalTexture;
-uniform sampler2D uEmissiveTexture;
 uniform usampler2D uMaterialIdTexture;
 uniform sampler2D uSpotlightTexture;
 

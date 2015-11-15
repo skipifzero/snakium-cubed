@@ -7,10 +7,10 @@
 #include <sfz/gl/TextureEnums.hpp>
 #include <sfz/math/Vector.hpp>
 
-namespace sfz {
+namespace gl {
 
-using gl::TextureFormat;
-
+using sfz::vec2i;
+using sfz::vec2;
 using std::int32_t;
 using std::uint32_t;
 
@@ -57,5 +57,5 @@ private:
 	vec2i mDim{0};
 };
 
-} // namespace sfz
+} // namespace gl
 #endif

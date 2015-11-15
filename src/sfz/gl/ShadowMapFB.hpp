@@ -6,7 +6,11 @@
 
 #include "sfz/math/Vector.hpp"
 
-namespace sfz {
+namespace gl {
+
+using sfz::vec2i;
+using sfz::vec2;
+using sfz::vec4;
 
 using std::int32_t;
 using std::uint32_t;
@@ -64,5 +68,5 @@ private:
 	vec2i mResolution{-1,-1};
 };
 
-} // namespace sfz
+} // namespace gl
 #endif

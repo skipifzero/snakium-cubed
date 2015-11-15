@@ -27,6 +27,7 @@ uniform sampler2D uNormalTexture;
 uniform sampler2D uEmissiveTexture;
 uniform usampler2D uMaterialIdTexture;
 uniform sampler2D uSpotlightShadingTexture;
+uniform sampler2D uBlurredEmissiveTexture;
 
 uniform Material uMaterials[20];
 
@@ -43,6 +44,7 @@ void main()
 	vec3 emissive = texture(uEmissiveTexture, uvCoord).rgb;
 	uint materialId = texture(uMaterialIdTexture, uvCoord).r;
 	Material mtl = uMaterials[materialId];
+	vec3 blurredEmissive = texture(uBlurredEmissiveTexture, uvCoord).rgb;
 
 	vec3 spotlightShading = texture(uSpotlightShadingTexture, uvCoord).rgb;
 
