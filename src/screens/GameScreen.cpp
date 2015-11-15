@@ -205,6 +205,28 @@ void GameScreen::render(UpdateState& state)
 		font.end(0, drawableDim, sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
 	}
 
+	// Render framerate
+	char deltaBuffer[50];
+	std::snprintf(deltaBuffer, 50, "Delta: %.1fms", (state.delta*1000.0f));
+	char fpsBuffer[50];
+	std::snprintf(fpsBuffer, 50, "FPS: %.0f", (1.0f/state.delta));
+
+	float fontSize = state.window.drawableHeight()/32.0f;
+	float offset = fontSize*0.04f;
+
+	font.verticalAlign(gl::VerticalAlign::BOTTOM);
+
+	font.begin(state.window.drawableDimensions()/2.0f, state.window.drawableDimensions());
+	font.write(vec2{offset, fontSize*1.05f - offset}, fontSize, deltaBuffer);
+	font.write(vec2{offset, -offset}, fontSize, fpsBuffer);
+	font.end(0, state.window.drawableDimensions(), sfz::vec4{0.0f, 0.0f, 0.0f, 1.0f});
+
+	font.begin(state.window.drawableDimensions()/2.0f, state.window.drawableDimensions());
+	font.write(vec2{0.0f, fontSize*1.05f}, fontSize, deltaBuffer);
+	font.write(vec2{0.0f, 0.0f}, fontSize, fpsBuffer);
+	font.end(0, state.window.drawableDimensions(), sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+
+
 	// Clean up
 	glUseProgram(0);
 }
