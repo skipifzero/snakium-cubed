@@ -14,6 +14,8 @@ public:
 	PostProcessQuad& operator= (const PostProcessQuad&) = delete;
 
 	PostProcessQuad() noexcept;
+	PostProcessQuad(PostProcessQuad&& other) noexcept;
+	PostProcessQuad& operator= (PostProcessQuad&& other) noexcept;
 	~PostProcessQuad() noexcept;
 
 	void render() noexcept;

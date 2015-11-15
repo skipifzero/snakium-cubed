@@ -1,5 +1,6 @@
 #include "sfz/gl/PostProcessQuad.hpp"
 
+#include <algorithm>
 #include <iostream>
 
 #include "sfz/gl/GLUtils.hpp"
@@ -85,6 +86,27 @@ PostProcessQuad::PostProcessQuad() noexcept
 	if (gl::checkAllGLErrors()) {
 		std::cerr << "^^^ Above errors likely caused by PostProcessQuad ctor." << std::endl;
 	}
+}
+
+PostProcessQuad::PostProcessQuad(PostProcessQuad&& other) noexcept
+{
+	std::swap(this->mVAO, other.mVAO);
+	std::swap(this->mPosBuffer, other.mPosBuffer);
+	std::swap(this->mNormalBuffer, other.mNormalBuffer);
+	std::swap(this->mUVBuffer, other.mUVBuffer);
+	std::swap(this->mMaterialIDBuffer, other.mMaterialIDBuffer);
+	std::swap(this->mIndexBuffer, other.mIndexBuffer);
+}
+
+PostProcessQuad& PostProcessQuad::operator= (PostProcessQuad&& other) noexcept
+{
+	std::swap(this->mVAO, other.mVAO);
+	std::swap(this->mPosBuffer, other.mPosBuffer);
+	std::swap(this->mNormalBuffer, other.mNormalBuffer);
+	std::swap(this->mUVBuffer, other.mUVBuffer);
+	std::swap(this->mMaterialIDBuffer, other.mMaterialIDBuffer);
+	std::swap(this->mIndexBuffer, other.mIndexBuffer);
+	return *this;
 }
 
 PostProcessQuad::~PostProcessQuad() noexcept
