@@ -52,10 +52,11 @@ void main()
 	vec3 ambientContribution = mtl.ambient * AMBIENT_LIGHT;
 
 	// Total shading and output
-	vec3 shading = ambientContribution
-	             + spotlightShading
-	             + blurredEmissive * 3.0
-	             + emissive;
+	vec3 shading = vec3(0);
+	shading +=ambientContribution;
+	shading += spotlightShading;
+	shading += (float(emissive == vec3(0)) * blurredEmissive * 1.1);
+	shading += emissive;
 
 	outFragColor = vec4(shading, 1.0);
 }

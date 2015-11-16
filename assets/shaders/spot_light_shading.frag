@@ -45,7 +45,7 @@ uniform sampler2DShadow uShadowMap;
 
 uniform float uLightShaftExposure = 0.5;
 uniform float uLightShaftRange = 2.8;
-uniform int uLightShaftSamples = 40;
+uniform int uLightShaftSamples = 128;
 
 // Helper functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

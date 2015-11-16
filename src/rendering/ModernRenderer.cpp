@@ -525,10 +525,10 @@ ModernRenderer::ModernRenderer() noexcept
 
 	spotlightTemp.pos = vec3(-1.25f, 0.0f, 0.0f);
 	spotlightTemp.dir = vec3(1.0f, 0.0f, 0.0f);
-	mSpotlights.push_back(spotlightTemp);
+	//mSpotlights.push_back(spotlightTemp);
 
-	mShadowMapFB = gl::ShadowMapFB{sfz::vec2i{4096}, gl::ShadowMapDepthRes::BITS_32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
-	mShadowMapFB2 = gl::ShadowMapFB{sfz::vec2i{4096}, gl::ShadowMapDepthRes::BITS_32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
+	mShadowMapHighRes = gl::ShadowMapFB{sfz::vec2i{4096}, gl::ShadowMapDepthRes::BITS_32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
+	mShadowMapLowRes = gl::ShadowMapFB{sfz::vec2i{256}, gl::ShadowMapDepthRes::BITS_16, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
 }
 
 // ModernRenderer: Public methods
@@ -601,7 +601,13 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	
 	//mGaussianBlur.apply(mBlurredEmissiveFB.fbo(), mGBuffer.emissiveTexture(), mGBuffer.dimensionsInt());
 	// Stupidly approximating gaussian blur with repeated box blur
-	const int blurRadius = 20;
+
+	const float blurRadiusFactor = 0.02f;
+	int blurRadius = std::round(internalRes.y * blurRadiusFactor);
+	blurRadius = std::max(blurRadius, 2);
+	blurRadius = ((blurRadius % 2) != 0) ? blurRadius + 1 : blurRadius;
+	std::cout << blurRadius << std::endl;
+
 	mBoxBlur.apply(mBlurredEmissiveFB.fbo(), mGBuffer.emissiveTexture(), mGBuffer.dimensionsInt(), blurRadius);
 	mBoxBlur.apply(mBlurredEmissiveFB.fbo(), mBlurredEmissiveFB.colorTexture(), mBlurredEmissiveFB.dimensions(), blurRadius);
 	mBoxBlur.apply(mBlurredEmissiveFB.fbo(), mBlurredEmissiveFB.colorTexture(), mBlurredEmissiveFB.dimensions(), blurRadius);
@@ -635,12 +641,12 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	gl::setUniform(mSpotlightShadingProgram, "uSpotlightTexture", 3);
 
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, mShadowMapFB.depthTexture());
-	gl::setUniform(mSpotlightShadingProgram, "uShadowMap", 4);
+	glBindTexture(GL_TEXTURE_2D, mShadowMapHighRes.depthTexture());
+	gl::setUniform(mSpotlightShadingProgram, "uShadowMapHighRes", 4);
 
-	//glActiveTexture(GL_TEXTURE5);
-	//glBindTexture(GL_TEXTURE_2D, mShadowMapFB2.depthTexture());
-	//gl::setUniform(mProgram, "uShadowMap2", 5);
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, mShadowMapLowRes.depthTexture());
+	gl::setUniform(mSpotlightShadingProgram, "uShadowMapLowRes", 5);
 
 	stupidSetUniformMaterials(mSpotlightShadingProgram, "uMaterials");
 
@@ -649,13 +655,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	for (size_t i = 0; i < mSpotlights.size(); ++i) {
 		auto& spotlight = mSpotlights[i];
 
-		// Set shadow map program & fbo and clear it
 		glUseProgram(mShadowMapProgram.handle());
-		glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapFB.fbo());
-		glViewport(0, 0, mShadowMapFB.width(), mShadowMapFB.height());
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-		glClearDepth(1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
@@ -666,9 +666,27 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 
 		gl::setUniform(mShadowMapProgram, "uViewProjMatrix", spotlight.projMatrix() * spotlight.viewMatrix());
 
-		// Renders objects to shadow map
+		// Set high res shadow map fbo, clear it and render it
+		glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapHighRes.fbo());
+		glViewport(0, 0, mShadowMapHighRes.width(), mShadowMapHighRes.height());
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClearDepth(1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		renderOpaque(model, mShadowMapProgram, spotlight.viewMatrix());
 		renderSnakeProjection(model, mShadowMapProgram, spotlight.viewMatrix(), spotlight.pos);
+
+		// Set low res shadow map fbo, clear it and render it
+		// TODO: Might want to downscale high res shadow map for better quality low res shadow map?
+		glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapLowRes.fbo());
+		glViewport(0, 0, mShadowMapLowRes.width(), mShadowMapLowRes.height());
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClearDepth(1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		renderOpaque(model, mShadowMapProgram, spotlight.viewMatrix());
+		renderSnakeProjection(model, mShadowMapProgram, spotlight.viewMatrix(), spotlight.pos);
+
 
 		//glDisable(GL_POLYGON_OFFSET_FILL);
 		glCullFace(GL_BACK);

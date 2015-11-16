@@ -39,12 +39,14 @@ uniform sampler2D uSpotlightTexture;
 uniform Material uMaterials[20];
 
 uniform SpotLight uSpotlight;
-uniform sampler2DShadow uShadowMap;
-//uniform sampler2DShadow uShadowMap2;
+uniform sampler2DShadow uShadowMapHighRes;
+uniform sampler2DShadow uShadowMapLowRes;
 
-uniform float uLightShaftExposure = 0.75;
-uniform float uLightShaftRange = 3.0;
-uniform int uLightShaftSamples = 64;
+const float shadowSampleWeight = 8192.0;
+const float lightSampleWeight = 1.0 / shadowSampleWeight;
+uniform float uLightShaftExposure = 0.7;
+uniform float uLightShaftRange = 5.0;
+uniform int uLightShaftSamples = 128;
 
 // Helper functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -77,7 +79,9 @@ float lightShaftFactor(sampler2DShadow shadowMap, vec3 vsPos)
 		factor += sampleShadowMap(shadowMap, currentSamplePos) * calcLightScale(currentSamplePos);
 		currentSamplePos += toNextSamplePos;
 	}
-	factor /= float(uLightShaftSamples);
+
+	factor = (factor * lightSampleWeight) / float(uLightShaftSamples);
+	factor *= shadowSampleWeight;
 	
 	return factor;
 }
@@ -121,13 +125,13 @@ void main()
 	vec3 specularContribution = specularIntensity * materialSpecular * uSpotlight.color;
 
 	// Shadow
-	float shadow = sampleShadowMap(uShadowMap, vsPos);// * 0.5
+	float shadow = sampleShadowMap(uShadowMapHighRes, vsPos);// * 0.5
 	//             + sampleShadowMap(uShadowMap2, vsPos) * 0.5;
 
 	// Spotlight scaling
 	float lightScale = calcLightScale(vsPos);
 
-	float lightShafts = lightShaftFactor(uShadowMap, vsPos);
+	float lightShafts = lightShaftFactor(uShadowMapLowRes, vsPos);
 
 
 	// Total shading and output

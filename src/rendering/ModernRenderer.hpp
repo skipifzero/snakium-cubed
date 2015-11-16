@@ -52,7 +52,7 @@ private:
 	GBuffer mGBuffer;
 	gl::PostProcessFB mBlurredEmissiveFB, mSpotlightShadingFB, mGlobalShadingFB;
 	vector<Spotlight> mSpotlights;
-	gl::ShadowMapFB mShadowMapFB, mShadowMapFB2;
+	gl::ShadowMapFB mShadowMapHighRes, mShadowMapLowRes;
 };
 
 } // namespace s3
