@@ -545,7 +545,6 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		mGBuffer = GBuffer{internalRes};
 		mSpotlightShadingFB = gl::PostProcessFB{internalRes};
 		mGlobalShadingFB = gl::PostProcessFB{internalRes};
-		mGaussianBlur = gl::GaussianBlur{internalRes};
 		mBoxBlur = gl::BoxBlur{internalRes};
 		mBlurredEmissiveFB = gl::PostProcessFB{internalRes};
 		std::cout << "Resized xfb, new size: " << mGBuffer.dimensionsInt() << std::endl;

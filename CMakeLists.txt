@@ -120,8 +120,6 @@ source_group(sfz_gui_temp FILES ${SOURCE_SFZ_GUI_TEMP_FILES})
 set(SOURCE_SFZ_GL_TEMP_FILES
 	${SRC_DIR}/sfz/gl/BoxBlur.hpp
 	${SRC_DIR}/sfz/gl/BoxBlur.cpp
-	${SRC_DIR}/sfz/gl/GaussianBlur.hpp
-	${SRC_DIR}/sfz/gl/GaussianBlur.cpp
 	${SRC_DIR}/sfz/gl/PostProcessFB.hpp
 	${SRC_DIR}/sfz/gl/PostProcessFB.cpp
 	${SRC_DIR}/sfz/gl/Scaler.hpp
