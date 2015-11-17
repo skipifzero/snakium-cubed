@@ -14,7 +14,9 @@ using sfz::vec3;
 struct Spotlight final {
 	vec3 pos, dir;
 	vec3 color;
-	float range, fov;
+	float range;
+	float fovDeg; // The field of view of this spotlight
+	float softAngleDeg; // The 'softness' angle at the edge of the light
 
 	float near = 0.01;
 

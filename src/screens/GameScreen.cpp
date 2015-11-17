@@ -205,25 +205,38 @@ void GameScreen::render(UpdateState& state)
 		font.end(0, drawableDim, sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
 	}
 
+
+	// Calculate framerate
+	float fps = 1.0f/state.delta;
+	fps = std::min(fps, 10000.0f);
+	fps = std::max(fps, 0.01f);
+	if (1.0f < fps && fps < 500.0f) {
+		float fpsTotal = (mFPSMean * (float)mNumFPSSamples) + fps;
+		mNumFPSSamples++;
+		mFPSMean = fpsTotal / (float)mNumFPSSamples;
+	}
+
 	// Render framerate
-	char deltaBuffer[50];
-	std::snprintf(deltaBuffer, 50, "Delta: %.1fms", (state.delta*1000.0f));
-	char fpsBuffer[50];
-	std::snprintf(fpsBuffer, 50, "FPS: %.0f", (1.0f/state.delta));
+	char deltaBuffer[64];
+	std::snprintf(deltaBuffer, 64, "Delta: %.1fms, Avg: %.1fms", (state.delta*1000.0f), (1000.0f/mFPSMean));
+	char fpsBuffer[64];
+	std::snprintf(fpsBuffer, 64, "FPS: %.0f, Avg: %.0f", fps, mFPSMean);
 
 	float fontSize = state.window.drawableHeight()/32.0f;
 	float offset = fontSize*0.04f;
+	float bottomOffset = state.window.drawableHeight()/128.0f;
 
 	font.verticalAlign(gl::VerticalAlign::BOTTOM);
+	font.horizontalAlign(gl::HorizontalAlign::LEFT);
 
 	font.begin(state.window.drawableDimensions()/2.0f, state.window.drawableDimensions());
-	font.write(vec2{offset, fontSize*1.05f - offset}, fontSize, deltaBuffer);
-	font.write(vec2{offset, -offset}, fontSize, fpsBuffer);
+	font.write(vec2{offset, bottomOffset + fontSize*1.05f - offset}, fontSize, deltaBuffer);
+	font.write(vec2{offset, bottomOffset - offset}, fontSize, fpsBuffer);
 	font.end(0, state.window.drawableDimensions(), sfz::vec4{0.0f, 0.0f, 0.0f, 1.0f});
 
 	font.begin(state.window.drawableDimensions()/2.0f, state.window.drawableDimensions());
-	font.write(vec2{0.0f, fontSize*1.05f}, fontSize, deltaBuffer);
-	font.write(vec2{0.0f, 0.0f}, fontSize, fpsBuffer);
+	font.write(vec2{0.0f, bottomOffset + fontSize*1.05f}, fontSize, deltaBuffer);
+	font.write(vec2{0.0f, bottomOffset}, fontSize, fpsBuffer);
 	font.end(0, state.window.drawableDimensions(), sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
 
 

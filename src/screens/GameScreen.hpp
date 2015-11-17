@@ -53,6 +53,9 @@ private:
 
 	DirectionInput mInputBuffer[5];
 	size_t mInputBufferIndex = 0;
+
+	float mFPSMean = 0.0;
+	long mNumFPSSamples = 0;
 };
 
 } // namespace s3

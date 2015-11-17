@@ -516,8 +516,9 @@ ModernRenderer::ModernRenderer() noexcept
 
 	Spotlight spotlightTemp;
 	spotlightTemp.color = vec3{0.6f, 1.0f, 0.6f};
-	spotlightTemp.range = 12.0f;
-	spotlightTemp.fov = 45.0f;
+	spotlightTemp.range = 4.0f;
+	spotlightTemp.fovDeg = 45.0f;
+	spotlightTemp.softAngleDeg = 15.0f;
 	
 	spotlightTemp.pos = vec3(0.0f, 1.25f, 0.0f);
 	spotlightTemp.dir = vec3(0.0f, -1.0f, 0.0f);
@@ -527,7 +528,7 @@ ModernRenderer::ModernRenderer() noexcept
 	spotlightTemp.dir = vec3(1.0f, 0.0f, 0.0f);
 	//mSpotlights.push_back(spotlightTemp);
 
-	mShadowMapHighRes = gl::ShadowMapFB{sfz::vec2i{4096}, gl::ShadowMapDepthRes::BITS_32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
+	mShadowMapHighRes = gl::ShadowMapFB{sfz::vec2i{1024}, gl::ShadowMapDepthRes::BITS_32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
 	mShadowMapLowRes = gl::ShadowMapFB{sfz::vec2i{256}, gl::ShadowMapDepthRes::BITS_16, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
 }
 

@@ -8,7 +8,8 @@ struct SpotLight {
 	vec3 vsDir;
 	vec3 color;
 	float range;
-	float fov;
+	float fovRad;
+	float softAngleRad;
 	mat4 lightMatrix;
 };
 
@@ -42,7 +43,7 @@ uniform SpotLight uSpotlight;
 uniform sampler2DShadow uShadowMapHighRes;
 uniform sampler2DShadow uShadowMapLowRes;
 
-const float shadowSampleWeight = 8192.0;
+const float shadowSampleWeight = 1.0;
 const float lightSampleWeight = 1.0 / shadowSampleWeight;
 uniform float uLightShaftExposure = 0.7;
 uniform float uLightShaftRange = 5.0;
@@ -53,21 +54,41 @@ uniform int uLightShaftSamples = 128;
 
 float sampleShadowMap(sampler2DShadow shadowMap, vec3 vsSamplePos)
 {
-	float shadow = 0.0;
-	vec4 smCoord = uSpotlight.lightMatrix * vec4(vsSamplePos, 1.0);
-	if (smCoord.z > 0.0) shadow = textureProj(shadowMap, smCoord);
-	return shadow;
+	return textureProj(shadowMap, uSpotlight.lightMatrix * vec4(vsSamplePos, 1.0));
 }
 
-float calcLightScale(vec3 samplePos)
+float calcOuterCos()
 {
-	float lightDist = length(uSpotlight.vsPos - samplePos);
+	return cos(uSpotlight.fovRad/2.0);
+}
+
+float calcInnerCos()
+{
+	return cos((uSpotlight.fovRad/2.0) - uSpotlight.softAngleRad);
+}
+
+float calcLightScale(vec3 samplePos, float outerCos, float innerCos)
+{
+	vec3 toSample = samplePos - uSpotlight.vsPos;
+	vec3 toSampleDir = normalize(toSample);
+	float lightDist = length(toSample);
 	float rangeSquared = uSpotlight.range * uSpotlight.range;
 	float lightDistSquared = lightDist * lightDist;
-	return max((-1.0 / rangeSquared) * (lightDistSquared - rangeSquared), 0);
+	float attenuation = smoothstep(outerCos, innerCos, dot(toSampleDir, uSpotlight.vsDir));
+
+	//float angle = dot(posToLight, -viewSpaceLightDir);
+	//float spotAttenuation = (angle > spotOpeningAngle) ? 1.0 : 0.0;
+	//float spotAttenuation = smoothstep(spotOuterAngle, spotInnerAngle, angle);
+
+	///vec3 toSample = normalize(samplePos - uSpotlight.vsPos);
+	/*float attenuation = smoothstep(uSpotlight.fovRad, uSpotlight.fovRad - uSpotlight.softAngleRad,
+	                    dot(toSample, uSpotlight.vsDir));*/
+	//float attenuation = ((dot(toSample, uSpotlight.vsDir) > cos(0.3)) ? 1.0 : 0.0);
+	//float attenuation = dot(toSample, uSpotlight.vsPos);//smoothstep(0.3, 0.5, dot(toSample, uSpotlight.vsDir));
+	return attenuation * max((-1.0 / rangeSquared) * (lightDistSquared - rangeSquared), 0);
 }
 
-float lightShaftFactor(sampler2DShadow shadowMap, vec3 vsPos)
+float lightShaftFactor(sampler2DShadow shadowMap, vec3 vsPos, float outerCos, float innerCos)
 {
 	vec3 camDir = normalize(vsPos);
 	float sampleLength = min(length(vsPos), uLightShaftRange) / float(uLightShaftSamples+1);
@@ -76,7 +97,7 @@ float lightShaftFactor(sampler2DShadow shadowMap, vec3 vsPos)
 	vec3 currentSamplePos = toNextSamplePos;
 	float factor = 0.0;
 	for (int i = 0; i < uLightShaftSamples; i++) {
-		factor += sampleShadowMap(shadowMap, currentSamplePos) * calcLightScale(currentSamplePos);
+		factor += sampleShadowMap(shadowMap, currentSamplePos) * calcLightScale(currentSamplePos, outerCos, innerCos);
 		currentSamplePos += toNextSamplePos;
 	}
 
@@ -125,20 +146,23 @@ void main()
 	vec3 specularContribution = specularIntensity * materialSpecular * uSpotlight.color;
 
 	// Shadow
-	float shadow = sampleShadowMap(uShadowMapHighRes, vsPos);// * 0.5
-	//             + sampleShadowMap(uShadowMap2, vsPos) * 0.5;
+	float shadow = sampleShadowMap(uShadowMapHighRes, vsPos);
 
 	// Spotlight scaling
-	float lightScale = calcLightScale(vsPos);
+	float outerCos = calcOuterCos();
+	float innerCos = calcInnerCos();
+	float lightScale = calcLightScale(vsPos, outerCos, innerCos);
 
-	float lightShafts = lightShaftFactor(uShadowMapLowRes, vsPos);
+	float lightShafts = lightShaftFactor(uShadowMapLowRes, vsPos, outerCos, innerCos);
 
 
 	// Total shading and output
 	vec3 shading = diffuseContribution * shadow * lightScale
 	             + specularContribution * shadow * lightScale
-	             + uLightShaftExposure * lightShafts * uSpotlight.color;
+	             + uLightShaftExposure * lightShafts * vec3(0.2, 1.0, 0.6);//uSpotlight.color;
 
 
 	outFragColor = vec4(previousSpotlightValue + shading, 1.0);
+
+	//outFragColor = vec4(vec3(uSpotlight.vsPos), 1.0);
 }

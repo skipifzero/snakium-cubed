@@ -1,5 +1,7 @@
 #include "rendering/Spotlight.hpp"
 
+#include <sfz/math/MathConstants.hpp>
+
 namespace s3 {
 
 mat4 Spotlight::viewMatrix() const noexcept
@@ -12,7 +14,7 @@ mat4 Spotlight::viewMatrix() const noexcept
 
 mat4 Spotlight::projMatrix() const noexcept
 {
-	return sfz::glPerspectiveProjectionMatrix(fov, 1.0, near, range);
+	return sfz::glPerspectiveProjectionMatrix(fovDeg, 1.0, near, range);
 }
 
 mat4 Spotlight::lightMatrix(const mat4& inverseViewMatrix) const noexcept
@@ -36,8 +38,10 @@ void stupidSetSpotLightUniform(const gl::Program& program, const char* name, con
 	gl::setUniform(program, buffer, spotlight.color);
 	snprintf(buffer, sizeof(buffer), "%s.%s", name, "range");
 	gl::setUniform(program, buffer, spotlight.range);
-	snprintf(buffer, sizeof(buffer), "%s.%s", name, "fov");
-	gl::setUniform(program, buffer, spotlight.fov);
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "fovRad");
+	gl::setUniform(program, buffer, spotlight.fovDeg * sfz::DEG_TO_RAD());
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "softAngleRad");
+	gl::setUniform(program, buffer, spotlight.softAngleDeg * sfz::DEG_TO_RAD());
 	snprintf(buffer, sizeof(buffer), "%s.%s", name, "lightMatrix");
 	gl::setUniform(program, buffer, spotlight.lightMatrix(invViewMatrix));
 }
