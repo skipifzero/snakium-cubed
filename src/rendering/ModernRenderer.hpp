@@ -44,11 +44,12 @@ private:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	gl::PostProcessQuad mPostProcessQuad;
-	gl::Program mGBufferGenProgram, mShadowMapProgram, mSpotlightShadingProgram, mGlobalShadingProgram;
+	gl::Program mGBufferGenProgram, mEmissiveGenProgram, mShadowMapProgram,
+	            mSpotlightShadingProgram, mGlobalShadingProgram;
 	gl::Scaler mScaler;
 	gl::BoxBlur mBoxBlur;
 	GBuffer mGBuffer;
-	gl::PostProcessFB mBlurredEmissiveFB, mSpotlightShadingFB, mGlobalShadingFB;
+	gl::PostProcessFB mEmissiveFB, mSpotlightShadingFB, mGlobalShadingFB;
 	vector<Spotlight> mSpotlights;
 	gl::ShadowMapFB mShadowMapHighRes, mShadowMapLowRes;
 };

@@ -83,7 +83,9 @@ void GlobalConfig::load() noexcept
 	
 	// [Graphics]
 	static const string grStr = "Graphics";
+	blurResScaling =     ip.sanitizeFloat(grStr, "fBlurResScaling", 0.4f, 0.01f, 2.0f);
 	internalResScaling = ip.sanitizeFloat(grStr, "fInternalResScaling", 2.0f, 0.01f, 10.0f);
+	spotlightResScaling = ip.sanitizeFloat(grStr, "fSpotlightResScaling", 1.0f, 0.01f, 10.0f);
 	displayIndex =      ip.sanitizeInt(grStr, "iDisplayIndex", 0, 0, 32);
 	fullscreenMode =    ip.sanitizeInt(grStr, "iFullscreenMode", 0, 0, 2);
 	refreshRate =       ip.sanitizeInt(grStr, "iRefreshRate", 60, 15, 240);
@@ -118,7 +120,9 @@ void GlobalConfig::save() noexcept
 
 	// [Graphics]
 	static const string grStr = "Graphics";
+	mIniParser.setFloat(grStr, "fBlurResScaling", blurResScaling);
 	mIniParser.setFloat(grStr, "fInternalResScaling", internalResScaling);
+	mIniParser.setFloat(grStr, "fSpotlightResScaling", spotlightResScaling);
 	mIniParser.setInt(grStr, "iDisplayIndex", displayIndex);
 	mIniParser.setInt(grStr, "iFullscreenMode", fullscreenMode);
 	mIniParser.setInt(grStr, "iRefreshRate", refreshRate);
@@ -148,6 +152,8 @@ void GlobalConfig::data(const ConfigData& configData) noexcept
 	this->windowHeight = configData.windowHeight;
 	this->vsync = configData.vsync;
 	this->internalResScaling = configData.internalResScaling;
+	this->blurResScaling = configData.blurResScaling;
+	this->spotlightResScaling = configData.spotlightResScaling;
 	this->scalingAlgorithm = configData.scalingAlgorithm;
 
 	this->inputBufferSize = configData.inputBufferSize;

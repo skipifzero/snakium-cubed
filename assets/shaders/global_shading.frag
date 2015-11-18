@@ -24,7 +24,6 @@ out vec4 outFragColor;
 // Uniforms
 uniform sampler2D uPositionTexture;
 uniform sampler2D uNormalTexture;
-uniform sampler2D uEmissiveTexture;
 uniform usampler2D uMaterialIdTexture;
 uniform sampler2D uSpotlightShadingTexture;
 uniform sampler2D uBlurredEmissiveTexture;
@@ -41,7 +40,6 @@ void main()
 	// Values from GBuffer
 	//vec3 vsPos = texture(uPositionTexture, uvCoord).xyz;
 	//vec3 vsNormal = texture(uNormalTexture, uvCoord).xyz;
-	vec3 emissive = texture(uEmissiveTexture, uvCoord).rgb;
 	uint materialId = texture(uMaterialIdTexture, uvCoord).r;
 	Material mtl = uMaterials[materialId];
 	vec3 blurredEmissive = texture(uBlurredEmissiveTexture, uvCoord).rgb;
@@ -55,8 +53,8 @@ void main()
 	vec3 shading = vec3(0);
 	shading +=ambientContribution;
 	shading += spotlightShading;
-	shading += (float(emissive == vec3(0)) * blurredEmissive * 1.1);
-	shading += emissive;
+	shading += (float(mtl.emissive == vec3(0)) * blurredEmissive * 1.1);
+	shading += mtl.emissive;
 
 	outFragColor = vec4(shading, 1.0);
 }

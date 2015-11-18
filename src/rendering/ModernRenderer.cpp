@@ -502,6 +502,8 @@ ModernRenderer::ModernRenderer() noexcept
 		glBindFragDataLocation(shaderProgram, 3, "outFragMaterialId");
 	});
 
+	mEmissiveGenProgram = gl::Program::postProcessFromFile((sfz::basePath() + "assets/shaders/emissive_gen.frag").c_str());
+
 	mShadowMapProgram = gl::Program::fromFile((sfz::basePath() + "assets/shaders/shadow_map.vert").c_str(),
 	                                          (sfz::basePath() + "assets/shaders/shadow_map.frag").c_str(),
 		[](uint32_t shaderProgram) {
@@ -543,12 +545,18 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	// Ensure framebuffers are of correct size
 	vec2i internalRes{(int)(drawableDim.x*cfg.internalResScaling), (int)(drawableDim.y*cfg.internalResScaling)};
 	if (mGBuffer.dimensionsInt() != internalRes) {
+		vec2i blurRes{(int)(drawableDim.x*cfg.blurResScaling), (int)(drawableDim.y*cfg.blurResScaling)};
+		vec2i spotlightRes{(int)(drawableDim.x*cfg.spotlightResScaling), (int)(drawableDim.y*cfg.spotlightResScaling)};
 		mGBuffer = GBuffer{internalRes};
-		mSpotlightShadingFB = gl::PostProcessFB{internalRes};
+		mSpotlightShadingFB = gl::PostProcessFB{spotlightRes};
 		mGlobalShadingFB = gl::PostProcessFB{internalRes};
-		mBoxBlur = gl::BoxBlur{internalRes};
-		mBlurredEmissiveFB = gl::PostProcessFB{internalRes};
-		std::cout << "Resized xfb, new size: " << mGBuffer.dimensionsInt() << std::endl;
+		mBoxBlur = gl::BoxBlur{blurRes};
+		mEmissiveFB = gl::PostProcessFB{blurRes};
+		std::cout << "Resized framebuffers"
+		          << "\nGBuffer && Global Shading resolution: " << internalRes
+		          << "\nEmissive & Blur resolution: " << blurRes
+		          << "\nSpotlight shading resolution: " << spotlightRes
+		          << std::endl;
 	}
 	
 	// Recompile shader programs if continuous shader reload is enabled
@@ -583,7 +591,6 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// View Matrix and Projection Matrix uniforms
-	stupidSetUniformMaterials(mGBufferGenProgram, "uMaterials");
 	const mat4 viewMatrix = cam.viewMatrix();
 	const mat4 invViewMatrix = inverse(viewMatrix);
 	gl::setUniform(mGBufferGenProgram, "uProjMatrix", cam.projMatrix());
@@ -596,21 +603,34 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	//renderTransparentCube(model, mGBufferGenProgram, viewMatrix, cam.pos(), 3, 5);
 
 
-	// Blurred emissive texture
+	// Emissive texture & blur
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-	
-	//mGaussianBlur.apply(mBlurredEmissiveFB.fbo(), mGBuffer.emissiveTexture(), mGBuffer.dimensionsInt());
-	// Stupidly approximating gaussian blur with repeated box blur
 
-	const float blurRadiusFactor = 0.02f;
-	int blurRadius = std::round(internalRes.y * blurRadiusFactor);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	glEnable(GL_CULL_FACE);
+
+	glUseProgram(mEmissiveGenProgram.handle());
+	glBindFramebuffer(GL_FRAMEBUFFER, mEmissiveFB.fbo());
+	glViewport(0, 0, mEmissiveFB.width(), mEmissiveFB.height());
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mGBuffer.materialIdTexture());
+	gl::setUniform(mEmissiveGenProgram, "uMaterialIdTexture", 0);
+	stupidSetUniformMaterials(mEmissiveGenProgram, "uMaterials");
+
+	mPostProcessQuad.render();
+	
+	const float blurRadiusFactor = 0.025f;
+	int blurRadius = std::round(mEmissiveFB.height() * blurRadiusFactor);
 	blurRadius = std::max(blurRadius, 2);
 	blurRadius = ((blurRadius % 2) != 0) ? blurRadius + 1 : blurRadius;
-	std::cout << blurRadius << std::endl;
 
-	mBoxBlur.apply(mBlurredEmissiveFB.fbo(), mGBuffer.emissiveTexture(), mGBuffer.dimensionsInt(), blurRadius);
-	mBoxBlur.apply(mBlurredEmissiveFB.fbo(), mBlurredEmissiveFB.colorTexture(), mBlurredEmissiveFB.dimensions(), blurRadius);
-	mBoxBlur.apply(mBlurredEmissiveFB.fbo(), mBlurredEmissiveFB.colorTexture(), mBlurredEmissiveFB.dimensions(), blurRadius);
+	mBoxBlur.apply(mEmissiveFB.fbo(), mEmissiveFB.colorTexture(), mEmissiveFB.dimensions(), blurRadius);
+	mBoxBlur.apply(mEmissiveFB.fbo(), mEmissiveFB.colorTexture(), mEmissiveFB.dimensions(), blurRadius);
+	mBoxBlur.apply(mEmissiveFB.fbo(), mEmissiveFB.colorTexture(), mEmissiveFB.dimensions(), blurRadius);
 
 
 	// Spotlights (Shadow Map + Shading)
@@ -730,20 +750,16 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	gl::setUniform(mGlobalShadingProgram, "uNormalTexture", 1);
 
 	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, mGBuffer.emissiveTexture());
-	gl::setUniform(mGlobalShadingProgram, "uEmissiveTexture", 2);
+	glBindTexture(GL_TEXTURE_2D, mGBuffer.materialIdTexture());
+	gl::setUniform(mGlobalShadingProgram, "uMaterialIdTexture", 2);
 
 	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, mGBuffer.materialIdTexture());
-	gl::setUniform(mGlobalShadingProgram, "uMaterialIdTexture", 3);
+	glBindTexture(GL_TEXTURE_2D, mSpotlightShadingFB.colorTexture());
+	gl::setUniform(mGlobalShadingProgram, "uSpotlightShadingTexture", 3);
 
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, mSpotlightShadingFB.colorTexture());
-	gl::setUniform(mGlobalShadingProgram, "uSpotlightShadingTexture", 4);
-
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, mBlurredEmissiveFB.colorTexture());
-	gl::setUniform(mGlobalShadingProgram, "uBlurredEmissiveTexture", 5);
+	glBindTexture(GL_TEXTURE_2D, mEmissiveFB.colorTexture());
+	gl::setUniform(mGlobalShadingProgram, "uBlurredEmissiveTexture", 4);
 
 	mPostProcessQuad.render();
 
