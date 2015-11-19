@@ -371,6 +371,59 @@ static void renderOpaque(const Model& model, gl::Program& program, const mat4& v
 	}
 }
 
+static void renderOpaqueSnakeProjection(const Model& model, gl::Program& program, const mat4& viewMatrix) noexcept
+{
+	Assets& assets = Assets::INSTANCE();
+
+	const mat4 tileScaling = sfz::scalingMatrix4(1.0f / (16.0f * (float)model.config().gridWidth));
+
+	for (size_t i = 0; i < model.numTiles(); ++i) {
+		const SnakeTile* tilePtr = model.tilePtr(i);
+		Position tilePos = model.tilePosition(tilePtr);
+
+		mat4 tileSpaceRot = tileSpaceRotation(tilePos.side);
+		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;
+
+		// Calculate base transform
+		mat4 transform = tileSpaceRotScaling;
+		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr));
+		sfz::translation(transform, tilePosToVector(model, tilePos));
+
+		// Set uniforms
+		const mat4 normalMatrix = sfz::inverse(sfz::transpose(viewMatrix * transform));
+		gl::setUniform(program, "uModelMatrix", transform);
+		gl::setUniform(program, "uNormalMatrix", normalMatrix);
+
+		// Render tile projection
+		setUniform(program, "uMaterialId", MATERIAL_ID_TILE_PROJECTION);
+		auto* tileProjModelPtr = getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress());
+		if (tileProjModelPtr != nullptr) tileProjModelPtr->render();
+	}
+
+	// Render dead snake head projection if game over
+	if (model.isGameOver()) {
+		const SnakeTile* tilePtr = model.deadHeadPtr();
+		Position tilePos = model.deadHeadPos();
+
+		mat4 tileSpaceRot = tileSpaceRotation(tilePos.side);
+		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;
+
+		// Calculate base transform
+		mat4 transform = tileSpaceRotScaling;
+		transform *= sfz::yRotationMatrix4(getTileAngleRad(tilePos.side, tilePtr));
+		sfz::translation(transform, tilePosToVector(model, tilePos));
+
+		// Set uniforms
+		const mat4 normalMatrix = sfz::inverse(sfz::transpose(viewMatrix * transform));
+		gl::setUniform(program, "uModelMatrix", transform);
+		gl::setUniform(program, "uNormalMatrix", normalMatrix);
+
+		// Render tile model
+		setUniform(program, "uMaterialId", MATERIAL_ID_TILE_PROJECTION);
+		getTileProjectionModelPtr(tilePtr, tilePos.side, model.progress())->render();
+	}
+}
+
 static void renderSnakeProjection(const Model& model, gl::Program& program, const mat4& viewMatrix, vec3 camPos, size_t firstSide = 0, size_t lastSide = 5) noexcept
 {
 	Assets& assets = Assets::INSTANCE();
@@ -694,7 +747,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		renderOpaque(model, mShadowMapProgram, spotlight.viewMatrix());
-		renderSnakeProjection(model, mShadowMapProgram, spotlight.viewMatrix(), spotlight.pos);
+		renderOpaqueSnakeProjection(model, mShadowMapProgram, spotlight.viewMatrix());
 
 		// Set low res shadow map fbo, clear it and render it
 		// TODO: Might want to downscale high res shadow map for better quality low res shadow map?
@@ -705,7 +758,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		renderOpaque(model, mShadowMapProgram, spotlight.viewMatrix());
-		renderSnakeProjection(model, mShadowMapProgram, spotlight.viewMatrix(), spotlight.pos);
+		renderOpaqueSnakeProjection(model, mShadowMapProgram, spotlight.viewMatrix());
 
 
 		//glDisable(GL_POLYGON_OFFSET_FILL);
