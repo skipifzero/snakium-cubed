@@ -28,6 +28,7 @@ struct ConfigData {
 	float internalResScaling;
 	float blurResScaling;
 	float spotlightResScaling;
+	float lightShaftsResScaling;
 	int32_t scalingAlgorithm;
 
 	// Game Settings

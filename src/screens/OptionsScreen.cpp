@@ -260,6 +260,54 @@ OptionsScreen::OptionsScreen() noexcept
 	}, stateAlignOffset}}, itemDim);
 
 	scrollList.addSpacing(itemSpacing);
+	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Light Shaft Resolution Factor", {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "1.9", "2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7", "2.8", "2.9", "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6", "3.7", "3.8", "3.9", "4.0"}, [this]() {
+		float val = this->cfgData.lightShaftsResScaling;
+		const float eps = 0.01f;
+		if (sfz::approxEqual(val, 0.2f, eps)) return 0;
+		if (sfz::approxEqual(val, 0.3f, eps)) return 1;
+		if (sfz::approxEqual(val, 0.4f, eps)) return 2;
+		if (sfz::approxEqual(val, 0.5f, eps)) return 3;
+		if (sfz::approxEqual(val, 0.6f, eps)) return 4;
+		if (sfz::approxEqual(val, 0.7f, eps)) return 5;
+		if (sfz::approxEqual(val, 0.8f, eps)) return 6;
+		if (sfz::approxEqual(val, 0.9f, eps)) return 7;
+		if (sfz::approxEqual(val, 1.0f, eps)) return 8;
+		if (sfz::approxEqual(val, 1.1f, eps)) return 9;
+		if (sfz::approxEqual(val, 1.2f, eps)) return 10;
+		if (sfz::approxEqual(val, 1.3f, eps)) return 11;
+		if (sfz::approxEqual(val, 1.4f, eps)) return 12;
+		if (sfz::approxEqual(val, 1.5f, eps)) return 13;
+		if (sfz::approxEqual(val, 1.6f, eps)) return 14;
+		if (sfz::approxEqual(val, 1.7f, eps)) return 15;
+		if (sfz::approxEqual(val, 1.8f, eps)) return 16;
+		if (sfz::approxEqual(val, 1.9f, eps)) return 17;
+		if (sfz::approxEqual(val, 2.0f, eps)) return 18;
+		if (sfz::approxEqual(val, 2.1f, eps)) return 19;
+		if (sfz::approxEqual(val, 2.2f, eps)) return 20;
+		if (sfz::approxEqual(val, 2.3f, eps)) return 21;
+		if (sfz::approxEqual(val, 2.4f, eps)) return 22;
+		if (sfz::approxEqual(val, 2.5f, eps)) return 23;
+		if (sfz::approxEqual(val, 2.6f, eps)) return 24;
+		if (sfz::approxEqual(val, 2.7f, eps)) return 25;
+		if (sfz::approxEqual(val, 2.8f, eps)) return 26;
+		if (sfz::approxEqual(val, 2.9f, eps)) return 27;
+		if (sfz::approxEqual(val, 3.0f, eps)) return 28;
+		if (sfz::approxEqual(val, 3.1f, eps)) return 29;
+		if (sfz::approxEqual(val, 3.2f, eps)) return 30;
+		if (sfz::approxEqual(val, 3.3f, eps)) return 31;
+		if (sfz::approxEqual(val, 3.4f, eps)) return 32;
+		if (sfz::approxEqual(val, 3.5f, eps)) return 33;
+		if (sfz::approxEqual(val, 3.6f, eps)) return 34;
+		if (sfz::approxEqual(val, 3.7f, eps)) return 35;
+		if (sfz::approxEqual(val, 3.8f, eps)) return 36;
+		if (sfz::approxEqual(val, 3.9f, eps)) return 37;
+		if (sfz::approxEqual(val, 4.0f, eps)) return 38;
+		return -1;
+	}, [this](int choice) {
+		this->cfgData.lightShaftsResScaling = 0.2f + ((float)choice)*0.1f;
+	}, stateAlignOffset}}, itemDim);
+
+	scrollList.addSpacing(itemSpacing);
 	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Scaling Algorithm", { "Nearest", "Bilinear", "2x2 Nearest", "2x2 Bilinear", "4x4 Nearest", "4x4 Bilinear", "Bicubic Bspline", "Lanczos-2", "Lanczos-3"}, [this]() {
 		return this->cfgData.scalingAlgorithm;
 	}, [this](int choice) {

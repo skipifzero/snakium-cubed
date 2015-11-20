@@ -572,8 +572,8 @@ ModernRenderer::ModernRenderer() noexcept
 	mGlobalShadingProgram = gl::Program::postProcessFromFile((sfz::basePath() + "assets/shaders/global_shading.frag").c_str());
 
 	Spotlight spotlightTemp;
-	spotlightTemp.color = vec3{0.6f, 1.0f, 0.6f};
-	spotlightTemp.range = 4.0f;
+	spotlightTemp.color = vec3{0.0f, 0.5f, 1.0f};
+	spotlightTemp.range = 5.0f;
 	spotlightTemp.fovDeg = 45.0f;
 	spotlightTemp.softAngleDeg = 15.0f;
 	
@@ -602,9 +602,10 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	if (mGBuffer.dimensionsInt() != internalRes) {
 		vec2i blurRes{(int)(drawableDim.x*cfg.blurResScaling), (int)(drawableDim.y*cfg.blurResScaling)};
 		vec2i spotlightRes{(int)(drawableDim.x*cfg.spotlightResScaling), (int)(drawableDim.y*cfg.spotlightResScaling)};
+		vec2i lightShaftsRes{(int)(drawableDim.x*cfg.lightShaftsResScaling), (int)(drawableDim.y*cfg.lightShaftsResScaling)};
 		mGBuffer = GBuffer{internalRes};
 		mSpotlightShadingFB = gl::PostProcessFB{spotlightRes};
-		mVolumetricShadowsFB = gl::PostProcessFB{spotlightRes};
+		mVolumetricShadowsFB = gl::PostProcessFB{lightShaftsRes};
 		mGlobalShadingFB = gl::PostProcessFB{internalRes};
 		mBoxBlur = gl::BoxBlur{blurRes};
 		mEmissiveFB = gl::PostProcessFB{blurRes};
@@ -612,8 +613,8 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		          << "\nGBuffer && Global Shading resolution: " << internalRes
 		          << "\nEmissive & Blur resolution: " << blurRes
 		          << "\nSpotlight shading resolution: " << spotlightRes
-		          << "\nVolumetric shadows resolution: " << spotlightRes
-		          << std::endl;
+		          << "\nVolumetric shadows resolution: " << lightShaftsRes
+		          << "\n\n";
 	}
 	
 	// Recompile shader programs if continuous shader reload is enabled

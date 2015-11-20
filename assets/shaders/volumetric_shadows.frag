@@ -30,7 +30,7 @@ uniform sampler2DShadow uShadowMapLowRes;
 
 const float shadowSampleWeight = 1.0;
 const float lightSampleWeight = 1.0 / shadowSampleWeight;
-uniform float uLightShaftExposure = 0.7;
+uniform float uLightShaftExposure = 0.8;
 uniform float uLightShaftRange = 5.0;
 uniform int uLightShaftSamples = 128;
 
