@@ -567,23 +567,35 @@ ModernRenderer::ModernRenderer() noexcept
 
 	mSpotlightShadingProgram = gl::Program::postProcessFromFile((sfz::basePath() + "assets/shaders/spotlight_shading.frag").c_str());
 
-	mVolumetricShadowsProgram = gl::Program::postProcessFromFile((sfz::basePath() + "assets/shaders/volumetric_shadows.frag").c_str());
+	mLightShaftsProgram = gl::Program::postProcessFromFile((sfz::basePath() + "assets/shaders/light_shafts.frag").c_str());
 
 	mGlobalShadingProgram = gl::Program::postProcessFromFile((sfz::basePath() + "assets/shaders/global_shading.frag").c_str());
 
 	Spotlight spotlightTemp;
 	spotlightTemp.color = vec3{0.0f, 0.5f, 1.0f};
 	spotlightTemp.range = 5.0f;
-	spotlightTemp.fovDeg = 45.0f;
-	spotlightTemp.softAngleDeg = 15.0f;
+	spotlightTemp.fovDeg = 90.0f;
+	spotlightTemp.softAngleDeg = 5.0f;
 	
-	spotlightTemp.pos = vec3(0.0f, 1.25f, 0.0f);
+	spotlightTemp.pos = vec3(0.0f, 1.2f, 0.0f);
+	spotlightTemp.dir = vec3(0.0f, -1.0f, 0.0f);
+	//mSpotlights.push_back(spotlightTemp);
+
+	spotlightTemp.pos = vec3(0.0f);
+
+	spotlightTemp.dir = vec3(1.0f, 0.0f, 0.0f);
+	mSpotlights.push_back(spotlightTemp);
+	spotlightTemp.dir = vec3(-1.0f, 0.0f, 0.0f);
+	mSpotlights.push_back(spotlightTemp);
+	spotlightTemp.dir = vec3(0.0f, 1.0f, 0.0f);
+	mSpotlights.push_back(spotlightTemp);
 	spotlightTemp.dir = vec3(0.0f, -1.0f, 0.0f);
 	mSpotlights.push_back(spotlightTemp);
+	spotlightTemp.dir = vec3(0.0f, 0.0f, 1.0f);
+	mSpotlights.push_back(spotlightTemp);
+	spotlightTemp.dir = vec3(0.0f, 0.0f, -1.0f);
+	mSpotlights.push_back(spotlightTemp);
 
-	spotlightTemp.pos = vec3(-1.25f, 0.0f, 0.0f);
-	spotlightTemp.dir = vec3(1.0f, 0.0f, 0.0f);
-	//mSpotlights.push_back(spotlightTemp);
 
 	mShadowMapHighRes = gl::ShadowMapFB{sfz::vec2i{1024}, gl::ShadowMapDepthRes::BITS_32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
 	mShadowMapLowRes = gl::ShadowMapFB{sfz::vec2i{256}, gl::ShadowMapDepthRes::BITS_16, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
@@ -605,7 +617,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		vec2i lightShaftsRes{(int)(drawableDim.x*cfg.lightShaftsResScaling), (int)(drawableDim.y*cfg.lightShaftsResScaling)};
 		mGBuffer = GBuffer{internalRes};
 		mSpotlightShadingFB = gl::PostProcessFB{spotlightRes};
-		mVolumetricShadowsFB = gl::PostProcessFB{lightShaftsRes};
+		mLightShaftsFB = gl::PostProcessFB{lightShaftsRes};
 		mGlobalShadingFB = gl::PostProcessFB{internalRes};
 		mBoxBlur = gl::BoxBlur{blurRes};
 		mEmissiveFB = gl::PostProcessFB{blurRes};
@@ -613,7 +625,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		          << "\nGBuffer && Global Shading resolution: " << internalRes
 		          << "\nEmissive & Blur resolution: " << blurRes
 		          << "\nSpotlight shading resolution: " << spotlightRes
-		          << "\nVolumetric shadows resolution: " << lightShaftsRes
+		          << "\nLight Shafts resolution: " << lightShaftsRes
 		          << "\n\n";
 	}
 	
@@ -622,7 +634,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		mGBufferGenProgram.reload();
 		mShadowMapProgram.reload();
 		mSpotlightShadingProgram.reload();
-		mVolumetricShadowsProgram.reload();
+		mLightShaftsProgram.reload();
 		mGlobalShadingProgram.reload();
 	}
 
@@ -705,7 +717,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, mSpotlightShadingFB.colorTexture());
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, mVolumetricShadowsFB.colorTexture());
+	glBindTexture(GL_TEXTURE_2D, mLightShaftsFB.colorTexture());
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, mShadowMapHighRes.depthTexture());
 	glActiveTexture(GL_TEXTURE6);
@@ -727,16 +739,16 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	stupidSetUniformMaterials(mSpotlightShadingProgram, "uMaterials");
 
 	// Clear volumetric shadows texture
-	glUseProgram(mVolumetricShadowsProgram.handle());
-	glBindFramebuffer(GL_FRAMEBUFFER, mVolumetricShadowsFB.fbo());
-	glViewport(0, 0, mVolumetricShadowsFB.width(), mVolumetricShadowsFB.height());
+	glUseProgram(mLightShaftsProgram.handle());
+	glBindFramebuffer(GL_FRAMEBUFFER, mLightShaftsFB.fbo());
+	glViewport(0, 0, mLightShaftsFB.width(), mLightShaftsFB.height());
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Set common volumetric shadows uniforms
-	gl::setUniform(mVolumetricShadowsProgram, "uPositionTexture", 0);
-	gl::setUniform(mVolumetricShadowsProgram, "uVolumetricShadowsTexture", 4);
-	gl::setUniform(mVolumetricShadowsProgram, "uShadowMapLowRes", 6);
+	gl::setUniform(mLightShaftsProgram, "uPositionTexture", 0);
+	gl::setUniform(mLightShaftsProgram, "uLightShaftsTexture", 4);
+	gl::setUniform(mLightShaftsProgram, "uShadowMapLowRes", 6);
 
 	glDisable(GL_BLEND);
 
@@ -792,11 +804,11 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		mPostProcessQuad.render();
 
 		// Volumetric Shadows rendering
-		glUseProgram(mVolumetricShadowsProgram.handle());
-		glBindFramebuffer(GL_FRAMEBUFFER, mVolumetricShadowsFB.fbo());
-		glViewport(0, 0, mVolumetricShadowsFB.width(), mVolumetricShadowsFB.height());
+		glUseProgram(mLightShaftsProgram.handle());
+		glBindFramebuffer(GL_FRAMEBUFFER, mLightShaftsFB.fbo());
+		glViewport(0, 0, mLightShaftsFB.width(), mLightShaftsFB.height());
 
-		stupidSetSpotLightUniform(mVolumetricShadowsProgram, "uSpotlight", spotlight, viewMatrix, invViewMatrix);
+		stupidSetSpotLightUniform(mLightShaftsProgram, "uSpotlight", spotlight, viewMatrix, invViewMatrix);
 
 		mPostProcessQuad.render();
 	}
@@ -835,8 +847,8 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	gl::setUniform(mGlobalShadingProgram, "uSpotlightShadingTexture", 3);
 
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, mVolumetricShadowsFB.colorTexture());
-	gl::setUniform(mGlobalShadingProgram, "uVolumetricShadowsTexture", 4);
+	glBindTexture(GL_TEXTURE_2D, mLightShaftsFB.colorTexture());
+	gl::setUniform(mGlobalShadingProgram, "uLightShaftsTexture", 4);
 
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, mEmissiveFB.colorTexture());

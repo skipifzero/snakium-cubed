@@ -24,7 +24,7 @@ out vec4 outFragColor;
 
 // Uniforms
 uniform sampler2D uPositionTexture;
-uniform sampler2D uVolumetricShadowsTexture;
+uniform sampler2D uLightShaftsTexture;
 uniform SpotLight uSpotlight;
 uniform sampler2DShadow uShadowMapLowRes;
 
@@ -88,7 +88,7 @@ float lightShaftFactor(sampler2DShadow shadowMap, vec3 vsPos, float outerCos, fl
 void main()
 {
 	vec3 vsPos = texture(uPositionTexture, uvCoord).xyz;
-	vec3 previousValue = texture(uVolumetricShadowsTexture, uvCoord).xyz;
+	vec3 previousValue = texture(uLightShaftsTexture, uvCoord).xyz;
 
 	float outerCos = calcOuterCos();
 	float innerCos = calcInnerCos();
