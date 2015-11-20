@@ -567,6 +567,8 @@ ModernRenderer::ModernRenderer() noexcept
 
 	mSpotlightShadingProgram = gl::Program::postProcessFromFile((sfz::basePath() + "assets/shaders/spotlight_shading.frag").c_str());
 
+	mVolumetricShadowsProgram = gl::Program::postProcessFromFile((sfz::basePath() + "assets/shaders/volumetric_shadows.frag").c_str());
+
 	mGlobalShadingProgram = gl::Program::postProcessFromFile((sfz::basePath() + "assets/shaders/global_shading.frag").c_str());
 
 	Spotlight spotlightTemp;
@@ -602,6 +604,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		vec2i spotlightRes{(int)(drawableDim.x*cfg.spotlightResScaling), (int)(drawableDim.y*cfg.spotlightResScaling)};
 		mGBuffer = GBuffer{internalRes};
 		mSpotlightShadingFB = gl::PostProcessFB{spotlightRes};
+		mVolumetricShadowsFB = gl::PostProcessFB{spotlightRes};
 		mGlobalShadingFB = gl::PostProcessFB{internalRes};
 		mBoxBlur = gl::BoxBlur{blurRes};
 		mEmissiveFB = gl::PostProcessFB{blurRes};
@@ -609,6 +612,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		          << "\nGBuffer && Global Shading resolution: " << internalRes
 		          << "\nEmissive & Blur resolution: " << blurRes
 		          << "\nSpotlight shading resolution: " << spotlightRes
+		          << "\nVolumetric shadows resolution: " << spotlightRes
 		          << std::endl;
 	}
 	
@@ -617,6 +621,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		mGBufferGenProgram.reload();
 		mShadowMapProgram.reload();
 		mSpotlightShadingProgram.reload();
+		mVolumetricShadowsProgram.reload();
 		mGlobalShadingProgram.reload();
 	}
 
@@ -686,8 +691,24 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	mBoxBlur.apply(mEmissiveFB.fbo(), mEmissiveFB.colorTexture(), mEmissiveFB.dimensions(), blurRadius);
 
 
-	// Spotlights (Shadow Map + Shading)
+	// Spotlights (Shadow Map + Shading + Lightshafts)
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	// Binding textures (textures may not be bound in loop)
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, mGBuffer.positionTexture());
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, mGBuffer.normalTexture());
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, mGBuffer.materialIdTexture());
+	glActiveTexture(GL_TEXTURE3);
+	glBindTexture(GL_TEXTURE_2D, mSpotlightShadingFB.colorTexture());
+	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, mVolumetricShadowsFB.colorTexture());
+	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, mShadowMapHighRes.depthTexture());
+	glActiveTexture(GL_TEXTURE6);
+	glBindTexture(GL_TEXTURE_2D, mShadowMapLowRes.depthTexture());
 
 	// Clear Spotlight shading texture
 	glUseProgram(mSpotlightShadingProgram.handle());
@@ -696,32 +717,25 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	// Set common uniforms
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, mGBuffer.positionTexture());
+	// Set common Spotlight shading uniforms
 	gl::setUniform(mSpotlightShadingProgram, "uPositionTexture", 0);
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, mGBuffer.normalTexture());
 	gl::setUniform(mSpotlightShadingProgram, "uNormalTexture", 1);
-
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, mGBuffer.materialIdTexture());
 	gl::setUniform(mSpotlightShadingProgram, "uMaterialIdTexture", 2);
-
-	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, mSpotlightShadingFB.colorTexture());
-	gl::setUniform(mSpotlightShadingProgram, "uSpotlightTexture", 3);
-
-	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, mShadowMapHighRes.depthTexture());
-	gl::setUniform(mSpotlightShadingProgram, "uShadowMapHighRes", 4);
-
-	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, mShadowMapLowRes.depthTexture());
-	gl::setUniform(mSpotlightShadingProgram, "uShadowMapLowRes", 5);
-
+	gl::setUniform(mSpotlightShadingProgram, "uSpotlightTexture", 3);	
+	gl::setUniform(mSpotlightShadingProgram, "uShadowMapHighRes", 5);
 	stupidSetUniformMaterials(mSpotlightShadingProgram, "uMaterials");
+
+	// Clear volumetric shadows texture
+	glUseProgram(mVolumetricShadowsProgram.handle());
+	glBindFramebuffer(GL_FRAMEBUFFER, mVolumetricShadowsFB.fbo());
+	glViewport(0, 0, mVolumetricShadowsFB.width(), mVolumetricShadowsFB.height());
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	// Set common volumetric shadows uniforms
+	gl::setUniform(mVolumetricShadowsProgram, "uPositionTexture", 0);
+	gl::setUniform(mVolumetricShadowsProgram, "uVolumetricShadowsTexture", 4);
+	gl::setUniform(mVolumetricShadowsProgram, "uShadowMapLowRes", 6);
 
 	glDisable(GL_BLEND);
 
@@ -775,6 +789,15 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		stupidSetSpotLightUniform(mSpotlightShadingProgram, "uSpotlight", spotlight, viewMatrix, invViewMatrix);
 		
 		mPostProcessQuad.render();
+
+		// Volumetric Shadows rendering
+		glUseProgram(mVolumetricShadowsProgram.handle());
+		glBindFramebuffer(GL_FRAMEBUFFER, mVolumetricShadowsFB.fbo());
+		glViewport(0, 0, mVolumetricShadowsFB.width(), mVolumetricShadowsFB.height());
+
+		stupidSetSpotLightUniform(mVolumetricShadowsProgram, "uSpotlight", spotlight, viewMatrix, invViewMatrix);
+
+		mPostProcessQuad.render();
 	}
 
 
@@ -811,8 +834,12 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	gl::setUniform(mGlobalShadingProgram, "uSpotlightShadingTexture", 3);
 
 	glActiveTexture(GL_TEXTURE4);
+	glBindTexture(GL_TEXTURE_2D, mVolumetricShadowsFB.colorTexture());
+	gl::setUniform(mGlobalShadingProgram, "uVolumetricShadowsTexture", 4);
+
+	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, mEmissiveFB.colorTexture());
-	gl::setUniform(mGlobalShadingProgram, "uBlurredEmissiveTexture", 4);
+	gl::setUniform(mGlobalShadingProgram, "uBlurredEmissiveTexture", 5);
 
 	mPostProcessQuad.render();
 

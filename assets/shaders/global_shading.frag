@@ -26,6 +26,7 @@ uniform sampler2D uPositionTexture;
 uniform sampler2D uNormalTexture;
 uniform usampler2D uMaterialIdTexture;
 uniform sampler2D uSpotlightShadingTexture;
+uniform sampler2D uVolumetricShadowsTexture;
 uniform sampler2D uBlurredEmissiveTexture;
 
 uniform Material uMaterials[20];
@@ -42,9 +43,9 @@ void main()
 	//vec3 vsNormal = texture(uNormalTexture, uvCoord).xyz;
 	uint materialId = texture(uMaterialIdTexture, uvCoord).r;
 	Material mtl = uMaterials[materialId];
-	vec3 blurredEmissive = texture(uBlurredEmissiveTexture, uvCoord).rgb;
-
 	vec3 spotlightShading = texture(uSpotlightShadingTexture, uvCoord).rgb;
+	vec3 volumetricShadows = texture(uVolumetricShadowsTexture, uvCoord).rgb;
+	vec3 blurredEmissive = texture(uBlurredEmissiveTexture, uvCoord).rgb;
 
 	// Ambient lighting
 	vec3 ambientContribution = mtl.ambient * AMBIENT_LIGHT;
@@ -53,6 +54,7 @@ void main()
 	vec3 shading = vec3(0);
 	shading +=ambientContribution;
 	shading += spotlightShading;
+	shading += volumetricShadows;
 	shading += (float(mtl.emissive == vec3(0)) * blurredEmissive * 1.1);
 	shading += mtl.emissive;
 
