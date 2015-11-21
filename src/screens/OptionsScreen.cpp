@@ -17,8 +17,6 @@
 
 namespace s3 {
 
-using std::shared_ptr;
-
 // Static functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -98,6 +96,7 @@ OptionsScreen::OptionsScreen() noexcept
 	const float buttonHeight = 8.0f;
 	const float stateAlignOffset = menuDim.x * 0.535f;
 	const vec2 headingDim{menuDim.x * 0.95f, 7.5f};
+	const vec2 infoTextDim{menuDim.x * 0.95f, 3.0f};
 	const vec2 itemDim{menuDim.x * 0.95f, 4.6725f};
 	float scrollListHeight = menuDim.y - titleHeight - buttonHeight - 2.0f*spacing - bottomSpacing;
 
@@ -145,167 +144,69 @@ OptionsScreen::OptionsScreen() noexcept
 	}, stateAlignOffset}}, itemDim);
 
 	scrollList.addSpacing(itemSpacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Internal Resolution Factor", {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "1.9", "2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7", "2.8", "2.9", "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6", "3.7", "3.8", "3.9", "4.0"}, [this]() {
+	scrollList.addItem(shared_ptr<BaseItem>{new TextItem{"Internal resolution is a factor of the current output resolution", HorizontalAlign::LEFT}}, infoTextDim);
+	scrollList.addSpacing(itemSpacing);
+	mInternalResMultiChoicePtr = shared_ptr<BaseItem>{new MultiChoiceSelector{"Internal Resolution", {}, [this]() {
 		float val = this->cfgData.internalResScaling;
 		const float eps = 0.01f;
-		if (sfz::approxEqual(val, 0.2f, eps)) return 0;
-		if (sfz::approxEqual(val, 0.3f, eps)) return 1;
-		if (sfz::approxEqual(val, 0.4f, eps)) return 2;
-		if (sfz::approxEqual(val, 0.5f, eps)) return 3;
-		if (sfz::approxEqual(val, 0.6f, eps)) return 4;
-		if (sfz::approxEqual(val, 0.7f, eps)) return 5;
-		if (sfz::approxEqual(val, 0.8f, eps)) return 6;
-		if (sfz::approxEqual(val, 0.9f, eps)) return 7;
-		if (sfz::approxEqual(val, 1.0f, eps)) return 8;
-		if (sfz::approxEqual(val, 1.1f, eps)) return 9;
-		if (sfz::approxEqual(val, 1.2f, eps)) return 10;
-		if (sfz::approxEqual(val, 1.3f, eps)) return 11;
-		if (sfz::approxEqual(val, 1.4f, eps)) return 12;
-		if (sfz::approxEqual(val, 1.5f, eps)) return 13;
-		if (sfz::approxEqual(val, 1.6f, eps)) return 14;
-		if (sfz::approxEqual(val, 1.7f, eps)) return 15;
-		if (sfz::approxEqual(val, 1.8f, eps)) return 16;
-		if (sfz::approxEqual(val, 1.9f, eps)) return 17;
-		if (sfz::approxEqual(val, 2.0f, eps)) return 18;
-		if (sfz::approxEqual(val, 2.1f, eps)) return 19;
-		if (sfz::approxEqual(val, 2.2f, eps)) return 20;
-		if (sfz::approxEqual(val, 2.3f, eps)) return 21;
-		if (sfz::approxEqual(val, 2.4f, eps)) return 22;
-		if (sfz::approxEqual(val, 2.5f, eps)) return 23;
-		if (sfz::approxEqual(val, 2.6f, eps)) return 24;
-		if (sfz::approxEqual(val, 2.7f, eps)) return 25;
-		if (sfz::approxEqual(val, 2.8f, eps)) return 26;
-		if (sfz::approxEqual(val, 2.9f, eps)) return 27;
-		if (sfz::approxEqual(val, 3.0f, eps)) return 28;
-		if (sfz::approxEqual(val, 3.1f, eps)) return 29;
-		if (sfz::approxEqual(val, 3.2f, eps)) return 30;
-		if (sfz::approxEqual(val, 3.3f, eps)) return 31;
-		if (sfz::approxEqual(val, 3.4f, eps)) return 32;
-		if (sfz::approxEqual(val, 3.5f, eps)) return 33;
-		if (sfz::approxEqual(val, 3.6f, eps)) return 34;
-		if (sfz::approxEqual(val, 3.7f, eps)) return 35;
-		if (sfz::approxEqual(val, 3.8f, eps)) return 36;
-		if (sfz::approxEqual(val, 3.9f, eps)) return 37;
-		if (sfz::approxEqual(val, 4.0f, eps)) return 38;
+		int i = 0;
+		for (float factor = 0.05f; factor <= 4.0f; factor += 0.05f) {
+			if (sfz::approxEqual(val, factor, eps)) return i;
+			++i;
+		}
 		return -1;
 	}, [this](int choice) {
-		this->cfgData.internalResScaling = 0.2f + ((float)choice)*0.1f;
-	}, stateAlignOffset}}, itemDim);
+		this->cfgData.internalResScaling = 0.05f + ((float)choice)*0.05f;
+		this->mDrawableDim = vec2{-1.0f};
+	}, stateAlignOffset}};
+	scrollList.addItem(mInternalResMultiChoicePtr, itemDim);
 
 	scrollList.addSpacing(itemSpacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Emissive Blur Resolution Factor", {"0.1", "0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0"}, [this]() {
+	scrollList.addItem(shared_ptr<BaseItem>{new TextItem{"The following resolutions are factors of the internal resolution", HorizontalAlign::LEFT}}, infoTextDim);
+	scrollList.addSpacing(itemSpacing);
+	mBlurResMultiChoicePtr = shared_ptr<BaseItem>{new MultiChoiceSelector{"Emissive Blur Resolution", {}, [this]() {
 		float val = this->cfgData.blurResScaling;
 		const float eps = 0.01f;
-		if (sfz::approxEqual(val, 0.1f, eps)) return 0;
-		if (sfz::approxEqual(val, 0.2f, eps)) return 1;
-		if (sfz::approxEqual(val, 0.3f, eps)) return 2;
-		if (sfz::approxEqual(val, 0.4f, eps)) return 3;
-		if (sfz::approxEqual(val, 0.5f, eps)) return 4;
-		if (sfz::approxEqual(val, 0.6f, eps)) return 5;
-		if (sfz::approxEqual(val, 0.7f, eps)) return 6;
-		if (sfz::approxEqual(val, 0.8f, eps)) return 7;
-		if (sfz::approxEqual(val, 0.9f, eps)) return 8;
-		if (sfz::approxEqual(val, 1.0f, eps)) return 9;
+		int i = 0;
+		for (float factor = 0.05f; factor <= 4.0f; factor += 0.05f) {
+			if (sfz::approxEqual(val, factor, eps)) return i;
+			++i;
+		}
 		return -1;
 	}, [this](int choice) {
-		this->cfgData.blurResScaling = 0.1f + ((float)choice)*0.1f;
-	}, stateAlignOffset}}, itemDim);
+		this->cfgData.blurResScaling = 0.05f + ((float)choice)*0.05f;
+	}, stateAlignOffset}};
+	scrollList.addItem(mBlurResMultiChoicePtr, itemDim);
 
 	scrollList.addSpacing(itemSpacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Spotlight Resolution Factor", {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "1.9", "2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7", "2.8", "2.9", "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6", "3.7", "3.8", "3.9", "4.0"}, [this]() {
+	mSpotlightResMultiChoicePtr = shared_ptr<BaseItem>{new MultiChoiceSelector{"Spotlight Resolution", {}, [this]() {
 		float val = this->cfgData.spotlightResScaling;
 		const float eps = 0.01f;
-		if (sfz::approxEqual(val, 0.2f, eps)) return 0;
-		if (sfz::approxEqual(val, 0.3f, eps)) return 1;
-		if (sfz::approxEqual(val, 0.4f, eps)) return 2;
-		if (sfz::approxEqual(val, 0.5f, eps)) return 3;
-		if (sfz::approxEqual(val, 0.6f, eps)) return 4;
-		if (sfz::approxEqual(val, 0.7f, eps)) return 5;
-		if (sfz::approxEqual(val, 0.8f, eps)) return 6;
-		if (sfz::approxEqual(val, 0.9f, eps)) return 7;
-		if (sfz::approxEqual(val, 1.0f, eps)) return 8;
-		if (sfz::approxEqual(val, 1.1f, eps)) return 9;
-		if (sfz::approxEqual(val, 1.2f, eps)) return 10;
-		if (sfz::approxEqual(val, 1.3f, eps)) return 11;
-		if (sfz::approxEqual(val, 1.4f, eps)) return 12;
-		if (sfz::approxEqual(val, 1.5f, eps)) return 13;
-		if (sfz::approxEqual(val, 1.6f, eps)) return 14;
-		if (sfz::approxEqual(val, 1.7f, eps)) return 15;
-		if (sfz::approxEqual(val, 1.8f, eps)) return 16;
-		if (sfz::approxEqual(val, 1.9f, eps)) return 17;
-		if (sfz::approxEqual(val, 2.0f, eps)) return 18;
-		if (sfz::approxEqual(val, 2.1f, eps)) return 19;
-		if (sfz::approxEqual(val, 2.2f, eps)) return 20;
-		if (sfz::approxEqual(val, 2.3f, eps)) return 21;
-		if (sfz::approxEqual(val, 2.4f, eps)) return 22;
-		if (sfz::approxEqual(val, 2.5f, eps)) return 23;
-		if (sfz::approxEqual(val, 2.6f, eps)) return 24;
-		if (sfz::approxEqual(val, 2.7f, eps)) return 25;
-		if (sfz::approxEqual(val, 2.8f, eps)) return 26;
-		if (sfz::approxEqual(val, 2.9f, eps)) return 27;
-		if (sfz::approxEqual(val, 3.0f, eps)) return 28;
-		if (sfz::approxEqual(val, 3.1f, eps)) return 29;
-		if (sfz::approxEqual(val, 3.2f, eps)) return 30;
-		if (sfz::approxEqual(val, 3.3f, eps)) return 31;
-		if (sfz::approxEqual(val, 3.4f, eps)) return 32;
-		if (sfz::approxEqual(val, 3.5f, eps)) return 33;
-		if (sfz::approxEqual(val, 3.6f, eps)) return 34;
-		if (sfz::approxEqual(val, 3.7f, eps)) return 35;
-		if (sfz::approxEqual(val, 3.8f, eps)) return 36;
-		if (sfz::approxEqual(val, 3.9f, eps)) return 37;
-		if (sfz::approxEqual(val, 4.0f, eps)) return 38;
+		int i = 0;
+		for (float factor = 0.05f; factor <= 4.0f; factor += 0.05f) {
+			if (sfz::approxEqual(val, factor, eps)) return i;
+			++i;
+		}
 		return -1;
 	}, [this](int choice) {
-		this->cfgData.spotlightResScaling = 0.2f + ((float)choice)*0.1f;
-	}, stateAlignOffset}}, itemDim);
+		this->cfgData.spotlightResScaling = 0.05f + ((float)choice)*0.05f;
+	}, stateAlignOffset}};
+	scrollList.addItem(mSpotlightResMultiChoicePtr, itemDim);
 
 	scrollList.addSpacing(itemSpacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Light Shaft Resolution Factor", {"0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8", "0.9", "1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "1.9", "2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7", "2.8", "2.9", "3.0", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6", "3.7", "3.8", "3.9", "4.0"}, [this]() {
+	mLightShaftResMultiChoicePtr = shared_ptr<BaseItem>{new MultiChoiceSelector{"Light Shaft Resolution", {}, [this]() {
 		float val = this->cfgData.lightShaftsResScaling;
 		const float eps = 0.01f;
-		if (sfz::approxEqual(val, 0.2f, eps)) return 0;
-		if (sfz::approxEqual(val, 0.3f, eps)) return 1;
-		if (sfz::approxEqual(val, 0.4f, eps)) return 2;
-		if (sfz::approxEqual(val, 0.5f, eps)) return 3;
-		if (sfz::approxEqual(val, 0.6f, eps)) return 4;
-		if (sfz::approxEqual(val, 0.7f, eps)) return 5;
-		if (sfz::approxEqual(val, 0.8f, eps)) return 6;
-		if (sfz::approxEqual(val, 0.9f, eps)) return 7;
-		if (sfz::approxEqual(val, 1.0f, eps)) return 8;
-		if (sfz::approxEqual(val, 1.1f, eps)) return 9;
-		if (sfz::approxEqual(val, 1.2f, eps)) return 10;
-		if (sfz::approxEqual(val, 1.3f, eps)) return 11;
-		if (sfz::approxEqual(val, 1.4f, eps)) return 12;
-		if (sfz::approxEqual(val, 1.5f, eps)) return 13;
-		if (sfz::approxEqual(val, 1.6f, eps)) return 14;
-		if (sfz::approxEqual(val, 1.7f, eps)) return 15;
-		if (sfz::approxEqual(val, 1.8f, eps)) return 16;
-		if (sfz::approxEqual(val, 1.9f, eps)) return 17;
-		if (sfz::approxEqual(val, 2.0f, eps)) return 18;
-		if (sfz::approxEqual(val, 2.1f, eps)) return 19;
-		if (sfz::approxEqual(val, 2.2f, eps)) return 20;
-		if (sfz::approxEqual(val, 2.3f, eps)) return 21;
-		if (sfz::approxEqual(val, 2.4f, eps)) return 22;
-		if (sfz::approxEqual(val, 2.5f, eps)) return 23;
-		if (sfz::approxEqual(val, 2.6f, eps)) return 24;
-		if (sfz::approxEqual(val, 2.7f, eps)) return 25;
-		if (sfz::approxEqual(val, 2.8f, eps)) return 26;
-		if (sfz::approxEqual(val, 2.9f, eps)) return 27;
-		if (sfz::approxEqual(val, 3.0f, eps)) return 28;
-		if (sfz::approxEqual(val, 3.1f, eps)) return 29;
-		if (sfz::approxEqual(val, 3.2f, eps)) return 30;
-		if (sfz::approxEqual(val, 3.3f, eps)) return 31;
-		if (sfz::approxEqual(val, 3.4f, eps)) return 32;
-		if (sfz::approxEqual(val, 3.5f, eps)) return 33;
-		if (sfz::approxEqual(val, 3.6f, eps)) return 34;
-		if (sfz::approxEqual(val, 3.7f, eps)) return 35;
-		if (sfz::approxEqual(val, 3.8f, eps)) return 36;
-		if (sfz::approxEqual(val, 3.9f, eps)) return 37;
-		if (sfz::approxEqual(val, 4.0f, eps)) return 38;
+		int i = 0;
+		for (float factor = 0.05f; factor <= 4.0f; factor += 0.05f) {
+			if (sfz::approxEqual(val, factor, eps)) return i;
+			++i;
+		}
 		return -1;
 	}, [this](int choice) {
-		this->cfgData.lightShaftsResScaling = 0.2f + ((float)choice)*0.1f;
-	}, stateAlignOffset}}, itemDim);
+		this->cfgData.lightShaftsResScaling = 0.05f + ((float)choice)*0.05f;
+	}, stateAlignOffset}};
+	scrollList.addItem(mLightShaftResMultiChoicePtr, itemDim);
 
 	scrollList.addSpacing(itemSpacing);
 	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Scaling Algorithm", { "Nearest", "Bilinear", "2x2 Nearest", "2x2 Bilinear", "4x4 Nearest", "4x4 Bilinear", "Bicubic Bspline", "Lanczos-2", "Lanczos-3"}, [this]() {
@@ -313,6 +214,7 @@ OptionsScreen::OptionsScreen() noexcept
 	}, [this](int choice) {
 		this->cfgData.scalingAlgorithm = choice;
 	}, stateAlignOffset}}, itemDim);
+
 
 	// GameSettings
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -473,6 +375,11 @@ UpdateOp OptionsScreen::update(UpdateState& state)
 	const vec2 drawableDim = state.window.drawableDimensions();
 	const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, screens::MIN_DRAWABLE);
 
+	if (mDrawableDim != drawableDim) {
+		mDrawableDim = drawableDim;
+		updateResolutionStrings();
+	}
+
 	int32_t ctrlId = getFirstController(state);
 	bool cancelRef;
 	gui::InputData data = inputDataFromUpdateState(state, guiCam, ctrlId, &cancelRef);
@@ -502,6 +409,12 @@ void OptionsScreen::render(UpdateState& state)
 
 	// Draw GUI
 	mGuiSystem.draw(0, drawableDim, guiCam);
+}
+
+void OptionsScreen::onResize(vec2 windowDimensions, vec2 drawableDimensions)
+{
+	mDrawableDim = drawableDimensions;
+	updateResolutionStrings();
 }
 
 // OptionsScreen: Private methods
@@ -561,6 +474,40 @@ void OptionsScreen::applyConfig() noexcept
 	
 	// Write to file
 	globalCfg.save();
+}
+
+void OptionsScreen::updateResolutionFactors() noexcept
+{
+	char buffer[128];
+	mInternalResFactorStrs.clear();
+	mSecondaryResFactorStrs.clear();
+	vec2i internalRes{int(mOutputRes.x * cfgData.internalResScaling),
+	                  int(mOutputRes.y * cfgData.internalResScaling)};
+	for (float factor = 0.05f; factor <= 4.0f; factor += 0.05) {
+		std::snprintf(buffer, 128, "%ix%i (%.2f)", int(mOutputRes.x * factor), 
+		              int(mOutputRes.y * factor), factor);
+		mInternalResFactorStrs.push_back(buffer);
+		std::snprintf(buffer, 128, "%ix%i (%.2f)", int(internalRes.x * factor), 
+		              int(internalRes.y * factor), factor);
+		mSecondaryResFactorStrs.push_back(buffer);
+	}
+}
+
+void OptionsScreen::updateResolutionStrings() noexcept
+{
+	using namespace gui;
+	mOutputRes = vec2i{(int)mDrawableDim.x, (int)mDrawableDim.y};
+	this->updateResolutionFactors();
+
+	MultiChoiceSelector& internalResMultiChoice = *static_cast<MultiChoiceSelector*>(mInternalResMultiChoicePtr.get());
+	MultiChoiceSelector& blurResMultiChoice = *static_cast<MultiChoiceSelector*>(mBlurResMultiChoicePtr.get());
+	MultiChoiceSelector& spotlightResMultiChoice = *static_cast<MultiChoiceSelector*>(mSpotlightResMultiChoicePtr.get());
+	MultiChoiceSelector& lightShaftResMultiChoice = *static_cast<MultiChoiceSelector*>(mLightShaftResMultiChoicePtr.get());
+
+	internalResMultiChoice.choiceNames = mInternalResFactorStrs;
+	blurResMultiChoice.choiceNames = vector<string>{mSecondaryResFactorStrs.begin(), mSecondaryResFactorStrs.begin()+20};
+	spotlightResMultiChoice.choiceNames = mSecondaryResFactorStrs;
+	lightShaftResMultiChoice.choiceNames = mSecondaryResFactorStrs;
 }
 
 } // namespace s3

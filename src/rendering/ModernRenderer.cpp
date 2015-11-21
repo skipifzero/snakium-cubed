@@ -574,8 +574,8 @@ ModernRenderer::ModernRenderer() noexcept
 	Spotlight spotlightTemp;
 	spotlightTemp.color = vec3{0.0f, 0.5f, 1.0f};
 	spotlightTemp.range = 5.0f;
-	spotlightTemp.fovDeg = 90.0f;
-	spotlightTemp.softAngleDeg = 5.0f;
+	spotlightTemp.fovDeg = 75.0f;
+	spotlightTemp.softAngleDeg = 10.0f;
 	
 	spotlightTemp.pos = vec3(0.0f, 1.2f, 0.0f);
 	spotlightTemp.dir = vec3(0.0f, -1.0f, 0.0f);
@@ -583,8 +583,7 @@ ModernRenderer::ModernRenderer() noexcept
 
 	spotlightTemp.pos = vec3(0.0f);
 
-	spotlightTemp.dir = vec3(1.0f, 0.0f, 0.0f);
-	mSpotlights.push_back(spotlightTemp);
+	
 	spotlightTemp.dir = vec3(-1.0f, 0.0f, 0.0f);
 	mSpotlights.push_back(spotlightTemp);
 	spotlightTemp.dir = vec3(0.0f, 1.0f, 0.0f);
@@ -612,9 +611,9 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	// Ensure framebuffers are of correct size
 	vec2i internalRes{(int)(drawableDim.x*cfg.internalResScaling), (int)(drawableDim.y*cfg.internalResScaling)};
 	if (mGBuffer.dimensionsInt() != internalRes) {
-		vec2i blurRes{(int)(drawableDim.x*cfg.blurResScaling), (int)(drawableDim.y*cfg.blurResScaling)};
-		vec2i spotlightRes{(int)(drawableDim.x*cfg.spotlightResScaling), (int)(drawableDim.y*cfg.spotlightResScaling)};
-		vec2i lightShaftsRes{(int)(drawableDim.x*cfg.lightShaftsResScaling), (int)(drawableDim.y*cfg.lightShaftsResScaling)};
+		vec2i blurRes{(int)(internalRes.x*cfg.blurResScaling), (int)(internalRes.y*cfg.blurResScaling)};
+		vec2i spotlightRes{(int)(internalRes.x*cfg.spotlightResScaling), (int)(internalRes.y*cfg.spotlightResScaling)};
+		vec2i lightShaftsRes{(int)(internalRes.x*cfg.lightShaftsResScaling), (int)(internalRes.y*cfg.lightShaftsResScaling)};
 		mGBuffer = GBuffer{internalRes};
 		mSpotlightShadingFB = gl::PostProcessFB{spotlightRes};
 		mLightShaftsFB = gl::PostProcessFB{lightShaftsRes};
