@@ -26,6 +26,50 @@ static const string& userIniPath() noexcept
 	return USER_INI_PATH;
 }
 
+// ConfigData struct
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+bool operator== (const ConfigData& lhs, const ConfigData& rhs) noexcept
+{
+	return
+
+	// Debug
+	lhs.continuousShaderReload == rhs.continuousShaderReload &&
+
+	// Graphics
+	lhs.displayIndex == rhs.displayIndex &&
+	lhs.fullscreenMode == rhs.fullscreenMode &&
+	lhs.refreshRate == rhs.refreshRate &&
+	lhs.resolutionX == rhs.resolutionX &&
+	lhs.resolutionY == rhs.resolutionY &&
+	lhs.windowWidth == rhs.windowWidth &&
+	lhs.windowHeight == rhs.windowHeight &&
+	lhs.vsync == rhs.vsync &&
+	lhs.internalResScaling == rhs.internalResScaling &&
+	lhs.blurResScaling == rhs.blurResScaling &&
+	lhs.spotlightResScaling == rhs.spotlightResScaling &&
+	lhs.lightShaftsResScaling == rhs.lightShaftsResScaling &&
+	lhs.scalingAlgorithm == rhs.scalingAlgorithm &&
+
+	// Game Settings
+	lhs.inputBufferSize == rhs.inputBufferSize &&
+
+	// Custom Model
+	lhs.modelConfig.gridWidth == rhs.modelConfig.gridWidth &&
+	lhs.modelConfig.tilesPerSecond == rhs.modelConfig.tilesPerSecond &&
+	lhs.modelConfig.speedIncreasePerObject == rhs.modelConfig.speedIncreasePerObject &&
+	lhs.modelConfig.objectValue == rhs.modelConfig.objectValue &&
+	lhs.modelConfig.hasBonus == rhs.modelConfig.hasBonus &&
+	lhs.modelConfig.bonusFrequency == rhs.modelConfig.bonusFrequency &&
+	lhs.modelConfig.bonusDuration == rhs.modelConfig.bonusDuration &&
+	lhs.modelConfig.bonusObjectValue == rhs.modelConfig.bonusObjectValue;
+}
+
+bool operator!= (const ConfigData& lhs, const ConfigData& rhs) noexcept
+{
+	return !(lhs == rhs);
+}
+
 // GlobalConfig: Singleton instance
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

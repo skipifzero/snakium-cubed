@@ -383,7 +383,8 @@ UpdateOp OptionsScreen::update(UpdateState& state)
 	int32_t ctrlId = getFirstController(state);
 	bool cancelRef;
 	gui::InputData data = inputDataFromUpdateState(state, guiCam, ctrlId, &cancelRef);
-	if (cancelRef) {
+	if (cancelRef && cfgData == GlobalConfig::INSTANCE().data()) {
+
 		this->applyConfig();
 		return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                shared_ptr<BaseScreen>{new MainMenuScreen{}}};

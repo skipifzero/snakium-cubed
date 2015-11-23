@@ -38,6 +38,9 @@ struct ConfigData {
 	ModelConfig modelConfig;
 };
 
+bool operator== (const ConfigData& lhs, const ConfigData& rhs) noexcept;
+bool operator!= (const ConfigData& lhs, const ConfigData& rhs) noexcept;
+
 // GlobalConfig class
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
