@@ -68,7 +68,9 @@ private:
 
 	shared_ptr<BaseItem> mInternalResMultiChoicePtr, mBlurResMultiChoicePtr,
 	                     mSpotlightResMultiChoicePtr, mLightShaftResMultiChoicePtr;
-	
+
+	shared_ptr<BaseItem> mCancelApplyCon, mCancelButton, mApplyButton;
+
 	vec2i mOutputRes;
 	vector<string> mInternalResFactorStrs;
 	vector<string> mSecondaryResFactorStrs;

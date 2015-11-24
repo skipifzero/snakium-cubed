@@ -350,19 +350,22 @@ OptionsScreen::OptionsScreen() noexcept
 	}, stateAlignOffset}}, itemDim);
 
 	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new SideSplitContainer{}}, vec2{menuDim.x, buttonHeight});
+	mCancelApplyCon = shared_ptr<BaseItem>{new SideSplitContainer{}};
+	mGuiSystem.addItem(mCancelApplyCon, vec2{menuDim.x, buttonHeight});
 	SideSplitContainer& sideSplit = *(SideSplitContainer*)mGuiSystem.items().back().get();
-	
-	sideSplit.setLeft(shared_ptr<BaseItem>{new Button{"Cancel", [this](Button&) {
+
+	mCancelButton = shared_ptr<BaseItem>{new Button{"Cancel", [this](Button&) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                           shared_ptr<BaseScreen>{new MainMenuScreen{}}};
-	}}}, menuDim.x * 0.4f);
+	}}};
+	sideSplit.setLeft(mCancelButton, menuDim.x * 0.4f);
 
-	sideSplit.setRight(shared_ptr<BaseItem>{new Button{"Apply", [this](Button&) {
+	mApplyButton = shared_ptr<BaseItem>{new Button{"Apply", [this](Button&) {
 		this->applyConfig();
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                           shared_ptr<BaseScreen>{new MainMenuScreen{}}};
-	}}}, menuDim.x * 0.4f);
+	}}};
+	sideSplit.setRight(mApplyButton, menuDim.x * 0.4f);
 }
 
 // OptionsScreen: Overriden screen methods
@@ -383,11 +386,17 @@ UpdateOp OptionsScreen::update(UpdateState& state)
 	int32_t ctrlId = getFirstController(state);
 	bool cancelRef;
 	gui::InputData data = inputDataFromUpdateState(state, guiCam, ctrlId, &cancelRef);
-	if (cancelRef && cfgData == GlobalConfig::INSTANCE().data()) {
+	if (cancelRef) {
+		if (cfgData == GlobalConfig::INSTANCE().data()) {
+			this->applyConfig();
+			return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+			                shared_ptr<BaseScreen>{new MainMenuScreen{}}};
+		}
 
-		this->applyConfig();
-		return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-		                shared_ptr<BaseScreen>{new MainMenuScreen{}}};
+		// Awful, awful hack to select apply button if back is pressed when changes have been made.
+		vec2 oldPointerPos = data.pointerPos;
+		data.pointerPos = mGuiSystem.bounds().position() + mCancelApplyCon->offset + mApplyButton->offset;
+		data.pointerMotion += (data.pointerPos - oldPointerPos);
 	}
 	mGuiSystem.update(data, state.delta);
 
