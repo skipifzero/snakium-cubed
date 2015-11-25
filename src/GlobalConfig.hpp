@@ -18,6 +18,7 @@ using std::int32_t;
 struct ConfigData {
 	// Debug
 	bool continuousShaderReload;
+	bool printFPS;
 
 	// Graphics
 	int32_t displayIndex;
