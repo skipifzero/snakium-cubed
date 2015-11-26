@@ -82,12 +82,48 @@ float lightShaftFactor(sampler2DShadow shadowMap, vec3 vsPos, float outerCos, fl
 	return factor;
 }
 
+bool spotlightIntersection(vec3 camPos, vec3 camDir)
+{
+	// Given
+	vec3 aHat = uSpotlight.vsDir;  //normalize
+	vec3 v = uSpotlight.vsPos;
+	float angle = uSpotlight.fovRad/2.0;
+	vec3 p = camPos;
+	vec3 dVec = camDir; //normalize
+
+	// Simplifications
+	vec3 pMinV = p-v;
+	float cos2 = cos(angle);
+	cos2 *= cos2;
+	float aHatDotPMinV = dot(aHat, pMinV);
+	float aHatDotDVec = dot(aHat, dVec);
+
+	// Calculations
+	float a = (aHatDotDVec * aHatDotDVec) - cos2;
+	float b = 2.0 * (aHatDotPMinV * aHatDotDVec - cos2 * dot(pMinV, dVec));
+	float c = aHatDotPMinV * aHatDotPMinV - cos2 * dot(pMinV, pMinV);
+
+
+	float tmp = b*b - 4*a*c;
+
+	return tmp >= 0 ? true : false;
+}
+
 // Main
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 void main()
 {
 	vec3 vsPos = texture(uPositionTexture, uvCoord).xyz;
+
+	vec3 camPos = vec3(0);
+	vec3 camDir = normalize(vsPos);
+	bool intrs = spotlightIntersection(camPos, camDir);
+	if (!intrs) {
+		discard;
+	}
+
+	
 	vec3 previousValue = texture(uLightShaftsTexture, uvCoord).xyz;
 
 	float outerCos = calcOuterCos();
