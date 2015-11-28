@@ -90,6 +90,22 @@ set(SOURCE_SCREENS_FILES
 	${SRC_DIR}/screens/ScreenUtils.cpp)
 source_group(screens FILES ${SOURCE_SCREENS_FILES})
 
+set(SOURCE_SFZ_GEOMETRY_TEMP_FILES
+	${SRC_DIR}/sfz/geometry/ViewFrustum.hpp
+	${SRC_DIR}/sfz/geometry/ViewFrustum.cpp)
+source_group(sfz_geometry_temp FILES ${SOURCE_SFZ_GEOMETRY_TEMP_FILES})
+
+set(SOURCE_SFZ_GL_TEMP_FILES
+	${SRC_DIR}/sfz/gl/BoxBlur.hpp
+	${SRC_DIR}/sfz/gl/BoxBlur.cpp
+	${SRC_DIR}/sfz/gl/PostProcessFB.hpp
+	${SRC_DIR}/sfz/gl/PostProcessFB.cpp
+	${SRC_DIR}/sfz/gl/Scaler.hpp
+	${SRC_DIR}/sfz/gl/Scaler.cpp
+	${SRC_DIR}/sfz/gl/ShadowMapFB.hpp
+	${SRC_DIR}/sfz/gl/ShadowMapFB.cpp)
+source_group(sfz_gl_temp FILES ${SOURCE_SFZ_GL_TEMP_FILES})
+
 set(SOURCE_SFZ_GUI_TEMP_FILES
 	${SRC_DIR}/sfz/GUI.hpp
 	${SRC_DIR}/sfz/gui/BaseItem.hpp
@@ -117,24 +133,14 @@ set(SOURCE_SFZ_GUI_TEMP_FILES
 	${SRC_DIR}/sfz/gui/TextItem.cpp)
 source_group(sfz_gui_temp FILES ${SOURCE_SFZ_GUI_TEMP_FILES})
 
-set(SOURCE_SFZ_GL_TEMP_FILES
-	${SRC_DIR}/sfz/gl/BoxBlur.hpp
-	${SRC_DIR}/sfz/gl/BoxBlur.cpp
-	${SRC_DIR}/sfz/gl/PostProcessFB.hpp
-	${SRC_DIR}/sfz/gl/PostProcessFB.cpp
-	${SRC_DIR}/sfz/gl/Scaler.hpp
-	${SRC_DIR}/sfz/gl/Scaler.cpp
-	${SRC_DIR}/sfz/gl/ShadowMapFB.hpp
-	${SRC_DIR}/sfz/gl/ShadowMapFB.cpp)
-source_group(sfz_gl_temp FILES ${SOURCE_SFZ_GL_TEMP_FILES})
-
 set(SOURCE_ALL_FILES
 	${SOURCE_BASE_FILES}
 	${SOURCE_GAMELOGIC_FILES}
 	${SOURCE_RENDERING_FILES}
 	${SOURCE_SCREENS_FILES}
-	${SOURCE_SFZ_GUI_TEMP_FILES}
-	${SOURCE_SFZ_GL_TEMP_FILES})
+	${SOURCE_SFZ_GEOMETRY_TEMP_FILES}
+	${SOURCE_SFZ_GL_TEMP_FILES}
+	${SOURCE_SFZ_GUI_TEMP_FILES})
 
 # Main executable
 add_executable(snakium-cubed ${SOURCE_ALL_FILES})
