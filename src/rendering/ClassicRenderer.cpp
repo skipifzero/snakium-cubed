@@ -226,7 +226,9 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 
 	glUseProgram(mProgram.handle());
 
-	const mat4 viewProj = cam.projMatrix() * cam.viewMatrix();
+	const auto& viewFrustum = cam.viewFrustum();
+
+	const mat4 viewProj = viewFrustum.projMatrix() * viewFrustum.viewMatrix();
 
 	if (!mProgram.isValid()) std::cout << "PROGRAM NON VALID\n";
 
@@ -241,7 +243,7 @@ void ClassicRenderer::render(const Model& model, const Camera& cam, const AABB2D
 	const mat4 tileScaling = sfz::scalingMatrix4(tileWidth);
 	mat4 transform, tileSpaceRot, tileSpaceRotScaling;
 
-	RenderOrder order = calculateRenderOrder(cam.pos());
+	RenderOrder order = calculateRenderOrder(viewFrustum.pos());
 
 	for (size_t side = 0; side < 6; side++) {
 		Direction currentSide = order.renderOrder[side];

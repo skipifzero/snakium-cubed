@@ -26,16 +26,11 @@ static vec3 tilePosToVector(const Model& model, const Position& tilePos) noexcep
 // Camera: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-Camera::Camera() noexcept	
+Camera::Camera() noexcept
 {
 	mCamDir = vec3{0.0f, 0.0f, 1.0f};
 	mCamUp = vec3{0.0f, 1.0f, 0.0f};
 	mCamDist = 2.0f;
-
-	mFov = 60.0f;
-	mAspect = 1.0f;
-	mNear = 0.25f;
-	mFar = 5.0f;
 
 	mUpDir = Direction::UP;
 	mLastCubeSide = Direction::BACKWARD;
@@ -46,6 +41,8 @@ Camera::Camera() noexcept
 	mDiveInvertUpDir = false;
 	mDiveTargetCamDir = mCamDir;
 	mDiveTargetCamDirRotAxis = mCamUp;
+
+	mViewFrustum = ViewFrustum{vec3{0.0f} + mCamDir*mCamDist, -mCamDir, mCamUp, 60.0f, 1.0f, 0.25f, 5.0f};
 }
 
 // Camera: Public methods
@@ -146,15 +143,15 @@ void Camera::update(Model& model, float delta) noexcept
 		}
 	}
 
-	// Calculate matrices
-	mViewMatrix = sfz::lookAt(vec3{0.0f} + mCamDir*mCamDist, vec3{0.0f}, mCamUp);
-	mProjMatrix = sfz::glPerspectiveProjectionMatrix(mFov, mAspect, mNear, mFar);
+	// Update View Frustum
+	mViewFrustum.setPos(vec3{0.0f} +mCamDir*mCamDist);
+	mViewFrustum.setDir(-mCamDir, mCamUp);
 }
 
 void Camera::onResize(float fov, float aspect) noexcept
 {
-	mFov = fov;
-	mAspect = aspect;
+	mViewFrustum.setVerticalFov(fov);
+	mViewFrustum.setAspectRatio(aspect);
 }
 
 // Back-to-front sorting

@@ -90,7 +90,7 @@ void ViewFrustum::setAspectRatio(float aspect) noexcept
 void ViewFrustum::setDir(vec3 direction, vec3 up) noexcept
 {
 	mDir = normalize(direction);
-	mUp = normalize(up);
+	mUp = normalize(up - dot(up, direction) * direction);
 	sfz_assert_debug(approxEqual(dot(mDir, mUp), 0.0f));
 
 	update();
@@ -109,8 +109,8 @@ void ViewFrustum::set(vec3 position, vec3 direction, vec3 up, float verticalFov,
 {
 	mPos = position;
 	mDir = normalize(direction);
-	mUp = normalize(up);
-	sfz_assert_debug(approxEqual(dot(mDir, mUp), 0.0f));
+	mUp = normalize(up - dot(up, direction) * direction);
+	sfz_assert_debug(approxEqual(dot(mDir, mUp), 0.0f, 0.1f));
 	sfz_assert_debug(0.0f < verticalFov && verticalFov < 180.0f);
 	mVerticalFov = verticalFov;
 	sfz_assert_debug(0.0f < aspect);

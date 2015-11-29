@@ -579,12 +579,12 @@ ModernRenderer::ModernRenderer() noexcept
 	
 	spotlightTemp.pos = vec3(0.0f, 1.2f, 0.0f);
 	spotlightTemp.dir = vec3(0.0f, -1.0f, 0.0f);
-	//mSpotlights.push_back(spotlightTemp);
+	mSpotlights.push_back(spotlightTemp);
 
 	spotlightTemp.pos = vec3(0.0f);
 
 	
-	spotlightTemp.dir = vec3(-1.0f, 0.0f, 0.0f);
+	/*spotlightTemp.dir = vec3(-1.0f, 0.0f, 0.0f);
 	mSpotlights.push_back(spotlightTemp);
 	spotlightTemp.dir = vec3(0.0f, 1.0f, 0.0f);
 	mSpotlights.push_back(spotlightTemp);
@@ -593,7 +593,7 @@ ModernRenderer::ModernRenderer() noexcept
 	spotlightTemp.dir = vec3(0.0f, 0.0f, 1.0f);
 	mSpotlights.push_back(spotlightTemp);
 	spotlightTemp.dir = vec3(0.0f, 0.0f, -1.0f);
-	mSpotlights.push_back(spotlightTemp);
+	mSpotlights.push_back(spotlightTemp);*/
 
 
 	mShadowMapHighRes = gl::ShadowMapFB{sfz::vec2i{1024}, gl::ShadowMapDepthRes::BITS_32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
@@ -661,15 +661,16 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// View Matrix and Projection Matrix uniforms
-	const mat4 viewMatrix = cam.viewMatrix();
+	const auto& viewFrustum = cam.viewFrustum();
+	const mat4 viewMatrix = viewFrustum.viewMatrix();
 	const mat4 invViewMatrix = inverse(viewMatrix);
-	gl::setUniform(mGBufferGenProgram, "uProjMatrix", cam.projMatrix());
+	gl::setUniform(mGBufferGenProgram, "uProjMatrix", viewFrustum.projMatrix());
 	gl::setUniform(mGBufferGenProgram, "uViewMatrix", viewMatrix);
 
 	// Render things
 	renderBackground(mGBufferGenProgram, viewMatrix);
 	renderOpaque(model, mGBufferGenProgram, viewMatrix);
-	renderSnakeProjection(model, mGBufferGenProgram, viewMatrix, cam.pos());
+	renderSnakeProjection(model, mGBufferGenProgram, viewMatrix, viewFrustum.pos());
 	//renderTransparentCube(model, mGBufferGenProgram, viewMatrix, cam.pos(), 3, 5);
 
 
