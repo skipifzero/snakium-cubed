@@ -4,44 +4,109 @@
 
 namespace s3 {
 
-mat4 Spotlight::viewMatrix() const noexcept
+// Spotlight: Constructors & destructors
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+Spotlight::Spotlight(vec3 pos, vec3 dir, float softFovDeg, float sharpFovDeg, float range,
+                     float near, vec3 color) noexcept
 {
+	sfz_assert_debug(dir != vec3{0.0f});
+	sfz_assert_debug(0.0f < sharpFovDeg);
+	sfz_assert_debug(sharpFovDeg <= softFovDeg);
+	sfz_assert_debug(sharpFovDeg < 180.0f);
+	sfz_assert_debug(0.0f < near);
+	sfz_assert_debug(near < range);
+
+	// TODO: This is a stupid way to find an up vector (doesn't always work).
 	vec3 up = cross(pos, dir);
 	if (up == vec3(0.0)) up = vec3{dir.y, dir.z, dir.x};
-	up = normalize(up);
-	return sfz::lookAt(pos, pos + dir, up);
+
+	mViewFrustum = ViewFrustum{pos, dir, up, softFovDeg, 1.0f, near, range};
+	mSharpFovDeg = sharpFovDeg;
+	mColor = color;
 }
 
-mat4 Spotlight::projMatrix() const noexcept
-{
-	return sfz::glPerspectiveProjectionMatrix(fovDeg, 1.0, near, range);
-}
+// Spotlight: Public methods
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 mat4 Spotlight::lightMatrix(const mat4& inverseViewMatrix) const noexcept
 {
 	static const mat4 translScale = sfz::translationMatrix(0.5f, 0.5f, 0.5f)
 	                              * sfz::scalingMatrix4(0.5f);
-	return translScale * this->projMatrix() * this->viewMatrix() * inverseViewMatrix;
+	return translScale * mViewFrustum.projMatrix() * mViewFrustum.viewMatrix() * inverseViewMatrix;
 }
 
+// Spotlight: Setters
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+void Spotlight::pos(vec3 pos) noexcept
+{
+	mViewFrustum.setPos(pos);
+}
+
+void Spotlight::dir(vec3 dir) noexcept
+{
+	sfz_assert_debug(dir != vec3{0.0f});
+
+	// TODO: This is a stupid way to find an up vector (doesn't always work).
+	vec3 up = cross(mViewFrustum.pos(), dir);
+	if (up == vec3(0.0)) up = vec3{dir.y, dir.z, dir.x};
+
+	mViewFrustum.setDir(dir, up);
+}
+
+void Spotlight::softFov(float softFovDeg) noexcept
+{
+	sfz_assert_debug(mSharpFovDeg <= softFovDeg);
+	mViewFrustum.setVerticalFov(softFovDeg);
+}
+
+void Spotlight::sharpFov(float sharpFovDeg) noexcept
+{
+	sfz_assert_debug(0.0f < sharpFovDeg);
+	sfz_assert_debug(sharpFovDeg < mViewFrustum.verticalFov());
+	mSharpFovDeg = sharpFovDeg;
+}
+
+void Spotlight::range(float range) noexcept
+{
+	sfz_assert_debug(mViewFrustum.near() < range);
+	mViewFrustum.setClipDist(mViewFrustum.near(), range);
+}
+
+void Spotlight::near(float near) noexcept
+{
+	sfz_assert_debug(near < mViewFrustum.far());
+	mViewFrustum.setClipDist(near, mViewFrustum.far());
+}
+
+void Spotlight::color(vec3 color) noexcept
+{
+	mColor = color;
+}
 
 void stupidSetSpotLightUniform(const gl::Program& program, const char* name, const Spotlight& spotlight,
                                const mat4& viewMatrix, const mat4& invViewMatrix) noexcept
 {
 	using std::snprintf;
 	char buffer[128];
+	const auto& frustum = spotlight.viewFrustum();
 	snprintf(buffer, sizeof(buffer), "%s.%s", name, "vsPos");
-	gl::setUniform(program, buffer, transformPoint(viewMatrix, spotlight.pos));
+	gl::setUniform(program, buffer, transformPoint(viewMatrix, frustum.pos()));
 	snprintf(buffer, sizeof(buffer), "%s.%s", name, "vsDir");
-	gl::setUniform(program, buffer, transformDir(viewMatrix, spotlight.dir));
+	gl::setUniform(program, buffer, transformDir(viewMatrix, frustum.dir()));
 	snprintf(buffer, sizeof(buffer), "%s.%s", name, "color");
-	gl::setUniform(program, buffer, spotlight.color);
+	gl::setUniform(program, buffer, spotlight.color());
 	snprintf(buffer, sizeof(buffer), "%s.%s", name, "range");
-	gl::setUniform(program, buffer, spotlight.range);
-	snprintf(buffer, sizeof(buffer), "%s.%s", name, "fovRad");
-	gl::setUniform(program, buffer, spotlight.fovDeg * sfz::DEG_TO_RAD());
-	snprintf(buffer, sizeof(buffer), "%s.%s", name, "softAngleRad");
-	gl::setUniform(program, buffer, spotlight.softAngleDeg * sfz::DEG_TO_RAD());
+	gl::setUniform(program, buffer, frustum.far());
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "softFovRad");
+	gl::setUniform(program, buffer, frustum.verticalFov() * sfz::DEG_TO_RAD());
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "sharpFovRad");
+	gl::setUniform(program, buffer, spotlight.sharpFov() * sfz::DEG_TO_RAD());
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "softAngleCos");
+	gl::setUniform(program, buffer, std::cos((frustum.verticalFov() / 2.0f) * sfz::DEG_TO_RAD()));
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "sharpAngleCos");
+	gl::setUniform(program, buffer, std::cos((spotlight.sharpFov() / 2.0f) * sfz::DEG_TO_RAD()));
 	snprintf(buffer, sizeof(buffer), "%s.%s", name, "lightMatrix");
 	gl::setUniform(program, buffer, spotlight.lightMatrix(invViewMatrix));
 }

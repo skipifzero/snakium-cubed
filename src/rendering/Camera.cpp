@@ -144,7 +144,7 @@ void Camera::update(Model& model, float delta) noexcept
 	}
 
 	// Update View Frustum
-	mViewFrustum.setPos(vec3{0.0f} +mCamDir*mCamDist);
+	mViewFrustum.setPos(vec3{0.0f} + mCamDir*mCamDist);
 	mViewFrustum.setDir(-mCamDir, mCamUp);
 }
 

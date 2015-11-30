@@ -8,8 +8,10 @@ struct SpotLight {
 	vec3 vsDir;
 	vec3 color;
 	float range;
-	float fovRad;
-	float softAngleRad;
+	float softFovRad; // outer
+	float sharpFovRad; //inner
+	float softAngleCos; // outer
+	float sharpAngleCos; // inner
 	mat4 lightMatrix;
 };
 
@@ -48,16 +50,6 @@ uniform sampler2DShadow uShadowMapHighRes;
 float sampleShadowMap(sampler2DShadow shadowMap, vec3 vsSamplePos)
 {
 	return textureProj(shadowMap, uSpotlight.lightMatrix * vec4(vsSamplePos, 1.0));
-}
-
-float calcOuterCos()
-{
-	return cos(uSpotlight.fovRad/2.0);
-}
-
-float calcInnerCos()
-{
-	return cos((uSpotlight.fovRad/2.0) - uSpotlight.softAngleRad);
 }
 
 float calcLightScale(vec3 samplePos, float outerCos, float innerCos)
@@ -110,8 +102,8 @@ void main()
 	vec3 specularContribution = specularIntensity * materialSpecular * uSpotlight.color;
 
 	// Shadow & lightscale
-	float outerCos = calcOuterCos();
-	float innerCos = calcInnerCos();
+	float outerCos = uSpotlight.softAngleCos;
+	float innerCos = uSpotlight.sharpAngleCos;
 	float lightScale = calcLightScale(vsPos, outerCos, innerCos);
 	float shadow = sampleShadowMap(uShadowMapHighRes, vsPos);
 

@@ -22,7 +22,7 @@ public:
 	ViewFrustum(const ViewFrustum&) noexcept = default;
 	ViewFrustum& operator= (const ViewFrustum&) noexcept = default;
 
-	ViewFrustum(vec3 position, vec3 direction, vec3 up, float verticalFov, float aspect,
+	ViewFrustum(vec3 position, vec3 direction, vec3 up, float verticalFovDeg, float aspect,
 	            float near, float far) noexcept;
 	
 	// Public methods
@@ -39,7 +39,7 @@ public:
 	inline vec3 pos() const noexcept { return mPos; }
 	inline vec3 dir() const noexcept { return mDir; }
 	inline vec3 up() const noexcept { return mUp; }
-	inline float verticalFov() const noexcept { return mVerticalFov; }
+	inline float verticalFov() const noexcept { return mVerticalFovDeg; }
 	inline float aspectRatio() const noexcept { return mAspectRatio; }
 	inline float near() const noexcept { return mNear; }
 	inline float far() const noexcept { return mFar; }
@@ -50,12 +50,12 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	void setPos(vec3 position) noexcept;
-	void setVerticalFov(float verticalFov) noexcept;
+	void setVerticalFov(float verticalFovDeg) noexcept;
 	void setAspectRatio(float aspect) noexcept;
 
 	void setDir(vec3 direction, vec3 up) noexcept;
 	void setClipDist(float near, float far) noexcept;
-	void set(vec3 position, vec3 direction, vec3 up, float verticalFov, float aspect, float near,
+	void set(vec3 position, vec3 direction, vec3 up, float verticalFovDeg, float aspect, float near,
 	         float far) noexcept;
 
 private:
@@ -70,7 +70,7 @@ private:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	vec3 mPos, mDir, mUp;
-	float mVerticalFov, mAspectRatio, mNear, mFar;
+	float mVerticalFovDeg, mAspectRatio, mNear, mFar;
 	mat4 mViewMatrix, mProjMatrix;
 	Plane mNearPlane, mFarPlane, mUpPlane, mDownPlane, mLeftPlane, mRightPlane;
 };

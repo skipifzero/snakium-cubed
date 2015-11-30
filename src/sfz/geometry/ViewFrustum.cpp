@@ -24,10 +24,10 @@ static OBB obbApproximation(const ViewFrustum& frustum) noexcept
 // ViewFrustum: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-ViewFrustum::ViewFrustum(vec3 position, vec3 direction, vec3 up, float verticalFov, float aspect,
+ViewFrustum::ViewFrustum(vec3 position, vec3 direction, vec3 up, float verticalFovDeg, float aspect,
                          float near, float far) noexcept
 {
-	this->set(position, direction, up, verticalFov, aspect, near, far);
+	this->set(position, direction, up, verticalFovDeg, aspect, near, far);
 }
 
 // ViewFrustum: Public methods
@@ -73,10 +73,10 @@ void ViewFrustum::setPos(vec3 position) noexcept
 	update();
 }
 
-void ViewFrustum::setVerticalFov(float verticalFov) noexcept
+void ViewFrustum::setVerticalFov(float verticalFovDeg) noexcept
 {
-	sfz_assert_debug(0.0f < verticalFov && verticalFov < 180.0f);
-	mVerticalFov = verticalFov;
+	sfz_assert_debug(0.0f < verticalFovDeg && verticalFovDeg < 180.0f);
+	mVerticalFovDeg = verticalFovDeg;
 	update();
 }
 
@@ -104,15 +104,15 @@ void ViewFrustum::setClipDist(float near, float far) noexcept
 	mFar = far;
 }
 
-void ViewFrustum::set(vec3 position, vec3 direction, vec3 up, float verticalFov, float aspect,
+void ViewFrustum::set(vec3 position, vec3 direction, vec3 up, float verticalFovDeg, float aspect,
                       float near, float far) noexcept
 {
 	mPos = position;
 	mDir = normalize(direction);
 	mUp = normalize(up - dot(up, direction) * direction);
-	sfz_assert_debug(approxEqual(dot(mDir, mUp), 0.0f, 0.1f));
-	sfz_assert_debug(0.0f < verticalFov && verticalFov < 180.0f);
-	mVerticalFov = verticalFov;
+	sfz_assert_debug(approxEqual(dot(mDir, mUp), 0.0f));
+	sfz_assert_debug(0.0f < verticalFovDeg && verticalFovDeg < 180.0f);
+	mVerticalFovDeg = verticalFovDeg;
 	sfz_assert_debug(0.0f < aspect);
 	mAspectRatio = aspect;
 	sfz_assert_debug(0.0f < near);
@@ -135,13 +135,13 @@ void ViewFrustum::update() noexcept
 void ViewFrustum::updateMatrices() noexcept
 {
 	mViewMatrix = lookAt(mPos, mPos + mDir, mUp);
-	mProjMatrix = glPerspectiveProjectionMatrix(mVerticalFov, mAspectRatio, mNear, mFar);
+	mProjMatrix = glPerspectiveProjectionMatrix(mVerticalFovDeg, mAspectRatio, mNear, mFar);
 }
 
 void ViewFrustum::updatePlanes() noexcept
 {
 	const vec3 right = normalize(cross(mDir, mUp));
-	const float yHalfRadAngle = (mVerticalFov/2.0f) * DEG_TO_RAD();
+	const float yHalfRadAngle = (mVerticalFovDeg/2.0f) * DEG_TO_RAD();
 	const float xHalfRadAngle = mAspectRatio * yHalfRadAngle;
 	
 	sfz_assert_debug(approxEqual(dot(mDir, mUp), 0.0f));

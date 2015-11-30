@@ -8,8 +8,10 @@ struct SpotLight {
 	vec3 vsDir;
 	vec3 color;
 	float range;
-	float fovRad;
-	float softAngleRad;
+	float softFovRad; // outer
+	float sharpFovRad; //inner
+	float softAngleCos; // outer
+	float sharpAngleCos; // inner
 	mat4 lightMatrix;
 };
 
@@ -40,16 +42,6 @@ uniform int uLightShaftSamples = 128;
 float sampleShadowMap(sampler2DShadow shadowMap, vec3 vsSamplePos)
 {
 	return textureProj(shadowMap, uSpotlight.lightMatrix * vec4(vsSamplePos, 1.0));
-}
-
-float calcOuterCos()
-{
-	return cos(uSpotlight.fovRad/2.0);
-}
-
-float calcInnerCos()
-{
-	return cos((uSpotlight.fovRad/2.0) - uSpotlight.softAngleRad);
 }
 
 float calcLightScale(vec3 samplePos, float outerCos, float innerCos)
@@ -87,7 +79,7 @@ bool spotlightIntersection(vec3 camPos, vec3 camDir)
 	// Given
 	vec3 aHat = uSpotlight.vsDir;  //normalize
 	vec3 v = uSpotlight.vsPos;
-	float angle = uSpotlight.fovRad/2.0;
+	float angle = uSpotlight.softFovRad/2.0;
 	vec3 p = camPos;
 	vec3 dVec = camDir; //normalize
 
@@ -126,8 +118,8 @@ void main()
 	
 	vec3 previousValue = texture(uLightShaftsTexture, uvCoord).xyz;
 
-	float outerCos = calcOuterCos();
-	float innerCos = calcInnerCos();
+	float outerCos = uSpotlight.softAngleCos;
+	float innerCos = uSpotlight.sharpAngleCos;
 	float lightShafts = lightShaftFactor(uShadowMapLowRes, vsPos, outerCos, innerCos);
 
 	vec3 total = uLightShaftExposure * lightShafts * uSpotlight.color;

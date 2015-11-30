@@ -571,17 +571,18 @@ ModernRenderer::ModernRenderer() noexcept
 
 	mGlobalShadingProgram = gl::Program::postProcessFromFile((sfz::basePath() + "assets/shaders/global_shading.frag").c_str());
 
-	Spotlight spotlightTemp;
-	spotlightTemp.color = vec3{0.0f, 0.5f, 1.0f};
+	Spotlight spotlightTemp{vec3{0.0f, 1.2f, 0.0f}, vec3{0.0f, -1.0f, 0.0f}, 75.0f, 60.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f}};
+	mSpotlights.push_back(spotlightTemp);
+	/*spotlightTemp.color = vec3{0.0f, 0.5f, 1.0f};
 	spotlightTemp.range = 5.0f;
 	spotlightTemp.fovDeg = 75.0f;
 	spotlightTemp.softAngleDeg = 10.0f;
 	
 	spotlightTemp.pos = vec3(0.0f, 1.2f, 0.0f);
 	spotlightTemp.dir = vec3(0.0f, -1.0f, 0.0f);
-	mSpotlights.push_back(spotlightTemp);
+	mSpotlights.push_back(spotlightTemp);*/
 
-	spotlightTemp.pos = vec3(0.0f);
+	//spotlightTemp.pos = vec3(0.0f);
 
 	
 	/*spotlightTemp.dir = vec3(-1.0f, 0.0f, 0.0f);
@@ -754,6 +755,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 
 	for (size_t i = 0; i < mSpotlights.size(); ++i) {
 		auto& spotlight = mSpotlights[i];
+		const auto& lightFrustum = spotlight.viewFrustum();
 
 		glUseProgram(mShadowMapProgram.handle());
 
@@ -764,7 +766,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_FRONT);
 
-		gl::setUniform(mShadowMapProgram, "uViewProjMatrix", spotlight.projMatrix() * spotlight.viewMatrix());
+		gl::setUniform(mShadowMapProgram, "uViewProjMatrix", lightFrustum.projMatrix() * lightFrustum.viewMatrix());
 
 		// Set high res shadow map fbo, clear it and render it
 		glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapHighRes.fbo());
@@ -773,8 +775,8 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		renderOpaque(model, mShadowMapProgram, spotlight.viewMatrix());
-		renderOpaqueSnakeProjection(model, mShadowMapProgram, spotlight.viewMatrix());
+		renderOpaque(model, mShadowMapProgram, lightFrustum.viewMatrix());
+		renderOpaqueSnakeProjection(model, mShadowMapProgram, lightFrustum.viewMatrix());
 
 		// Set low res shadow map fbo, clear it and render it
 		// TODO: Might want to downscale high res shadow map for better quality low res shadow map?
@@ -784,8 +786,8 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		renderOpaque(model, mShadowMapProgram, spotlight.viewMatrix());
-		renderOpaqueSnakeProjection(model, mShadowMapProgram, spotlight.viewMatrix());
+		renderOpaque(model, mShadowMapProgram, lightFrustum.viewMatrix());
+		renderOpaqueSnakeProjection(model, mShadowMapProgram, lightFrustum.viewMatrix());
 
 
 		//glDisable(GL_POLYGON_OFFSET_FILL);

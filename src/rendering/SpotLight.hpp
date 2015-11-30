@@ -2,6 +2,7 @@
 #ifndef S3_RENDERING_SPOTLIGHT_HPP
 #define S3_RENDERING_SPOTLIGHT_HPP
 
+#include <sfz/geometry/ViewFrustum.hpp>
 #include <sfz/gl/Program.hpp>
 #include <sfz/math/Matrix.hpp>
 #include <sfz/math/Vector.hpp>
@@ -10,19 +11,51 @@ namespace s3 {
 
 using sfz::mat4;
 using sfz::vec3;
+using sfz::ViewFrustum;
 
-struct Spotlight final {
-	vec3 pos, dir;
-	vec3 color;
-	float range;
-	float fovDeg; // The field of view of this spotlight
-	float softAngleDeg; // The 'softness' angle at the edge of the light
+class Spotlight final {
+public:
+	
+	// Constructors & destructors
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	float near = 0.01;
+	Spotlight() noexcept = default;
+	Spotlight(const Spotlight&) noexcept = default;
+	Spotlight& operator= (const Spotlight&) noexcept = default;
 
-	mat4 viewMatrix() const noexcept;
-	mat4 projMatrix() const noexcept;
+	Spotlight(vec3 pos, vec3 dir, float softFovDeg, float sharpFovDeg, float range,
+	          float near = 0.01f, vec3 color = vec3{1.0f}) noexcept;
+
+	// Public methods
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
 	mat4 lightMatrix(const mat4& inverseViewMatrix) const noexcept;
+
+	// Getters
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	inline const ViewFrustum& viewFrustum() const noexcept { return mViewFrustum; }	
+	inline float sharpFov() const noexcept { return mSharpFovDeg; }
+	inline vec3 color() const noexcept { return mColor; }
+
+	// Setters
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	
+	void pos(vec3 pos) noexcept;
+	void dir(vec3 dir) noexcept;
+	void softFov(float softFovDeg) noexcept;
+	void sharpFov(float sharpFovDeg) noexcept;
+	void range(float range) noexcept;
+	void near(float near) noexcept;
+	void color(vec3 color) noexcept;
+
+private:
+	// Private members
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	ViewFrustum mViewFrustum;
+	float mSharpFovDeg; // The inner fov with sharp light, 0 <= mSharpFov <= mViewFrustum.fov()
+	vec3 mColor;
 };
 
 void stupidSetSpotLightUniform(const gl::Program& program, const char* name, const Spotlight& spotlight,
