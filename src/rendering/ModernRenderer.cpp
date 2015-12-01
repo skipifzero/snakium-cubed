@@ -8,10 +8,6 @@
 #include "rendering/Assets.hpp"
 #include "rendering/Materials.hpp"
 
-
-
-#include "sfz/gl/ViewFrustumMesh.hpp" // TODO: REMOVE
-
 namespace s3 {
 
 using sfz::vec2;
@@ -677,13 +673,6 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	renderOpaque(model, mGBufferGenProgram, viewMatrix);
 	renderSnakeProjection(model, mGBufferGenProgram, viewMatrix, viewFrustum.pos());
 	//renderTransparentCube(model, mGBufferGenProgram, viewMatrix, cam.pos(), 3, 5);
-
-	gl::ViewFrustumMesh mHerps{45.0f, 1.5f, 0.2f, 0.5f};
-	auto herpModel = sfz::translationMatrix(0.0f, -0.2f, 0.0f);
-	//setUniform(mGBufferGenProgram, "uMaterialId", MATERIAL_ID_TILE_SNAKE);
-	gl::setUniform(mGBufferGenProgram, "uModelMatrix", herpModel);
-	gl::setUniform(mGBufferGenProgram, "uNormalMatrix", inverse(transpose(viewMatrix * herpModel)));
-	mHerps.render();
 
 
 	// Emissive texture & blur
