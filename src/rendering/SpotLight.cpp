@@ -4,6 +4,19 @@
 
 namespace s3 {
 
+// Statics
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+static vec3 genUpVector(vec3 dir) noexcept
+{
+	vec3 up{0.0f, 1.0f, 0.0f};
+	vec3 dirNorm = normalize(dir);
+	if (sfz::approxEqual(dot(up, dirNorm), 0.0f)) {
+		up = vec3{1.0f, 0.0f, 0.0f};
+	}
+	return up;
+}
+
 // Spotlight: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -17,10 +30,7 @@ Spotlight::Spotlight(vec3 pos, vec3 dir, float softFovDeg, float sharpFovDeg, fl
 	sfz_assert_debug(0.0f < near);
 	sfz_assert_debug(near < range);
 
-	// TODO: This is a stupid way to find an up vector (doesn't always work).
-	vec3 up = cross(pos, dir);
-	if (up == vec3(0.0)) up = vec3{dir.y, dir.z, dir.x};
-
+	vec3 up = genUpVector(dir);
 	mViewFrustum = ViewFrustum{pos, dir, up, softFovDeg, 1.0f, near, range};
 	mSharpFovDeg = sharpFovDeg;
 	mColor = color;
@@ -47,11 +57,7 @@ void Spotlight::pos(vec3 pos) noexcept
 void Spotlight::dir(vec3 dir) noexcept
 {
 	sfz_assert_debug(dir != vec3{0.0f});
-
-	// TODO: This is a stupid way to find an up vector (doesn't always work).
-	vec3 up = cross(mViewFrustum.pos(), dir);
-	if (up == vec3(0.0)) up = vec3{dir.y, dir.z, dir.x};
-
+	vec3 up = genUpVector(dir);
 	mViewFrustum.setDir(dir, up);
 }
 
