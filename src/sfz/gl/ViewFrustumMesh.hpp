@@ -34,8 +34,8 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	void render() noexcept;
-	mat4 generateTransform(const ViewFrustum& viewFrustum) noexcept;
-	mat4 generateTransform(vec3 pos, vec3 dir, vec3 up) noexcept;
+	mat4 generateTransform(const ViewFrustum& viewFrustum) const noexcept;
+	mat4 generateTransform(vec3 pos, vec3 dir, vec3 up) const noexcept;
 
 private:
 	// Private members

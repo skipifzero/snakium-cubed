@@ -4,11 +4,13 @@
 
 #include <sfz/geometry/ViewFrustum.hpp>
 #include <sfz/gl/Program.hpp>
+#include <sfz/gl/ViewFrustumMesh.hpp>
 #include <sfz/math/Matrix.hpp>
 #include <sfz/math/Vector.hpp>
 
 namespace s3 {
 
+using gl::ViewFrustumMesh;
 using sfz::mat4;
 using sfz::vec3;
 using sfz::ViewFrustum;
@@ -20,8 +22,10 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	Spotlight() noexcept = default;
-	Spotlight(const Spotlight&) noexcept = default;
-	Spotlight& operator= (const Spotlight&) noexcept = default;
+	Spotlight(const Spotlight&) = delete;
+	Spotlight& operator= (const Spotlight&) = delete;
+	Spotlight(Spotlight&&) noexcept = default;
+	Spotlight& operator= (Spotlight&&) noexcept = default;
 
 	Spotlight(vec3 pos, vec3 dir, float softFovDeg, float sharpFovDeg, float range,
 	          float near = 0.01f, vec3 color = vec3{1.0f}) noexcept;
@@ -30,6 +34,8 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	mat4 lightMatrix(const mat4& inverseViewMatrix) const noexcept;
+	void renderViewFrustum() noexcept;
+	mat4 viewFrustumTransform() const noexcept;
 
 	// Getters
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -54,6 +60,7 @@ private:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	ViewFrustum mViewFrustum;
+	ViewFrustumMesh mViewFrustumMesh;
 	float mSharpFovDeg; // The inner fov with sharp light, 0 <= mSharpFov <= mViewFrustum.fov()
 	vec3 mColor;
 };

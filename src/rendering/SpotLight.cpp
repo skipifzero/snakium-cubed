@@ -33,6 +33,7 @@ Spotlight::Spotlight(vec3 pos, vec3 dir, float softFovDeg, float sharpFovDeg, fl
 
 	vec3 up = genUpVector(dir);
 	mViewFrustum = ViewFrustum{pos, dir, up, softFovDeg, 1.0f, near, range};
+	mViewFrustumMesh = ViewFrustumMesh{mViewFrustum};
 	mSharpFovDeg = sharpFovDeg;
 	mColor = color;
 }
@@ -45,6 +46,16 @@ mat4 Spotlight::lightMatrix(const mat4& inverseViewMatrix) const noexcept
 	static const mat4 translScale = sfz::translationMatrix(0.5f, 0.5f, 0.5f)
 	                              * sfz::scalingMatrix4(0.5f);
 	return translScale * mViewFrustum.projMatrix() * mViewFrustum.viewMatrix() * inverseViewMatrix;
+}
+
+void Spotlight::renderViewFrustum() noexcept
+{
+	mViewFrustumMesh.render();
+}
+
+mat4 Spotlight::viewFrustumTransform() const noexcept
+{
+	return mViewFrustumMesh.generateTransform(mViewFrustum);
 }
 
 // Spotlight: Setters
@@ -66,6 +77,7 @@ void Spotlight::softFov(float softFovDeg) noexcept
 {
 	sfz_assert_debug(mSharpFovDeg <= softFovDeg);
 	mViewFrustum.setVerticalFov(softFovDeg);
+	mViewFrustumMesh = ViewFrustumMesh{mViewFrustum};
 }
 
 void Spotlight::sharpFov(float sharpFovDeg) noexcept
@@ -79,12 +91,14 @@ void Spotlight::range(float range) noexcept
 {
 	sfz_assert_debug(mViewFrustum.near() < range);
 	mViewFrustum.setClipDist(mViewFrustum.near(), range);
+	mViewFrustumMesh = ViewFrustumMesh{mViewFrustum};
 }
 
 void Spotlight::near(float near) noexcept
 {
 	sfz_assert_debug(near < mViewFrustum.far());
 	mViewFrustum.setClipDist(near, mViewFrustum.far());
+	mViewFrustumMesh = ViewFrustumMesh{mViewFrustum};
 }
 
 void Spotlight::color(vec3 color) noexcept

@@ -571,8 +571,7 @@ ModernRenderer::ModernRenderer() noexcept
 
 	mGlobalShadingProgram = gl::Program::postProcessFromFile((sfz::basePath() + "assets/shaders/global_shading.frag").c_str());
 
-	Spotlight spotlightTemp{vec3{0.0f, 1.2f, 0.0f}, vec3{0.0f, -1.0f, 0.0f}, 75.0f, 60.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f}};
-	mSpotlights.push_back(spotlightTemp);
+	mSpotlights.emplace_back(vec3{0.0f, 1.2f, 0.0f}, vec3{0.0f, -1.0f, 0.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
 	/*spotlightTemp.color = vec3{0.0f, 0.5f, 1.0f};
 	spotlightTemp.range = 5.0f;
 	spotlightTemp.fovDeg = 75.0f;

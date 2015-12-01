@@ -301,12 +301,12 @@ void ViewFrustumMesh::render() noexcept
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, NULL);
 }
 
-mat4 ViewFrustumMesh::generateTransform(const ViewFrustum& viewFrustum) noexcept
+mat4 ViewFrustumMesh::generateTransform(const ViewFrustum& viewFrustum) const noexcept
 {
 	return generateTransform(viewFrustum.pos(), viewFrustum.dir(), viewFrustum.up());
 }
 
-mat4 ViewFrustumMesh::generateTransform(vec3 pos, vec3 dir, vec3 up) noexcept
+mat4 ViewFrustumMesh::generateTransform(vec3 pos, vec3 dir, vec3 up) const noexcept
 {
 	sfz_assert_debug(sfz::approxEqual(length(dir), 1.0f));
 	sfz_assert_debug(sfz::approxEqual(length(up), 1.0f));
