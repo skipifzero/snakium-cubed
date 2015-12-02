@@ -102,7 +102,7 @@ BoxBlur::BoxBlur(vec2i dimensions) noexcept
 :
 	mHorizontalBlurProgram{Program::postProcessFromSource(HORIZONTAL_SOURCE)},
 	mVerticalBlurProgram{Program::postProcessFromSource(VERTICAL_SOURCE)},
-	mTempFB{dimensions}
+	mTempFB{PostProcessFB::createColor(dimensions)}
 {
 	glGenSamplers(1, &mSamplerObject);
 	glSamplerParameteri(mSamplerObject, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

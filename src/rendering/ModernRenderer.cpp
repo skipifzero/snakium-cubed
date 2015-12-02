@@ -544,8 +544,8 @@ static void renderBackground(gl::Program& program, const mat4& viewMatrix) noexc
 
 ModernRenderer::ModernRenderer() noexcept
 {
-	mGBufferGenProgram = gl::Program::fromFile((sfz::basePath() + "assets/shaders/gbuffer_gen.vert").c_str(),
-	                                           (sfz::basePath() + "assets/shaders/gbuffer_gen.frag").c_str(),
+	mGBufferGenProgram = Program::fromFile((sfz::basePath() + "assets/shaders/gbuffer_gen.vert").c_str(),
+	                                       (sfz::basePath() + "assets/shaders/gbuffer_gen.frag").c_str(),
 		[](uint32_t shaderProgram) {
 		glBindAttribLocation(shaderProgram, 0, "inPosition");
 		glBindAttribLocation(shaderProgram, 1, "inNormal");
@@ -555,21 +555,21 @@ ModernRenderer::ModernRenderer() noexcept
 		glBindFragDataLocation(shaderProgram, 3, "outFragMaterialId");
 	});
 
-	mEmissiveGenProgram = gl::Program::postProcessFromFile((sfz::basePath() + "assets/shaders/emissive_gen.frag").c_str());
+	mEmissiveGenProgram = Program::postProcessFromFile((sfz::basePath() + "assets/shaders/emissive_gen.frag").c_str());
 
-	mShadowMapProgram = gl::Program::fromFile((sfz::basePath() + "assets/shaders/shadow_map.vert").c_str(),
-	                                          (sfz::basePath() + "assets/shaders/shadow_map.frag").c_str(),
+	mShadowMapProgram = Program::fromFile((sfz::basePath() + "assets/shaders/shadow_map.vert").c_str(),
+	                                      (sfz::basePath() + "assets/shaders/shadow_map.frag").c_str(),
 		[](uint32_t shaderProgram) {
 		glBindAttribLocation(shaderProgram, 0, "inPosition");
 		glBindAttribLocation(shaderProgram, 1, "inNormal");
 		glBindFragDataLocation(shaderProgram, 0, "outFragColor");
 	});
 
-	mSpotlightShadingProgram = gl::Program::postProcessFromFile((sfz::basePath() + "assets/shaders/spotlight_shading.frag").c_str());
+	mSpotlightShadingProgram = Program::postProcessFromFile((sfz::basePath() + "assets/shaders/spotlight_shading.frag").c_str());
 
-	mLightShaftsProgram = gl::Program::postProcessFromFile((sfz::basePath() + "assets/shaders/light_shafts.frag").c_str());
+	mLightShaftsProgram = Program::postProcessFromFile((sfz::basePath() + "assets/shaders/light_shafts.frag").c_str());
 
-	mGlobalShadingProgram = gl::Program::postProcessFromFile((sfz::basePath() + "assets/shaders/global_shading.frag").c_str());
+	mGlobalShadingProgram = Program::postProcessFromFile((sfz::basePath() + "assets/shaders/global_shading.frag").c_str());
 
 	mSpotlights.emplace_back(vec3{0.0f, 1.2f, 0.0f}, vec3{0.0f, -1.0f, 0.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
 	/*spotlightTemp.color = vec3{0.0f, 0.5f, 1.0f};
@@ -615,11 +615,11 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		vec2i spotlightRes{(int)(internalRes.x*cfg.spotlightResScaling), (int)(internalRes.y*cfg.spotlightResScaling)};
 		vec2i lightShaftsRes{(int)(internalRes.x*cfg.lightShaftsResScaling), (int)(internalRes.y*cfg.lightShaftsResScaling)};
 		mGBuffer = GBuffer{internalRes};
-		mSpotlightShadingFB = gl::PostProcessFB{spotlightRes};
-		mLightShaftsFB = gl::PostProcessFB{lightShaftsRes};
-		mGlobalShadingFB = gl::PostProcessFB{internalRes};
+		mSpotlightShadingFB = PostProcessFB::createColor(spotlightRes);
+		mLightShaftsFB = PostProcessFB::createColor(lightShaftsRes);
+		mGlobalShadingFB = PostProcessFB::createColor(internalRes);
 		mBoxBlur = gl::BoxBlur{blurRes};
-		mEmissiveFB = gl::PostProcessFB{blurRes};
+		mEmissiveFB = PostProcessFB::createColor(blurRes);
 		std::cout << "Resized framebuffers"
 		          << "\nGBuffer && Global Shading resolution: " << internalRes
 		          << "\nEmissive & Blur resolution: " << blurRes

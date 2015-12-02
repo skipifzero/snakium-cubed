@@ -19,6 +19,8 @@
 
 namespace s3 {
 
+using gl::PostProcessFB;
+using gl::Program;
 using sfz::AABB2D;
 using sfz::mat4;
 using sfz::vec2;
@@ -44,12 +46,12 @@ private:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	gl::PostProcessQuad mPostProcessQuad;
-	gl::Program mGBufferGenProgram, mEmissiveGenProgram, mShadowMapProgram,
+	Program mGBufferGenProgram, mEmissiveGenProgram, mShadowMapProgram,
 	            mSpotlightShadingProgram, mLightShaftsProgram, mGlobalShadingProgram;
 	gl::Scaler mScaler;
 	gl::BoxBlur mBoxBlur;
 	GBuffer mGBuffer;
-	gl::PostProcessFB mEmissiveFB, mSpotlightShadingFB, mLightShaftsFB, mGlobalShadingFB;
+	PostProcessFB mEmissiveFB, mSpotlightShadingFB, mLightShaftsFB, mGlobalShadingFB;
 	vector<Spotlight> mSpotlights;
 	gl::ShadowMapFB mShadowMapHighRes, mShadowMapLowRes;
 };

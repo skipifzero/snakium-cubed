@@ -19,15 +19,21 @@ using std::uint32_t;
 
 class PostProcessFB final {
 public:
+	// Constructor functions
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	static PostProcessFB createColor(vec2i dimensions,
+	                                 TextureFormat colorTexFormat = TextureFormat::RGB) noexcept;
+
+	static PostProcessFB createColorStencil(vec2i dimensions,
+	                                        TextureFormat colorTexFormat = TextureFormat::RGB) noexcept;
+
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	PostProcessFB() noexcept = default;
 	PostProcessFB(const PostProcessFB&) = delete;
 	PostProcessFB& operator= (const PostProcessFB&) = delete;
-
-	PostProcessFB(vec2i dimensions, TextureFormat texFormat = TextureFormat::RGB) noexcept;
-	PostProcessFB(int32_t width, int32_t height, TextureFormat texFormat = TextureFormat::RGB) noexcept;
 
 	PostProcessFB(PostProcessFB&& other) noexcept;
 	PostProcessFB& operator= (PostProcessFB&& other) noexcept;
@@ -37,12 +43,15 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	inline bool isValid() const noexcept { return (mFBO != 0 && mColorTexture != 0 && mDim != vec2i{0}); }
+	inline bool hasColorTexture() const noexcept { return mColorTexture != 0; }
+	inline bool hasStencilBuffer() const noexcept { return mStencilBuffer != 0; }
 
 	// Getters
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	inline uint32_t fbo() const noexcept { return mFBO; }
-	inline uint32_t colorTexture() const noexcept { return mColorTexture; }
+	inline uint32_t fbo() const noexcept { sfz_assert_debug(isValid()); return mFBO; }
+	inline uint32_t colorTexture() const noexcept { sfz_assert_debug(hasColorTexture()); return mColorTexture; }
+	inline uint32_t stencilBuffer() const noexcept { sfz_assert_debug(hasStencilBuffer()); return mStencilBuffer; }
 	inline vec2i dimensions() const noexcept { return mDim; }
 	inline vec2 dimensionsFloat() const noexcept { return vec2{(float)mDim.x, (float)mDim.y}; }
 	inline int32_t width() const noexcept { return mDim.x; }
@@ -54,6 +63,7 @@ private:
 
 	uint32_t mFBO = 0;
 	uint32_t mColorTexture = 0;
+	uint32_t mStencilBuffer = 0;
 	vec2i mDim{0};
 };
 
