@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <sfz/gl/BoxBlur.hpp>
+#include <sfz/gl/Framebuffer.hpp>
 #include <sfz/gl/Program.hpp>
 #include <sfz/gl/PostProcessFB.hpp>
 #include <sfz/gl/Scaler.hpp>
@@ -19,6 +20,11 @@
 
 namespace s3 {
 
+using gl::Framebuffer;
+using gl::FramebufferBuilder;
+using gl::FBTextureFormat;
+using gl::FBDepthFormat;
+using gl::FBTextureFiltering;
 using gl::PostProcessFB;
 using gl::Program;
 using sfz::AABB2D;
@@ -50,7 +56,7 @@ private:
 	            mSpotlightShadingProgram, mLightShaftsProgram, mGlobalShadingProgram;
 	gl::Scaler mScaler;
 	gl::BoxBlur mBoxBlur;
-	GBuffer mGBuffer;
+	Framebuffer mGBuffer;
 	PostProcessFB mEmissiveFB, mSpotlightShadingFB, mLightShaftsFB, mGlobalShadingFB;
 	vector<Spotlight> mSpotlights;
 	gl::ShadowMapFB mShadowMapHighRes, mShadowMapLowRes;

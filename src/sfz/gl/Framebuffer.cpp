@@ -146,6 +146,7 @@ Framebuffer FramebufferBuilder::build() const noexcept
 		case FBTextureFormat::RGBA_U8:
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, mDim.x, mDim.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 			break;
+
 		case FBTextureFormat::R_S8:
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_R8_SNORM, mDim.x, mDim.y, 0, GL_RED, GL_BYTE, NULL);
 			break;
@@ -158,6 +159,33 @@ Framebuffer FramebufferBuilder::build() const noexcept
 		case FBTextureFormat::RGBA_S8:
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8_SNORM, mDim.x, mDim.y, 0, GL_RGBA, GL_BYTE, NULL);
 			break;
+		
+		case FBTextureFormat::R_INT_U8:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_R8UI, mDim.x, mDim.y, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, NULL);
+			break;
+		case FBTextureFormat::RG_INT_U8:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8UI, mDim.x, mDim.y, 0, GL_RG_INTEGER, GL_UNSIGNED_BYTE, NULL);
+			break;
+		case FBTextureFormat::RGB_INT_U8:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8UI, mDim.x, mDim.y, 0, GL_RGB_INTEGER, GL_UNSIGNED_BYTE, NULL);
+			break;
+		case FBTextureFormat::RGBA_INT_U8:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8UI, mDim.x, mDim.y, 0, GL_RGBA_INTEGER, GL_UNSIGNED_BYTE, NULL);
+			break;
+		
+		case FBTextureFormat::R_INT_S8:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_R8I, mDim.x, mDim.y, 0, GL_RED_INTEGER, GL_BYTE, NULL);
+			break;
+		case FBTextureFormat::RG_INT_S8:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8I, mDim.x, mDim.y, 0, GL_RG_INTEGER, GL_BYTE, NULL);
+			break;
+		case FBTextureFormat::RGB_INT_S8:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8I, mDim.x, mDim.y, 0, GL_RGB_INTEGER, GL_BYTE, NULL);
+			break;
+		case FBTextureFormat::RGBA_INT_S8:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8I, mDim.x, mDim.y, 0, GL_RGBA_INTEGER, GL_BYTE, NULL);
+			break;
+		
 		case FBTextureFormat::R_F32:
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, mDim.x, mDim.y, 0, GL_RED, GL_FLOAT, NULL);
 			break;
@@ -170,6 +198,7 @@ Framebuffer FramebufferBuilder::build() const noexcept
 		case FBTextureFormat::RGBA_F32:
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, mDim.x, mDim.y, 0, GL_RGBA, GL_FLOAT, NULL);
 			break;
+		
 		case FBTextureFormat::R_F16:
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, mDim.x, mDim.y, 0, GL_RED, GL_FLOAT, NULL);
 			break;
@@ -260,7 +289,27 @@ Framebuffer FramebufferBuilder::build() const noexcept
 	glDrawBuffers(numTextures, drawBuffers);
 
 	// Check that framebuffer is okay
-	sfz_assert_release((glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE));
+	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (status != GL_FRAMEBUFFER_COMPLETE) {
+		if (status == GL_FRAMEBUFFER_UNDEFINED) {
+			std::cerr << "GL_FRAMEBUFFER_UNDEFINED is returned if target? is the default framebuffer, but the default framebuffer does not exist.\n";
+		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT) {
+			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT is returned if any of the framebuffer attachment points are framebuffer incomplete.\n";
+		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT) {
+			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT is returned if the framebuffer does not have at least one image attached to it.\n";
+		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER) {
+			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER is returned if the value of GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE is GL_NONE for any color attachment point(s) named by GL_DRAW_BUFFERi.\n";
+		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER) {
+			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER is returned if GL_READ_BUFFER is not GL_NONE and the value of GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE is GL_NONE for the color attachment point named by GL_READ_BUFFER.\n";
+		} else if (status == GL_FRAMEBUFFER_UNSUPPORTED) {
+			std::cerr << "GL_FRAMEBUFFER_UNSUPPORTED is returned if the combination of internal formats of the attached images violates an implementation-dependent set of restrictions.\n";
+		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE) {
+			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE is returned if the value of GL_RENDERBUFFER_SAMPLES is not the same for all attached renderbuffers; if the value of GL_TEXTURE_SAMPLES is the not same for all attached textures; or, if the attached images are a mix of renderbuffers and textures, the value of GL_RENDERBUFFER_SAMPLES does not match the value of GL_TEXTURE_SAMPLES. GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE is also returned if the value of GL_TEXTURE_FIXED_SAMPLE_LOCATIONS is not the same for all attached textures; or, if the attached images are a mix of renderbuffers and textures, the value of GL_TEXTURE_FIXED_SAMPLE_LOCATIONS is not GL_TRUE for all attached textures.\n";
+		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS) {
+			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS is returned if any framebuffer attachment is layered, and any populated attachment is not layered, or if all populated color attachments are not from textures of the same target.\n";
+		}
+		sfz_assert_debug(false);
+	}
 
 	// Cleanup
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

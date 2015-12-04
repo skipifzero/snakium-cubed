@@ -8,23 +8,35 @@
 
 namespace gl {
 
+using sfz::vec2;
 using sfz::vec2i;
+using std::int32_t;
 using std::uint32_t;
 
 // FB enums
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 enum class FBTextureFormat : uint32_t {
-	// Unsigned 8-bit int, maps to range [0, 1]
+	// Unsigned normalized 8-bit int, maps to range [0, 1]
 	R_U8,
 	RG_U8,
 	RGB_U8,
 	RGBA_U8,
-	// Signed 8-bit int, maps to range [-1, 1]
+	// Signed normalized 8-bit int, maps to range [-1, 1]
 	R_S8,
 	RG_S8,
 	RGB_S8,
 	RGBA_S8,
+	// Unsigned non-normalized 8-bit int, maps to normal unsigned integer range [0, 255]
+	R_INT_U8,
+	RG_INT_U8,
+	RGB_INT_U8,
+	RGBA_INT_U8,
+	// Signed non-normalized 8-bit int, maps to normal signed integer range [-128, 127]
+	R_INT_S8,
+	RG_INT_S8,
+	RGB_INT_S8,
+	RGBA_INT_S8,
 	// 32-bit float
 	R_F32,
 	RG_F32,
@@ -70,7 +82,8 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	FramebufferBuilder& setDimensions(vec2i dimensions) noexcept;
-	FramebufferBuilder& addTexture(uint32_t index, FBTextureFormat format, FBTextureFiltering filtering) noexcept;
+	FramebufferBuilder& addTexture(uint32_t index, FBTextureFormat format,
+	                               FBTextureFiltering filtering = FBTextureFiltering::NEAREST) noexcept;
 	FramebufferBuilder& addDepthBuffer(FBDepthFormat format) noexcept;
 	FramebufferBuilder& addDepthTexture(FBDepthFormat format) noexcept;
 	FramebufferBuilder& addStencilBuffer() noexcept;
@@ -142,6 +155,12 @@ public:
 	uint32_t depthTexture() const noexcept;
 	uint32_t stencilBuffer() const noexcept;
 	uint32_t stencilTexture() const noexcept;
+	inline vec2i dimensions() const noexcept { return mDim; }
+	inline int32_t width() const noexcept { return mDim.x; };
+	inline int32_t height() const noexcept { return mDim.y; }
+	inline vec2 dimensionsFloat() const noexcept { return vec2{(float)mDim.x, (float)mDim.y}; }
+	inline float widthFloat() const noexcept { return (float)mDim.x; }
+	inline float heightFloat() const noexcept { return (float)mDim.y; }
 
 	// Attach/detach component methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

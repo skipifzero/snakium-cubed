@@ -14,8 +14,12 @@ using sfz::vec2;
 using sfz::vec3;
 using sfz::vec4;
 
-// Static functions
+// Statics
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+const uint32_t GBUFFER_POSITION_INDEX = 0;
+const uint32_t GBUFFER_NORMAL_INDEX = 1;
+const uint32_t GBUFFER_MATERIAL_INDEX = 2;
 
 static void checkGLErrorsMessage(const char* msg)
 {
@@ -608,13 +612,19 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	GlobalConfig& cfg = GlobalConfig::INSTANCE();
 	Assets& assets = Assets::INSTANCE();
 
+	
 	// Ensure framebuffers are of correct size
 	vec2i internalRes{(int)(drawableDim.x*cfg.internalResScaling), (int)(drawableDim.y*cfg.internalResScaling)};
-	if (mGBuffer.dimensionsInt() != internalRes) {
+	if (mGBuffer.dimensions() != internalRes) {
 		vec2i blurRes{(int)(internalRes.x*cfg.blurResScaling), (int)(internalRes.y*cfg.blurResScaling)};
 		vec2i spotlightRes{(int)(internalRes.x*cfg.spotlightResScaling), (int)(internalRes.y*cfg.spotlightResScaling)};
 		vec2i lightShaftsRes{(int)(internalRes.x*cfg.lightShaftsResScaling), (int)(internalRes.y*cfg.lightShaftsResScaling)};
-		mGBuffer = GBuffer{internalRes};
+		mGBuffer = FramebufferBuilder{internalRes}
+		         .addTexture(GBUFFER_POSITION_INDEX, FBTextureFormat::RGB_F32)
+		         .addTexture(GBUFFER_NORMAL_INDEX, FBTextureFormat::RGB_F32)
+		         .addTexture(GBUFFER_MATERIAL_INDEX, FBTextureFormat::R_INT_U8)
+		         .addDepthBuffer(FBDepthFormat::F32)
+		         .build();
 		mSpotlightShadingFB = PostProcessFB::createColor(spotlightRes);
 		mLightShaftsFB = PostProcessFB::createColor(lightShaftsRes);
 		mGlobalShadingFB = PostProcessFB::createColor(internalRes);
@@ -654,7 +664,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	// Binding GBufferGen program and GBuffer
 	glUseProgram(mGBufferGenProgram.handle());
 	glBindFramebuffer(GL_FRAMEBUFFER, mGBuffer.fbo());
-	glViewport(0, 0, mGBuffer.dimensionsInt().x, mGBuffer.dimensionsInt().y);
+	glViewport(0, 0, mGBuffer.width(), mGBuffer.height());
 
 	// Clearing GBuffer
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -688,7 +698,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, mGBuffer.materialIdTexture());
+	glBindTexture(GL_TEXTURE_2D, mGBuffer.texture(GBUFFER_MATERIAL_INDEX));
 	gl::setUniform(mEmissiveGenProgram, "uMaterialIdTexture", 0);
 	stupidSetUniformMaterials(mEmissiveGenProgram, "uMaterials");
 
@@ -709,11 +719,11 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 
 	// Binding textures (textures may not be bound in loop)
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, mGBuffer.positionTexture());
+	glBindTexture(GL_TEXTURE_2D, mGBuffer.texture(GBUFFER_POSITION_INDEX));
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, mGBuffer.normalTexture());
+	glBindTexture(GL_TEXTURE_2D, mGBuffer.texture(GBUFFER_NORMAL_INDEX));
 	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, mGBuffer.materialIdTexture());
+	glBindTexture(GL_TEXTURE_2D, mGBuffer.texture(GBUFFER_MATERIAL_INDEX));
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, mSpotlightShadingFB.colorTexture());
 	glActiveTexture(GL_TEXTURE4);
@@ -832,15 +842,15 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	stupidSetUniformMaterials(mGlobalShadingProgram, "uMaterials");
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, mGBuffer.positionTexture());
+	glBindTexture(GL_TEXTURE_2D, mGBuffer.texture(GBUFFER_POSITION_INDEX));
 	gl::setUniform(mGlobalShadingProgram, "uPositionTexture", 0);
 
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, mGBuffer.normalTexture());
+	glBindTexture(GL_TEXTURE_2D, mGBuffer.texture(GBUFFER_NORMAL_INDEX));
 	gl::setUniform(mGlobalShadingProgram, "uNormalTexture", 1);
 
 	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, mGBuffer.materialIdTexture());
+	glBindTexture(GL_TEXTURE_2D, mGBuffer.texture(GBUFFER_MATERIAL_INDEX));
 	gl::setUniform(mGlobalShadingProgram, "uMaterialIdTexture", 2);
 
 	glActiveTexture(GL_TEXTURE3);
