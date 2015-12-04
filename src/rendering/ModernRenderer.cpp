@@ -612,7 +612,6 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	GlobalConfig& cfg = GlobalConfig::INSTANCE();
 	Assets& assets = Assets::INSTANCE();
 
-	
 	// Ensure framebuffers are of correct size
 	vec2i internalRes{(int)(drawableDim.x*cfg.internalResScaling), (int)(drawableDim.y*cfg.internalResScaling)};
 	if (mGBuffer.dimensions() != internalRes) {
@@ -620,16 +619,16 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		vec2i spotlightRes{(int)(internalRes.x*cfg.spotlightResScaling), (int)(internalRes.y*cfg.spotlightResScaling)};
 		vec2i lightShaftsRes{(int)(internalRes.x*cfg.lightShaftsResScaling), (int)(internalRes.y*cfg.lightShaftsResScaling)};
 		mGBuffer = FramebufferBuilder{internalRes}
-		         .addTexture(GBUFFER_POSITION_INDEX, FBTextureFormat::RGB_F32)
-		         .addTexture(GBUFFER_NORMAL_INDEX, FBTextureFormat::RGB_F32)
-		         .addTexture(GBUFFER_MATERIAL_INDEX, FBTextureFormat::R_INT_U8)
+		         .addTexture(GBUFFER_POSITION_INDEX, FBTextureFormat::RGB_F32, FBTextureFiltering::NEAREST)
+		         .addTexture(GBUFFER_NORMAL_INDEX, FBTextureFormat::RGB_F32, FBTextureFiltering::NEAREST)
+		         .addTexture(GBUFFER_MATERIAL_INDEX, FBTextureFormat::R_INT_U8, FBTextureFiltering::NEAREST)
 		         .addDepthBuffer(FBDepthFormat::F32)
 		         .build();
-		mSpotlightShadingFB = PostProcessFB::createColor(spotlightRes);
-		mLightShaftsFB = PostProcessFB::createColor(lightShaftsRes);
-		mGlobalShadingFB = PostProcessFB::createColor(internalRes);
+		mSpotlightShadingFB = FramebufferBuilder{spotlightRes}.addTexture(0, FBTextureFormat::RGB_U8, FBTextureFiltering::LINEAR).build();
+		mLightShaftsFB = FramebufferBuilder{lightShaftsRes}.addTexture(0, FBTextureFormat::RGB_U8, FBTextureFiltering::LINEAR).build();
+		mGlobalShadingFB = FramebufferBuilder{internalRes}.addTexture(0, FBTextureFormat::RGB_U8, FBTextureFiltering::LINEAR).build();
 		mBoxBlur = gl::BoxBlur{blurRes};
-		mEmissiveFB = PostProcessFB::createColor(blurRes);
+		mEmissiveFB = FramebufferBuilder{blurRes}.addTexture(0, FBTextureFormat::RGB_U8, FBTextureFiltering::LINEAR).build();
 		std::cout << "Resized framebuffers"
 		          << "\nGBuffer && Global Shading resolution: " << internalRes
 		          << "\nEmissive & Blur resolution: " << blurRes
@@ -709,9 +708,9 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	blurRadius = std::max(blurRadius, 2);
 	blurRadius = ((blurRadius % 2) != 0) ? blurRadius + 1 : blurRadius;
 
-	mBoxBlur.apply(mEmissiveFB.fbo(), mEmissiveFB.colorTexture(), mEmissiveFB.dimensions(), blurRadius);
-	mBoxBlur.apply(mEmissiveFB.fbo(), mEmissiveFB.colorTexture(), mEmissiveFB.dimensions(), blurRadius);
-	mBoxBlur.apply(mEmissiveFB.fbo(), mEmissiveFB.colorTexture(), mEmissiveFB.dimensions(), blurRadius);
+	mBoxBlur.apply(mEmissiveFB.fbo(), mEmissiveFB.texture(0), mEmissiveFB.dimensions(), blurRadius);
+	mBoxBlur.apply(mEmissiveFB.fbo(), mEmissiveFB.texture(0), mEmissiveFB.dimensions(), blurRadius);
+	mBoxBlur.apply(mEmissiveFB.fbo(), mEmissiveFB.texture(0), mEmissiveFB.dimensions(), blurRadius);
 
 
 	// Spotlights (Shadow Map + Shading + Lightshafts)
@@ -725,9 +724,9 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, mGBuffer.texture(GBUFFER_MATERIAL_INDEX));
 	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, mSpotlightShadingFB.colorTexture());
+	glBindTexture(GL_TEXTURE_2D, mSpotlightShadingFB.texture(0));
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, mLightShaftsFB.colorTexture());
+	glBindTexture(GL_TEXTURE_2D, mLightShaftsFB.texture(0));
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, mShadowMapHighRes.depthTexture());
 	glActiveTexture(GL_TEXTURE6);
@@ -854,15 +853,15 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	gl::setUniform(mGlobalShadingProgram, "uMaterialIdTexture", 2);
 
 	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, mSpotlightShadingFB.colorTexture());
+	glBindTexture(GL_TEXTURE_2D, mSpotlightShadingFB.texture(0));
 	gl::setUniform(mGlobalShadingProgram, "uSpotlightShadingTexture", 3);
 
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, mLightShaftsFB.colorTexture());
+	glBindTexture(GL_TEXTURE_2D, mLightShaftsFB.texture(0));
 	gl::setUniform(mGlobalShadingProgram, "uLightShaftsTexture", 4);
 
 	glActiveTexture(GL_TEXTURE5);
-	glBindTexture(GL_TEXTURE_2D, mEmissiveFB.colorTexture());
+	glBindTexture(GL_TEXTURE_2D, mEmissiveFB.texture(0));
 	gl::setUniform(mGlobalShadingProgram, "uBlurredEmissiveTexture", 5);
 
 	mPostProcessQuad.render();
@@ -877,7 +876,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	mScaler.changeScalingAlgorithm(static_cast<gl::ScalingAlgorithm>(cfg.scalingAlgorithm));
-	mScaler.scale(0, drawableDim, mGlobalShadingFB.colorTexture(), mGlobalShadingFB.dimensionsFloat());
+	mScaler.scale(0, drawableDim, mGlobalShadingFB.texture(0), mGlobalShadingFB.dimensionsFloat());
 }
 
 } // namespace s3

@@ -292,7 +292,7 @@ Framebuffer FramebufferBuilder::build() const noexcept
 	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (status != GL_FRAMEBUFFER_COMPLETE) {
 		if (status == GL_FRAMEBUFFER_UNDEFINED) {
-			std::cerr << "GL_FRAMEBUFFER_UNDEFINED is returned if target? is the default framebuffer, but the default framebuffer does not exist.\n";
+			std::cerr << "GL_FRAMEBUFFER_UNDEFINED is returned if target is the default framebuffer, but the default framebuffer does not exist.\n";
 		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT) {
 			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT is returned if any of the framebuffer attachment points are framebuffer incomplete.\n";
 		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT) {

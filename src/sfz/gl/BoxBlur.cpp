@@ -102,7 +102,8 @@ BoxBlur::BoxBlur(vec2i dimensions) noexcept
 :
 	mHorizontalBlurProgram{Program::postProcessFromSource(HORIZONTAL_SOURCE)},
 	mVerticalBlurProgram{Program::postProcessFromSource(VERTICAL_SOURCE)},
-	mTempFB{PostProcessFB::createColor(dimensions)}
+	mTempFB{FramebufferBuilder{dimensions}.addTexture(0, FBTextureFormat::RGB_U8, FBTextureFiltering::LINEAR).build()}
+	//mTempFB{PostProcessFB::createColor(dimensions)}
 {
 	glGenSamplers(1, &mSamplerObject);
 	glSamplerParameteri(mSamplerObject, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -166,7 +167,7 @@ void BoxBlur::apply(uint32_t dstFBO, uint32_t srcTexture, vec2i srcDimensions, i
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, mTempFB.colorTexture());
+	glBindTexture(GL_TEXTURE_2D, mTempFB.texture(0));
 	gl::setUniform(mVerticalBlurProgram, "uSrcTex", 0);
 	glBindSampler(0, mSamplerObject);
 	gl::setUniform(mVerticalBlurProgram, "uSrcDim", srcDimFloat);

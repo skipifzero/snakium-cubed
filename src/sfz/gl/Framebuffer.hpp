@@ -22,27 +22,32 @@ enum class FBTextureFormat : uint32_t {
 	RG_U8,
 	RGB_U8,
 	RGBA_U8,
+
 	// Signed normalized 8-bit int, maps to range [-1, 1]
 	R_S8,
 	RG_S8,
 	RGB_S8,
 	RGBA_S8,
+	
 	// Unsigned non-normalized 8-bit int, maps to normal unsigned integer range [0, 255]
 	R_INT_U8,
 	RG_INT_U8,
 	RGB_INT_U8,
 	RGBA_INT_U8,
+	
 	// Signed non-normalized 8-bit int, maps to normal signed integer range [-128, 127]
 	R_INT_S8,
 	RG_INT_S8,
 	RGB_INT_S8,
 	RGBA_INT_S8,
-	// 32-bit float
+	
+	// 32-bit float, maps to normal 32-bit float range
 	R_F32,
 	RG_F32,
 	RGB_F32,
 	RGBA_F32,
-	// 16-bit float
+	
+	// 16-bit float, maps to normal 16-bit float range
 	R_F16,
 	RG_F16,
 	RGB_F16,
@@ -82,8 +87,7 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	FramebufferBuilder& setDimensions(vec2i dimensions) noexcept;
-	FramebufferBuilder& addTexture(uint32_t index, FBTextureFormat format,
-	                               FBTextureFiltering filtering = FBTextureFiltering::NEAREST) noexcept;
+	FramebufferBuilder& addTexture(uint32_t index, FBTextureFormat format, FBTextureFiltering filtering) noexcept;
 	FramebufferBuilder& addDepthBuffer(FBDepthFormat format) noexcept;
 	FramebufferBuilder& addDepthTexture(FBDepthFormat format) noexcept;
 	FramebufferBuilder& addStencilBuffer() noexcept;

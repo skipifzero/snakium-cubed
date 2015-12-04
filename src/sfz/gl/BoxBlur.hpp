@@ -4,8 +4,8 @@
 
 #include <cstdint>
 
+#include <sfz/gl/Framebuffer.hpp>
 #include <sfz/gl/PostProcessQuad.hpp>
-#include <sfz/gl/PostProcessFB.hpp>
 #include <sfz/gl/Program.hpp>
 #include <sfz/math/Vector.hpp>
 
@@ -45,7 +45,7 @@ private:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	
 	Program mHorizontalBlurProgram, mVerticalBlurProgram;
-	PostProcessFB mTempFB;
+	Framebuffer mTempFB;
 	PostProcessQuad mPostProcessQuad;
 	uint32_t mSamplerObject = 0;
 };

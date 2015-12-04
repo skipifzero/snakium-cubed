@@ -63,8 +63,6 @@ set(SOURCE_RENDERING_FILES
 	${SRC_DIR}/rendering/Camera.cpp
 	${SRC_DIR}/rendering/ClassicRenderer.hpp
 	${SRC_DIR}/rendering/ClassicRenderer.cpp
-	${SRC_DIR}/rendering/Framebuffers.hpp
-	${SRC_DIR}/rendering/Framebuffers.cpp
 	${SRC_DIR}/rendering/Materials.hpp
 	${SRC_DIR}/rendering/Materials.cpp
 	${SRC_DIR}/rendering/ModernRenderer.hpp
@@ -100,8 +98,6 @@ set(SOURCE_SFZ_GL_TEMP_FILES
 	${SRC_DIR}/sfz/gl/BoxBlur.cpp
 	${SRC_DIR}/sfz/gl/Framebuffer.hpp
 	${SRC_DIR}/sfz/gl/Framebuffer.cpp
-	${SRC_DIR}/sfz/gl/PostProcessFB.hpp
-	${SRC_DIR}/sfz/gl/PostProcessFB.cpp
 	${SRC_DIR}/sfz/gl/Scaler.hpp
 	${SRC_DIR}/sfz/gl/Scaler.cpp
 	${SRC_DIR}/sfz/gl/ShadowMapFB.hpp

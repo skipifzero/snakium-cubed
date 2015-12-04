@@ -5,7 +5,6 @@
 #include "rendering/Assets.hpp"
 #include "rendering/Camera.hpp"
 #include "rendering/ClassicRenderer.hpp"
-#include "rendering/Framebuffers.hpp"
 #include "rendering/Materials.hpp"
 #include "rendering/ModernRenderer.hpp"
 #include "rendering/SpotLight.hpp"

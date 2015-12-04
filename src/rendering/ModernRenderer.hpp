@@ -7,7 +7,6 @@
 #include <sfz/gl/BoxBlur.hpp>
 #include <sfz/gl/Framebuffer.hpp>
 #include <sfz/gl/Program.hpp>
-#include <sfz/gl/PostProcessFB.hpp>
 #include <sfz/gl/Scaler.hpp>
 #include <sfz/gl/ShadowMapFB.hpp>
 #include <sfz/geometry/AABB2D.hpp>
@@ -15,7 +14,6 @@
 
 #include "gamelogic/Model.hpp"
 #include "rendering/Camera.hpp"
-#include "rendering/Framebuffers.hpp"
 #include "rendering/Spotlight.hpp"
 
 namespace s3 {
@@ -25,11 +23,11 @@ using gl::FramebufferBuilder;
 using gl::FBTextureFormat;
 using gl::FBDepthFormat;
 using gl::FBTextureFiltering;
-using gl::PostProcessFB;
 using gl::Program;
 using sfz::AABB2D;
 using sfz::mat4;
 using sfz::vec2;
+using sfz::vec2i;
 using std::vector;
 
 class ModernRenderer final {
@@ -57,7 +55,7 @@ private:
 	gl::Scaler mScaler;
 	gl::BoxBlur mBoxBlur;
 	Framebuffer mGBuffer;
-	PostProcessFB mEmissiveFB, mSpotlightShadingFB, mLightShaftsFB, mGlobalShadingFB;
+	Framebuffer mEmissiveFB, mSpotlightShadingFB, mLightShaftsFB, mGlobalShadingFB;
 	vector<Spotlight> mSpotlights;
 	gl::ShadowMapFB mShadowMapHighRes, mShadowMapLowRes;
 };
