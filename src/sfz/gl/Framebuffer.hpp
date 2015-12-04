@@ -43,6 +43,10 @@ enum class FBDepthFormat : uint32_t {
 	F32
 };
 
+enum class FBTextureFiltering : uint32_t {
+	NEAREST,
+	LINEAR
+};
 
 // Framebuffer Builder class
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -58,12 +62,15 @@ public:
 	FramebufferBuilder() noexcept = default;
 	FramebufferBuilder(const FramebufferBuilder&) noexcept = default;
 	FramebufferBuilder& operator= (const FramebufferBuilder&) noexcept = default;
+	~FramebufferBuilder() noexcept = default;
+
+	FramebufferBuilder(vec2i dimensions) noexcept;
 
 	// Component adding methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	FramebufferBuilder& setDimensions(vec2i dim) noexcept;
-	FramebufferBuilder& addColorTexture(uint32_t index, FBTextureFormat format) noexcept;
+	FramebufferBuilder& setDimensions(vec2i dimensions) noexcept;
+	FramebufferBuilder& addTexture(uint32_t index, FBTextureFormat format, FBTextureFiltering filtering) noexcept;
 	FramebufferBuilder& addDepthBuffer(FBDepthFormat format) noexcept;
 	FramebufferBuilder& addDepthTexture(FBDepthFormat format) noexcept;
 	FramebufferBuilder& addStencilBuffer() noexcept;
@@ -72,28 +79,29 @@ public:
 	// Component removing methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	FramebufferBuilder& removeColorTexture(uint32_t index, FBTextureFormat format) noexcept;
-	FramebufferBuilder& removeDepthBuffer(FBDepthFormat format) noexcept;
-	FramebufferBuilder& removeDepthTexture(FBDepthFormat format) noexcept;
+	FramebufferBuilder& removeTexture(uint32_t index) noexcept;
+	FramebufferBuilder& removeDepthBuffer() noexcept;
+	FramebufferBuilder& removeDepthTexture() noexcept;
 	FramebufferBuilder& removeStencilBuffer() noexcept;
 	FramebufferBuilder& removeStencilTexture() noexcept;
 
 	// Framebuffer building method
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	Framebuffer build() noexcept;
+	Framebuffer build() const noexcept;
 
 private:
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	bool mCreateColorTexture[8] = { false, false, false, false, false, false, false, false };
+	bool mCreateTexture[8] = { false, false, false, false, false, false, false, false };
 	bool mCreateDepthBuffer = false;
 	bool mCreateDepthTexture = false;
 	bool mCreateStencilBuffer = false;
 	bool mCreateStencilTexture = false;
-	FBTextureFormat mColorTextureFormats[8];
+	FBTextureFormat mTextureFormat[8];
 	FBDepthFormat mDepthFormat;
+	FBTextureFiltering mTextureFiltering[8];
 	vec2i mDim{-1};
 };
 
@@ -109,50 +117,87 @@ public:
 	Framebuffer(const Framebuffer&) = delete;
 	Framebuffer& operator= (const Framebuffer&) = delete;
 
-	Framebuffer(Framebuffer&& other) noexcept; // TODO: Define
-	Framebuffer& operator= (Framebuffer&& other) noexcept; // TODO: Define
-	~Framebuffer() noexcept; // TODO: Define
+	Framebuffer(Framebuffer&& other) noexcept;
+	Framebuffer& operator= (Framebuffer&& other) noexcept;
+	~Framebuffer() noexcept;
 
-	// Public methods
+	friend class FramebufferBuilder;
+
+	// State checking
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	//inline bool isAvailable(uint32_t index) const noexcept { return mColorTextures[(uint32_t)colTex] != 0; }
+	inline bool isValid() const noexcept { return mFBO != 0; }
+	inline bool hasTexture(uint32_t index) const noexcept { sfz_assert_debug(index < 8); return mTextures[index] != 0; } 
+	inline bool hasDepthBuffer() const noexcept { return mDepthBuffer; }
+	inline bool hasDepthTexture() const noexcept { return mDepthTexture; }
+	inline bool hasStencilBuffer() const noexcept { return mStencilBuffer; }
+	inline bool hasStencilTexture() const noexcept { return mStencilTexture; }
 
-	//inline uint32_t access(FBComponent colTex) const noexcept { sfz_assert_debug(isAvailable(colTex));
-	//														    return mColorTextures[(uint32_t)colTex]; }
+	// Getters
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	inline uint32_t fbo() const noexcept { sfz_assert_debug(mFBO != 0); return mFBO; };
-	inline uint32_t colorTexture(uint32_t index) const noexcept { sfz_assert_debug(index < 8); sfz_assert_debug(mColorTextures[index] != 0); return mColorTextures[index]; };
-	inline uint32_t depthBuffer() const noexcept { sfz_assert_debug(mDepthBuffer != 0); return mDepthBuffer; }
-	inline uint32_t depthTexture() const noexcept { sfz_assert_debug(mDepthTexture != 0); return mDepthTexture; }
-	inline uint32_t stencilBuffer() const noexcept { sfz_assert_debug(mStencilBuffer != 0); return mStencilBuffer; }
-	inline uint32_t stencilTexture() const noexcept { sfz_assert_debug(mStencilTexture != 0); return mStencilTexture; }
+	uint32_t fbo() const noexcept;
+	uint32_t texture(uint32_t index) const noexcept;
+	uint32_t depthBuffer() const noexcept;
+	uint32_t depthTexture() const noexcept;
+	uint32_t stencilBuffer() const noexcept;
+	uint32_t stencilTexture() const noexcept;
 
-	//void attach(FBComponent field, uint32_t component);
-	//void detach(FBComponent field, uint32_t component);
+	// Attach/detach component methods
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	//uint32_t steal(FBComponent field);
-	//uint32_t stealAndDetach(FBComponent field);
-	
-	//void offer(FBComponent field, uint32_t component);
-	//void offerAndAttach(FBComponent field, uint32_t component);
+	/*void attachTexture(uint32_t index, uint32_t texture) noexcept;
+	void attachDepthBuffer(uint32_t buffer) noexcept;
+	void attachDepthTexture(uint32_t texture) noexcept;
+	void attachStencilBuffer(uint32_t buffer) noexcept;
+	void attachStencilTexture(uint32_t texture) noexcept;
+
+	void detachTexture(uint32_t index, uint32_t texture) noexcept;
+	void detachDepthBuffer(uint32_t buffer) noexcept;
+	void detachDepthTexture(uint32_t texture) noexcept;
+	void detachStencilBuffer(uint32_t buffer) noexcept;
+	void detachStencilTexture(uint32_t texture) noexcept;*/
+
+	// Steal/offer components methods
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	/*
+	uint32_t stealTexture(uint32_t index) noexcept;
+	uint32_t stealDepthBuffer() noexcept;
+	uint32_t stealDepthTexture() noexcept;
+	uint32_t stealStencilBuffer() noexcept;
+	uint32_t stealStencilTexture() noexcept;
+
+	uint32_t stealDetachTexture(uint32_t index) noexcept;
+	uint32_t stealDetachDepthBuffer() noexcept;
+	uint32_t stealDetachDepthTexture() noexcept;
+	uint32_t stealDetachStencilBuffer() noexcept;
+	uint32_t stealDetachStencilTexture() noexcept;
+
+	uint32_t offerTexture(uint32_t index, uint32_t texture) noexcept;
+	uint32_t offerDepthBuffer(uint32_t buffer) noexcept;
+	uint32_t offerDepthTexture(uint32_t texture) noexcept;
+	uint32_t offerStencilBuffer(uint32_t buffer) noexcept;
+	uint32_t offerStencilTexture(uint32_t texture) noexcept;
+
+	uint32_t offerAttachTexture(uint32_t index, uint32_t texture) noexcept;
+	uint32_t offerAttachDepthBuffer(uint32_t buffer) noexcept;
+	uint32_t offerAttachDepthTexture(uint32_t texture) noexcept;
+	uint32_t offerAttachStencilBuffer(uint32_t buffer) noexcept;
+	uint32_t offerAttachStencilTexture(uint32_t texture) noexcept;
+	*/
 
 private:
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	uint32_t mFBO = 0;
-	uint32_t mColorTextures[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+	uint32_t mTextures[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 	uint32_t mDepthBuffer = 0;
 	uint32_t mDepthTexture = 0;
 	uint32_t mStencilBuffer = 0;
 	uint32_t mStencilTexture = 0;
 	vec2i mDim{-1};
-
-	// Friends
-	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	friend class FramebufferBuilder;
 };
 
 } // namespace gl
