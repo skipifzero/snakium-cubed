@@ -10,6 +10,7 @@ namespace gl {
 
 using sfz::vec2;
 using sfz::vec2i;
+using sfz::vec4;
 using std::int32_t;
 using std::uint32_t;
 
@@ -72,7 +73,6 @@ class Framebuffer;
 
 class FramebufferBuilder final {
 public:
-
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -122,6 +122,12 @@ private:
 	vec2i mDim{-1};
 };
 
+// Shadow Map Framebuffer builder function
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+Framebuffer createShadowMap(vec2i dimensions, FBDepthFormat depthFormat, bool pcf = true,
+                            vec4 borderColor = vec4{0.0f, 0.0f, 0.0f, 1.0f}) noexcept;
+
 // Framebuffer class
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -139,6 +145,7 @@ public:
 	~Framebuffer() noexcept;
 
 	friend class FramebufferBuilder;
+	friend Framebuffer createShadowMap(vec2i, FBDepthFormat, bool, vec4) noexcept;
 
 	// State checking
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

@@ -8,7 +8,6 @@
 #include <sfz/gl/Framebuffer.hpp>
 #include <sfz/gl/Program.hpp>
 #include <sfz/gl/Scaler.hpp>
-#include <sfz/gl/ShadowMapFB.hpp>
 #include <sfz/geometry/AABB2D.hpp>
 #include <sfz/math/Matrix.hpp>
 
@@ -57,7 +56,7 @@ private:
 	Framebuffer mGBuffer;
 	Framebuffer mEmissiveFB, mSpotlightShadingFB, mLightShaftsFB, mGlobalShadingFB;
 	vector<Spotlight> mSpotlights;
-	gl::ShadowMapFB mShadowMapHighRes, mShadowMapLowRes;
+	Framebuffer mShadowMapHighRes, mShadowMapLowRes;
 };
 
 } // namespace s3

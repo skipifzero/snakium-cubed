@@ -600,8 +600,9 @@ ModernRenderer::ModernRenderer() noexcept
 	mSpotlights.push_back(spotlightTemp);*/
 
 
-	mShadowMapHighRes = gl::ShadowMapFB{sfz::vec2i{1024}, gl::ShadowMapDepthRes::BITS_32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
-	mShadowMapLowRes = gl::ShadowMapFB{sfz::vec2i{256}, gl::ShadowMapDepthRes::BITS_16, true, vec4{0.0f, 0.0f, 0.0f, 1.0f}};
+
+	mShadowMapHighRes = gl::createShadowMap(sfz::vec2i{1024}, FBDepthFormat::F32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f});
+	mShadowMapLowRes = gl::createShadowMap(sfz::vec2i{256}, FBDepthFormat::F16, true, vec4{0.0f, 0.0f, 0.0f, 1.0f});
 }
 
 // ModernRenderer: Public methods
