@@ -120,7 +120,7 @@ Framebuffer FramebufferBuilder::build() const noexcept
 	tmp.mDim = mDim;
 
 	// Generate framebuffer
-	glCreateFramebuffers(1, &tmp.mFBO);
+	glGenFramebuffers(1, &tmp.mFBO);
 	glBindFramebuffer(GL_FRAMEBUFFER, tmp.mFBO);
 
 	// Generate textures
