@@ -14,6 +14,8 @@ using sfz::vec4;
 using std::int32_t;
 using std::uint32_t;
 
+class Framebuffer; // Forward declare Framebuffer class
+
 // FB enums
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -69,8 +71,21 @@ enum class FBTextureFiltering : uint32_t {
 // Framebuffer Builder class
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-class Framebuffer;
-
+/**
+ * @brief Builder class used to build Framebuffer instances.
+ *
+ * You may add up to 8 textures and stencil and depth attachments. The stencil and depth
+ * attachments may be either a texture or buffer (RenderBuffer), the difference is that you are
+ * not allowed to read from a RenderBuffer in OpenGL.
+ *
+ * The texture index specifies which position the texture will be attached to. I.e., index 0
+ * will attach to GL_COLOR_ATTACHMENT0, index 1 to GL_COLOR_ATTACHMENT1, etc.
+ *
+ * The Framebuffer class allows for up to 8 textures and the draw order of the texture attachments
+ * is always GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, ..., GL_COLOR_ATTACHMENT_7. Additionally
+ * there may not be any "holes" between the indices, i.e. if a texture is added to index 2 there
+ * must also be textures attached to index 0 and 1.
+ */
 class FramebufferBuilder final {
 public:
 	// Constructors & destructors
@@ -125,6 +140,19 @@ private:
 // Shadow Map Framebuffer builder function
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+/**
+ * @brief Creates a Shadow Map
+ *
+ * In short creates a Framebuffer with only one component, a depth texture. The depth texture
+ * will have "GL_TEXTURE_COMPARE_FUNC" set to "GL_LEQUAL" and "GL_TEXTURE_COMPARE_MODE" set to 
+ * "GL_COMPARE_REF_TO_TEXTURE", making it possible to bind it as a "sampler2dShadow" in GLSL 
+ * shaders. The pcf parameter decides whether to set the filtering mode to nearest or linear,
+ * linear in combination with the previously mentioned parameters will turn on hardware 
+ * Percentage Closer Filtering (likely 2x2 samples).
+ *
+ * The wrapping mode used is "GL_CLAMP_TO_BORDER" where the border is the specified border
+ * parameter.
+ */
 Framebuffer createShadowMap(vec2i dimensions, FBDepthFormat depthFormat, bool pcf = true,
                             vec4 borderColor = vec4{0.0f, 0.0f, 0.0f, 1.0f}) noexcept;
 
