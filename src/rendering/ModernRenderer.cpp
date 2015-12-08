@@ -619,17 +619,32 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		vec2i blurRes{(int)(internalRes.x*cfg.blurResScaling), (int)(internalRes.y*cfg.blurResScaling)};
 		vec2i spotlightRes{(int)(internalRes.x*cfg.spotlightResScaling), (int)(internalRes.y*cfg.spotlightResScaling)};
 		vec2i lightShaftsRes{(int)(internalRes.x*cfg.lightShaftsResScaling), (int)(internalRes.y*cfg.lightShaftsResScaling)};
+		
 		mGBuffer = FramebufferBuilder{internalRes}
-		         .addTexture(GBUFFER_POSITION_INDEX, FBTextureFormat::RGB_F32, FBTextureFiltering::NEAREST)
-		         .addTexture(GBUFFER_NORMAL_INDEX, FBTextureFormat::RGB_F32, FBTextureFiltering::NEAREST)
-		         .addTexture(GBUFFER_MATERIAL_INDEX, FBTextureFormat::R_INT_U8, FBTextureFiltering::NEAREST)
-		         .addDepthBuffer(FBDepthFormat::F32)
-		         .build();
-		mSpotlightShadingFB = FramebufferBuilder{spotlightRes}.addTexture(0, FBTextureFormat::RGB_U8, FBTextureFiltering::LINEAR).build();
-		mLightShaftsFB = FramebufferBuilder{lightShaftsRes}.addTexture(0, FBTextureFormat::RGB_U8, FBTextureFiltering::LINEAR).build();
-		mGlobalShadingFB = FramebufferBuilder{internalRes}.addTexture(0, FBTextureFormat::RGB_U8, FBTextureFiltering::LINEAR).build();
+		          .addTexture(GBUFFER_POSITION_INDEX, FBTextureFormat::RGB_F32, FBTextureFiltering::NEAREST)
+		          .addTexture(GBUFFER_NORMAL_INDEX, FBTextureFormat::RGB_F32, FBTextureFiltering::NEAREST)
+		          .addTexture(GBUFFER_MATERIAL_INDEX, FBTextureFormat::R_INT_U8, FBTextureFiltering::NEAREST)
+		          .addDepthBuffer(FBDepthFormat::F32)
+		          .build();
+		
+		mSpotlightShadingFB = FramebufferBuilder{spotlightRes}
+		                     .addTexture(0, FBTextureFormat::RGB_U8, FBTextureFiltering::LINEAR)
+		                     .build();
+
+		mLightShaftsFB = FramebufferBuilder{lightShaftsRes}
+		                .addTexture(0, FBTextureFormat::RGB_U8, FBTextureFiltering::LINEAR)
+		                .build();
+		
+		mGlobalShadingFB = FramebufferBuilder{internalRes}
+		                  .addTexture(0, FBTextureFormat::RGB_U8, FBTextureFiltering::LINEAR)
+		                  .build();
+		
+		mEmissiveFB = FramebufferBuilder{blurRes}
+		             .addTexture(0, FBTextureFormat::RGB_U8, FBTextureFiltering::LINEAR)
+		             .build();
+
 		mBoxBlur = gl::BoxBlur{blurRes};
-		mEmissiveFB = FramebufferBuilder{blurRes}.addTexture(0, FBTextureFormat::RGB_U8, FBTextureFiltering::LINEAR).build();
+		
 		std::cout << "Resized framebuffers"
 		          << "\nGBuffer && Global Shading resolution: " << internalRes
 		          << "\nEmissive & Blur resolution: " << blurRes

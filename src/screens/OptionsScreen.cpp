@@ -231,6 +231,20 @@ OptionsScreen::OptionsScreen() noexcept
 		this->cfgData.inputBufferSize = (choice+1);
 	}, stateAlignOffset}}, itemDim);
 
+	// Debug
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	scrollList.addSpacing(spacing);
+	scrollList.addItem(shared_ptr<BaseItem>{new TextItem{"Debug", HorizontalAlign::LEFT}}, headingDim);
+
+	scrollList.addSpacing(itemSpacing);
+	scrollList.addItem(shared_ptr<BaseItem>{new OnOffSelector{"Print FPS", [this]() {
+		return this->cfgData.printFPS;
+	}, [this]() {
+		this->cfgData.printFPS = !this->cfgData.printFPS;
+	}, stateAlignOffset}}, itemDim);
+
+
 	// CustomModel
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
