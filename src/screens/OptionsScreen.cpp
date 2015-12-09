@@ -244,6 +244,13 @@ OptionsScreen::OptionsScreen() noexcept
 		this->cfgData.printFPS = !this->cfgData.printFPS;
 	}, stateAlignOffset}}, itemDim);
 
+	scrollList.addSpacing(itemSpacing);
+	scrollList.addItem(shared_ptr<BaseItem>{new OnOffSelector{"Continuous Shader Reload", [this]() {
+		return this->cfgData.continuousShaderReload;
+	}, [this]() {
+		this->cfgData.continuousShaderReload = !this->cfgData.continuousShaderReload;
+	}, stateAlignOffset}}, itemDim);
+
 
 	// CustomModel
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
