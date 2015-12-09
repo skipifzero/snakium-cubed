@@ -512,14 +512,13 @@ void OptionsScreen::updateResolutionFactors() noexcept
 	char buffer[128];
 	mInternalResFactorStrs.clear();
 	mSecondaryResFactorStrs.clear();
-	vec2i internalRes{int(mOutputRes.x * cfgData.internalResScaling),
-	                  int(mOutputRes.y * cfgData.internalResScaling)};
+	vec2 internalRes = mDrawableDim * cfgData.internalResScaling;
 	for (float factor = 0.05f; factor <= 4.0f; factor += 0.05) {
-		std::snprintf(buffer, 128, "%ix%i (%.2f)", int(mOutputRes.x * factor), 
-		              int(mOutputRes.y * factor), factor);
+		std::snprintf(buffer, 128, "%ix%i (%.2f)", int(std::round(mDrawableDim.x * factor)), 
+		              int(std::round(mDrawableDim.y * factor)), factor);
 		mInternalResFactorStrs.push_back(buffer);
-		std::snprintf(buffer, 128, "%ix%i (%.2f)", int(internalRes.x * factor), 
-		              int(internalRes.y * factor), factor);
+		std::snprintf(buffer, 128, "%ix%i (%.2f)", int(std::round(internalRes.x * factor)), 
+		              int(std::round(internalRes.y * factor)), factor);
 		mSecondaryResFactorStrs.push_back(buffer);
 	}
 }
@@ -527,7 +526,6 @@ void OptionsScreen::updateResolutionFactors() noexcept
 void OptionsScreen::updateResolutionStrings() noexcept
 {
 	using namespace gui;
-	mOutputRes = vec2i{(int)mDrawableDim.x, (int)mDrawableDim.y};
 	this->updateResolutionFactors();
 
 	MultiChoiceSelector& internalResMultiChoice = *static_cast<MultiChoiceSelector*>(mInternalResMultiChoicePtr.get());
