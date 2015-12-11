@@ -289,27 +289,8 @@ Framebuffer FramebufferBuilder::build() const noexcept
 	glDrawBuffers(numTextures, drawBuffers);
 
 	// Check that framebuffer is okay
-	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (status != GL_FRAMEBUFFER_COMPLETE) {
-		if (status == GL_FRAMEBUFFER_UNDEFINED) {
-			std::cerr << "GL_FRAMEBUFFER_UNDEFINED is returned if target is the default framebuffer, but the default framebuffer does not exist.\n";
-		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT) {
-			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT is returned if any of the framebuffer attachment points are framebuffer incomplete.\n";
-		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT) {
-			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT is returned if the framebuffer does not have at least one image attached to it.\n";
-		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER) {
-			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER is returned if the value of GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE is GL_NONE for any color attachment point(s) named by GL_DRAW_BUFFERi.\n";
-		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER) {
-			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER is returned if GL_READ_BUFFER is not GL_NONE and the value of GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE is GL_NONE for the color attachment point named by GL_READ_BUFFER.\n";
-		} else if (status == GL_FRAMEBUFFER_UNSUPPORTED) {
-			std::cerr << "GL_FRAMEBUFFER_UNSUPPORTED is returned if the combination of internal formats of the attached images violates an implementation-dependent set of restrictions.\n";
-		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE) {
-			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE is returned if the value of GL_RENDERBUFFER_SAMPLES is not the same for all attached renderbuffers; if the value of GL_TEXTURE_SAMPLES is the not same for all attached textures; or, if the attached images are a mix of renderbuffers and textures, the value of GL_RENDERBUFFER_SAMPLES does not match the value of GL_TEXTURE_SAMPLES. GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE is also returned if the value of GL_TEXTURE_FIXED_SAMPLE_LOCATIONS is not the same for all attached textures; or, if the attached images are a mix of renderbuffers and textures, the value of GL_TEXTURE_FIXED_SAMPLE_LOCATIONS is not GL_TRUE for all attached textures.\n";
-		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS) {
-			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS is returned if any framebuffer attachment is layered, and any populated attachment is not layered, or if all populated color attachments are not from textures of the same target.\n";
-		}
-		sfz_assert_debug(false);
-	}
+	bool status = checkCurrentFramebufferStatus();
+	sfz_assert_debug(status);
 
 	// Cleanup
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -368,27 +349,8 @@ Framebuffer createShadowMap(vec2i dimensions, FBDepthFormat depthFormat, bool pc
 	glReadBuffer(GL_NONE);
 
 	// Check that framebuffer is okay
-	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-	if (status != GL_FRAMEBUFFER_COMPLETE) {
-		if (status == GL_FRAMEBUFFER_UNDEFINED) {
-			std::cerr << "GL_FRAMEBUFFER_UNDEFINED is returned if target is the default framebuffer, but the default framebuffer does not exist.\n";
-		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT) {
-			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT is returned if any of the framebuffer attachment points are framebuffer incomplete.\n";
-		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT) {
-			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT is returned if the framebuffer does not have at least one image attached to it.\n";
-		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER) {
-			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER is returned if the value of GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE is GL_NONE for any color attachment point(s) named by GL_DRAW_BUFFERi.\n";
-		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER) {
-			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER is returned if GL_READ_BUFFER is not GL_NONE and the value of GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE is GL_NONE for the color attachment point named by GL_READ_BUFFER.\n";
-		} else if (status == GL_FRAMEBUFFER_UNSUPPORTED) {
-			std::cerr << "GL_FRAMEBUFFER_UNSUPPORTED is returned if the combination of internal formats of the attached images violates an implementation-dependent set of restrictions.\n";
-		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE) {
-			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE is returned if the value of GL_RENDERBUFFER_SAMPLES is not the same for all attached renderbuffers; if the value of GL_TEXTURE_SAMPLES is the not same for all attached textures; or, if the attached images are a mix of renderbuffers and textures, the value of GL_RENDERBUFFER_SAMPLES does not match the value of GL_TEXTURE_SAMPLES. GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE is also returned if the value of GL_TEXTURE_FIXED_SAMPLE_LOCATIONS is not the same for all attached textures; or, if the attached images are a mix of renderbuffers and textures, the value of GL_TEXTURE_FIXED_SAMPLE_LOCATIONS is not GL_TRUE for all attached textures.\n";
-		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS) {
-			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS is returned if any framebuffer attachment is layered, and any populated attachment is not layered, or if all populated color attachments are not from textures of the same target.\n";
-		}
-		sfz_assert_debug(false);
-	}
+	bool status = checkCurrentFramebufferStatus();
+	sfz_assert_debug(status);
 
 	// Cleanup
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -481,56 +443,73 @@ uint32_t Framebuffer::stencilTexture() const noexcept
 // Framebuffer: Attach/detach component methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-/*void Framebuffer::attachTexture(uint32_t index, uint32_t texture) noexcept
-{
-	sfz_assert_debug(index < 8);
-	sfz_assert_debug(mTextures[index] == 0);
-
-}
-
-void Framebuffer::attachDepthBuffer(uint32_t buffer) noexcept
+void Framebuffer::attachExternalDepthBuffer(uint32_t buffer) noexcept
 {
 	sfz_assert_debug(mDepthBuffer == 0);
-}
-
-void Framebuffer::attachDepthTexture(uint32_t texture) noexcept
-{
 	sfz_assert_debug(mDepthTexture == 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, buffer);
+	bool status = checkCurrentFramebufferStatus();
+	sfz_assert_debug(status);
 }
 
-void Framebuffer::attachStencilBuffer(uint32_t buffer) noexcept
+void Framebuffer::attachExternalDepthTexture(uint32_t texture) noexcept
+{
+	sfz_assert_debug(mDepthBuffer == 0);
+	sfz_assert_debug(mDepthTexture == 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, texture, 0);
+	bool status = checkCurrentFramebufferStatus();
+	sfz_assert_debug(status);
+}
+
+void Framebuffer::attachExternalStencilBuffer(uint32_t buffer) noexcept
 {
 	sfz_assert_debug(mStencilBuffer == 0);
-}
-
-void Framebuffer::attachStencilTexture(uint32_t texture) noexcept
-{
 	sfz_assert_debug(mStencilTexture == 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, buffer);
+	bool status = checkCurrentFramebufferStatus();
+	sfz_assert_debug(status);
 }
 
-void Framebuffer::detachTexture(uint32_t index, uint32_t texture) noexcept
+void Framebuffer::attachExternalStencilTexture(uint32_t texture) noexcept
 {
-	
+	sfz_assert_debug(mStencilBuffer == 0);
+	sfz_assert_debug(mStencilTexture == 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, texture, 0);
+	bool status = checkCurrentFramebufferStatus();
+	sfz_assert_debug(status);
 }
 
-void Framebuffer::detachDepthBuffer(uint32_t buffer) noexcept
-{
+// Framebuffer helper functions
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+bool checkCurrentFramebufferStatus() noexcept
+{
+	GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (status != GL_FRAMEBUFFER_COMPLETE) {
+		if (status == GL_FRAMEBUFFER_UNDEFINED) {
+			std::cerr << "GL_FRAMEBUFFER_UNDEFINED is returned if target is the default framebuffer, but the default framebuffer does not exist.\n";
+		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT) {
+			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT is returned if any of the framebuffer attachment points are framebuffer incomplete.\n";
+		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT) {
+			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT is returned if the framebuffer does not have at least one image attached to it.\n";
+		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER) {
+			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER is returned if the value of GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE is GL_NONE for any color attachment point(s) named by GL_DRAW_BUFFERi.\n";
+		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER) {
+			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER is returned if GL_READ_BUFFER is not GL_NONE and the value of GL_FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE is GL_NONE for the color attachment point named by GL_READ_BUFFER.\n";
+		} else if (status == GL_FRAMEBUFFER_UNSUPPORTED) {
+			std::cerr << "GL_FRAMEBUFFER_UNSUPPORTED is returned if the combination of internal formats of the attached images violates an implementation-dependent set of restrictions.\n";
+		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE) {
+			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE is returned if the value of GL_RENDERBUFFER_SAMPLES is not the same for all attached renderbuffers; if the value of GL_TEXTURE_SAMPLES is the not same for all attached textures; or, if the attached images are a mix of renderbuffers and textures, the value of GL_RENDERBUFFER_SAMPLES does not match the value of GL_TEXTURE_SAMPLES. GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE is also returned if the value of GL_TEXTURE_FIXED_SAMPLE_LOCATIONS is not the same for all attached textures; or, if the attached images are a mix of renderbuffers and textures, the value of GL_TEXTURE_FIXED_SAMPLE_LOCATIONS is not GL_TRUE for all attached textures.\n";
+		} else if (status == GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS) {
+			std::cerr << "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS is returned if any framebuffer attachment is layered, and any populated attachment is not layered, or if all populated color attachments are not from textures of the same target.\n";
+		}
+		return false;
+	}
+	return true;
 }
-
-void Framebuffer::detachDepthTexture(uint32_t texture) noexcept
-{
-
-}
-
-void Framebuffer::detachStencilBuffer(uint32_t buffer) noexcept
-{
-
-}
-
-void Framebuffer::detachStencilTexture(uint32_t texture) noexcept
-{
-
-}*/
 
 } // nameapce gl

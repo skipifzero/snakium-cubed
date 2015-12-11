@@ -201,49 +201,19 @@ public:
 	inline float widthFloat() const noexcept { return (float)mDim.x; }
 	inline float heightFloat() const noexcept { return (float)mDim.y; }
 
-	// Attach/detach component methods
+	// Attaching external depth/stencil buffers/textures
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	/*void attachTexture(uint32_t index, uint32_t texture) noexcept;
-	void attachDepthBuffer(uint32_t buffer) noexcept;
-	void attachDepthTexture(uint32_t texture) noexcept;
-	void attachStencilBuffer(uint32_t buffer) noexcept;
-	void attachStencilTexture(uint32_t texture) noexcept;
+	/**
+	 * The following methods attaches an external texture/buffer to the fbo. It is up to the
+	 * user to make sure that external texture/buffer is alive for as long as it is attached
+	 * to the fbo.
+	 */
 
-	void detachTexture(uint32_t index, uint32_t texture) noexcept;
-	void detachDepthBuffer(uint32_t buffer) noexcept;
-	void detachDepthTexture(uint32_t texture) noexcept;
-	void detachStencilBuffer(uint32_t buffer) noexcept;
-	void detachStencilTexture(uint32_t texture) noexcept;*/
-
-	// Steal/offer components methods
-	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	/*
-	uint32_t stealTexture(uint32_t index) noexcept;
-	uint32_t stealDepthBuffer() noexcept;
-	uint32_t stealDepthTexture() noexcept;
-	uint32_t stealStencilBuffer() noexcept;
-	uint32_t stealStencilTexture() noexcept;
-
-	uint32_t stealDetachTexture(uint32_t index) noexcept;
-	uint32_t stealDetachDepthBuffer() noexcept;
-	uint32_t stealDetachDepthTexture() noexcept;
-	uint32_t stealDetachStencilBuffer() noexcept;
-	uint32_t stealDetachStencilTexture() noexcept;
-
-	uint32_t offerTexture(uint32_t index, uint32_t texture) noexcept;
-	uint32_t offerDepthBuffer(uint32_t buffer) noexcept;
-	uint32_t offerDepthTexture(uint32_t texture) noexcept;
-	uint32_t offerStencilBuffer(uint32_t buffer) noexcept;
-	uint32_t offerStencilTexture(uint32_t texture) noexcept;
-
-	uint32_t offerAttachTexture(uint32_t index, uint32_t texture) noexcept;
-	uint32_t offerAttachDepthBuffer(uint32_t buffer) noexcept;
-	uint32_t offerAttachDepthTexture(uint32_t texture) noexcept;
-	uint32_t offerAttachStencilBuffer(uint32_t buffer) noexcept;
-	uint32_t offerAttachStencilTexture(uint32_t texture) noexcept;
-	*/
+	void attachExternalDepthBuffer(uint32_t buffer) noexcept;
+	void attachExternalDepthTexture(uint32_t texture) noexcept;
+	void attachExternalStencilBuffer(uint32_t buffer) noexcept;
+	void attachExternalStencilTexture(uint32_t texture) noexcept;
 
 private:
 	// Private members
@@ -257,6 +227,16 @@ private:
 	uint32_t mStencilTexture = 0;
 	vec2i mDim{-1};
 };
+
+// Framebuffer helper functions
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+/**
+ * @brief Checks the status of the currently bound framebuffer
+ * If the status is not GL_FRAMEBUFFER_COMPLETE the error message is printed out into stderr.
+ * @return whether the framebuffer was complete or not
+ */
+bool checkCurrentFramebufferStatus() noexcept;
 
 } // namespace gl
 #endif
