@@ -180,10 +180,10 @@ public:
 
 	inline bool isValid() const noexcept { return mFBO != 0; }
 	inline bool hasTexture(uint32_t index) const noexcept { sfz_assert_debug(index < 8); return mTextures[index] != 0; } 
-	inline bool hasDepthBuffer() const noexcept { return mDepthBuffer; }
-	inline bool hasDepthTexture() const noexcept { return mDepthTexture; }
-	inline bool hasStencilBuffer() const noexcept { return mStencilBuffer; }
-	inline bool hasStencilTexture() const noexcept { return mStencilTexture; }
+	inline bool hasDepthBuffer() const noexcept { return mDepthBuffer != 0; }
+	inline bool hasDepthTexture() const noexcept { return mDepthTexture != 0; }
+	inline bool hasStencilBuffer() const noexcept { return mStencilBuffer != 0; }
+	inline bool hasStencilTexture() const noexcept { return mStencilTexture != 0; }
 
 	// Getters
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
