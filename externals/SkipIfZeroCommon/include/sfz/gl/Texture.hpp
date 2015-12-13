@@ -22,7 +22,7 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	
 	inline uint32_t handle() const noexcept { return mHandle; }
-	inline bool isValid() const noexcept { return (mHandle == 0); }
+	inline bool isValid() const noexcept { return (mHandle != 0); }
 
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
