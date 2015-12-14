@@ -48,8 +48,6 @@ void stupidSetUniformMaterials(const gl::Program& program, const char* name,
 {
 	char buffer[128];
 	for (uint32_t i = 0; i < numMaterials; ++i) {
-		std::snprintf(buffer, sizeof(buffer), "%s[%u].%s", name, i, "ambient");
-		gl::setUniform(program, buffer, materials[i].ambient);
 		std::snprintf(buffer, sizeof(buffer), "%s[%u].%s", name, i, "diffuse");
 		gl::setUniform(program, buffer, materials[i].diffuse);
 		std::snprintf(buffer, sizeof(buffer), "%s[%u].%s", name, i, "specular");

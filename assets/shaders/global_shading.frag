@@ -4,7 +4,6 @@
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 struct Material {
-	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
 	vec3 emissive;
@@ -36,7 +35,7 @@ uniform Material uMaterials[20];
 
 void main()
 {
-	vec3 AMBIENT_LIGHT = vec3(1);
+	vec3 AMBIENT_LIGHT = vec3(0.05);
 
 	// Values from GBuffer
 	//vec3 vsPos = texture(uPositionTexture, uvCoord).xyz;
@@ -48,11 +47,11 @@ void main()
 	vec3 blurredEmissive = texture(uBlurredEmissiveTexture, uvCoord).rgb;
 
 	// Ambient lighting
-	vec3 ambientContribution = mtl.ambient * AMBIENT_LIGHT;
+	vec3 ambientContribution = mtl.diffuse * AMBIENT_LIGHT;
 
 	// Total shading and output
 	vec3 shading = vec3(0);
-	shading +=ambientContribution;
+	shading += ambientContribution;
 	shading += spotlightShading;
 	shading += lightShafts;
 	shading += (float(mtl.emissive == vec3(0)) * blurredEmissive * 1.1);
