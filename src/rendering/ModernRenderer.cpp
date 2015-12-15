@@ -569,6 +569,12 @@ ModernRenderer::ModernRenderer() noexcept
 		glBindFragDataLocation(shaderProgram, 0, "outFragColor");
 	});
 
+	mStencilLightProgram = Program::fromFile((sfz::basePath() + "assets/shaders/stencil_light.vert").c_str(),
+	                                         (sfz::basePath() + "assets/shaders/stencil_light.frag").c_str(),
+		[](uint32_t shaderProgram) {
+		glBindAttribLocation(shaderProgram, 0, "inPosition");
+	});
+
 	mSpotlightShadingProgram = Program::postProcessFromFile((sfz::basePath() + "assets/shaders/spotlight_shading.frag").c_str());
 
 	mLightShaftsProgram = Program::postProcessFromFile((sfz::basePath() + "assets/shaders/light_shafts.frag").c_str());
@@ -629,10 +635,12 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		
 		mSpotlightShadingFB = FramebufferBuilder{spotlightRes}
 		                     .addTexture(0, FBTextureFormat::RGB_U8, FBTextureFiltering::LINEAR)
+		                     .addStencilBuffer()
 		                     .build();
 
 		mLightShaftsFB = FramebufferBuilder{lightShaftsRes}
 		                .addTexture(0, FBTextureFormat::RGB_U8, FBTextureFiltering::LINEAR)
+		                .addStencilBuffer()
 		                .build();
 		
 		mGlobalShadingFB = FramebufferBuilder{internalRes}
@@ -683,13 +691,15 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 
 	// Clearing GBuffer
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// View Matrix and Projection Matrix uniforms
 	const auto& viewFrustum = cam.viewFrustum();
 	const mat4 viewMatrix = viewFrustum.viewMatrix();
 	const mat4 invViewMatrix = inverse(viewMatrix);
-	gl::setUniform(mGBufferGenProgram, "uProjMatrix", viewFrustum.projMatrix());
+	const mat4 projMatrix = viewFrustum.projMatrix();
+	gl::setUniform(mGBufferGenProgram, "uProjMatrix", projMatrix);
 	gl::setUniform(mGBufferGenProgram, "uViewMatrix", viewMatrix);
 
 	// Render things
@@ -813,12 +823,42 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		renderOpaque(model, mShadowMapProgram, lightFrustum.viewMatrix());
 		renderOpaqueSnakeProjection(model, mShadowMapProgram, lightFrustum.viewMatrix());
 
-
 		//glDisable(GL_POLYGON_OFFSET_FILL);
 		glCullFace(GL_BACK);
 		
 		glDisable(GL_DEPTH_TEST);
 		glDisable(GL_CULL_FACE);
+
+
+		// Spotlight & light shafts stencil buffer
+		glUseProgram(mStencilLightProgram.handle());
+		
+		glDisable(GL_CULL_FACE);
+		glEnable(GL_STENCIL_TEST);
+		glStencilFunc(GL_ALWAYS, 0, 0xFF);
+		glStencilOp(GL_INCR, GL_INCR, GL_INCR);
+		
+		gl::setUniform(mStencilLightProgram, "uViewProjMatrix", projMatrix * viewMatrix);
+		gl::setUniform(mStencilLightProgram, "uModelMatrix", spotlight.viewFrustumTransform());
+
+		glBindFramebuffer(GL_FRAMEBUFFER, mSpotlightShadingFB.fbo());
+		glViewport(0, 0, mSpotlightShadingFB.width(), mSpotlightShadingFB.height());
+		glClearStencil(0);
+		glClear(GL_STENCIL_BUFFER_BIT);
+
+		spotlight.renderViewFrustum();
+
+		glBindFramebuffer(GL_FRAMEBUFFER, mLightShaftsFB.fbo());
+		glViewport(0, 0, mLightShaftsFB.width(), mLightShaftsFB.height());
+		glClearStencil(0);
+		glClear(GL_STENCIL_BUFFER_BIT);
+
+		spotlight.renderViewFrustum();
+
+		glEnable(GL_CULL_FACE);
+		glStencilFunc(GL_NOTEQUAL, 0, 0xFF); // Pass stencil test if not 0.
+		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
 
 		// Spotlight shading 
 		glUseProgram(mSpotlightShadingProgram.handle());
@@ -829,7 +869,8 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		
 		mPostProcessQuad.render();
 
-		// Volumetric Shadows rendering
+
+		// Light shafts
 		glUseProgram(mLightShaftsProgram.handle());
 		glBindFramebuffer(GL_FRAMEBUFFER, mLightShaftsFB.fbo());
 		glViewport(0, 0, mLightShaftsFB.width(), mLightShaftsFB.height());
@@ -837,6 +878,9 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		stupidSetSpotLightUniform(mLightShaftsProgram, "uSpotlight", spotlight, viewMatrix, invViewMatrix);
 
 		mPostProcessQuad.render();
+		
+
+		glDisable(GL_STENCIL_TEST);
 	}
 
 

@@ -49,7 +49,7 @@ private:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	gl::PostProcessQuad mPostProcessQuad;
-	Program mGBufferGenProgram, mEmissiveGenProgram, mShadowMapProgram,
+	Program mGBufferGenProgram, mEmissiveGenProgram, mShadowMapProgram, mStencilLightProgram,
 	            mSpotlightShadingProgram, mLightShaftsProgram, mGlobalShadingProgram;
 	gl::Scaler mScaler;
 	gl::BoxBlur mBoxBlur;
