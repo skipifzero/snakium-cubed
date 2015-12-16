@@ -30,8 +30,8 @@ const Material* getMaterials() noexcept
 	materials[MATERIAL_ID_TILE_DIVE_ASCEND].emissive = vec3{0.5f, 0.0f, 0.75f} * 0.6f;
 
 	materials[MATERIAL_ID_TILE_PROJECTION].diffuse = vec3{0.5f, 0.5f, 0.5f} * 0.4f;
-	//materials[MATERIAL_ID_TILE_PROJECTION].emissive = vec3{0.1f};
-	materials[MATERIAL_ID_TILE_PROJECTION].opaque = 1.0f;
+	materials[MATERIAL_ID_TILE_PROJECTION].emissive = vec3{0.1f};
+	materials[MATERIAL_ID_TILE_PROJECTION].opaque = 0.8f;
 
 	materials[MATERIAL_ID_CUBE_SIDE].diffuse = vec3{0.25f, 0.25f, 0.25f};
 	materials[MATERIAL_ID_CUBE_SIDE].opaque = 0.6f;

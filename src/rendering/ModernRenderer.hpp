@@ -49,12 +49,12 @@ private:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	gl::PostProcessQuad mPostProcessQuad;
-	Program mGBufferGenProgram, mEmissiveGenProgram, mShadowMapProgram, mStencilLightProgram,
-	            mSpotlightShadingProgram, mLightShaftsProgram, mGlobalShadingProgram;
+	Program mGBufferGenProgram, mTransparencyProgram, mEmissiveGenProgram, mShadowMapProgram, mStencilLightProgram,
+	        mSpotlightShadingProgram, mLightShaftsProgram, mGlobalShadingProgram;
 	gl::Scaler mScaler;
 	gl::BoxBlur mBoxBlur;
-	Framebuffer mGBuffer;
-	Framebuffer mEmissiveFB, mSpotlightShadingFB, mLightShaftsFB, mGlobalShadingFB;
+	Framebuffer mGBuffer, mTransparencyFB, mEmissiveFB, mSpotlightShadingFB, mLightShaftsFB, mGlobalShadingFB;
+	vec3 mAmbientLight;
 	vector<Spotlight> mSpotlights;
 	Framebuffer mShadowMapHighRes, mShadowMapLowRes;
 };

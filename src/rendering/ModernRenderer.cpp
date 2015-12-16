@@ -559,6 +559,14 @@ ModernRenderer::ModernRenderer() noexcept
 		glBindFragDataLocation(shaderProgram, 3, "outFragMaterialId");
 	});
 
+	mTransparencyProgram = Program::fromFile((sfz::basePath() + "assets/shaders/transparency.vert").c_str(),
+	                                         (sfz::basePath() + "assets/shaders/transparency.frag").c_str(),
+		[](uint32_t shaderProgram) {
+		glBindAttribLocation(shaderProgram, 0, "inPosition");
+		glBindAttribLocation(shaderProgram, 1, "inNormal");
+		glBindFragDataLocation(shaderProgram, 0, "outFragColor");
+	});
+
 	mEmissiveGenProgram = Program::postProcessFromFile((sfz::basePath() + "assets/shaders/emissive_gen.frag").c_str());
 
 	mShadowMapProgram = Program::fromFile((sfz::basePath() + "assets/shaders/shadow_map.vert").c_str(),
@@ -581,6 +589,8 @@ ModernRenderer::ModernRenderer() noexcept
 
 	mGlobalShadingProgram = Program::postProcessFromFile((sfz::basePath() + "assets/shaders/global_shading.frag").c_str());
 
+	
+	mAmbientLight = vec3(0.1f);
 	mSpotlights.emplace_back(vec3{0.0f, 1.2f, 0.0f}, vec3{0.0f, -1.0f, 0.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
 	/*spotlightTemp.color = vec3{0.0f, 0.5f, 1.0f};
 	spotlightTemp.range = 5.0f;
@@ -632,6 +642,11 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		          .addTexture(GBUFFER_MATERIAL_INDEX, FBTextureFormat::R_INT_U8, FBTextureFiltering::NEAREST)
 		          .addDepthBuffer(FBDepthFormat::F32)
 		          .build();
+
+		mTransparencyFB = FramebufferBuilder{internalRes}
+		                 .addTexture(0, FBTextureFormat::RGBA_U8, FBTextureFiltering::NEAREST)
+		                 .build();
+		mTransparencyFB.attachExternalDepthBuffer(mGBuffer.depthBuffer());
 		
 		mSpotlightShadingFB = FramebufferBuilder{spotlightRes}
 		                     .addTexture(0, FBTextureFormat::RGB_U8, FBTextureFiltering::LINEAR)
@@ -664,6 +679,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	// Recompile shader programs if continuous shader reload is enabled
 	if (cfg.continuousShaderReload) {
 		mGBufferGenProgram.reload();
+		mTransparencyProgram.reload();
 		mShadowMapProgram.reload();
 		mSpotlightShadingProgram.reload();
 		mLightShaftsProgram.reload();
@@ -705,8 +721,32 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	// Render things
 	renderBackground(mGBufferGenProgram, viewMatrix);
 	renderOpaque(model, mGBufferGenProgram, viewMatrix);
-	renderSnakeProjection(model, mGBufferGenProgram, viewMatrix, viewFrustum.pos());
+	//renderSnakeProjection(model, mGBufferGenProgram, viewMatrix, viewFrustum.pos());
 	//renderTransparentCube(model, mGBufferGenProgram, viewMatrix, cam.pos(), 3, 5);
+
+
+	// Rendering transparent objects
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glEnable(GL_CULL_FACE);
+
+	glUseProgram(mTransparencyProgram.handle());
+	glBindFramebuffer(GL_FRAMEBUFFER, mTransparencyFB.fbo());
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	gl::setUniform(mTransparencyProgram, "uProjMatrix", projMatrix);
+	gl::setUniform(mTransparencyProgram, "uViewMatrix", viewMatrix);
+	stupidSetUniformMaterials(mTransparencyProgram, "uMaterials");
+	gl::setUniform(mTransparencyProgram, "uAmbientLight", mAmbientLight);
+	
+	renderSnakeProjection(model, mTransparencyProgram, viewMatrix, viewFrustum.pos());
 
 
 	// Emissive texture & blur
@@ -729,7 +769,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 
 	mPostProcessQuad.render();
 	
-	const float blurRadiusFactor = 0.025f;
+	const float blurRadiusFactor = 0.005f;
 	int blurRadius = std::round(mEmissiveFB.height() * blurRadiusFactor);
 	blurRadius = std::max(blurRadius, 2);
 	blurRadius = ((blurRadius % 2) != 0) ? blurRadius + 1 : blurRadius;
@@ -899,6 +939,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	stupidSetUniformMaterials(mGlobalShadingProgram, "uMaterials");
+	gl::setUniform(mGlobalShadingProgram, "uAmbientLight", mAmbientLight);
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, mGBuffer.texture(GBUFFER_POSITION_INDEX));
@@ -913,16 +954,20 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	gl::setUniform(mGlobalShadingProgram, "uMaterialIdTexture", 2);
 
 	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, mSpotlightShadingFB.texture(0));
-	gl::setUniform(mGlobalShadingProgram, "uSpotlightShadingTexture", 3);
+	glBindTexture(GL_TEXTURE_2D, mTransparencyFB.texture(0));
+	gl::setUniform(mGlobalShadingProgram, "uTransparencyTexture", 3);
 
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, mLightShaftsFB.texture(0));
-	gl::setUniform(mGlobalShadingProgram, "uLightShaftsTexture", 4);
+	glBindTexture(GL_TEXTURE_2D, mSpotlightShadingFB.texture(0));
+	gl::setUniform(mGlobalShadingProgram, "uSpotlightShadingTexture", 4);
 
 	glActiveTexture(GL_TEXTURE5);
+	glBindTexture(GL_TEXTURE_2D, mLightShaftsFB.texture(0));
+	gl::setUniform(mGlobalShadingProgram, "uLightShaftsTexture", 5);
+
+	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, mEmissiveFB.texture(0));
-	gl::setUniform(mGlobalShadingProgram, "uBlurredEmissiveTexture", 5);
+	gl::setUniform(mGlobalShadingProgram, "uBlurredEmissiveTexture", 6);
 
 	mPostProcessQuad.render();
 
