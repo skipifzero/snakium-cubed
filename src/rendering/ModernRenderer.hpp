@@ -8,12 +8,12 @@
 #include <sfz/gl/Framebuffer.hpp>
 #include <sfz/gl/Program.hpp>
 #include <sfz/gl/Scaler.hpp>
+#include <sfz/gl/SpotLight.hpp>
 #include <sfz/geometry/AABB2D.hpp>
 #include <sfz/math/Matrix.hpp>
 
 #include "gamelogic/Model.hpp"
 #include "rendering/Camera.hpp"
-#include "rendering/Spotlight.hpp"
 
 namespace s3 {
 
@@ -23,6 +23,7 @@ using gl::FBTextureFormat;
 using gl::FBDepthFormat;
 using gl::FBTextureFiltering;
 using gl::Program;
+using gl::Spotlight;
 using sfz::AABB2D;
 using sfz::mat4;
 using sfz::vec2;
@@ -58,6 +59,9 @@ private:
 	vector<Spotlight> mSpotlights;
 	Framebuffer mShadowMapHighRes, mShadowMapLowRes;
 };
+
+void stupidSetSpotLightUniform(const gl::Program& program, const char* name, const Spotlight& spotlight,
+                               const mat4& viewMatrix, const mat4& invViewMatrix) noexcept;
 
 } // namespace s3
 #endif

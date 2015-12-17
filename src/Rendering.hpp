@@ -7,7 +7,6 @@
 #include "rendering/ClassicRenderer.hpp"
 #include "rendering/Materials.hpp"
 #include "rendering/ModernRenderer.hpp"
-#include "rendering/SpotLight.hpp"
 #include "rendering/TileObject.hpp"
 
 #endif

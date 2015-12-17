@@ -67,8 +67,6 @@ set(SOURCE_RENDERING_FILES
 	${SRC_DIR}/rendering/Materials.cpp
 	${SRC_DIR}/rendering/ModernRenderer.hpp
 	${SRC_DIR}/rendering/ModernRenderer.cpp
-	${SRC_DIR}/rendering/Spotlight.hpp
-	${SRC_DIR}/rendering/Spotlight.cpp
 	${SRC_DIR}/rendering/TileObject.hpp
 	${SRC_DIR}/rendering/TileObject.cpp)
 source_group(rendering FILES ${SOURCE_RENDERING_FILES})
@@ -100,6 +98,8 @@ set(SOURCE_SFZ_GL_TEMP_FILES
 	${SRC_DIR}/sfz/gl/Framebuffer.cpp
 	${SRC_DIR}/sfz/gl/Scaler.hpp
 	${SRC_DIR}/sfz/gl/Scaler.cpp
+	${SRC_DIR}/sfz/gl/Spotlight.hpp
+	${SRC_DIR}/sfz/gl/Spotlight.cpp
 	${SRC_DIR}/sfz/gl/ViewFrustumMesh.hpp
 	${SRC_DIR}/sfz/gl/ViewFrustumMesh.cpp)
 source_group(sfz_gl_temp FILES ${SOURCE_SFZ_GL_TEMP_FILES})

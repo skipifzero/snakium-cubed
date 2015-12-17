@@ -592,29 +592,6 @@ ModernRenderer::ModernRenderer() noexcept
 	
 	mAmbientLight = vec3(0.1f);
 	mSpotlights.emplace_back(vec3{0.0f, 1.2f, 0.0f}, vec3{0.0f, -1.0f, 0.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
-	/*spotlightTemp.color = vec3{0.0f, 0.5f, 1.0f};
-	spotlightTemp.range = 5.0f;
-	spotlightTemp.fovDeg = 75.0f;
-	spotlightTemp.softAngleDeg = 10.0f;
-	
-	spotlightTemp.pos = vec3(0.0f, 1.2f, 0.0f);
-	spotlightTemp.dir = vec3(0.0f, -1.0f, 0.0f);
-	mSpotlights.push_back(spotlightTemp);*/
-
-	//spotlightTemp.pos = vec3(0.0f);
-
-	
-	/*spotlightTemp.dir = vec3(-1.0f, 0.0f, 0.0f);
-	mSpotlights.push_back(spotlightTemp);
-	spotlightTemp.dir = vec3(0.0f, 1.0f, 0.0f);
-	mSpotlights.push_back(spotlightTemp);
-	spotlightTemp.dir = vec3(0.0f, -1.0f, 0.0f);
-	mSpotlights.push_back(spotlightTemp);
-	spotlightTemp.dir = vec3(0.0f, 0.0f, 1.0f);
-	mSpotlights.push_back(spotlightTemp);
-	spotlightTemp.dir = vec3(0.0f, 0.0f, -1.0f);
-	mSpotlights.push_back(spotlightTemp);*/
-
 
 
 	mShadowMapHighRes = gl::createShadowMap(sfz::vec2i{1024}, FBDepthFormat::F32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f});
@@ -721,8 +698,6 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	// Render things
 	renderBackground(mGBufferGenProgram, viewMatrix);
 	renderOpaque(model, mGBufferGenProgram, viewMatrix);
-	//renderSnakeProjection(model, mGBufferGenProgram, viewMatrix, viewFrustum.pos());
-	//renderTransparentCube(model, mGBufferGenProgram, viewMatrix, cam.pos(), 3, 5);
 
 
 	// Rendering transparent objects
@@ -747,6 +722,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	gl::setUniform(mTransparencyProgram, "uAmbientLight", mAmbientLight);
 	
 	renderSnakeProjection(model, mTransparencyProgram, viewMatrix, viewFrustum.pos());
+	//renderTransparentCube(model, mTransparencyProgram, viewMatrix, viewFrustum.pos());
 
 
 	// Emissive texture & blur
@@ -982,6 +958,32 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 
 	mScaler.changeScalingAlgorithm(static_cast<gl::ScalingAlgorithm>(cfg.scalingAlgorithm));
 	mScaler.scale(0, drawableDim, mGlobalShadingFB.texture(0), mGlobalShadingFB.dimensionsFloat());
+}
+
+void stupidSetSpotLightUniform(const gl::Program& program, const char* name, const Spotlight& spotlight,
+                               const mat4& viewMatrix, const mat4& invViewMatrix) noexcept
+{
+	using std::snprintf;
+	char buffer[128];
+	const auto& frustum = spotlight.viewFrustum();
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "vsPos");
+	gl::setUniform(program, buffer, transformPoint(viewMatrix, frustum.pos()));
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "vsDir");
+	gl::setUniform(program, buffer, transformDir(viewMatrix, frustum.dir()));
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "color");
+	gl::setUniform(program, buffer, spotlight.color());
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "range");
+	gl::setUniform(program, buffer, frustum.far());
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "softFovRad");
+	gl::setUniform(program, buffer, frustum.verticalFov() * sfz::DEG_TO_RAD());
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "sharpFovRad");
+	gl::setUniform(program, buffer, spotlight.sharpFov() * sfz::DEG_TO_RAD());
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "softAngleCos");
+	gl::setUniform(program, buffer, std::cos((frustum.verticalFov() / 2.0f) * sfz::DEG_TO_RAD()));
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "sharpAngleCos");
+	gl::setUniform(program, buffer, std::cos((spotlight.sharpFov() / 2.0f) * sfz::DEG_TO_RAD()));
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "lightMatrix");
+	gl::setUniform(program, buffer, spotlight.lightMatrix(invViewMatrix));
 }
 
 } // namespace s3

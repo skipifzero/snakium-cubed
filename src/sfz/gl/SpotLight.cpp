@@ -1,8 +1,8 @@
-#include "rendering/Spotlight.hpp"
+#include "sfz/gl/Spotlight.hpp"
 
 #include <sfz/math/MathConstants.hpp>
 
-namespace s3 {
+namespace gl {
 
 // Statics
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -106,30 +106,4 @@ void Spotlight::color(vec3 color) noexcept
 	mColor = color;
 }
 
-void stupidSetSpotLightUniform(const gl::Program& program, const char* name, const Spotlight& spotlight,
-                               const mat4& viewMatrix, const mat4& invViewMatrix) noexcept
-{
-	using std::snprintf;
-	char buffer[128];
-	const auto& frustum = spotlight.viewFrustum();
-	snprintf(buffer, sizeof(buffer), "%s.%s", name, "vsPos");
-	gl::setUniform(program, buffer, transformPoint(viewMatrix, frustum.pos()));
-	snprintf(buffer, sizeof(buffer), "%s.%s", name, "vsDir");
-	gl::setUniform(program, buffer, transformDir(viewMatrix, frustum.dir()));
-	snprintf(buffer, sizeof(buffer), "%s.%s", name, "color");
-	gl::setUniform(program, buffer, spotlight.color());
-	snprintf(buffer, sizeof(buffer), "%s.%s", name, "range");
-	gl::setUniform(program, buffer, frustum.far());
-	snprintf(buffer, sizeof(buffer), "%s.%s", name, "softFovRad");
-	gl::setUniform(program, buffer, frustum.verticalFov() * sfz::DEG_TO_RAD());
-	snprintf(buffer, sizeof(buffer), "%s.%s", name, "sharpFovRad");
-	gl::setUniform(program, buffer, spotlight.sharpFov() * sfz::DEG_TO_RAD());
-	snprintf(buffer, sizeof(buffer), "%s.%s", name, "softAngleCos");
-	gl::setUniform(program, buffer, std::cos((frustum.verticalFov() / 2.0f) * sfz::DEG_TO_RAD()));
-	snprintf(buffer, sizeof(buffer), "%s.%s", name, "sharpAngleCos");
-	gl::setUniform(program, buffer, std::cos((spotlight.sharpFov() / 2.0f) * sfz::DEG_TO_RAD()));
-	snprintf(buffer, sizeof(buffer), "%s.%s", name, "lightMatrix");
-	gl::setUniform(program, buffer, spotlight.lightMatrix(invViewMatrix));
-}
-
-} // namespace s3
+} // namespace

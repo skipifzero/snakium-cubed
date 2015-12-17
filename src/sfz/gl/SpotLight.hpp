@@ -1,6 +1,6 @@
 #pragma once
-#ifndef S3_RENDERING_SPOTLIGHT_HPP
-#define S3_RENDERING_SPOTLIGHT_HPP
+#ifndef SFZ_GL_RENDERING_SPOTLIGHT_HPP
+#define SFZ_GL_RENDERING_SPOTLIGHT_HPP
 
 #include <sfz/geometry/ViewFrustum.hpp>
 #include <sfz/gl/Program.hpp>
@@ -8,9 +8,8 @@
 #include <sfz/math/Matrix.hpp>
 #include <sfz/math/Vector.hpp>
 
-namespace s3 {
+namespace gl {
 
-using gl::ViewFrustumMesh;
 using sfz::mat4;
 using sfz::vec3;
 using sfz::ViewFrustum;
@@ -65,8 +64,5 @@ private:
 	vec3 mColor;
 };
 
-void stupidSetSpotLightUniform(const gl::Program& program, const char* name, const Spotlight& spotlight,
-                               const mat4& viewMatrix, const mat4& invViewMatrix) noexcept;
-
-} // namespace s3
+} // namespace gl
 #endif
