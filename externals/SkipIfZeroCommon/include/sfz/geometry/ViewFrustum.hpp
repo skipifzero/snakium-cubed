@@ -6,6 +6,10 @@
 #include <sfz/geometry/ViewFrustum.hpp>
 #include <sfz/math/Vector.hpp>
 
+// Stupid hack for stupid near/far macros (windows.h)
+#undef near
+#undef far
+
 namespace sfz {
 	
 // Forward declares geometry primitives

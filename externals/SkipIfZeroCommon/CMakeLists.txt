@@ -67,17 +67,12 @@ include_directories(
 set(SOURCE_GENERAL_FILES
 	${INCLUDE_DIR}/sfz/Assert.hpp
 	${INCLUDE_DIR}/sfz/Assert.inl
-	${INCLUDE_DIR}/sfz/Geometry.hpp
-	${INCLUDE_DIR}/sfz/GL.hpp
-	${INCLUDE_DIR}/sfz/Math.hpp
 	${INCLUDE_DIR}/sfz/PopWarnings.hpp
-	${INCLUDE_DIR}/sfz/PushWarnings.hpp
-	${INCLUDE_DIR}/sfz/SDL.hpp
-	${INCLUDE_DIR}/sfz/Screens.hpp
-	${INCLUDE_DIR}/sfz/Util.hpp)
+	${INCLUDE_DIR}/sfz/PushWarnings.hpp)
 source_group(sfz FILES ${SOURCE_GENERAL_FILES})
 
 set(SOURCE_GEOMETRY_FILES
+	${INCLUDE_DIR}/sfz/Geometry.hpp
 	${INCLUDE_DIR}/sfz/geometry/AABB.hpp
 	${INCLUDE_DIR}/sfz/geometry/AABB.inl
 	${INCLUDE_DIR}/sfz/geometry/AABB2D.hpp
@@ -91,15 +86,20 @@ set(SOURCE_GEOMETRY_FILES
 	${INCLUDE_DIR}/sfz/geometry/Plane.hpp
 	${INCLUDE_DIR}/sfz/geometry/Plane.inl
 	${INCLUDE_DIR}/sfz/geometry/Sphere.hpp
-	${INCLUDE_DIR}/sfz/geometry/Sphere.inl)
+	${INCLUDE_DIR}/sfz/geometry/Sphere.inl
+	${INCLUDE_DIR}/sfz/geometry/ViewFrustum.hpp
+	 ${SOURCE_DIR}/sfz/geometry/ViewFrustum.cpp)
 source_group(sfz_geometry FILES ${SOURCE_GEOMETRY_FILES})
 
 set(SOURCE_GL_FILES
+	${INCLUDE_DIR}/sfz/GL.hpp
 	${INCLUDE_DIR}/sfz/gl/Alignment.hpp
 	${INCLUDE_DIR}/sfz/gl/Context.hpp
 	 ${SOURCE_DIR}/sfz/gl/Context.cpp
 	${INCLUDE_DIR}/sfz/gl/FontRenderer.hpp
 	 ${SOURCE_DIR}/sfz/gl/FontRenderer.cpp
+	${INCLUDE_DIR}/sfz/gl/FrameBuffer.hpp
+	 ${SOURCE_DIR}/sfz/gl/Framebuffer.cpp
 	${INCLUDE_DIR}/sfz/gl/GLUtils.hpp
 	 ${SOURCE_DIR}/sfz/gl/GLUtils.cpp
 	${INCLUDE_DIR}/sfz/gl/OpenGL.hpp
@@ -116,10 +116,13 @@ set(SOURCE_GL_FILES
 	${INCLUDE_DIR}/sfz/gl/TextureEnums.hpp
 	${INCLUDE_DIR}/sfz/gl/TexturePacker.hpp
 	 ${SOURCE_DIR}/sfz/gl/TexturePacker.cpp
-	${INCLUDE_DIR}/sfz/gl/TextureRegion.hpp)
+	${INCLUDE_DIR}/sfz/gl/TextureRegion.hpp
+	${INCLUDE_DIR}/sfz/gl/ViewFrustumMesh.hpp
+	 ${SOURCE_DIR}/sfz/gl/ViewFrustumMesh.cpp)
 source_group(sfz_gl FILES ${SOURCE_GL_FILES})
 
 set(SOURCE_MATH_FILES
+	${INCLUDE_DIR}/sfz/Math.hpp
 	${INCLUDE_DIR}/sfz/math/MathConstants.hpp
 	${INCLUDE_DIR}/sfz/math/MathHelpers.hpp
 	${INCLUDE_DIR}/sfz/math/MathHelpers.inl
@@ -132,6 +135,7 @@ set(SOURCE_MATH_FILES
 source_group(sfz_math FILES ${SOURCE_MATH_FILES})
 
 set(SOURCE_SDL_FILES
+	${INCLUDE_DIR}/sfz/SDL.hpp
 	${INCLUDE_DIR}/sfz/sdl/ButtonState.hpp
 	${INCLUDE_DIR}/sfz/sdl/GameController.hpp
 	 ${SOURCE_DIR}/sfz/sdl/GameController.cpp
@@ -144,12 +148,14 @@ set(SOURCE_SDL_FILES
 source_group(sfz_sdl FILES ${SOURCE_SDL_FILES})
 
 set(SOURCE_SCREENS_FILES
+	${INCLUDE_DIR}/sfz/Screens.hpp
 	${INCLUDE_DIR}/sfz/screens/BaseScreen.hpp
 	${INCLUDE_DIR}/sfz/screens/GameLoop.hpp
 	 ${SOURCE_DIR}/sfz/screens/GameLoop.cpp)
 source_group(sfz_screens FILES ${SOURCE_SCREENS_FILES})
 
 set(SOURCE_UTIL_FILES
+	${INCLUDE_DIR}/sfz/Util.hpp
 	${INCLUDE_DIR}/sfz/util/IniParser.hpp
 	 ${SOURCE_DIR}/sfz/util/IniParser.cpp
 	${INCLUDE_DIR}/sfz/util/IO.hpp

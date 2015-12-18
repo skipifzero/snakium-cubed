@@ -9,5 +9,6 @@
 #include "sfz/geometry/OBB.hpp"
 #include "sfz/geometry/Plane.hpp"
 #include "sfz/geometry/Sphere.hpp"
+#include "sfz/geometry/ViewFrustum.hpp"
 
 #endif

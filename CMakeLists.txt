@@ -86,22 +86,13 @@ set(SOURCE_SCREENS_FILES
 	${SRC_DIR}/screens/ScreenUtils.cpp)
 source_group(screens FILES ${SOURCE_SCREENS_FILES})
 
-set(SOURCE_SFZ_GEOMETRY_TEMP_FILES
-	${SRC_DIR}/sfz/geometry/ViewFrustum.hpp
-	${SRC_DIR}/sfz/geometry/ViewFrustum.cpp)
-source_group(sfz_geometry_temp FILES ${SOURCE_SFZ_GEOMETRY_TEMP_FILES})
-
 set(SOURCE_SFZ_GL_TEMP_FILES
 	${SRC_DIR}/sfz/gl/BoxBlur.hpp
 	${SRC_DIR}/sfz/gl/BoxBlur.cpp
-	${SRC_DIR}/sfz/gl/Framebuffer.hpp
-	${SRC_DIR}/sfz/gl/Framebuffer.cpp
 	${SRC_DIR}/sfz/gl/Scaler.hpp
 	${SRC_DIR}/sfz/gl/Scaler.cpp
 	${SRC_DIR}/sfz/gl/Spotlight.hpp
-	${SRC_DIR}/sfz/gl/Spotlight.cpp
-	${SRC_DIR}/sfz/gl/ViewFrustumMesh.hpp
-	${SRC_DIR}/sfz/gl/ViewFrustumMesh.cpp)
+	${SRC_DIR}/sfz/gl/Spotlight.cpp)
 source_group(sfz_gl_temp FILES ${SOURCE_SFZ_GL_TEMP_FILES})
 
 set(SOURCE_SFZ_GUI_TEMP_FILES
@@ -136,7 +127,6 @@ set(SOURCE_ALL_FILES
 	${SOURCE_GAMELOGIC_FILES}
 	${SOURCE_RENDERING_FILES}
 	${SOURCE_SCREENS_FILES}
-	${SOURCE_SFZ_GEOMETRY_TEMP_FILES}
 	${SOURCE_SFZ_GL_TEMP_FILES}
 	${SOURCE_SFZ_GUI_TEMP_FILES})
 
