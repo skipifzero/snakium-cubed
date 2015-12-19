@@ -84,7 +84,7 @@ int main()
 
 	// Enable OpenGL debug message if in debug mode
 #if !defined(SFZ_NO_DEBUG)
-	gl::setupDebugMessages(gl::Severity::MEDIUM, gl::Severity::HIGH);
+	gl::setupDebugMessages(gl::Severity::MEDIUM, gl::Severity::MEDIUM);
 #endif
 
 	// VSync
