@@ -24,6 +24,11 @@ int main()
 {
 	using namespace sdl;
 	using std::string;
+	
+	// Small hack to enable hi-dpi awareness on Windows.
+#ifdef _WIN32
+	SetProcessDPIAware();
+#endif
 
 	s3::GlobalConfig& cfg = s3::GlobalConfig::INSTANCE();
 	cfg.save();
