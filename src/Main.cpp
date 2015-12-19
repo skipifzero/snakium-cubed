@@ -48,14 +48,12 @@ int main()
 	Window window{"snakium³", cfg.windowWidth, cfg.windowHeight,
 	     {WindowFlags::OPENGL, WindowFlags::RESIZABLE, WindowFlags::ALLOW_HIGHDPI}};
 	
-	// Debug context
+	// Creates OpenGL context, debug if SFZ_NO_DEBUG is not defined
 #if !defined(SFZ_NO_DEBUG)
-	if (SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG) < 0) {
-		std::cerr << "Couldn't request debug context: " << SDL_GetError() << std::endl;
-	}
+	gl::Context glContext{window.mPtr, 4, 1, gl::GLContextProfile::CORE, true};
+#else
+	gl::Context glContext{window.mPtr, 4, 1, gl::GLContextProfile::CORE, false};
 #endif
-	
-	gl::Context glContext{window.mPtr, 4, 1, gl::GLContextProfile::CORE};
 	
 	gl::printSystemGLInfo();
 
@@ -80,7 +78,6 @@ int main()
 	if (glewError != GLEW_OK) {
 		sfz_error(string{"GLEW init failure: "} + ((const char*)glewGetErrorString(glewError)) + "\n");
 	}
-	gl::flushGLErrors(); // Ignore errors from GLEW init
 
 	// Enable OpenGL debug message if in debug mode
 #if !defined(SFZ_NO_DEBUG)

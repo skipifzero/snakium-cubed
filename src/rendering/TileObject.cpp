@@ -1,6 +1,5 @@
 #include "TileObject.hpp"
 
-#include <sfz/GL.hpp>
 #include <sfz/gl/OpenGL.hpp>
 
 namespace s3 {
@@ -99,10 +98,6 @@ TileObject::TileObject(bool xFlipped, bool yFlipped) noexcept
 	glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
 	glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
 	glEnableVertexAttribArray(1);
-
-	if (gl::checkAllGLErrors()) {
-		std::cerr << "^^^ Above errors likely caused by TileObject ctor." << std::endl;
-	}
 }
 
 TileObject::~TileObject() noexcept

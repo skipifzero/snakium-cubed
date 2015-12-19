@@ -21,11 +21,6 @@ const uint32_t GBUFFER_POSITION_INDEX = 0;
 const uint32_t GBUFFER_NORMAL_INDEX = 1;
 const uint32_t GBUFFER_MATERIAL_INDEX = 2;
 
-static void checkGLErrorsMessage(const char* msg)
-{
-	if (gl::checkAllGLErrors()) std::cerr << msg << std::endl;
-}
-
 static gl::SimpleModel& getTileModel(const SnakeTile* tilePtr, Direction side, float progress,
                                bool gameOver) noexcept
 {
