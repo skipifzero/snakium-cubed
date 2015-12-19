@@ -5,23 +5,6 @@
 namespace gl {
 
 /**
- * @brief Checks the latest error returned by glGetError().
- * @return whether an error was found or not
- */
-bool checkGLError() noexcept;
-
-/**
- * @brief Checks all errors returned by glGetError() until GL_NO_ERROR is returned.
- * @return whether any errors where found or not
- */
-bool checkAllGLErrors() noexcept;
-
-/**
- * @brief Removes all errors returned by glGetError() without checking or printing them.
- */
-void flushGLErrors() noexcept;
-
-/**
  * @brief Prints system information to stdout.
  */
 void printSystemGLInfo() noexcept;

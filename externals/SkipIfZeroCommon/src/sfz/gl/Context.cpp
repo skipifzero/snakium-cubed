@@ -3,13 +3,12 @@
 #include <string>
 
 #include "sfz/Assert.hpp"
-#include "sfz/gl/GLUtils.hpp"
 
 namespace gl {
 
 using std::string;
 
-Context::Context(SDL_Window* window, int major, int minor, GLContextProfile profile) noexcept
+Context::Context(SDL_Window* window, int major, int minor, GLContextProfile profile, bool debug) noexcept
 {
 	// Set context attributes
 	if (SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, major) < 0) {
@@ -22,13 +21,16 @@ Context::Context(SDL_Window* window, int major, int minor, GLContextProfile prof
 		sfz_error(string{"Failed to set gl context profile: "} + SDL_GetError() + "\n");
 	}
 
+	// Set debug context if requested
+	if (debug) {
+		if (SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG) < 0) {
+			std::cerr << "Failed to request debug context: " << SDL_GetError() << std::endl;
+		}
+	}
+
 	handle = SDL_GL_CreateContext(window);
 	if (handle == NULL) {
 		sfz_error(string{"Failed to create GL context: "} + SDL_GetError() + "\n");
-	}
-
-	if (gl::checkAllGLErrors()) {
-		std::cerr << "^^^ Above errors caused by GL context creation." << std::endl;
 	}
 }
 

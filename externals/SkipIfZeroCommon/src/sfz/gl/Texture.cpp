@@ -8,7 +8,6 @@
 
 #include "sfz/Assert.hpp"
 #include "sfz/gl/OpenGL.hpp"
-#include "sfz/gl/GLUtils.hpp"
 
 #include <algorithm> // std::swap
 #include <cstring> // std::memcpy
@@ -114,11 +113,6 @@ static GLuint loadTexture(const char* path, int numChannelsWanted, TextureFilter
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropicFactor(filtering));
 		break;
-	}
-
-	if (checkAllGLErrors()) {
-		std::cerr << "^^^ Above errors likely caused by loading texture at \"" << path
-		          << "\"." << std::endl;
 	}
 
 	return texture;

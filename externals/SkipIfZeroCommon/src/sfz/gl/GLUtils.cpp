@@ -101,38 +101,6 @@ static void APIENTRY printDebugMessage(GLenum source, GLenum type, GLuint id, GL
 // Functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool checkGLError() noexcept
-{
-	GLenum errorCode = glGetError();
-	if (errorCode != GL_NO_ERROR) {
-		std::cerr << "OpenGL error " << errorCode << ", " << gluErrorString(errorCode)
-		          << std::endl;
-		return true;
-	}
-	return false;
-}
-
-bool checkAllGLErrors() noexcept
-{
-	bool foundError = false;
-	GLenum errorCode = glGetError();
-	while (errorCode != GL_NO_ERROR) {
-		std::cerr << "OpenGL error " << errorCode << ", " << gluErrorString(errorCode)
-		          << std::endl;
-		errorCode = glGetError();
-		foundError = true;
-	}
-	return foundError;
-}
-
-void flushGLErrors() noexcept
-{
-	GLenum errorCode = glGetError();
-	while (errorCode != GL_NO_ERROR) {
-		errorCode = glGetError();
-	}
-}
-
 void printSystemGLInfo() noexcept
 {
 	std::cout << "Vendor: " << glGetString(GL_VENDOR)

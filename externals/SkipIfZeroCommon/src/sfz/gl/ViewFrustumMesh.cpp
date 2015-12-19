@@ -4,7 +4,6 @@
 #include <cmath>
 
 #include "sfz/math/MathConstants.hpp"
-#include "sfz/gl/GLUtils.hpp"
 #include "sfz/gl/OpenGL.hpp"
 
 
@@ -254,10 +253,6 @@ ViewFrustumMesh::ViewFrustumMesh(float verticalFovDeg, float aspect, float near,
 	glBindBuffer(GL_ARRAY_BUFFER, mMaterialIDBuffer);
 	glVertexAttribPointer(3, 1, GL_INT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(3);
-
-	if (gl::checkAllGLErrors()) {
-		std::cerr << "^^^ Above errors likely caused by ViewFrustumMesh constructor." << std::endl;
-	}
 }
 
 ViewFrustumMesh::ViewFrustumMesh(ViewFrustumMesh&& other) noexcept

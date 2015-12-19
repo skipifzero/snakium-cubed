@@ -2,7 +2,6 @@
 
 #include "sfz/Assert.hpp"
 #include "sfz/gl/OpenGL.hpp"
-#include "sfz/gl/GLUtils.hpp"
 
 #include <new> // std::nothrow
 #include <algorithm> // std::swap
@@ -144,10 +143,6 @@ SpriteBatch::SpriteBatch(size_t capacity, const char* fragmentShaderSrc) noexcep
 	// Create shader program and bind uniform
 	mShader = compileSpriteBatchShaderProgram(VERTEX_SHADER_SRC, fragmentShaderSrc);
 	mTextureUniformLoc = glGetUniformLocation(mShader.handle(), "uTexture");
-
-	if (gl::checkAllGLErrors()) {
-		std::cerr << "^^^ Above errors caused by SpriteBatch constructor" << std::endl;
-	}
 }
 
 SpriteBatch::SpriteBatch(SpriteBatch&& other) noexcept

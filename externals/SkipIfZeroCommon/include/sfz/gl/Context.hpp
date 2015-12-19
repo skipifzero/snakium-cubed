@@ -34,7 +34,7 @@ public:
 	Context(const Context&) = delete;
 	Context& operator= (const Context&) = delete;
 
-	Context(SDL_Window* window, int major, int minor, GLContextProfile profile) noexcept;
+	Context(SDL_Window* window, int major, int minor, GLContextProfile profile, bool debug = false) noexcept;
 	~Context() noexcept;
 };
 
