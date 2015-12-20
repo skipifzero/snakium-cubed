@@ -49,6 +49,7 @@ int main()
 	     {WindowFlags::OPENGL, WindowFlags::RESIZABLE, WindowFlags::ALLOW_HIGHDPI}};
 	
 	// Creates OpenGL context, debug if SFZ_NO_DEBUG is not defined
+	SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 1);
 #if !defined(SFZ_NO_DEBUG)
 	gl::Context glContext{window.mPtr, 4, 1, gl::GLContextProfile::CORE, true};
 #else

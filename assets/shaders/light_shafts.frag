@@ -26,7 +26,6 @@ out vec4 outFragColor;
 
 // Uniforms
 uniform sampler2D uPositionTexture;
-uniform sampler2D uLightShaftsTexture;
 uniform SpotLight uSpotlight;
 uniform sampler2DShadow uShadowMapLowRes;
 
@@ -115,14 +114,10 @@ void main()
 		discard;
 	}
 
-	
-	vec3 previousValue = texture(uLightShaftsTexture, uvCoord).xyz;
-
 	float outerCos = uSpotlight.softAngleCos;
 	float innerCos = uSpotlight.sharpAngleCos;
 	float lightShafts = lightShaftFactor(uShadowMapLowRes, vsPos, outerCos, innerCos);
 
 	vec3 total = uLightShaftExposure * lightShafts * uSpotlight.color;
-
-	outFragColor = vec4(previousValue + total, 1.0);
+	outFragColor = vec4(total, 1.0);
 }

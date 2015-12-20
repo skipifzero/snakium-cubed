@@ -11,8 +11,8 @@ static vec3 genUpVector(vec3 dir) noexcept
 {
 	vec3 up{0.0f, 1.0f, 0.0f};
 	vec3 dirNorm = normalize(dir);
-	float cos = dot(up, dirNorm);
-	if (cos < 0.025f || 0.975f < cos) {
+	float cos = std::abs(dot(up, dirNorm));
+	if (0.975f < cos) {
 		up = vec3{1.0f, 0.0f, 0.0f};
 	}
 	return up;

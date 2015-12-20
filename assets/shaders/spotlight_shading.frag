@@ -36,7 +36,6 @@ out vec4 outFragColor;
 uniform sampler2D uPositionTexture;
 uniform sampler2D uNormalTexture;
 uniform usampler2D uMaterialIdTexture;
-uniform sampler2D uSpotlightTexture;
 
 uniform Material uMaterials[20];
 
@@ -73,9 +72,6 @@ void main()
 	uint materialId = texture(uMaterialIdTexture, uvCoord).r;
 	Material mtl = uMaterials[materialId];
 
-	// Previous value
-	vec3 previousSpotlightValue = texture(uSpotlightTexture, uvCoord).rgb;
-
 	// Vectors
 	vec3 toCam = normalize(-vsPos);
 	vec3 toLight = normalize(uSpotlight.vsPos - vsPos);
@@ -110,5 +106,5 @@ void main()
 	vec3 shading = diffuseContribution * shadow * lightScale
 	             + specularContribution * shadow * lightScale;
 
-	outFragColor = vec4(previousSpotlightValue + shading, 1.0);
+	outFragColor = vec4(shading, 1.0);
 }
