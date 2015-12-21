@@ -510,7 +510,7 @@ static void renderTransparentCube(const Model& model, gl::Program& program, cons
 		gl::setUniform(program, "uNormalMatrix", normalMatrix);
 
 		// Render cube tile projection
-		setUniform(program, "uMaterialId", MATERIAL_ID_TILE_PROJECTION);
+		setUniform(program, "uMaterialId", MATERIAL_ID_CUBE_SIDE);
 		assets.TILE_PROJECTION_MODEL.render();
 	}
 }
@@ -736,7 +736,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	gl::setUniform(mTransparencyProgram, "uAmbientLight", mAmbientLight);
 	
 	renderSnakeProjection(model, mTransparencyProgram, viewMatrix, viewFrustum.pos());
-	//renderTransparentCube(model, mTransparencyProgram, viewMatrix, viewFrustum.pos());
+	renderTransparentCube(model, mTransparencyProgram, viewMatrix, viewFrustum.pos());
 
 
 	// Emissive texture & blur

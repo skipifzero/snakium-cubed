@@ -31,10 +31,10 @@ const Material* getMaterials() noexcept
 
 	materials[MATERIAL_ID_TILE_PROJECTION].diffuse = vec3{0.5f, 0.5f, 0.5f} * 0.4f;
 	materials[MATERIAL_ID_TILE_PROJECTION].emissive = vec3{0.1f};
-	materials[MATERIAL_ID_TILE_PROJECTION].opaque = 0.8f;
+	materials[MATERIAL_ID_TILE_PROJECTION].opaque = 0.75f;
 
 	materials[MATERIAL_ID_CUBE_SIDE].diffuse = vec3{0.25f, 0.25f, 0.25f};
-	materials[MATERIAL_ID_CUBE_SIDE].opaque = 0.6f;
+	materials[MATERIAL_ID_CUBE_SIDE].opaque = 0.3f;
 
 	materials[MATERIAL_ID_SKY].diffuse = vec3{0.2f, 0.2f, 0.2f};
 
