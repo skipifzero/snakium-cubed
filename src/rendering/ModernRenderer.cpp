@@ -585,8 +585,16 @@ ModernRenderer::ModernRenderer() noexcept
 	mGlobalShadingProgram = Program::postProcessFromFile((sfz::basePath() + "assets/shaders/global_shading.frag").c_str());
 
 	
-	mAmbientLight = vec3(0.1f);
+	mAmbientLight = vec3(0.025f);
 	mSpotlights.emplace_back(vec3{0.0f, 1.2f, 0.0f}, vec3{0.0f, -1.0f, 0.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
+	//mSpotlights.emplace_back(vec3{0.0f, -1.2f, 0.0f}, vec3{0.0f, 1.0f, 0.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
+
+	//mSpotlights.emplace_back(vec3{1.2f, 0.0f, 0.0f}, vec3{-1.0f, 0.0f, 0.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
+	//mSpotlights.emplace_back(vec3{-1.2f, 0.0f, 0.0f}, vec3{1.0f, 0.0f, 0.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
+
+	//mSpotlights.emplace_back(vec3{0.0f, 0.0f, 1.2f}, vec3{0.0f, 0.0f, -1.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
+	//mSpotlights.emplace_back(vec3{0.0f, 0.0f, -1.2f}, vec3{0.0f, 0.0f, 1.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
+
 
 
 	mShadowMapHighRes = gl::createShadowMap(sfz::vec2i{1024}, FBDepthFormat::F32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f});
@@ -701,9 +709,19 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
+	// S(rc) = value written by fragment shader
+	// D(est) = value already in framebuffer
+	// O(ut) = resulting value
+	//
+	// Blend function for colors: Orgb = Sa*Srgb + (1-Sa)*Drgb
+	// We want the final alpha value in the framebuffer (Fa) to fulfill:
+	// (1-Fa) = "the amount of non-transparent background visible"
+	//
+	// This gives us the following blend equation for alpha values: Oa = Sa + Da - Sa*Da
+	// Rewritten: Oa = Sa + Da*(1-Sa)
 	glEnable(GL_BLEND);
 	glBlendEquation(GL_FUNC_ADD);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_COLOR, GL_ONE_MINUS_SRC_COLOR);
 
 	glEnable(GL_CULL_FACE);
 
