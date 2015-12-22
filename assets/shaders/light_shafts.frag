@@ -73,31 +73,48 @@ float lightShaftFactor(sampler2DShadow shadowMap, vec3 vsPos, float outerCos, fl
 	return factor;
 }
 
-bool spotlightIntersection(vec3 camPos, vec3 camDir)
-{
-	// Given
-	vec3 aHat = uSpotlight.vsDir;  //normalize
-	vec3 v = uSpotlight.vsPos;
-	float angle = uSpotlight.softFovRad/2.0;
-	vec3 p = camPos;
-	vec3 dVec = camDir; //normalize
+// Intersection test
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+struct Intersection {
+	bool hit;
+	vec3 first, second;
+};
+
+// length(coneDir) == 0
+// length(rayDir) == 0
+// cosConeAngle == cos(coneAngle) == cos(coneFov / 2)
+Intersection rayVsConeIntersectionTest(vec3 rayPos, vec3 rayDir, vec3 conePos, vec3 coneDir, float cosConeAngle)
+{
 	// Simplifications
-	vec3 pMinV = p-v;
-	float cos2 = cos(angle);
-	cos2 *= cos2;
-	float aHatDotPMinV = dot(aHat, pMinV);
-	float aHatDotDVec = dot(aHat, dVec);
+	float cos2 = cosConeAngle * cosConeAngle;
+	float dirsDot = dot(coneDir, rayDir);
+	vec3 rayToCone = rayPos - conePos;
+	float coneDirDotRayToCone = dot(coneDir, rayToCone);
 
 	// Calculations
-	float a = (aHatDotDVec * aHatDotDVec) - cos2;
-	float b = 2.0 * (aHatDotPMinV * aHatDotDVec - cos2 * dot(pMinV, dVec));
-	float c = aHatDotPMinV * aHatDotPMinV - cos2 * dot(pMinV, pMinV);
+	// ax² + bx + c = 0
+	// x = (-b [+-] sqrt(b¹ - 4ac)) / (2a)
+	float a = (dirsDot * dirsDot) - cos2;
+	float b = 2.0 * (coneDirDotRayToCone * dirsDot - cos2 * dot(rayToCone, rayDir));
+	float c = coneDirDotRayToCone * coneDirDotRayToCone - cos2 * dot(rayToCone, rayToCone);
 
+	// sqrt(b¹ - 4ac)
+	// if inner factor is below zero there is no solution, i.e. no hit
+	float sqrtInner = b * b - 4 * a * c;
+	if (sqrtInner < 0) {
+		return Intersection(false, vec3(0), vec3(0));
+	}
 
-	float tmp = b*b - 4*a*c;
+	// Calculate closest and farthest points
+	float sqrtProd = sqrt(sqrtInner);
+	float a2 = 2 * a;
+	float t1 = (-b - sqrtProd) / a2;
+	float t2 = (-b + sqrtProd) / a2;
+	vec3 closest = rayPos + t1 * rayDir;
+	vec3 farthest = rayPos + t2 * rayDir;
 
-	return tmp >= 0 ? true : false;
+	return Intersection(true, closest, farthest);
 }
 
 // Main
@@ -107,10 +124,16 @@ void main()
 {
 	vec3 vsPos = texture(uPositionTexture, uvCoord).xyz;
 
+	// Ray vs Cone Intersection test parameters
 	vec3 camPos = vec3(0);
 	vec3 camDir = normalize(vsPos);
-	bool intrs = spotlightIntersection(camPos, camDir);
-	if (!intrs) {
+	vec3 lightPos = uSpotlight.vsPos;
+	vec3 lightDir = uSpotlight.vsDir;
+	float lightCosAngle = uSpotlight.softAngleCos;
+
+	// Ray vs Cone intersection test
+	Intersection isect = rayVsConeIntersectionTest(camPos, camDir, lightPos, lightDir, lightCosAngle);
+	if (!isect.hit) {
 		discard;
 	}
 
