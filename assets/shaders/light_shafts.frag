@@ -76,13 +76,13 @@ float lightShaftFactor(sampler2DShadow shadowMap, vec3 vsPos, float outerCos, fl
 // Intersection test
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-struct LineIntersection {
+struct Intersection {
 	bool hit;
 	float t1, t2;
 };
 
 // length(lineDir) == 1
-LineIntersection lineVsSphere(vec3 linePos, vec3 lineDir, vec3 spherePos, float sphereRadius)
+Intersection lineVsSphere(vec3 linePos, vec3 lineDir, vec3 spherePos, float sphereRadius)
 {
 	// ax² + bx + c = 0
 	// x = (-b [+-] sqrt(b¹ - 4ac)) / (2a)
@@ -95,7 +95,7 @@ LineIntersection lineVsSphere(vec3 linePos, vec3 lineDir, vec3 spherePos, float 
 	// if inner factor is below zero there is no solution, i.e. no hit
 	float sqrtInner = b * b - 4 * c;
 	if (sqrtInner < 0) {
-		return LineIntersection(false, 0, 0);
+		return Intersection(false, 0, 0);
 	}
 
 	// Calculate intersections
@@ -103,13 +103,13 @@ LineIntersection lineVsSphere(vec3 linePos, vec3 lineDir, vec3 spherePos, float 
 	float t1 = (-b - sqrtProd) / 2;
 	float t2 = (-b + sqrtProd) / 2;
 
-	return LineIntersection(true, t1, t2);	
+	return Intersection(true, t1, t2);	
 }
 
 // length(coneDir) == 1
 // length(rayDir) == 1
 // cosConeAngle == cos(coneAngle) == cos(coneFov / 2)
-LineIntersection lineVsInfiniteCone(vec3 linePos, vec3 lineDir, vec3 conePos, vec3 coneDir, float coneCosAngle)
+Intersection lineVsInfiniteMirroredCone(vec3 linePos, vec3 lineDir, vec3 conePos, vec3 coneDir, float coneCosAngle)
 {
 	// Simplifications
 	float cos2 = coneCosAngle * coneCosAngle;
@@ -128,7 +128,7 @@ LineIntersection lineVsInfiniteCone(vec3 linePos, vec3 lineDir, vec3 conePos, ve
 	// if inner factor is below zero there is no solution, i.e. no hit
 	float sqrtInner = b * b - 4 * a * c;
 	if (sqrtInner < 0) {
-		return LineIntersection(false, 0.0, 0.0);
+		return Intersection(false, 0.0, 0.0);
 	}
 
 	// Calculate closest and farthest points
@@ -137,184 +137,73 @@ LineIntersection lineVsInfiniteCone(vec3 linePos, vec3 lineDir, vec3 conePos, ve
 	float t1 = (-b - sqrtProd) / a2;
 	float t2 = (-b + sqrtProd) / a2;
 
-	return LineIntersection(true, t1, t2);
+	return Intersection(true, t1, t2);
 }
-
-struct Intersection {
-	bool hit;
-	vec3 first, second;
-};
 
 // length(coneDir) == 1
 // length(rayDir) == 1
 // cosConeAngle == cos(coneAngle) == cos(coneFov / 2)
 Intersection rayVsFiniteCone(vec3 rayPos, vec3 rayDir, vec3 conePos, vec3 coneDir, float coneCosAngle, float coneRange)
 {
-	LineIntersection coneIsect = lineVsInfiniteCone(rayPos, rayDir, conePos, coneDir, coneCosAngle);
+	Intersection coneIsect = lineVsInfiniteMirroredCone(rayPos, rayDir, conePos, coneDir, coneCosAngle);
 
 	if (!coneIsect.hit) {
-		return Intersection(false, vec3(0), vec3(0));
+		return Intersection(false, 0, 0);
 	}
 
-	// Calculate variables to check if ray started outside infinite cone
-	vec3 coneToRay = rayPos - conePos;
-	vec3 coneToRayDir = normalize(coneToRay);
-	bool rayStartsOutsideInfiniteCone = dot(coneToRayDir, coneDir) < coneCosAngle;
+	vec3 c1 = rayPos + rayDir * coneIsect.t1;
+	vec3 c2 = rayPos + rayDir * coneIsect.t2;
 
-	// If ray starts outside infinite cone and both hits are behind start position then it does not hit
-	if (rayStartsOutsideInfiniteCone && coneIsect.t1 < 0 && coneIsect.t2 < 0) {
-		return Intersection(false, vec3(0), vec3(0));
+	Intersection sphereIsect = lineVsSphere(rayPos, rayDir, conePos, coneRange);
+	vec3 s1 = rayPos + rayDir * sphereIsect.t1;
+	vec3 s2 = rayPos + rayDir * sphereIsect.t2;
+
+
+	// Calculate variables checking whether cone intersections are on non-mirror cone and and in range
+	vec3 coneToC1 = c1 - conePos;
+	vec3 coneToC2 = c2 - conePos;
+	vec3 coneToS1 = s1 - conePos;
+	vec3 coneToS2 = s2 - conePos;
+
+	float hits[4];
+	int index = 0;
+
+	if (dot(coneToC1, coneDir) >= 0 && length(coneToC1) < coneRange) {
+		hits[index++] = coneIsect.t1;
+	}
+	if (dot(coneToC2, coneDir) >= 0 && length(coneToC2) < coneRange) {
+		hits[index++] = coneIsect.t2;	
+	}
+	if (dot(normalize(coneToS1), coneDir) >= coneCosAngle) {
+		hits[index++] = sphereIsect.t1;
+	}
+	if (dot(normalize(coneToS2), coneDir) >= coneCosAngle) {
+		hits[index++] = sphereIsect.t2;
 	}
 
-	vec3 cHit1 = rayPos + rayDir * coneIsect.t1;
-	vec3 cHit2 = rayPos + rayDir * coneIsect.t2;
-
-	LineIntersection sphereIsect = lineVsSphere(rayPos, rayDir, conePos, coneRange);
-	vec3 sHit1 = rayPos + rayDir * sphereIsect.t1;
-	vec3 sHit2 = rayPos + rayDir * sphereIsect.t2;
-
-	// Calculate variables checking whether cone intersections are non-mirror cone and and in range
-	vec3 coneToCHit1 = cHit1 - conePos;
-	vec3 coneToCHit2 = cHit2 - conePos;
-	float coneToCHit1Length = length(coneToCHit1);
-	float coneToCHit2Length = length(coneToCHit2);
-
-	bool cHit1OnPosSide = dot(coneToCHit1, coneDir) > 0;
-	bool cHit2OnPosSide = dot(coneToCHit2, coneDir) > 0;
-	bool cHit1InRange = coneToCHit1Length <= coneRange;
-	bool cHit2InRange = coneToCHit2Length <= coneRange;
-
-	
-	if (rayStartsOutsideInfiniteCone) {
-
-		// Case 1: Enter through side of cone, exit through side of cone
-		if (cHit1OnPosSide && cHit1InRange && cHit2OnPosSide && cHit2InRange) {
-			return Intersection(true, cHit1, cHit2);
-		}
-
-		// Case 2: Enter through side of cone, exit through sphere part
-		// First hits the false mirrored sphere
-		if (!cHit1OnPosSide && cHit2OnPosSide && cHit2InRange) {
-			return Intersection(true, cHit2, sHit2);
-		}
-
-		// Case 3: Enter through side of cone, exit through sphere part
-		// Both first and second are on correct side
-		if (cHit1OnPosSide && cHit1InRange && cHit2OnPosSide && !cHit2InRange) {
-			return Intersection(true, cHit1, sHit2);
-		}
-		
-		// Case 4: Did not hit cone
-		return Intersection(false, vec3(0), vec3(0));
+	if (index < 2) {
+		return Intersection(false, 0, 0);
 	}
 
+	// This should never happen, try to crash shader.
+	//if (index > 2) {
+	//	while (true) {
+	//		index++;
+	//	}
+	//}
 
-	return Intersection(false, vec3(0), vec3(0));
+	float closest = min(hits[0], hits[1]);
+	float farthest = max(hits[0], hits[1]);
 
-
-	/*// Simplifications
-	float cos2 = coneCosAngle * coneCosAngle;
-	float dirsDot = dot(coneDir, rayDir);
-	vec3 rayToCone = rayPos - conePos;
-	float coneDirDotRayToCone = dot(coneDir, rayToCone);
-
-	// Calculations
-	// ax² + bx + c = 0
-	// x = (-b [+-] sqrt(b¹ - 4ac)) / (2a)
-	float a = (dirsDot * dirsDot) - cos2;
-	float b = 2.0 * (coneDirDotRayToCone * dirsDot - cos2 * dot(rayToCone, rayDir));
-	float c = coneDirDotRayToCone * coneDirDotRayToCone - cos2 * dot(rayToCone, rayToCone);
-
-	// sqrt(b¹ - 4ac)
-	// if inner factor is below zero there is no solution, i.e. no hit
-	float sqrtInner = b * b - 4 * a * c;
-	if (sqrtInner < 0) {
-		return Intersection(false, vec3(0), vec3(0));
-	}
-
-	// Calculate closest and farthest points
-	float sqrtProd = sqrt(sqrtInner);
-	float a2 = 2 * a;
-	float t1 = (-b - sqrtProd) / a2;
-	float t2 = (-b + sqrtProd) / a2;
-	vec3 closest = rayPos + t1 * rayDir;
-	vec3 farthest = rayPos + t2 * rayDir;
-
-	// Calculate variables to check if ray started inside cone or infinite cone area
-	vec3 coneToRay = rayPos - conePos;
-	vec3 coneToRayDir = normalize(coneToRay);
-	bool rayStartsOutsideCone = dot(coneToRayDir, coneDir) < coneCosAngle;
-
-
-	// Calculate variables to check if intersections is on positive cone and in range
-	vec3 coneToClosest = closest - conePos;
-	vec3 coneToFarthest = farthest - conePos;
-	float coneToClosestLength = length(coneToClosest);
-	float coneToFarthestLength = length(coneToFarthest);
-
-	bool closestOnPosSide = dot(coneToClosest, coneDir) > 0;
-	bool farthestOnPosSide = dot(coneToFarthest, coneDir) > 0;
-	bool closestInRange = coneToClosestLength <= coneRange;
-	bool farthestInRange = coneToFarthestLength <= coneRange;
-
-
-	// Sphere intersection
-	Intersection sphereIsect = lineVsSphereIntersectionTest(rayPos, rayDir, conePos, coneRange);
-
-	// Ray started outside infinite cone area
-	if (rayStartsOutsideCone) {
-
-		// Currently not checking if ray is pointing towards sphere =/
-
-		// Case 1: Enter through side of cone, exit through side of cone
-		if (closestOnPosSide && closestInRange && farthestOnPosSide && farthestInRange) {
-			return Intersection(true, closest, farthest);
-		}
-
-		// Case 2: Enter through side of cone, exit through sphere part
-		// Closest hit the false mirrored sphere
-		if (!closestOnPosSide && farthestOnPosSide && farthestInRange) {
-			return Intersection(true, farthest, sphereIsect.second);
-		}
-
-		// Case 3: Enter through side of cone, exit through sphere part
-		// Both closest and farthest are on correct side
-		if (closestOnPosSide && closestInRange && farthestOnPosSide && !farthestInRange) {
-			return Intersection(true, closest, sphereIsect.second);
-		}
-
-		
-		// Case 4: Did not hit cone
-		return Intersection(false, vec3(0), vec3(0));
-	}
-
-	// Ray started inside infinite cone area
-	else {
-
-		// Check if ray started inside actual cone
-		if (length(coneToRay) <= coneRange) {
-
-		}
-	}
-
-
-	return Intersection(false, vec3(0), vec3(0));*/
-
-
-	
-
-	/*vec3 coneToClosestDir = normalize(coneToClosest);
-	vec3 coneToFarthestDir = normalize(coneToFarthest);
-
-	float coneToClosestLength = length(coneToClosest);
-	float coneToFarthestLength = length(coneToFarthest);
-
-	bool b1 = dot(coneToClosestDir, coneDir) >= coneCosAngle; // maybe eps
-
-
-	if (dot(coneToClosestDir, ))
-
-	return Intersection(true, closest, farthest);*/
+	// Case where both intersections are behind ray
+	// if (farthest < 0) return Intersection(false, 0, 0);
+	//
+	// Case where closest is behind ray (can only happen when ray starts inside finite cone)
+	// else if (closest < 0) return Intersection(true, 0, farthest);
+	//
+	// Case where both intersections are ahead of ray
+	// else return Intersection(true, closest, farthest);
+	return Intersection(farthest >= 0, max(0, closest), max(0, farthest));
 }
 
 // Main
@@ -339,7 +228,7 @@ void main()
 	}
 
 	//outFragColor = vec4(vec3(length(isect.second - isect.first) / length(vsPos)), 1.0);
-	outFragColor = vec4(vec3(length(isect.second - isect.first) / lightRange), 1.0);
+	outFragColor = vec4(vec3((isect.t2 - isect.t1) / lightRange), 1.0);
 
 	/*float outerCos = uSpotlight.softAngleCos;
 	float innerCos = uSpotlight.sharpAngleCos;
