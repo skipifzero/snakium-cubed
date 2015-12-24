@@ -29,19 +29,14 @@ uniform sampler2D uPositionTexture;
 uniform SpotLight uSpotlight;
 uniform sampler2DShadow uShadowMapLowRes;
 
-const float shadowSampleWeight = 1.0;
-const float lightSampleWeight = 1.0 / shadowSampleWeight;
-uniform float uLightShaftExposure = 0.8;
-uniform float uLightShaftRange = 5.0;
-uniform int uLightShaftSamples = 128;
+
+uniform float uLightShaftMaxRange = 10;
+uniform float uLightShaftFullVisibilityRange = 1.5;
+uniform int uLightShaftMaxNumSamples = 128;
+
 
 // Helper functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-float sampleShadowMap(sampler2DShadow shadowMap, vec3 vsSamplePos)
-{
-	return textureProj(shadowMap, uSpotlight.lightMatrix * vec4(vsSamplePos, 1.0));
-}
 
 float calcLightScale(vec3 samplePos, float outerCos, float innerCos)
 {
@@ -52,25 +47,6 @@ float calcLightScale(vec3 samplePos, float outerCos, float innerCos)
 	float lightDistSquared = lightDist * lightDist;
 	float attenuation = smoothstep(outerCos, innerCos, dot(toSampleDir, uSpotlight.vsDir));
 	return attenuation * max((-1.0 / rangeSquared) * (lightDistSquared - rangeSquared), 0);
-}
-
-float lightShaftFactor(sampler2DShadow shadowMap, vec3 vsPos, float outerCos, float innerCos)
-{
-	vec3 camDir = normalize(vsPos);
-	float sampleLength = min(length(vsPos), uLightShaftRange) / float(uLightShaftSamples+1);
-	vec3 toNextSamplePos = camDir * sampleLength;
-
-	vec3 currentSamplePos = toNextSamplePos;
-	float factor = 0.0;
-	for (int i = 0; i < uLightShaftSamples; i++) {
-		factor += sampleShadowMap(shadowMap, currentSamplePos) * calcLightScale(currentSamplePos, outerCos, innerCos);
-		currentSamplePos += toNextSamplePos;
-	}
-
-	factor = (factor * lightSampleWeight) / float(uLightShaftSamples);
-	factor *= shadowSampleWeight;
-	
-	return factor;
 }
 
 // Intersection test
@@ -147,54 +123,46 @@ Intersection rayVsFiniteCone(vec3 rayPos, vec3 rayDir, vec3 conePos, vec3 coneDi
 {
 	Intersection coneIsect = lineVsInfiniteMirroredCone(rayPos, rayDir, conePos, coneDir, coneCosAngle);
 
+	// Early rejection test, if infinite mirrored cone was not hit there is no point in continuing
 	if (!coneIsect.hit) {
 		return Intersection(false, 0, 0);
 	}
 
+	// Calculate intersection points for infinite mirrored cone and sphere
+	Intersection sphereIsect = lineVsSphere(rayPos, rayDir, conePos, coneRange);
 	vec3 c1 = rayPos + rayDir * coneIsect.t1;
 	vec3 c2 = rayPos + rayDir * coneIsect.t2;
-
-	Intersection sphereIsect = lineVsSphere(rayPos, rayDir, conePos, coneRange);
 	vec3 s1 = rayPos + rayDir * sphereIsect.t1;
 	vec3 s2 = rayPos + rayDir * sphereIsect.t2;
-
-
-	// Calculate variables checking whether cone intersections are on non-mirror cone and and in range
+	
 	vec3 coneToC1 = c1 - conePos;
 	vec3 coneToC2 = c2 - conePos;
 	vec3 coneToS1 = s1 - conePos;
 	vec3 coneToS2 = s2 - conePos;
 
-	float hits[4];
+	// Try to find 2 points which intersects the real cone 
+	float hits[4]; // Needs 4 for literal edge cases.
 	int index = 0;
 
-	if (dot(coneToC1, coneDir) >= 0 && length(coneToC1) < coneRange) {
+	if (dot(coneToC1, coneDir) > 0 && length(coneToC1) < coneRange) {
 		hits[index++] = coneIsect.t1;
 	}
-	if (dot(coneToC2, coneDir) >= 0 && length(coneToC2) < coneRange) {
+	if (dot(coneToC2, coneDir) > 0 && length(coneToC2) < coneRange) {
 		hits[index++] = coneIsect.t2;	
 	}
-	if (dot(normalize(coneToS1), coneDir) >= coneCosAngle) {
+	if (dot(normalize(coneToS1), coneDir) > coneCosAngle) {
 		hits[index++] = sphereIsect.t1;
 	}
-	if (dot(normalize(coneToS2), coneDir) >= coneCosAngle) {
+	if (dot(normalize(coneToS2), coneDir) > coneCosAngle) {
 		hits[index++] = sphereIsect.t2;
 	}
 
-	if (index < 2) {
-		return Intersection(false, 0, 0);
-	}
-
-	// This should never happen, try to crash shader.
-	//if (index > 2) {
-	//	while (true) {
-	//		index++;
-	//	}
-	//}
-
+	// Sort the 2 found intersection points
 	float closest = min(hits[0], hits[1]);
 	float farthest = max(hits[0], hits[1]);
 
+	// if (index != 2) return Intersection(false, 0, 0);
+	//
 	// Case where both intersections are behind ray
 	// if (farthest < 0) return Intersection(false, 0, 0);
 	//
@@ -203,7 +171,7 @@ Intersection rayVsFiniteCone(vec3 rayPos, vec3 rayDir, vec3 conePos, vec3 coneDi
 	//
 	// Case where both intersections are ahead of ray
 	// else return Intersection(true, closest, farthest);
-	return Intersection(farthest >= 0, max(0, closest), max(0, farthest));
+	return Intersection(index == 2 && farthest >= 0, max(0, closest), max(0, farthest));
 }
 
 // Main
@@ -227,13 +195,48 @@ void main()
 		discard;
 	}
 
-	//outFragColor = vec4(vec3(length(isect.second - isect.first) / length(vsPos)), 1.0);
-	outFragColor = vec4(vec3((isect.t2 - isect.t1) / lightRange), 1.0);
+	// Calculate closest and farthest points on the light shaft
+	float closestDist = isect.t1;
+	float farthestDist = min(min(isect.t2, length(vsPos)), uLightShaftMaxRange);
+	vec3 closest = camPos + camDir * closestDist;
+	vec3 farthest = camPos + camDir * farthestDist;
 
-	/*float outerCos = uSpotlight.softAngleCos;
-	float innerCos = uSpotlight.sharpAngleCos;
-	float lightShafts = lightShaftFactor(uShadowMapLowRes, vsPos, outerCos, innerCos);
+//#define SAMPLE_IN_CLIP_SPACE
+#ifdef SAMPLE_IN_CLIP_SPACE
 
-	vec3 total = uLightShaftExposure * lightShafts * uSpotlight.color;
-	outFragColor = vec4(total, 1.0);*/
+	vec4 closestClipSpace = uSpotlight.lightMatrix * vec4(closest, 1.0);
+	vec4 farthestClipSpace = uSpotlight.lightMatrix * vec4(farthest, 1.0);
+
+	vec4 sampleVector = farthestClipSpace - closestClipSpace;
+	vec4 sampleDir = normalize(sampleVector);
+	float sampleDist = length(sampleVector);
+	float sampleStepSize = sampleDist / float(uLightShaftMaxNumSamples-1); // 2 samples -> step = 1.0 so we sample both edges of light shaft
+	vec4 sampleStep = sampleDir * sampleStepSize;
+
+	float factor = 0.0;
+	for (int i = 0; i < uLightShaftMaxNumSamples; ++i) {
+		vec4 samplePos = closestClipSpace + float(i) * sampleStep;
+		factor += textureProj(uShadowMapLowRes, samplePos);
+		// float scale = calcLightScale(currentSamplePos, uSpotlight.softAngleCos, uSpotlight.sharpAngleCos);
+		// ffactor += sample * scale;
+	}
+	factor /= float(uLightShaftMaxNumSamples);
+
+#else
+
+	vec3 sampleVector = farthest - closest;
+	vec3 sampleStep = (length(sampleVector) / float(uLightShaftMaxNumSamples-1)) * normalize(sampleVector);
+	float factor = 0.0;
+	for (int i = 0; i < uLightShaftMaxNumSamples; ++i) {
+		vec3 samplePos = closest + float(i) * sampleStep;
+		float sample = textureProj(uShadowMapLowRes, uSpotlight.lightMatrix * vec4(samplePos, 1));
+		float scale = calcLightScale(samplePos, uSpotlight.softAngleCos, uSpotlight.sharpAngleCos);
+		factor += sample * scale;
+	}
+	factor /= float(uLightShaftMaxNumSamples);
+
+#endif
+
+	float weight = ((farthestDist - closestDist) / uLightShaftFullVisibilityRange) * factor;
+	outFragColor = vec4(weight * uSpotlight.color, 1.0);
 }
