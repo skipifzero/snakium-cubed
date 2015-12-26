@@ -160,10 +160,13 @@ Intersection rayVsFiniteCone(vec3 rayPos, vec3 rayDir, vec3 conePos, vec3 coneDi
 //#define BASELINE
 //#define NAIVE_MARCHING
 //#define NAIVE_MARCHING_WITH_LIGHT_SCALING
-//#define ONLY_INTERSECTION_TEST
+#define ONLY_INTERSECTION_TEST
 //#define NAIVE_INTERSECTION_TEST_MARCHING
 //#define MINIMAL_INTERSECTION_TEST_MARCHING
-#define OPTIMIZED_1
+//#define OPTIMIZED_FIXED_SAMPLING
+//#define OPTIMIZED_FIXED_SAMPLING_WITH_ATTENUATION
+//#define OPTIMIZED_DYNAMIC_SAMPLING
+//#define OPTIMIZED_DYNAMIC_SAMPLING_WITH_ATTENUATION
 
 void main()
 {
@@ -318,7 +321,7 @@ void main()
 #endif
 
 
-#ifdef OPTIMIZED_1
+#ifdef OPTIMIZED_FIXED_SAMPLING
 	const int NUM_SAMPLES = 128;
 	const float MAX_DIST = 5.0;
 	const float FULL_VISIBILITY_DIST = 1.5;
@@ -332,18 +335,23 @@ void main()
 		discard;
 	}
 
+	// Compute march range
 	float startT = isect.t1;
 	float endT = min(min(isect.t2, length(vsPos)), MAX_DIST);
 	vec3 start = camDir * startT;
 	vec3 end = camDir * endT;
 
+	// Precompute as much as possible
+	float rangeSquared = uSpotlight.range * uSpotlight.range;
 
+	vec4 startClipSpace = uSpotlight.lightMatrix * vec4(start, 1.0);
 	vec3 toStart = start - uSpotlight.vsPos;
-	vec3 toStartDir = normalize(toStart);
+	float startDistScale = max((-1.0 / rangeSquared) * (pow(length(toStart), 2) - rangeSquared), 0);
 
+	vec4 endClipSpace = uSpotlight.lightMatrix * vec4(end, 1.0);
 	vec3 toEnd = end - uSpotlight.vsPos;
-	vec3 toEndDir = normalize(toEnd);
-
+	float endDistScale = max((-1.0 / rangeSquared) * (pow(length(toEnd), 2) - rangeSquared), 0);
+	
 
 	float interpStep = 1.0 / float(NUM_SAMPLES - 1);
 
@@ -351,25 +359,196 @@ void main()
 	for (int i = 0; i < NUM_SAMPLES; ++i) {
 		float interp = interpStep * float(i);
 
-		vec3 samplePos = mix(start, end, interp);
+		// Shadow map sample
+		vec4 samplePos = mix(startClipSpace, endClipSpace, interp);
+		float sample = textureProj(uShadowMapLowRes, samplePos);
 
-		float sample = textureProj(uShadowMapLowRes, uSpotlight.lightMatrix * vec4(samplePos, 1.0));
+		// Dist scaling
+		float distScale = mix(startDistScale, endDistScale, interp);
 
-		// Not done
+		factor += sample * distScale;
+	}
+	factor /= float(NUM_SAMPLES);
 
-		// Scale
-		vec3 toSample = mix(toStart, toEnd, interp);
-		//vec3 toSampleDir = normalize(toSample);
-		vec3 toSampleDir = mix(toStartDir, toEndDir, interp);
-		float lightDist = length(toSample);
-		float rangeSquared = uSpotlight.range * uSpotlight.range;
-		float lightDistSquared = lightDist * lightDist;
+	float weight = factor * (isect.t2 - isect.t1) / FULL_VISIBILITY_DIST;
+	outFragColor = vec4(vec3(weight * uSpotlight.color), 1.0);
+#endif
+
+
+#ifdef OPTIMIZED_FIXED_SAMPLING_WITH_ATTENUATION
+	const int NUM_SAMPLES = 128;
+	const float MAX_DIST = 5.0;
+	const float FULL_VISIBILITY_DIST = 2.0;
+
+	vec3 vsPos = texture(uPositionTexture, uvCoord).xyz;
+	vec3 camDir = normalize(vsPos);
+
+	// Ray vs Cone intersection test
+	Intersection isect = rayVsFiniteCone(vec3(0), camDir, uSpotlight.vsPos, uSpotlight.vsDir, uSpotlight.softAngleCos, uSpotlight.range);
+	if (!isect.hit) {
+		discard;
+	}
+
+	// Compute march range
+	float startT = isect.t1;
+	float endT = min(min(isect.t2, length(vsPos)), MAX_DIST);
+	vec3 start = camDir * startT;
+	vec3 end = camDir * endT;
+
+	// Precompute as much as possible
+	float rangeSquared = uSpotlight.range * uSpotlight.range;
+
+	vec4 startClipSpace = uSpotlight.lightMatrix * vec4(start, 1.0);
+	vec3 toStart = start - uSpotlight.vsPos;
+	float startDistScale = max((-1.0 / rangeSquared) * (pow(length(toStart), 2) - rangeSquared), 0);
+
+	vec4 endClipSpace = uSpotlight.lightMatrix * vec4(end, 1.0);
+	vec3 toEnd = end - uSpotlight.vsPos;
+	float endDistScale = max((-1.0 / rangeSquared) * (pow(length(toEnd), 2) - rangeSquared), 0);
+	
+
+	float interpStep = 1.0 / float(NUM_SAMPLES - 1);
+
+	float factor = 0.0;
+	for (int i = 0; i < NUM_SAMPLES; ++i) {
+		float interp = interpStep * float(i);
+
+		// Shadow map sample
+		vec4 samplePos = mix(startClipSpace, endClipSpace, interp);
+		float sample = textureProj(uShadowMapLowRes, samplePos);
+
+		// Attenuation
+		vec3 toSampleDir = normalize(mix(toStart, toEnd, interp));
 		float attenuation = smoothstep(uSpotlight.softAngleCos, uSpotlight.sharpAngleCos, dot(toSampleDir, uSpotlight.vsDir));
-		float distScale = max((-1.0 / rangeSquared) * (lightDistSquared - rangeSquared), 0);
+
+		// Dist scaling
+		float distScale = mix(startDistScale, endDistScale, interp);
 
 		factor += sample * distScale * attenuation;
 	}
 	factor /= float(NUM_SAMPLES);
+
+	float weight = factor * (isect.t2 - isect.t1) / FULL_VISIBILITY_DIST;
+	outFragColor = vec4(vec3(weight * uSpotlight.color), 1.0);
+#endif
+
+
+#ifdef OPTIMIZED_DYNAMIC_SAMPLING
+	const int MAX_NUM_SAMPLES = 128;
+	const float MAX_DIST = 5.0;
+	const float FULL_VISIBILITY_DIST = 2.0;
+	const vec2 SHADOW_MAP_DIMENSIONS = vec2(256);
+
+	vec3 vsPos = texture(uPositionTexture, uvCoord).xyz;
+	vec3 camDir = normalize(vsPos);
+
+	// Ray vs Cone intersection test
+	Intersection isect = rayVsFiniteCone(vec3(0), camDir, uSpotlight.vsPos, uSpotlight.vsDir, uSpotlight.softAngleCos, uSpotlight.range);
+	if (!isect.hit) {
+		discard;
+	}
+
+	// Compute march range
+	float startT = isect.t1;
+	float endT = min(min(isect.t2, length(vsPos)), MAX_DIST);
+	vec3 start = camDir * startT;
+	vec3 end = camDir * endT;
+
+	// Precompute as much as possible
+	float rangeSquared = uSpotlight.range * uSpotlight.range;
+
+	vec4 startClipSpace = uSpotlight.lightMatrix * vec4(start, 1.0);
+	vec3 toStart = start - uSpotlight.vsPos;
+	float startDistScale = max((-1.0 / rangeSquared) * (pow(length(toStart), 2) - rangeSquared), 0);
+
+	vec4 endClipSpace = uSpotlight.lightMatrix * vec4(end, 1.0);
+	vec3 toEnd = end - uSpotlight.vsPos;
+	float endDistScale = max((-1.0 / rangeSquared) * (pow(length(toEnd), 2) - rangeSquared), 0);
+	
+	// Calculate how many samples to take
+	vec2 diff = abs((endClipSpace.xy / endClipSpace.w) - (startClipSpace.xy / startClipSpace.w));
+	vec2 texelDiff = diff * SHADOW_MAP_DIMENSIONS;
+	int numSamples = int(max(texelDiff.x, texelDiff.y));
+	numSamples = clamp(numSamples, 2, MAX_NUM_SAMPLES);
+	float interpStep = 1.0 / float(numSamples - 1);
+
+	float factor = 0.0;
+	for (int i = 0; i < numSamples; ++i) {
+		float interp = interpStep * float(i);
+
+		// Shadow map sample
+		vec4 samplePos = mix(startClipSpace, endClipSpace, interp);
+		float sample = textureProj(uShadowMapLowRes, samplePos);
+
+		// Dist scaling
+		float distScale = mix(startDistScale, endDistScale, interp);
+
+		factor += sample * distScale;
+	}
+	factor /= float(numSamples);
+
+	float weight = factor * (isect.t2 - isect.t1) / FULL_VISIBILITY_DIST;
+	outFragColor = vec4(vec3(weight * uSpotlight.color), 1.0);
+#endif
+
+
+#ifdef OPTIMIZED_DYNAMIC_SAMPLING_WITH_ATTENUATION
+	const int MAX_NUM_SAMPLES = 128;
+	const float MAX_DIST = 5.0;
+	const float FULL_VISIBILITY_DIST = 2.0;
+	const vec2 SHADOW_MAP_DIMENSIONS = vec2(256);
+
+	vec3 vsPos = texture(uPositionTexture, uvCoord).xyz;
+	vec3 camDir = normalize(vsPos);
+
+	// Ray vs Cone intersection test
+	Intersection isect = rayVsFiniteCone(vec3(0), camDir, uSpotlight.vsPos, uSpotlight.vsDir, uSpotlight.softAngleCos, uSpotlight.range);
+	if (!isect.hit) {
+		discard;
+	}
+
+	// Compute march range
+	float startT = isect.t1;
+	float endT = min(min(isect.t2, length(vsPos)), MAX_DIST);
+	vec3 start = camDir * startT;
+	vec3 end = camDir * endT;
+
+	// Precompute as much as possible
+	float rangeSquared = uSpotlight.range * uSpotlight.range;
+
+	vec4 startClipSpace = uSpotlight.lightMatrix * vec4(start, 1.0);
+	vec3 toStart = start - uSpotlight.vsPos;
+	float startDistScale = max((-1.0 / rangeSquared) * (pow(length(toStart), 2) - rangeSquared), 0);
+
+	vec4 endClipSpace = uSpotlight.lightMatrix * vec4(end, 1.0);
+	vec3 toEnd = end - uSpotlight.vsPos;
+	float endDistScale = max((-1.0 / rangeSquared) * (pow(length(toEnd), 2) - rangeSquared), 0);
+	
+	// Calculate how many samples to take
+	vec2 diff = abs((endClipSpace.xy / endClipSpace.w) - (startClipSpace.xy / startClipSpace.w));
+	vec2 texelDiff = diff * SHADOW_MAP_DIMENSIONS;
+	int numSamples = int(max(texelDiff.x, texelDiff.y));
+	numSamples = clamp(numSamples, 2, MAX_NUM_SAMPLES);
+	float interpStep = 1.0 / float(numSamples - 1);
+
+	float factor = 0.0;
+	for (int i = 0; i < numSamples; ++i) {
+		float interp = interpStep * float(i);
+
+		// Shadow map sample
+		vec4 samplePos = mix(startClipSpace, endClipSpace, interp);
+		float sample = textureProj(uShadowMapLowRes, samplePos);
+
+		// Attenuation
+		vec3 toSampleDir = normalize(mix(toStart, toEnd, interp));
+		float attenuation = smoothstep(uSpotlight.softAngleCos, uSpotlight.sharpAngleCos, dot(toSampleDir, uSpotlight.vsDir));
+
+		// Dist scaling
+		float distScale = mix(startDistScale, endDistScale, interp);
+
+		factor += sample * distScale * attenuation;
+	}
+	factor /= float(numSamples);
 
 	float weight = factor * (isect.t2 - isect.t1) / FULL_VISIBILITY_DIST;
 	outFragColor = vec4(vec3(weight * uSpotlight.color), 1.0);
