@@ -48,7 +48,11 @@ void updateInputBuffer(Model& model, Camera& cam, DirectionInput* inputBufferPtr
 
 GameScreen::GameScreen(const ModelConfig& modelCfg) noexcept
 :
-	mModel{modelCfg}
+	mModel{modelCfg},
+
+	mShortTermPerfStats{20}, 
+	mLongerTermPerfStats{60},
+	mLongestTermPerfStats{960}
 { }
 
 // GameScreen: Overriden screen methods
@@ -57,6 +61,10 @@ GameScreen::GameScreen(const ModelConfig& modelCfg) noexcept
 UpdateOp GameScreen::update(UpdateState& state)
 {
 	GlobalConfig& cfg = GlobalConfig::INSTANCE();
+
+	mShortTermPerfStats.addSample(state.delta);
+	mLongerTermPerfStats.addSample(state.delta);
+	mLongestTermPerfStats.addSample(state.delta);
 
 	// Small dive hack
 	if (mCam.delayModelUpdate()) mInputBufferIndex = 0;
@@ -207,23 +215,14 @@ void GameScreen::render(UpdateState& state)
 		font.end(0, drawableDim, sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
 	}
 
-
-	// Calculate framerate
-	float fps = 1.0f/state.delta;
-	fps = std::min(fps, 10000.0f);
-	fps = std::max(fps, 0.01f);
-	if (1.0f < fps && fps < 500.0f) {
-		float fpsTotal = (mFPSMean * (float)mNumFPSSamples) + fps;
-		mNumFPSSamples++;
-		mFPSMean = fpsTotal / (float)mNumFPSSamples;
-	}
-
-	// Render framerate
-	if (cfg.printFPS) {
-		char deltaBuffer[64];
-		std::snprintf(deltaBuffer, 64, "Delta: %.1fms, Avg: %.1fms", (state.delta*1000.0f), (1000.0f/mFPSMean));
-		char fpsBuffer[64];
-		std::snprintf(fpsBuffer, 64, "FPS: %.0f, Avg: %.0f", fps, mFPSMean);
+	// Render frametime stats
+	if (cfg.printFrametimes) {
+		char shortTermPerfBuffer[128];
+		std::snprintf(shortTermPerfBuffer, 128, "Last %i frames: %s", mShortTermPerfStats.currentNumSamples(), mShortTermPerfStats.to_string());
+		char longerTermPerfBuffer[128];
+		std::snprintf(longerTermPerfBuffer, 128, "Last %i frames: %s", mLongerTermPerfStats.currentNumSamples(), mLongerTermPerfStats.to_string());
+		char longestTermPerfBuffer[128];
+		std::snprintf(longestTermPerfBuffer, 128, "Last %i frames: %s", mLongestTermPerfStats.currentNumSamples(), mLongestTermPerfStats.to_string());
 
 		float fontSize = state.window.drawableHeight()/32.0f;
 		float offset = fontSize*0.04f;
@@ -233,13 +232,15 @@ void GameScreen::render(UpdateState& state)
 		font.horizontalAlign(gl::HorizontalAlign::LEFT);
 
 		font.begin(state.window.drawableDimensions()/2.0f, state.window.drawableDimensions());
-		font.write(vec2{offset, bottomOffset + fontSize*1.05f - offset}, fontSize, deltaBuffer);
-		font.write(vec2{offset, bottomOffset - offset}, fontSize, fpsBuffer);
+		font.write(vec2{offset, bottomOffset + fontSize*2.10f - offset}, fontSize, shortTermPerfBuffer);
+		font.write(vec2{offset, bottomOffset + fontSize*1.05f - offset}, fontSize, longerTermPerfBuffer);
+		font.write(vec2{offset, bottomOffset - offset}, fontSize, longestTermPerfBuffer);
 		font.end(0, state.window.drawableDimensions(), sfz::vec4{0.0f, 0.0f, 0.0f, 1.0f});
 
 		font.begin(state.window.drawableDimensions()/2.0f, state.window.drawableDimensions());
-		font.write(vec2{0.0f, bottomOffset + fontSize*1.05f}, fontSize, deltaBuffer);
-		font.write(vec2{0.0f, bottomOffset}, fontSize, fpsBuffer);
+		font.write(vec2{0.0f, bottomOffset + fontSize*2.10f}, fontSize, shortTermPerfBuffer);
+		font.write(vec2{0.0f, bottomOffset + fontSize*1.05f}, fontSize, longerTermPerfBuffer);
+		font.write(vec2{0.0f, bottomOffset}, fontSize, longestTermPerfBuffer);
 		font.end(0, state.window.drawableDimensions(), sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
 	}
 

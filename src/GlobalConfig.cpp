@@ -35,7 +35,7 @@ bool operator== (const ConfigData& lhs, const ConfigData& rhs) noexcept
 
 	// Debug
 	lhs.continuousShaderReload == rhs.continuousShaderReload &&
-	lhs.printFPS == rhs.printFPS &&
+	lhs.printFrametimes == rhs.printFrametimes &&
 
 	// Graphics
 	lhs.displayIndex == rhs.displayIndex &&
@@ -121,7 +121,7 @@ void GlobalConfig::load() noexcept
 	// [Debug]
 	static const string dStr = "Debug";
 	continuousShaderReload = ip.sanitizeBool(dStr, "bContinuousShaderReload", false);
-	printFPS =               ip.sanitizeBool(dStr, "bPrintFPS", false);
+	printFrametimes =        ip.sanitizeBool(dStr, "bPrintFrametimes", false);
 
 	// [GameSettings]
 	static const string gsStr = "GameSettings";
@@ -160,7 +160,7 @@ void GlobalConfig::save() noexcept
 	// [Debug]
 	static const string dStr = "Debug";
 	mIniParser.setBool(dStr, "bContinuousShaderReload", continuousShaderReload);
-	mIniParser.setBool(dStr, "bPrintFPS", printFPS);
+	mIniParser.setBool(dStr, "bPrintFrametimes", printFrametimes);
 
 	// [GameSettings]
 	static const string gsStr = "GameSettings";
@@ -194,7 +194,7 @@ void GlobalConfig::data(const ConfigData& configData) noexcept
 {
 	// Debug
 	this->continuousShaderReload = configData.continuousShaderReload;
-	this->printFPS = configData.printFPS;
+	this->printFrametimes = configData.printFrametimes;
 
 	// Graphics
 	this->displayIndex = configData.displayIndex;

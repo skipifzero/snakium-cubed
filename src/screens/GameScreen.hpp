@@ -6,6 +6,7 @@
 #include <sfz/math/Matrix.hpp>
 #include <sfz/math/Vector.hpp>
 #include <sfz/Screens.hpp>
+#include <sfz/util/FrametimeStats.hpp>
 
 #include "rendering/Camera.hpp"
 #include "rendering/ClassicRenderer.hpp"
@@ -54,8 +55,7 @@ private:
 	DirectionInput mInputBuffer[5];
 	size_t mInputBufferIndex = 0;
 
-	float mFPSMean = 0.0;
-	long mNumFPSSamples = 0;
+	sfz::FrametimeStats mShortTermPerfStats, mLongerTermPerfStats, mLongestTermPerfStats;
 };
 
 } // namespace s3

@@ -238,10 +238,10 @@ OptionsScreen::OptionsScreen() noexcept
 	scrollList.addItem(shared_ptr<BaseItem>{new TextItem{"Debug", HorizontalAlign::LEFT}}, headingDim);
 
 	scrollList.addSpacing(itemSpacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new OnOffSelector{"Print FPS", [this]() {
-		return this->cfgData.printFPS;
+	scrollList.addItem(shared_ptr<BaseItem>{new OnOffSelector{"Print Frametimes", [this]() {
+		return this->cfgData.printFrametimes;
 	}, [this]() {
-		this->cfgData.printFPS = !this->cfgData.printFPS;
+		this->cfgData.printFrametimes = !this->cfgData.printFrametimes;
 	}, stateAlignOffset}}, itemDim);
 
 	scrollList.addSpacing(itemSpacing);
