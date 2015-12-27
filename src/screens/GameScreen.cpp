@@ -51,7 +51,7 @@ GameScreen::GameScreen(const ModelConfig& modelCfg) noexcept
 	mModel{modelCfg},
 
 	mShortTermPerfStats{20}, 
-	mLongerTermPerfStats{60},
+	mLongerTermPerfStats{120},
 	mLongestTermPerfStats{960}
 { }
 

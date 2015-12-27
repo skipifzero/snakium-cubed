@@ -10,6 +10,11 @@ namespace sfz {
 using std::size_t;
 using std::unique_ptr;
 
+/**
+ * @brief Class used to calculate useful frametime statistics
+ * All frametimes entered and received are in seconds, except for the string representation which
+ * will be in milliseconds.
+ */
 class FrametimeStats final {
 public:
 	// Constructors & destructors
@@ -27,6 +32,7 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	void addSample(float sampleInSeconds) noexcept;
+	void reset() noexcept;
 	
 	inline size_t maxNumSamples() const noexcept { return mMaxNumSamples; }
 	inline size_t currentNumSamples() const noexcept { return mCurrentNumSamples; }

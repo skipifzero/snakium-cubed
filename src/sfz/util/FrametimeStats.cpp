@@ -80,4 +80,9 @@ void FrametimeStats::addSample(float sampleInSeconds) noexcept
 	              mAvg * 1000.0f, mSD * 1000.0f, mMin * 1000.0f, mMax * 1000.0f);
 }
 
+void FrametimeStats::reset() noexcept
+{
+	mCurrentNumSamples = 0;
+}
+
 } // namespace sfz
