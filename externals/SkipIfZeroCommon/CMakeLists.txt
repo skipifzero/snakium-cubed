@@ -156,6 +156,8 @@ source_group(sfz_screens FILES ${SOURCE_SCREENS_FILES})
 
 set(SOURCE_UTIL_FILES
 	${INCLUDE_DIR}/sfz/Util.hpp
+	${INCLUDE_DIR}/sfz/util/FrametimeStats.hpp
+	 ${SOURCE_DIR}/sfz/util/FrametimeStats.cpp
 	${INCLUDE_DIR}/sfz/util/IniParser.hpp
 	 ${SOURCE_DIR}/sfz/util/IniParser.cpp
 	${INCLUDE_DIR}/sfz/util/IO.hpp
