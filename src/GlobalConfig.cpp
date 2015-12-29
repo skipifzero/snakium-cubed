@@ -223,7 +223,7 @@ void GlobalConfig::data(const ConfigData& configData) noexcept
 
 GlobalConfig::GlobalConfig() noexcept
 :
-	mIniParser{ userIniPath() }
+	mIniParser{userIniPath()}
 { }
 
 } // namespace s3

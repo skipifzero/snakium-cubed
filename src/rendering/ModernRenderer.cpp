@@ -990,7 +990,7 @@ void stupidSetSpotLightUniform(const gl::Program& program, const char* name, con
 	snprintf(buffer, sizeof(buffer), "%s.%s", name, "vsPos");
 	gl::setUniform(program, buffer, transformPoint(viewMatrix, frustum.pos()));
 	snprintf(buffer, sizeof(buffer), "%s.%s", name, "vsDir");
-	gl::setUniform(program, buffer, transformDir(viewMatrix, frustum.dir()));
+	gl::setUniform(program, buffer, normalize(transformDir(viewMatrix, frustum.dir())));
 	snprintf(buffer, sizeof(buffer), "%s.%s", name, "color");
 	gl::setUniform(program, buffer, spotlight.color());
 	snprintf(buffer, sizeof(buffer), "%s.%s", name, "range");
