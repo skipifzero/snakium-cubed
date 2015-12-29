@@ -3,7 +3,7 @@
 // Structs
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-struct SpotLight {
+struct Spotlight {
 	vec3 vsPos;
 	vec3 vsDir;
 	vec3 color;
@@ -39,7 +39,7 @@ uniform usampler2D uMaterialIdTexture;
 
 uniform Material uMaterials[20];
 
-uniform SpotLight uSpotlight;
+uniform Spotlight uSpotlight;
 uniform sampler2DShadow uShadowMapHighRes;
 
 // Helper functions

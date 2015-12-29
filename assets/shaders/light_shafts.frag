@@ -3,7 +3,7 @@
 // Structs
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-struct SpotLight {
+struct Spotlight {
 	vec3 vsPos;
 	vec3 vsDir;
 	vec3 color;
@@ -26,7 +26,7 @@ out vec4 outFragColor;
 
 // Uniforms
 uniform sampler2D uPositionTexture;
-uniform SpotLight uSpotlight;
+uniform Spotlight uSpotlight;
 uniform sampler2DShadow uShadowMapLowRes;
 
 // Intersection test
