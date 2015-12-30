@@ -90,9 +90,7 @@ set(SOURCE_SFZ_GL_TEMP_FILES
 	${SRC_DIR}/sfz/gl/BoxBlur.hpp
 	${SRC_DIR}/sfz/gl/BoxBlur.cpp
 	${SRC_DIR}/sfz/gl/Scaler.hpp
-	${SRC_DIR}/sfz/gl/Scaler.cpp
-	${SRC_DIR}/sfz/gl/Spotlight.hpp
-	${SRC_DIR}/sfz/gl/Spotlight.cpp)
+	${SRC_DIR}/sfz/gl/Scaler.cpp)
 source_group(sfz_gl_temp FILES ${SOURCE_SFZ_GL_TEMP_FILES})
 
 set(SOURCE_SFZ_GUI_TEMP_FILES
