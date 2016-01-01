@@ -50,10 +50,16 @@ int main()
 	
 	// Creates OpenGL context, debug if SFZ_NO_DEBUG is not defined
 	SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 1);
+	const int MAJOR_VERSION = 4;
+	const int MINOR_VERSION = 1;
 #if !defined(SFZ_NO_DEBUG)
-	gl::Context glContext{window.mPtr, 4, 1, gl::GLContextProfile::CORE, true};
+#ifdef _WIN32
+	gl::Context glContext{window.mPtr, MAJOR_VERSION, MINOR_VERSION, gl::GLContextProfile::COMPATIBILITY, true};
 #else
-	gl::Context glContext{window.mPtr, 4, 1, gl::GLContextProfile::CORE, false};
+	gl::Context glContext{window.mPtr, MAJOR_VERSION, MINOR_VERSION, gl::GLContextProfile::CORE, true};
+#endif
+#else
+	gl::Context glContext{window.mPtr, MAJOR_VERSION, MINOR_VERSION, gl::GLContextProfile::CORE, false};
 #endif
 	
 	gl::printSystemGLInfo();
