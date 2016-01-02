@@ -795,7 +795,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	gl::setUniform(mSpotlightShadingProgram, "uPositionTexture", 0);
 	gl::setUniform(mSpotlightShadingProgram, "uNormalTexture", 1);
 	gl::setUniform(mSpotlightShadingProgram, "uMaterialIdTexture", 2);
-	gl::setUniform(mSpotlightShadingProgram, "uShadowMapHighRes", 5);
+	gl::setUniform(mSpotlightShadingProgram, "uShadowMap", 5);
 	stupidSetUniformMaterials(mSpotlightShadingProgram, "uMaterials");
 	// Clear Spotlight shading texture
 	glBindFramebuffer(GL_FRAMEBUFFER, mSpotlightShadingFB.fbo());
@@ -807,7 +807,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	
 	// Set common volumetric shadows uniforms
 	gl::setUniform(mLightShaftsProgram, "uPositionTexture", 0);
-	gl::setUniform(mLightShaftsProgram, "uShadowMapLowRes", 6);
+	gl::setUniform(mLightShaftsProgram, "uShadowMap", 6);
 	
 	// Clear volumetric shadows texture
 	glBindFramebuffer(GL_FRAMEBUFFER, mLightShaftsFB.fbo());

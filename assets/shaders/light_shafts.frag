@@ -27,7 +27,7 @@ out vec4 outFragColor;
 // Uniforms
 uniform sampler2D uPositionTexture;
 uniform Spotlight uSpotlight;
-uniform sampler2DShadow uShadowMapLowRes;
+uniform sampler2DShadow uShadowMap;
 
 // Intersection test
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -182,12 +182,12 @@ void main()
 
 	vec3 vsPos = texture(uPositionTexture, uvCoord).xyz;
 	vec3 camDir = normalize(vsPos);
-	vec3 sampleStep = (max(length(vsPos), MAX_DIST) / float(NUM_SAMPLES - 1)) * camDir;
+	vec3 sampleStep = (min(length(vsPos), MAX_DIST) / float(NUM_SAMPLES - 1)) * camDir;
 
 	float factor = 0.0;
 	for (int i = 0; i < NUM_SAMPLES; ++i) {
 		vec3 samplePos = float(i) * sampleStep;
-		float sample = textureProj(uShadowMapLowRes, uSpotlight.lightMatrix * vec4(samplePos, 1.0));
+		float sample = textureProj(uShadowMap, uSpotlight.lightMatrix * vec4(samplePos, 1.0));
 		factor += sample;
 	}
 	factor /= float(NUM_SAMPLES);
@@ -202,12 +202,12 @@ void main()
 
 	vec3 vsPos = texture(uPositionTexture, uvCoord).xyz;
 	vec3 camDir = normalize(vsPos);
-	vec3 sampleStep = (max(length(vsPos), MAX_DIST) / float(NUM_SAMPLES - 1)) * camDir;
+	vec3 sampleStep = (min(length(vsPos), MAX_DIST) / float(NUM_SAMPLES - 1)) * camDir;
 
 	float factor = 0.0;
 	for (int i = 0; i < NUM_SAMPLES; ++i) {
 		vec3 samplePos = float(i) * sampleStep;
-		float sample = textureProj(uShadowMapLowRes, uSpotlight.lightMatrix * vec4(samplePos, 1.0));
+		float sample = textureProj(uShadowMap, uSpotlight.lightMatrix * vec4(samplePos, 1.0));
 
 		// Scale
 		vec3 toSample = samplePos - uSpotlight.vsPos;
@@ -266,7 +266,7 @@ void main()
 	float factor = 0.0;
 	for (int i = 0; i < NUM_SAMPLES; ++i) {
 		vec3 samplePos = start + float(i) * sampleStep;
-		float sample = textureProj(uShadowMapLowRes, uSpotlight.lightMatrix * vec4(samplePos, 1.0));
+		float sample = textureProj(uShadowMap, uSpotlight.lightMatrix * vec4(samplePos, 1.0));
 
 		// Scale
 		vec3 toSample = samplePos - uSpotlight.vsPos;
@@ -312,7 +312,7 @@ void main()
 		float interp = interpStep * float(i);
 
 		vec4 samplePos = mix(start, end, interp);
-		factor += textureProj(uShadowMapLowRes, samplePos);
+		factor += textureProj(uShadowMap, samplePos);
 	}
 	factor /= float(NUM_SAMPLES);
 
@@ -361,7 +361,7 @@ void main()
 
 		// Shadow map sample
 		vec4 samplePos = mix(startClipSpace, endClipSpace, interp);
-		float sample = textureProj(uShadowMapLowRes, samplePos);
+		float sample = textureProj(uShadowMap, samplePos);
 
 		// Dist scaling
 		float distScale = mix(startDistScale, endDistScale, interp);
@@ -415,7 +415,7 @@ void main()
 
 		// Shadow map sample
 		vec4 samplePos = mix(startClipSpace, endClipSpace, interp);
-		float sample = textureProj(uShadowMapLowRes, samplePos);
+		float sample = textureProj(uShadowMap, samplePos);
 
 		// Attenuation
 		vec3 toSampleDir = normalize(mix(toStart, toEnd, interp));
@@ -478,7 +478,7 @@ void main()
 
 		// Shadow map sample
 		vec4 samplePos = mix(startClipSpace, endClipSpace, interp);
-		float sample = textureProj(uShadowMapLowRes, samplePos);
+		float sample = textureProj(uShadowMap, samplePos);
 
 		// Dist scaling
 		float distScale = mix(startDistScale, endDistScale, interp);
@@ -537,7 +537,7 @@ void main()
 
 		// Shadow map sample
 		vec4 samplePos = mix(startClipSpace, endClipSpace, interp);
-		float sample = textureProj(uShadowMapLowRes, samplePos);
+		float sample = textureProj(uShadowMap, samplePos);
 
 		// Attenuation
 		vec3 toSampleDir = normalize(mix(toStart, toEnd, interp));

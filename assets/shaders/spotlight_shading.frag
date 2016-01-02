@@ -40,24 +40,23 @@ uniform usampler2D uMaterialIdTexture;
 uniform Material uMaterials[20];
 
 uniform Spotlight uSpotlight;
-uniform sampler2DShadow uShadowMapHighRes;
+uniform sampler2DShadow uShadowMap;
 
 // Helper functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-float sampleShadowMap(sampler2DShadow shadowMap, vec3 vsSamplePos)
+float sampleShadowMap(vec3 vsSamplePos)
 {
-	return textureProj(shadowMap, uSpotlight.lightMatrix * vec4(vsSamplePos, 1.0));
+	return textureProj(uShadowMap, uSpotlight.lightMatrix * vec4(vsSamplePos, 1.0));
 }
 
-float calcLightScale(vec3 samplePos, float outerCos, float innerCos)
+float calcLightScale(vec3 samplePos)
 {
 	vec3 toSample = samplePos - uSpotlight.vsPos;
 	vec3 toSampleDir = normalize(toSample);
-	float lightDist = length(toSample);
 	float rangeSquared = uSpotlight.range * uSpotlight.range;
-	float lightDistSquared = lightDist * lightDist;
-	float attenuation = smoothstep(outerCos, innerCos, dot(toSampleDir, uSpotlight.vsDir));
+	float lightDistSquared = dot(toSample, toSample);
+	float attenuation = smoothstep(uSpotlight.softAngleCos, uSpotlight.sharpAngleCos, dot(toSampleDir, uSpotlight.vsDir));
 	return attenuation * max((-1.0 / rangeSquared) * (lightDistSquared - rangeSquared), 0);
 }
 
@@ -97,10 +96,8 @@ void main()
 	vec3 specularContribution = specularIntensity * materialSpecular * uSpotlight.color;
 
 	// Shadow & lightscale
-	float outerCos = uSpotlight.softAngleCos;
-	float innerCos = uSpotlight.sharpAngleCos;
-	float lightScale = calcLightScale(vsPos, outerCos, innerCos);
-	float shadow = sampleShadowMap(uShadowMapHighRes, vsPos);
+	float lightScale = calcLightScale(vsPos);
+	float shadow = sampleShadowMap(vsPos);
 
 	// Total shading and output
 	vec3 shading = diffuseContribution * shadow * lightScale
