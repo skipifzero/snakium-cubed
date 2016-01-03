@@ -60,8 +60,5 @@ private:
 	Framebuffer mShadowMapHighRes, mShadowMapLowRes;
 };
 
-void stupidSetSpotLightUniform(const gl::Program& program, const char* name, const Spotlight& spotlight,
-                               const mat4& viewMatrix, const mat4& invViewMatrix) noexcept;
-
 } // namespace s3
 #endif

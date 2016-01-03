@@ -3,7 +3,6 @@
 #include <string>
 
 #include <sfz/Assert.hpp>
-#include <sfz/GL.hpp>
 #include <sfz/gl/OpenGL.hpp>
 #include <sfz/Math.hpp>
 #include <sfz/Screens.hpp>
@@ -23,7 +22,6 @@
 int main()
 {
 	using namespace sdl;
-	using std::string;
 	
 	// Small hack to enable hi-dpi awareness on Windows.
 #ifdef _WIN32
@@ -87,7 +85,7 @@ int main()
 	glewExperimental = GL_TRUE;
 	GLenum glewError = glewInit();
 	if (glewError != GLEW_OK) {
-		sfz_error(string{"GLEW init failure: "} + ((const char*)glewGetErrorString(glewError)) + "\n");
+		sfz_error(std::string{"GLEW init failure: "} + ((const char*)glewGetErrorString(glewError)) + "\n");
 	}
 
 	// Enable OpenGL debug message if in debug mode

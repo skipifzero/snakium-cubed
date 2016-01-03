@@ -21,6 +21,33 @@ const uint32_t GBUFFER_POSITION_INDEX = 0;
 const uint32_t GBUFFER_NORMAL_INDEX = 1;
 const uint32_t GBUFFER_MATERIAL_INDEX = 2;
 
+static void stupidSetSpotlightUniform(const gl::Program& program, const char* name, const Spotlight& spotlight,
+                                      const mat4& viewMatrix, const mat4& invViewMatrix) noexcept
+{
+	using std::snprintf;
+	char buffer[128];
+	const auto& frustum = spotlight.viewFrustum();
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "vsPos");
+	gl::setUniform(program, buffer, transformPoint(viewMatrix, frustum.pos()));
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "vsDir");
+	gl::setUniform(program, buffer, normalize(transformDir(viewMatrix, frustum.dir())));
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "color");
+	gl::setUniform(program, buffer, spotlight.color());
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "range");
+	gl::setUniform(program, buffer, frustum.far());
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "softFovRad");
+	gl::setUniform(program, buffer, frustum.verticalFov() * sfz::DEG_TO_RAD());
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "sharpFovRad");
+	gl::setUniform(program, buffer, spotlight.sharpFov() * sfz::DEG_TO_RAD());
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "softAngleCos");
+	gl::setUniform(program, buffer, std::cos((frustum.verticalFov() / 2.0f) * sfz::DEG_TO_RAD()));
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "sharpAngleCos");
+	gl::setUniform(program, buffer, std::cos((spotlight.sharpFov() / 2.0f) * sfz::DEG_TO_RAD()));
+	snprintf(buffer, sizeof(buffer), "%s.%s", name, "lightMatrix");
+	gl::setUniform(program, buffer, spotlight.lightMatrix(invViewMatrix));
+}
+
+
 static gl::SimpleModel& getTileModel(const SnakeTile* tilePtr, Direction side, float progress,
                                bool gameOver) noexcept
 {
@@ -598,7 +625,7 @@ ModernRenderer::ModernRenderer() noexcept
 
 
 	mShadowMapHighRes = gl::createShadowMap(sfz::vec2i{1024}, FBDepthFormat::F32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f});
-	mShadowMapLowRes = gl::createShadowMap(sfz::vec2i{256}, FBDepthFormat::F16, true, vec4{0.0f, 0.0f, 0.0f, 1.0f});
+	mShadowMapLowRes = gl::createShadowMap(sfz::vec2i{256}, FBDepthFormat::F32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f});
 }
 
 // ModernRenderer: Public methods
@@ -670,22 +697,14 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	// Rendering GBuffer
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	// Enable depth testing
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
-
-	// Disable alpha blending
 	glDisable(GL_BLEND);
-
-	// Enable culling
 	glEnable(GL_CULL_FACE);
 
-	// Binding GBufferGen program and GBuffer
 	glUseProgram(mGBufferGenProgram.handle());
 	glBindFramebuffer(GL_FRAMEBUFFER, mGBuffer.fbo());
 	glViewport(0, 0, mGBuffer.width(), mGBuffer.height());
-
-	// Clearing GBuffer
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClearDepth(1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -902,7 +921,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		glBindFramebuffer(GL_FRAMEBUFFER, mSpotlightShadingFB.fbo());
 		glViewport(0, 0, mSpotlightShadingFB.width(), mSpotlightShadingFB.height());
 
-		stupidSetSpotLightUniform(mSpotlightShadingProgram, "uSpotlight", spotlight, viewMatrix, invViewMatrix);
+		stupidSetSpotlightUniform(mSpotlightShadingProgram, "uSpotlight", spotlight, viewMatrix, invViewMatrix);
 		
 		mPostProcessQuad.render();
 
@@ -912,7 +931,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		glBindFramebuffer(GL_FRAMEBUFFER, mLightShaftsFB.fbo());
 		glViewport(0, 0, mLightShaftsFB.width(), mLightShaftsFB.height());
 
-		stupidSetSpotLightUniform(mLightShaftsProgram, "uSpotlight", spotlight, viewMatrix, invViewMatrix);
+		stupidSetSpotlightUniform(mLightShaftsProgram, "uSpotlight", spotlight, viewMatrix, invViewMatrix);
 
 		mPostProcessQuad.render();
 		
@@ -979,32 +998,6 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 
 	mScaler.changeScalingAlgorithm(static_cast<gl::ScalingAlgorithm>(cfg.scalingAlgorithm));
 	mScaler.scale(0, drawableDim, mGlobalShadingFB.texture(0), mGlobalShadingFB.dimensionsFloat());
-}
-
-void stupidSetSpotLightUniform(const gl::Program& program, const char* name, const Spotlight& spotlight,
-                               const mat4& viewMatrix, const mat4& invViewMatrix) noexcept
-{
-	using std::snprintf;
-	char buffer[128];
-	const auto& frustum = spotlight.viewFrustum();
-	snprintf(buffer, sizeof(buffer), "%s.%s", name, "vsPos");
-	gl::setUniform(program, buffer, transformPoint(viewMatrix, frustum.pos()));
-	snprintf(buffer, sizeof(buffer), "%s.%s", name, "vsDir");
-	gl::setUniform(program, buffer, normalize(transformDir(viewMatrix, frustum.dir())));
-	snprintf(buffer, sizeof(buffer), "%s.%s", name, "color");
-	gl::setUniform(program, buffer, spotlight.color());
-	snprintf(buffer, sizeof(buffer), "%s.%s", name, "range");
-	gl::setUniform(program, buffer, frustum.far());
-	snprintf(buffer, sizeof(buffer), "%s.%s", name, "softFovRad");
-	gl::setUniform(program, buffer, frustum.verticalFov() * sfz::DEG_TO_RAD());
-	snprintf(buffer, sizeof(buffer), "%s.%s", name, "sharpFovRad");
-	gl::setUniform(program, buffer, spotlight.sharpFov() * sfz::DEG_TO_RAD());
-	snprintf(buffer, sizeof(buffer), "%s.%s", name, "softAngleCos");
-	gl::setUniform(program, buffer, std::cos((frustum.verticalFov() / 2.0f) * sfz::DEG_TO_RAD()));
-	snprintf(buffer, sizeof(buffer), "%s.%s", name, "sharpAngleCos");
-	gl::setUniform(program, buffer, std::cos((spotlight.sharpFov() / 2.0f) * sfz::DEG_TO_RAD()));
-	snprintf(buffer, sizeof(buffer), "%s.%s", name, "lightMatrix");
-	gl::setUniform(program, buffer, spotlight.lightMatrix(invViewMatrix));
 }
 
 } // namespace s3
