@@ -586,7 +586,7 @@ ModernRenderer::ModernRenderer() noexcept
 
 	
 	mAmbientLight = vec3(0.025f);
-	mSpotlights.emplace_back(vec3{0.0f, 1.2f, 0.0f}, vec3{0.0f, -1.0f, 0.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
+	mSpotlights.emplace_back(vec3{0.0f, 1.2f, 0.0f}, vec3{0.0f, -1.0f, 0.0f}, 60.0f, 40.0f, 4.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
 	//mSpotlights.emplace_back(vec3{0.0f, -1.2f, 0.0f}, vec3{0.0f, 1.0f, 0.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
 
 	//mSpotlights.emplace_back(vec3{1.2f, 0.0f, 0.0f}, vec3{-1.0f, 0.0f, 0.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
