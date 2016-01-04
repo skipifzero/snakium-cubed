@@ -21,13 +21,21 @@ static const char* POST_PROCESS_VERTEX_SHADER_SOURCE = R"(
 	in vec2 inUV;
 	in int inMaterialID;
 
+	// Uniforms
+	uniform mat4 uInvProjMatrix = mat4(1);
+
 	// Output
 	out vec2 uvCoord;
+	out vec3 nonNormRayDir;
 
 	void main()
 	{
 		gl_Position = vec4(inPosition, 1.0);
 		uvCoord = inUV;
+
+		vec4 nonNormRayDirTmp = (uInvProjMatrix * vec4(inPosition.xy, 0.0, 1.0));
+		nonNormRayDirTmp /= nonNormRayDirTmp.w; // Not sure if necessary
+		nonNormRayDir = nonNormRayDirTmp.xyz;
 	}
 )";
 

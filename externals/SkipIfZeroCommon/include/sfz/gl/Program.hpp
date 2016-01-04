@@ -27,10 +27,12 @@ using std::uint32_t;
  * @brief A class holding an OpenGL Program.
  *
  * The post process variants will create a Program using the default post process vertex shader,
- * accessable by calling "postProcessVertexShaderSource()". This vertex shader exports a vec2
- * called "uvCoord" to the fragment shader, i.e. the post process shader should have
- * "in vec2 uvCoord;". To render a pass using this shader a "PostProcessQuad" should be used.
- *
+ * accessable by calling "postProcessVertexShaderSource()". The vertex shader outputs a couple
+ * of things to the fragment shader:
+ * vec2 uvCoord: coordinate used to sample from fullscreen buffers
+ * vec3 nonNormRayDir: non-normalized ray direction for each pixel
+ * In order to calculate nonNormRayDir the "uniform mat4 uInvProjMatrix" needs to be set with
+ * the inverse projection matrix. Can safely be ignored if nonNormRayDir won't be used.
  */
 class Program final {
 public:

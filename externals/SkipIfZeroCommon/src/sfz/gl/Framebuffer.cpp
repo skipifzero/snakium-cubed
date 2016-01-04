@@ -147,6 +147,19 @@ Framebuffer FramebufferBuilder::build() const noexcept
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, mDim.x, mDim.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 			break;
 
+		case FBTextureFormat::R_U16:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_R16, mDim.x, mDim.y, 0, GL_RED, GL_UNSIGNED_SHORT, NULL);
+			break;
+		case FBTextureFormat::RG_U16:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16, mDim.x, mDim.y, 0, GL_RG, GL_UNSIGNED_SHORT, NULL);
+			break;
+		case FBTextureFormat::RGB_U16:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16, mDim.x, mDim.y, 0, GL_RGB, GL_UNSIGNED_SHORT, NULL);
+			break;
+		case FBTextureFormat::RGBA_U16:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, mDim.x, mDim.y, 0, GL_RGBA, GL_UNSIGNED_SHORT, NULL);
+			break;
+
 		case FBTextureFormat::R_S8:
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_R8_SNORM, mDim.x, mDim.y, 0, GL_RED, GL_BYTE, NULL);
 			break;
@@ -160,6 +173,19 @@ Framebuffer FramebufferBuilder::build() const noexcept
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8_SNORM, mDim.x, mDim.y, 0, GL_RGBA, GL_BYTE, NULL);
 			break;
 		
+		case FBTextureFormat::R_S16:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_R16_SNORM, mDim.x, mDim.y, 0, GL_RED, GL_SHORT, NULL);
+			break;
+		case FBTextureFormat::RG_S16:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16_SNORM, mDim.x, mDim.y, 0, GL_RG, GL_SHORT, NULL);
+			break;
+		case FBTextureFormat::RGB_S16:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16_SNORM, mDim.x, mDim.y, 0, GL_RGB, GL_SHORT, NULL);
+			break;
+		case FBTextureFormat::RGBA_S16:
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16_SNORM, mDim.x, mDim.y, 0, GL_RGBA, GL_SHORT, NULL);
+			break;
+
 		case FBTextureFormat::R_INT_U8:
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_R8UI, mDim.x, mDim.y, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, NULL);
 			break;

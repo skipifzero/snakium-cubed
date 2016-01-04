@@ -10,6 +10,7 @@
 #include "sfz/gl/PostProcessQuad.hpp"
 #include "sfz/gl/Program.hpp"
 #include "sfz/gl/SimpleModel.hpp"
+#include "sfz/gl/Spotlight.hpp"
 #include "sfz/gl/SpriteBatch.hpp"
 #include "sfz/gl/Texture.hpp"
 #include "sfz/gl/TextureEnums.hpp"
