@@ -28,12 +28,14 @@ struct Material {
 
 // Input
 in vec2 uvCoord;
+in vec3 nonNormRayDir;
 
 // Output
 out vec4 outFragColor;
 
 // Uniforms
-uniform sampler2D uPositionTexture;
+uniform float uFarPlaneDist;
+uniform sampler2D uLinearDepthTexture;
 uniform sampler2D uNormalTexture;
 uniform usampler2D uMaterialIdTexture;
 
@@ -66,7 +68,8 @@ float calcLightScale(vec3 samplePos)
 void main()
 {
 	// Values from GBuffer
-	vec3 vsPos = texture(uPositionTexture, uvCoord).xyz;
+	float linDepth = texture(uLinearDepthTexture, uvCoord).r;
+	vec3 vsPos = uFarPlaneDist * linDepth * nonNormRayDir / abs(nonNormRayDir.z);
 	vec3 vsNormal = texture(uNormalTexture, uvCoord).xyz;
 	uint materialId = texture(uMaterialIdTexture, uvCoord).r;
 	Material mtl = uMaterials[materialId];

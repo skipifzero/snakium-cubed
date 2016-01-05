@@ -17,7 +17,7 @@ using sfz::vec4;
 // Statics
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-const uint32_t GBUFFER_POSITION_INDEX = 0;
+const uint32_t GBUFFER_LINEAR_DEPTH_INDEX = 0;
 const uint32_t GBUFFER_NORMAL_INDEX = 1;
 const uint32_t GBUFFER_MATERIAL_INDEX = 2;
 
@@ -575,7 +575,7 @@ ModernRenderer::ModernRenderer() noexcept
 		[](uint32_t shaderProgram) {
 		glBindAttribLocation(shaderProgram, 0, "inPosition");
 		glBindAttribLocation(shaderProgram, 1, "inNormal");
-		glBindFragDataLocation(shaderProgram, 0, "outFragPosition");
+		glBindFragDataLocation(shaderProgram, 0, "outFragLinearDepth");
 		glBindFragDataLocation(shaderProgram, 1, "outFragNormal");
 		glBindFragDataLocation(shaderProgram, 2, "outFragEmissive");
 		glBindFragDataLocation(shaderProgram, 3, "outFragMaterialId");
@@ -644,7 +644,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		vec2i lightShaftsRes{(int)(internalRes.x*cfg.lightShaftsResScaling), (int)(internalRes.y*cfg.lightShaftsResScaling)};
 		
 		mGBuffer = FramebufferBuilder{internalRes}
-		          .addTexture(GBUFFER_POSITION_INDEX, FBTextureFormat::RGB_F32, FBTextureFiltering::NEAREST)
+		          .addTexture(GBUFFER_LINEAR_DEPTH_INDEX, FBTextureFormat::R_F32, FBTextureFiltering::NEAREST)
 		          .addTexture(GBUFFER_NORMAL_INDEX, FBTextureFormat::RGB_F32, FBTextureFiltering::NEAREST)
 		          .addTexture(GBUFFER_MATERIAL_INDEX, FBTextureFormat::R_INT_U8, FBTextureFiltering::NEAREST)
 		          .addDepthBuffer(FBDepthFormat::F32)
@@ -714,8 +714,10 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	const mat4 viewMatrix = viewFrustum.viewMatrix();
 	const mat4 invViewMatrix = inverse(viewMatrix);
 	const mat4 projMatrix = viewFrustum.projMatrix();
+	const mat4 invProjMatrix = inverse(projMatrix);
 	gl::setUniform(mGBufferGenProgram, "uProjMatrix", projMatrix);
 	gl::setUniform(mGBufferGenProgram, "uViewMatrix", viewMatrix);
+	gl::setUniform(mGBufferGenProgram, "uFarPlaneDist", viewFrustum.far());
 
 	// Render things
 	renderBackground(mGBufferGenProgram, viewMatrix);
@@ -771,6 +773,9 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	gl::setUniform(mEmissiveGenProgram, "uInvProjMatrix", invProjMatrix);
+	//gl::setUniform(mEmissiveGenProgram, "uFarPlaneDist", viewFrustum.far());
+
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, mGBuffer.texture(GBUFFER_MATERIAL_INDEX));
 	gl::setUniform(mEmissiveGenProgram, "uMaterialIdTexture", 0);
@@ -793,7 +798,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 
 	// Binding textures (textures may not be bound in loop)
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, mGBuffer.texture(GBUFFER_POSITION_INDEX));
+	glBindTexture(GL_TEXTURE_2D, mGBuffer.texture(GBUFFER_LINEAR_DEPTH_INDEX));
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, mGBuffer.texture(GBUFFER_NORMAL_INDEX));
 	glActiveTexture(GL_TEXTURE2);
@@ -811,7 +816,9 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glUseProgram(mSpotlightShadingProgram.handle());
 	
 	// Set common Spotlight shading uniforms
-	gl::setUniform(mSpotlightShadingProgram, "uPositionTexture", 0);
+	gl::setUniform(mSpotlightShadingProgram, "uInvProjMatrix", invProjMatrix);
+	gl::setUniform(mSpotlightShadingProgram, "uFarPlaneDist", viewFrustum.far());
+	gl::setUniform(mSpotlightShadingProgram, "uLinearDepthTexture", 0);
 	gl::setUniform(mSpotlightShadingProgram, "uNormalTexture", 1);
 	gl::setUniform(mSpotlightShadingProgram, "uMaterialIdTexture", 2);
 	gl::setUniform(mSpotlightShadingProgram, "uShadowMap", 5);
@@ -825,7 +832,9 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glUseProgram(mLightShaftsProgram.handle());
 	
 	// Set common volumetric shadows uniforms
-	gl::setUniform(mLightShaftsProgram, "uPositionTexture", 0);
+	gl::setUniform(mLightShaftsProgram, "uInvProjMatrix", invProjMatrix);
+	gl::setUniform(mLightShaftsProgram, "uFarPlaneDist", viewFrustum.far());
+	gl::setUniform(mLightShaftsProgram, "uLinearDepthTexture", 0);
 	gl::setUniform(mLightShaftsProgram, "uShadowMap", 6);
 	
 	// Clear volumetric shadows texture
@@ -957,9 +966,12 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	stupidSetUniformMaterials(mGlobalShadingProgram, "uMaterials");
 	gl::setUniform(mGlobalShadingProgram, "uAmbientLight", mAmbientLight);
 
+	gl::setUniform(mGlobalShadingProgram, "uInvProjMatrix", invProjMatrix);
+	gl::setUniform(mGlobalShadingProgram, "uFarPlaneDist", viewFrustum.far());
+
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, mGBuffer.texture(GBUFFER_POSITION_INDEX));
-	gl::setUniform(mGlobalShadingProgram, "uPositionTexture", 0);
+	glBindTexture(GL_TEXTURE_2D, mGBuffer.texture(GBUFFER_LINEAR_DEPTH_INDEX));
+	gl::setUniform(mGlobalShadingProgram, "uLinearDepthTexture", 0);
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, mGBuffer.texture(GBUFFER_NORMAL_INDEX));

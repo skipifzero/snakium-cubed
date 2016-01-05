@@ -20,12 +20,14 @@ struct Spotlight {
 
 // Input
 in vec2 uvCoord;
+in vec3 nonNormRayDir;
 
 // Output
 out vec4 outFragColor;
 
 // Uniforms
-uniform sampler2D uPositionTexture;
+uniform float uFarPlaneDist;
+uniform sampler2D uLinearDepthTexture;
 uniform Spotlight uSpotlight;
 uniform sampler2DShadow uShadowMap;
 
@@ -180,7 +182,8 @@ void main()
 	const int NUM_SAMPLES = 128;
 	const float MAX_DIST = 5.0;
 
-	vec3 vsPos = texture(uPositionTexture, uvCoord).xyz;
+	float linDepth = texture(uLinearDepthTexture, uvCoord).r;
+	vec3 vsPos = uFarPlaneDist * linDepth * nonNormRayDir / abs(nonNormRayDir.z);
 	vec3 camDir = normalize(vsPos);
 	vec3 sampleStep = (min(length(vsPos), MAX_DIST) / float(NUM_SAMPLES - 1)) * camDir;
 
@@ -200,7 +203,8 @@ void main()
 	const int NUM_SAMPLES = 128;
 	const float MAX_DIST = 5.0;
 
-	vec3 vsPos = texture(uPositionTexture, uvCoord).xyz;
+	float linDepth = texture(uLinearDepthTexture, uvCoord).r;
+	vec3 vsPos = uFarPlaneDist * linDepth * nonNormRayDir / abs(nonNormRayDir.z);
 	vec3 camDir = normalize(vsPos);
 	vec3 sampleStep = (min(length(vsPos), MAX_DIST) / float(NUM_SAMPLES - 1)) * camDir;
 
@@ -229,7 +233,8 @@ void main()
 #ifdef ONLY_INTERSECTION_TEST
 	const float FULL_VISIBILITY_DIST = 1.5;
 
-	vec3 vsPos = texture(uPositionTexture, uvCoord).xyz;
+	float linDepth = texture(uLinearDepthTexture, uvCoord).r;
+	vec3 vsPos = uFarPlaneDist * linDepth * nonNormRayDir / abs(nonNormRayDir.z);
 	vec3 camDir = normalize(vsPos);
 
 	// Ray vs Cone intersection test
@@ -248,7 +253,8 @@ void main()
 	const float MAX_DIST = 5.0;
 	const float FULL_VISIBILITY_DIST = 1.5;
 
-	vec3 vsPos = texture(uPositionTexture, uvCoord).xyz;
+	float linDepth = texture(uLinearDepthTexture, uvCoord).r;
+	vec3 vsPos = uFarPlaneDist * linDepth * nonNormRayDir / abs(nonNormRayDir.z);
 	vec3 camDir = normalize(vsPos);
 
 	// Ray vs Cone intersection test
@@ -291,7 +297,8 @@ void main()
 	const float MAX_DIST = 5.0;
 	const float FULL_VISIBILITY_DIST = 1.5;
 
-	vec3 vsPos = texture(uPositionTexture, uvCoord).xyz;
+	float linDepth = texture(uLinearDepthTexture, uvCoord).r;
+	vec3 vsPos = uFarPlaneDist * linDepth * nonNormRayDir / abs(nonNormRayDir.z);
 	vec3 camDir = normalize(vsPos);
 
 	// Ray vs Cone intersection test
@@ -326,7 +333,8 @@ void main()
 	const float MAX_DIST = 5.0;
 	const float FULL_VISIBILITY_DIST = 1.5;
 
-	vec3 vsPos = texture(uPositionTexture, uvCoord).xyz;
+	float linDepth = texture(uLinearDepthTexture, uvCoord).r;
+	vec3 vsPos = uFarPlaneDist * linDepth * nonNormRayDir / abs(nonNormRayDir.z);
 	vec3 camDir = normalize(vsPos);
 
 	// Ray vs Cone intersection test
@@ -380,7 +388,8 @@ void main()
 	const float MAX_DIST = 5.0;
 	const float FULL_VISIBILITY_DIST = 2.0;
 
-	vec3 vsPos = texture(uPositionTexture, uvCoord).xyz;
+	float linDepth = texture(uLinearDepthTexture, uvCoord).r;
+	vec3 vsPos = uFarPlaneDist * linDepth * nonNormRayDir / abs(nonNormRayDir.z);
 	vec3 camDir = normalize(vsPos);
 
 	// Ray vs Cone intersection test
@@ -439,7 +448,8 @@ void main()
 	const float FULL_VISIBILITY_DIST = 2.0;
 	const vec2 SHADOW_MAP_DIMENSIONS = vec2(256);
 
-	vec3 vsPos = texture(uPositionTexture, uvCoord).xyz;
+	float linDepth = texture(uLinearDepthTexture, uvCoord).r;
+	vec3 vsPos = uFarPlaneDist * linDepth * nonNormRayDir / abs(nonNormRayDir.z);
 	vec3 camDir = normalize(vsPos);
 
 	// Ray vs Cone intersection test
@@ -498,7 +508,8 @@ void main()
 	const float FULL_VISIBILITY_DIST = 2.0;
 	const vec2 SHADOW_MAP_DIMENSIONS = vec2(256);
 
-	vec3 vsPos = texture(uPositionTexture, uvCoord).xyz;
+	float linDepth = texture(uLinearDepthTexture, uvCoord).r;
+	vec3 vsPos = uFarPlaneDist * linDepth * nonNormRayDir / abs(nonNormRayDir.z);
 	vec3 camDir = normalize(vsPos);
 
 	// Ray vs Cone intersection test
