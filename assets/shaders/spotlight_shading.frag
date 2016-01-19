@@ -52,15 +52,27 @@ float sampleShadowMap(vec3 vsSamplePos)
 	return textureProj(uShadowMap, uSpotlight.lightMatrix * vec4(vsSamplePos, 1.0));
 }
 
-float calcLightScale(vec3 samplePos)
+float calcLightDissipation(vec3 samplePos)
 {
-	vec3 toSample = samplePos - uSpotlight.vsPos;
-	vec3 toSampleDir = normalize(toSample);
-	float rangeSquared = uSpotlight.range * uSpotlight.range;
-	float lightDistSquared = dot(toSample, toSample);
-	float attenuation = smoothstep(uSpotlight.softAngleCos, uSpotlight.sharpAngleCos, dot(toSampleDir, uSpotlight.vsDir));
-	return attenuation * max((-1.0 / rangeSquared) * (lightDistSquared - rangeSquared), 0);
+	vec3 lightToSample = samplePos - uSpotlight.vsPos;
+
+	// Linear dissipation
+	// f(x) = 1 - (x / range)
+	// f(0) = 1, f(range) = 0
+	//return clamp(1.0 - (length(lightToSample) / uSpotlight.range), 0.0, 1.0);
+
+	// Quadratic dissipation
+	// f(x) = 1 - (x² / range²)
+	// f(0) = 1, f(range) = 0
+	return clamp(1.0 - (dot(lightToSample, lightToSample) / (uSpotlight.range * uSpotlight.range)), 0.0, 1.0);
 }
+
+float calcLightAttenuation(vec3 samplePos)
+{
+	vec3 lightToSampleDir = normalize(samplePos - uSpotlight.vsPos);
+	return smoothstep(uSpotlight.softAngleCos, uSpotlight.sharpAngleCos, dot(lightToSampleDir, uSpotlight.vsDir));
+}
+
 
 // Main
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -98,13 +110,13 @@ void main()
 	///specularIntensity *= ((mtl.shininess + 2.0) / 8.0); // Normalization
 	vec3 specularContribution = specularIntensity * materialSpecular * uSpotlight.color;
 
-	// Shadow & lightscale
-	float lightScale = calcLightScale(vsPos);
+	// Shadow, dissipation & attenuation
 	float shadow = sampleShadowMap(vsPos);
+	float dissipation = calcLightDissipation(vsPos);
+	float attenuation = calcLightAttenuation(vsPos);
 
 	// Total shading and output
-	vec3 shading = diffuseContribution * shadow * lightScale
-	             + specularContribution * shadow * lightScale;
-
+	vec3 shading = shadow * dissipation * attenuation * (diffuseContribution + specularContribution);
+	
 	outFragColor = vec4(shading, 1.0);
 }
