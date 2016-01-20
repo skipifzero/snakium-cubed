@@ -17,9 +17,7 @@
 #include <sfz/gui/Button.hpp>
 #include <sfz/gui/DefaultItemRenderers.hpp>
 
-#undef main // Remove SDL hack until we can get it to compile properly
-
-int main()
+int main(int argc, char* argv[])
 {
 	using namespace sdl;
 	
