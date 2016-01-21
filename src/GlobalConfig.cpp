@@ -130,11 +130,11 @@ void GlobalConfig::load() noexcept
 	// [Graphics]
 	static const string grStr = "Graphics";
 	blurResScaling =     ip.sanitizeFloat(grStr, "fBlurResScaling", 0.4f, 0.01f, 2.0f);
-	internalResScaling = ip.sanitizeFloat(grStr, "fInternalResScaling", 2.0f, 0.01f, 10.0f);
+	internalResScaling = ip.sanitizeFloat(grStr, "fInternalResScaling", 1.0f, 0.01f, 10.0f);
 	lightShaftsResScaling = ip.sanitizeFloat(grStr, "fLightShaftsResScaling", 0.5f, 0.01f, 10.0f);
 	spotlightResScaling = ip.sanitizeFloat(grStr, "fSpotlightResScaling", 1.0f, 0.01f, 10.0f);
 	displayIndex =      ip.sanitizeInt(grStr, "iDisplayIndex", 0, 0, 32);
-	fullscreenMode =    ip.sanitizeInt(grStr, "iFullscreenMode", 0, 0, 2);
+	fullscreenMode =    ip.sanitizeInt(grStr, "iFullscreenMode", 1, 0, 2);
 	refreshRate =       ip.sanitizeInt(grStr, "iRefreshRate", 60, 15, 240);
 	resolutionX =       ip.sanitizeInt(grStr, "iResolutionX", 1920, 200, 30720);
 	resolutionY =       ip.sanitizeInt(grStr, "iResolutionY", 1080, 200, 17280);
