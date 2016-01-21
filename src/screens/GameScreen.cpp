@@ -7,6 +7,7 @@
 #include "GameLogic.hpp"
 #include "GlobalConfig.hpp"
 #include "Rendering.hpp"
+#include "screens/GameOverScreen.hpp"
 #include "screens/MainMenuScreen.hpp"
 
 namespace s3 {
@@ -110,8 +111,14 @@ UpdateOp GameScreen::update(UpdateState& state)
 				mUseModernRenderer = !mUseModernRenderer;
 				break;
 			case SDLK_ESCAPE:
-				return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-				          std::shared_ptr<sfz::BaseScreen>{new MainMenuScreen{}}};
+				if (mModel.isGameOver()) {
+					return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+					                std::shared_ptr<sfz::BaseScreen>{new GameOverScreen{}}};
+				} else {
+					return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+					                std::shared_ptr<sfz::BaseScreen>{new MainMenuScreen{}}};
+				}
+				
 
 			case '1':
 				cfg.scalingAlgorithm = (int32_t)gl::ScalingAlgorithm::NEAREST;

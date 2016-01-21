@@ -73,6 +73,8 @@ source_group(rendering FILES ${SOURCE_RENDERING_FILES})
 
 set(SOURCE_SCREENS_FILES
 	${SRC_DIR}/Screens.hpp
+	${SRC_DIR}/screens/GameOverScreen.hpp
+	${SRC_DIR}/screens/GameOverScreen.cpp
 	${SRC_DIR}/screens/GameScreen.hpp
 	${SRC_DIR}/screens/GameScreen.cpp
 	${SRC_DIR}/screens/MainMenuScreen.hpp
