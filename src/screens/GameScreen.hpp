@@ -51,6 +51,7 @@ private:
 	ModernRenderer mModernRenderer;
 	bool mUseModernRenderer = true;
 	bool mIsPaused = false;
+	float mTimeSinceGameOver = 0.0f;
 
 	DirectionInput mInputBuffer[5];
 	size_t mInputBufferIndex = 0;

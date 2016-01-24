@@ -12,11 +12,13 @@
 
 namespace s3 {
 
-// Static functions
+// Statics
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void updateInputBuffer(Model& model, Camera& cam, DirectionInput* inputBufferPtr,
-                       size_t bufferSize, size_t& index, DirectionInput dirInput) noexcept
+static const float TIME_UNTIL_GAME_OVER_SCREEN = 2.5f;
+
+static void updateInputBuffer(Model& model, Camera& cam, DirectionInput* inputBufferPtr,
+                              size_t bufferSize, size_t& index, DirectionInput dirInput) noexcept
 {
 	GlobalConfig& cfg = GlobalConfig::INSTANCE();
 
@@ -156,6 +158,15 @@ UpdateOp GameScreen::update(UpdateState& state)
 			}
 			break;
 		}
+	}
+
+	// Game over updating
+	if (mModel.isGameOver()) {
+		if (mTimeSinceGameOver >= TIME_UNTIL_GAME_OVER_SCREEN) {
+			return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+			                std::shared_ptr<sfz::BaseScreen>{new GameOverScreen{}}};
+		}
+		mTimeSinceGameOver += state.delta;
 	}
 
 	// Updating
