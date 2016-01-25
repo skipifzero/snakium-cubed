@@ -1,25 +1,32 @@
 #pragma once
-#ifndef S3_SCREENS_GAME_OVER_SCREEN_HPP
-#define S3_SCREENS_GAME_OVER_SCREEN_HPP
+#ifndef S3_SCREENS_RESULT_SCREEN_HPP
+#define S3_SCREENS_RESULT_SCREEN_HPP
+
+#include <memory>
 
 #include <sfz/Screens.hpp>
 #include <sfz/GUI.hpp>
 
+#include "gamelogic/ModelConfig.hpp"
+
 namespace s3 {
 
+using gui::BaseItem;
 using sfz::UpdateOp;
 using sfz::UpdateState;
+using std::shared_ptr;
 
-class GameOverScreen : public sfz::BaseScreen {
+class ResultScreen : public sfz::BaseScreen {
 public:
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	GameOverScreen(const GameOverScreen&) = delete;
-	GameOverScreen& operator= (const GameOverScreen&) = delete;
-	~GameOverScreen() noexcept = default;
+	ResultScreen() noexcept = delete;
+	ResultScreen(const ResultScreen&) = delete;
+	ResultScreen& operator= (const ResultScreen&) = delete;
+	~ResultScreen() noexcept = default;
 
-	GameOverScreen() noexcept;
+	ResultScreen(const ModelConfig& lastModelCfg) noexcept;
 
 	// Overriden screen methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -27,12 +34,19 @@ public:
 	virtual UpdateOp update(UpdateState& state) override final;
 	virtual void render(UpdateState& state) override final;
 
+	// Public members
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+	
+	const ModelConfig lastModelConfig;
+
 private:
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	gui::System mGuiSystem;
 	UpdateOp mUpdateOp = sfz::SCREEN_NO_OP;
+
+	shared_ptr<BaseItem> mRetryExitCon, mRetryButton, mExitButton;
 };
 
 } // namespace s3
