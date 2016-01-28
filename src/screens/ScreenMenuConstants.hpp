@@ -7,8 +7,11 @@
 namespace s3 {
 
 using sfz::vec2;
+using sfz::vec4;
 
 namespace screens {
+
+const vec3 BG_COLOR{0.2f, 0.2f, 0.2f};
 
 const vec2 MIN_DRAWABLE{100.0f, 120.0f};
 

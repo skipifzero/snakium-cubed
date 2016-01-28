@@ -77,6 +77,8 @@ set(SOURCE_SCREENS_FILES
 	${SRC_DIR}/screens/GameScreen.cpp
 	${SRC_DIR}/screens/MainMenuScreen.hpp
 	${SRC_DIR}/screens/MainMenuScreen.cpp
+	${SRC_DIR}/screens/ModeSelectScreen.hpp
+	${SRC_DIR}/screens/ModeSelectScreen.cpp
 	${SRC_DIR}/screens/OptionsScreen.hpp
 	${SRC_DIR}/screens/OptionsScreen.cpp
 	${SRC_DIR}/screens/ResultScreen.hpp

@@ -8,7 +8,7 @@
 
 #include "GlobalConfig.hpp"
 #include "rendering/Assets.hpp"
-#include "screens/GameScreen.hpp"
+#include "screens/ModeSelectScreen.hpp"
 #include "screens/OptionsScreen.hpp"
 #include "screens/ScreenMenuConstants.hpp"
 #include "screens/ScreenUtils.hpp"
@@ -44,7 +44,7 @@ MainMenuScreen::MainMenuScreen() noexcept
 	buttons.back()->disable();
 	buttons.emplace_back(new Button{"New Game", [this](Button& ref) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-		       shared_ptr<BaseScreen>{new GameScreen{GlobalConfig::INSTANCE().modelConfig}}};
+		       shared_ptr<BaseScreen>{new ModeSelectScreen()}};
 	}});
 	buttons.emplace_back(new Button{"High Scores", [](Button& ref) {
 		
@@ -91,7 +91,7 @@ UpdateOp MainMenuScreen::update(UpdateState& state)
 void MainMenuScreen::render(UpdateState& state)
 {
 	// Clearing screen
-	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+	glClearColor(screens::BG_COLOR.x, screens::BG_COLOR.y, screens::BG_COLOR.z, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Enable blending

@@ -5,6 +5,7 @@
 #include "sfz/Screens.hpp"
 #include "screens/GameScreen.hpp"
 #include "screens/MainMenuScreen.hpp"
+#include "screens/ModeSelectScreen.hpp"
 #include "screens/ScreenMenuConstants.hpp"
 #include "screens/OptionsScreen.hpp"
 #include "screens/ResultScreen.hpp"
