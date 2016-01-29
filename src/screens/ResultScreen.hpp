@@ -8,6 +8,7 @@
 #include <sfz/GUI.hpp>
 
 #include "gamelogic/ModelConfig.hpp"
+#include "gamelogic/Stats.hpp"
 
 namespace s3 {
 
@@ -26,7 +27,7 @@ public:
 	ResultScreen& operator= (const ResultScreen&) = delete;
 	~ResultScreen() noexcept = default;
 
-	ResultScreen(const ModelConfig& lastModelCfg) noexcept;
+	ResultScreen(const ModelConfig& lastModelCfg, const Stats& results) noexcept;
 
 	// Overriden screen methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -38,6 +39,7 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	
 	const ModelConfig lastModelConfig;
+	const Stats results;
 
 private:
 	// Private members

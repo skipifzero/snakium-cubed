@@ -178,7 +178,7 @@ void Model::update(float delta, bool* changeOccured) noexcept
 	bool objectEaten = false;
 	if (nextHeadPtr->type == TileType::OBJECT) {
 		objectEaten = true;
-		mScore += static_cast<long>(mCfg.objectValue);
+		mStats.score += static_cast<int64_t>(mCfg.objectValue);
 		mTimeSinceBonus += 1;
 
 		SnakeTile* freeTile = freeRandomTile(*this);
@@ -203,7 +203,7 @@ void Model::update(float delta, bool* changeOccured) noexcept
 	}
 	else if (nextHeadPtr->type == TileType::BONUS_OBJECT) {
 		objectEaten = true;
-		mScore += static_cast<long>(mCfg.bonusObjectValue);
+		mStats.score += static_cast<int64_t>(mCfg.bonusObjectValue);
 		nextHeadPtr->type = TileType::EMPTY;
 	}
 

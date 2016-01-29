@@ -115,7 +115,7 @@ UpdateOp GameScreen::update(UpdateState& state)
 			case SDLK_ESCAPE:
 				if (mModel.isGameOver()) {
 					return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-					                std::shared_ptr<sfz::BaseScreen>{new ResultScreen{mModel.config()}}};
+					                std::shared_ptr<sfz::BaseScreen>{new ResultScreen{mModel.config(), mModel.stats()}}};
 				} else {
 					return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 					                std::shared_ptr<sfz::BaseScreen>{new MainMenuScreen{}}};
@@ -164,7 +164,7 @@ UpdateOp GameScreen::update(UpdateState& state)
 	if (mModel.isGameOver()) {
 		if (mTimeSinceGameOver >= TIME_UNTIL_GAME_OVER_SCREEN) {
 			return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-			                std::shared_ptr<sfz::BaseScreen>{new ResultScreen{mModel.config()}}};
+			                std::shared_ptr<sfz::BaseScreen>{new ResultScreen{mModel.config(), mModel.stats()}}};
 		}
 		mTimeSinceGameOver += state.delta;
 	}
@@ -218,7 +218,9 @@ void GameScreen::render(UpdateState& state)
 
 	font.begin(drawableDim/2.0f, drawableDim);
 
-	font.write(vec2{0.0f, drawableDim.y}, 64.0f, ("Score: " + std::to_string(mModel.score())).c_str());
+	char scoreBuffer[128];
+	std::snprintf(scoreBuffer, 128, "Score: %i", mModel.stats().score);
+	font.write(vec2{0.0f, drawableDim.y}, 64.0f, scoreBuffer);
 
 	font.end(0, drawableDim, vec4{1.0f, 1.0f, 1.0f, 1.0f});
 

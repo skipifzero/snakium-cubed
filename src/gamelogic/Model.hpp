@@ -10,9 +10,12 @@
 #include "gamelogic/Direction.hpp"
 #include "gamelogic/Position.hpp"
 #include "gamelogic/SnakeTile.hpp"
+#include "gamelogic/Stats.hpp"
 
 namespace s3 {
 
+using std::int32_t;
+using std::int64_t;
 using std::size_t;
 using std::uint8_t;
 using std::unique_ptr;
@@ -64,9 +67,9 @@ public:
 	inline Position deadHeadPos() const noexcept { return mDeadHeadPos; }
 
 	inline float progress() const noexcept { return mProgress; }
-	inline long score() const noexcept { return mScore; }
 	inline bool isGameOver() const noexcept { return mGameOver; }
 	inline float currentSpeed() const noexcept { return mCurrentSpeed; }
+	inline const Stats& stats() const noexcept { return mStats; }
 
 private:
 	// Private methods
@@ -90,11 +93,12 @@ private:
 	Position mDeadHeadPos;
 
 	float mProgress = 0.0f;
-	long mScore = 0;
 	bool mGameOver = false;
 	float mCurrentSpeed = 0.0f;
-	int mTimeSinceBonus = 0;
-	int mBonusTimeLeft = 0;
+	int32_t mTimeSinceBonus = 0;
+	int32_t mBonusTimeLeft = 0;
+
+	Stats mStats;
 };
 
 } // namespace s3

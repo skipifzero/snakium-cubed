@@ -14,20 +14,33 @@ namespace s3 {
 // ResultScreen: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-ResultScreen::ResultScreen(const ModelConfig& lastModelCfg) noexcept
+ResultScreen::ResultScreen(const ModelConfig& lastModelCfg, const Stats& results) noexcept
 :
 	lastModelConfig{lastModelCfg},
+	results{results},
 	mGuiSystem{sfz::Rectangle{screens::MIN_DRAWABLE/2.0f, screens::MIN_DRAWABLE}}
 {
 	using namespace gui;
 
 	const vec2 menuDim = vec2{screens::MIN_DRAWABLE.x-0.1f, screens::MIN_DRAWABLE.y-0.1f};
 	const float titleHeight = 20.0f;
+	const float resultHeight = 6.0f;
 	const float buttonHeight = 8.0f;
+	const float numResultItems = 1.0f;
+	const float bottomSpacing = 2.0f;
+	const float totalSpacing = menuDim.y - titleHeight - buttonHeight - (numResultItems * resultHeight) - bottomSpacing;
+	const float maxSpacing = 10.0f;
+	const float spacing = std::min(totalSpacing / (numResultItems + 1.0f), maxSpacing);
+	const float lastSpacing = totalSpacing - (numResultItems) * spacing;
+
 
 	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Results"}}, vec2{menuDim.x, titleHeight});
-	
 
+	mGuiSystem.addSpacing(spacing);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{std::string{"Score: "} + std::to_string(results.score)}}, vec2{menuDim.x, resultHeight});
+
+
+	mGuiSystem.addSpacing(lastSpacing);
 	mRetryExitCon = shared_ptr<BaseItem>{new SideSplitContainer{}};
 	mGuiSystem.addItem(mRetryExitCon, vec2{menuDim.x, buttonHeight});
 	SideSplitContainer& sideSplit = *(SideSplitContainer*)mGuiSystem.items().back().get();

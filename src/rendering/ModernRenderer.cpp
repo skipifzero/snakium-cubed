@@ -960,9 +960,6 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glBindFramebuffer(GL_FRAMEBUFFER, mGlobalShadingFB.fbo());
 	glViewport(0, 0, mGlobalShadingFB.width(), mGlobalShadingFB.height());
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-
 	stupidSetUniformMaterials(mGlobalShadingProgram, "uMaterials");
 	gl::setUniform(mGlobalShadingProgram, "uAmbientLight", mAmbientLight);
 
@@ -996,6 +993,9 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, mEmissiveFB.texture(0));
 	gl::setUniform(mGlobalShadingProgram, "uBlurredEmissiveTexture", 6);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	mPostProcessQuad.render();
 

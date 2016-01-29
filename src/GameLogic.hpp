@@ -7,5 +7,6 @@
 #include "gamelogic/Model.hpp"
 #include "gamelogic/ModelConfig.hpp"
 #include "gamelogic/SnakeTile.hpp"
+#include "gamelogic/Stats.hpp"
 
 #endif

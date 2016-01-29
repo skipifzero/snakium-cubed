@@ -52,7 +52,8 @@ set(SOURCE_GAMELOGIC_FILES
 	${SRC_DIR}/gamelogic/Position.hpp
 	${SRC_DIR}/gamelogic/Position.cpp
 	${SRC_DIR}/gamelogic/SnakeTile.hpp
-	${SRC_DIR}/gamelogic/SnakeTile.cpp)
+	${SRC_DIR}/gamelogic/SnakeTile.cpp
+	${SRC_DIR}/gamelogic/Stats.hpp)
 source_group(gamelogic FILES ${SOURCE_GAMELOGIC_FILES})
 
 set(SOURCE_RENDERING_FILES
