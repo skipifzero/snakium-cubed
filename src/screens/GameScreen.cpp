@@ -112,6 +112,10 @@ UpdateOp GameScreen::update(UpdateState& state)
 			case 'R':
 				mUseModernRenderer = !mUseModernRenderer;
 				break;
+			case SDLK_F1:
+					cfg.printFrametimes = !cfg.printFrametimes;
+				break;
+
 			case SDLK_ESCAPE:
 				if (mModel.isGameOver()) {
 					return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
@@ -120,41 +124,6 @@ UpdateOp GameScreen::update(UpdateState& state)
 					return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 					                std::shared_ptr<sfz::BaseScreen>{new MainMenuScreen{}}};
 				}
-				
-
-			case '1':
-				cfg.scalingAlgorithm = (int32_t)gl::ScalingAlgorithm::NEAREST;
-				std::cout << to_string((gl::ScalingAlgorithm)cfg.scalingAlgorithm) << std::endl;
-				break;
-			case '2':
-				cfg.scalingAlgorithm = (int32_t)gl::ScalingAlgorithm::BILINEAR;
-				std::cout << to_string((gl::ScalingAlgorithm)cfg.scalingAlgorithm) << std::endl;
-				break;
-			case '3':
-				cfg.scalingAlgorithm = (int32_t)gl::ScalingAlgorithm::GRID_2X2_BILINEAR;
-				std::cout << to_string((gl::ScalingAlgorithm)cfg.scalingAlgorithm) << std::endl;
-				break;
-			case '4':
-				cfg.scalingAlgorithm = (int32_t)gl::ScalingAlgorithm::BICUBIC_BSPLINE;
-				std::cout << to_string((gl::ScalingAlgorithm)cfg.scalingAlgorithm) << std::endl;
-				break;
-			case '5':
-				cfg.scalingAlgorithm = (int32_t)gl::ScalingAlgorithm::LANCZOS_2;
-				std::cout << to_string((gl::ScalingAlgorithm)cfg.scalingAlgorithm) << std::endl;
-				break;
-			case '6':
-				cfg.scalingAlgorithm = (int32_t)gl::ScalingAlgorithm::LANCZOS_3;
-				std::cout << to_string((gl::ScalingAlgorithm)cfg.scalingAlgorithm) << std::endl;
-				break;
-
-			case '9':
-				cfg.internalResScaling -= 0.25f;
-				std::cout << "internalResScaling = " << cfg.internalResScaling << std::endl;
-				break;
-			case '0':
-				cfg.internalResScaling += 0.25f;
-				std::cout << "internalResScaling = " << cfg.internalResScaling << std::endl;
-				break;
 			}
 			break;
 		}
