@@ -20,6 +20,8 @@ struct ModelConfig final {
 	int32_t bonusFrequency = 8;
 	int32_t bonusDuration = 16;
 	int32_t bonusObjectValue = 32;
+	float diveBonusMultiplier = 2.0f;
+	int32_t diveBonusMultiplierDuration = 3;
 };
 
 const ModelConfig STANDARD_CONFIG = []() {

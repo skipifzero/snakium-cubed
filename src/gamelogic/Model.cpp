@@ -151,6 +151,14 @@ void Model::update(float delta, bool* changeOccured) noexcept
 	bool isDive = nextPos.side == opposite(headPos.side);
 	if (isDive) {
 		mStats.numberOfDives += 1;
+		mDiveMultiplier = mCfg.diveBonusMultiplier;
+		mDiveMultiplierTimeLeft = mCfg.diveBonusMultiplierDuration;
+	} else {
+		mDiveMultiplierTimeLeft -= 1;
+		if (mDiveMultiplierTimeLeft <= 0) {
+			mDiveMultiplier = 1.0f;
+			mDiveMultiplierTimeLeft = 0;
+		}
 	}
 
 	// Maybe eat object 
@@ -158,7 +166,7 @@ void Model::update(float delta, bool* changeOccured) noexcept
 	for (size_t i = 0; i < mObjects.size(); ++i) {
 		if (mObjects[i].position == nextPos) {
 			objectEaten = true;
-			mStats.score += mObjects[i].value;
+			mStats.score += int32_t(std::round(mDiveMultiplier * mObjects[i].value));
 			if (mObjects[i].type == TileType::OBJECT) mStats.objectsEaten += 1;
 			else mStats.bonusObjectsEaten += 1;
 			mObjects.erase(mObjects.begin() + i);
