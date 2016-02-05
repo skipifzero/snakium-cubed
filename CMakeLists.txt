@@ -49,6 +49,7 @@ set(SOURCE_GAMELOGIC_FILES
 	${SRC_DIR}/gamelogic/Model.hpp
 	${SRC_DIR}/gamelogic/Model.cpp
 	${SRC_DIR}/gamelogic/ModelConfig.hpp
+	${SRC_DIR}/gamelogic/Object.hpp
 	${SRC_DIR}/gamelogic/Position.hpp
 	${SRC_DIR}/gamelogic/Position.cpp
 	${SRC_DIR}/gamelogic/SnakeTile.hpp

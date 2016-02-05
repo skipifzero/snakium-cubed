@@ -6,6 +6,7 @@
 #include "gamelogic/Position.hpp"
 #include "gamelogic/Model.hpp"
 #include "gamelogic/ModelConfig.hpp"
+#include "gamelogic/Object.hpp"
 #include "gamelogic/SnakeTile.hpp"
 #include "gamelogic/Stats.hpp"
 

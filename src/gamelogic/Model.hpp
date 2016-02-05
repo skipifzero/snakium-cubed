@@ -5,8 +5,10 @@
 #include <cstddef> // size_t
 #include <cstdint> // uint8_t
 #include <memory>
+#include <vector>
 
 #include "gamelogic/ModelConfig.hpp"
+#include "gamelogic/Object.hpp"
 #include "gamelogic/Direction.hpp"
 #include "gamelogic/Position.hpp"
 #include "gamelogic/SnakeTile.hpp"
@@ -19,6 +21,7 @@ using std::int64_t;
 using std::size_t;
 using std::uint8_t;
 using std::unique_ptr;
+using std::vector;
 
 enum class DirectionInput : uint8_t {
 	UP, DOWN, LEFT, RIGHT, DIVE
@@ -79,6 +82,10 @@ private:
 	Position nextPosition(const SnakeTile* tile) const noexcept;
 	Position prevPosition(const SnakeTile* tile) const noexcept;
 
+	void addObject() noexcept;
+	void addBonusObject() noexcept;
+	void updateObjects() noexcept;
+
 	// Private Members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -92,11 +99,12 @@ private:
 	SnakeTile* mDeadHeadPtr = nullptr;
 	Position mDeadHeadPos;
 
+	vector<Object> mObjects;
+
 	float mProgress = 0.0f;
 	bool mGameOver = false;
 	float mCurrentSpeed = 0.0f;
 	int32_t mTimeSinceBonus = 0;
-	int32_t mBonusTimeLeft = 0;
 
 	Stats mStats;
 };

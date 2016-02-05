@@ -5,6 +5,16 @@
 
 namespace s3 {
 
+bool operator== (const Position& lhs, const Position& rhs) noexcept
+{
+	return lhs.side == rhs.side && lhs.e1 == rhs.e1 && lhs.e2 == rhs.e2;
+}
+
+bool operator!= (const Position& lhs, const Position& rhs) noexcept
+{
+	return !(lhs == rhs);
+}
+
 int16_t Position::coordinate(Coordinate coord) noexcept
 {
 	return coord == Coordinate::e1 ? e1 : e2;

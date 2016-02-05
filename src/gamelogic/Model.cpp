@@ -24,18 +24,23 @@ static std::mt19937_64 createRNGGenerator(void) noexcept
 	return std::mt19937_64(rnd_dev());
 }
 
-static SnakeTile* freeRandomTile(Model& model) noexcept
+static bool freeRandomPosition(Model& model, Position* positionOut) noexcept
 {
-	std::vector<SnakeTile*> freeTiles;
-	for (size_t i = 0; i < model.numTiles(); i++) {
-		if (model.tilePtr(i)->type == TileType::EMPTY) freeTiles.push_back(model.tilePtr(i));
+	static std::mt19937_64 ms = createRNGGenerator();
+	static std::vector<Position> freePositions;
+	freePositions.clear();
+
+	for (size_t i = 0; i < model.numTiles(); ++i) {
+		if (model.tilePtr(i)->type == TileType::EMPTY) {
+			freePositions.push_back(model.tilePosition(model.tilePtr(i)));
+		}
 	}
 
-	if (freeTiles.size() == 0) return nullptr;
+	if (freePositions.size() == 0) return false;
 
-	static std::mt19937_64 ms = createRNGGenerator();
-	std::uniform_int_distribution<size_t> dist{0, freeTiles.size()-1};
-	return freeTiles[dist(ms)];
+	std::uniform_int_distribution<size_t> dist{0, freePositions.size()-1};
+	*positionOut = freePositions[dist(ms)];
+	return true;
 }
 
 // DirectionInput functions
@@ -97,11 +102,9 @@ Model::Model(ModelConfig cfg) noexcept
 	// Dead Head Ptr
 	mDeadHeadPtr = &mTiles[mTileCount]; // In range since array holds mTileCount + 1 tiles
 
-	// Object
-	SnakeTile* freeTile = freeRandomTile(*this);
-	freeTile->type = TileType::OBJECT;
-	freeTile->to = defaultUp(tilePosition(freeTile).side);
-	freeTile->from = opposite(freeTile->to);
+	// Objects
+	mObjects.reserve(mTileCount);
+	addObject();
 }
 
 // Model: Update methods
@@ -151,64 +154,36 @@ void Model::update(float delta, bool* changeOccured) noexcept
 	mProgress -= 1.0f;
 	if (changeOccured != nullptr) *changeOccured = true;
 
+	updateObjects();
+
 	// Calculate the next head position
 	Position headPos = tilePosition(mHeadPtr);
 	Position nextPos = nextPosition(mHeadPtr);
 	SnakeTile* nextHeadPtr = this->tilePtr(nextPos);
 
-	// Check if bonus time is over
-	if (mCfg.hasBonus) {
-		mBonusTimeLeft -= 1;
-		if (mBonusTimeLeft == 0) {
-			// TODO: Remove O(n) loop
-			SnakeTile* bonusTile = nullptr;
-			for (size_t i = 0; i < mTileCount; i++) {
-				if (mTiles[i].type == TileType::BONUS_OBJECT) {
-					bonusTile = &mTiles[i];
-					break;
-				}
-			}
-			if (bonusTile != nullptr) {
-				bonusTile->type = TileType::EMPTY;
-			}
-		}
-	}
-
-	// Check if object eaten.
+	// Maybe eat object 
 	bool objectEaten = false;
-	if (nextHeadPtr->type == TileType::OBJECT) {
-		objectEaten = true;
-		mStats.score += static_cast<int64_t>(mCfg.objectValue);
-		mTimeSinceBonus += 1;
-
-		SnakeTile* freeTile = freeRandomTile(*this);
-		if (freeTile != nullptr) {
-			freeTile->type = TileType::OBJECT;
-			freeTile->to = defaultUp(tilePosition(freeTile).side);
-			freeTile->from = opposite(freeTile->to);
+	for (size_t i = 0; i < mObjects.size(); ++i) {
+		if (mObjects[i].position == nextPos) {
+			objectEaten = true;
+			mStats.score += mObjects[i].value;
+			mObjects.erase(mObjects.begin() + i);
+			
+			break;
 		}
-
-		if (mTimeSinceBonus >= mCfg.bonusFrequency) {
-			freeTile = freeRandomTile(*this);
-			if (freeTile != nullptr) {
-				freeTile->type = TileType::BONUS_OBJECT;
-				freeTile->to = defaultUp(tilePosition(freeTile).side);
-				freeTile->from = opposite(freeTile->to);
-			}
-			mTimeSinceBonus = 0;
-			mBonusTimeLeft = mCfg.bonusDuration;
-		}
-
-		nextHeadPtr->type = TileType::EMPTY;
-	}
-	else if (nextHeadPtr->type == TileType::BONUS_OBJECT) {
-		objectEaten = true;
-		mStats.score += static_cast<int64_t>(mCfg.bonusObjectValue);
-		nextHeadPtr->type = TileType::EMPTY;
 	}
 
-	// Check if speed should be increased
+	// Adding new objects
 	if (objectEaten) {
+		if (nextHeadPtr->type == TileType::OBJECT) addObject();
+
+		mTimeSinceBonus += 1;
+		if (mTimeSinceBonus >= mCfg.bonusFrequency) {
+			addBonusObject();
+			mTimeSinceBonus = 0;
+		}
+
+		nextHeadPtr->type = TileType::EMPTY;
 		mCurrentSpeed += mCfg.speedIncreasePerObject;
 	}
 
@@ -439,6 +414,57 @@ Position Model::nextPosition(const SnakeTile* tile) const noexcept
 Position Model::prevPosition(const SnakeTile* tile) const noexcept
 {
 	return this->adjacent(this->tilePosition(tile), tile->from);
+}
+
+void Model::addObject() noexcept
+{
+	Position objPos;
+	if (!freeRandomPosition(*this, &objPos)) return;
+
+	Object tmp;
+	tmp.position = objPos;
+	tmp.type = TileType::OBJECT;
+	tmp.value = mCfg.objectValue;
+	tmp.life = -1;
+	mObjects.push_back(tmp);
+
+	SnakeTile* ptr = tilePtr(objPos);
+	ptr->type = TileType::OBJECT;
+	ptr->to = defaultUp(objPos.side);
+	ptr->from = opposite(ptr->to);
+}
+
+void Model::addBonusObject() noexcept
+{
+	Position objPos;
+	if (!freeRandomPosition(*this, &objPos)) return;
+
+	Object tmp;
+	tmp.position = objPos;
+	tmp.type = TileType::OBJECT;
+	tmp.value = mCfg.bonusObjectValue;
+	tmp.life = mCfg.bonusDuration;
+	mObjects.push_back(tmp);
+
+	SnakeTile* ptr = tilePtr(objPos);
+	ptr->type = TileType::BONUS_OBJECT;
+	ptr->to = defaultUp(objPos.side);
+	ptr->from = opposite(ptr->to);
+}
+
+void Model::updateObjects() noexcept
+{
+	for (int32_t i = 0; i < mObjects.size(); ++i) {
+		if (mObjects[i].life > 0) {
+			mObjects[i].life -= 1;
+			if (mObjects[i].life == 0) {
+				tilePtr(mObjects[i].position)->type = TileType::EMPTY;
+
+				mObjects[i] = mObjects[mObjects.size()-1];
+				i -= 1;
+			}
+		}
+	}
 }
 
 } // namespace s3

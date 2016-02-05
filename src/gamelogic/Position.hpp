@@ -34,6 +34,9 @@ struct Position final {
 	void setCoordinate(Coordinate coord, int16_t value) noexcept;
 };
 
+bool operator== (const Position& lhs, const Position& rhs) noexcept;
+bool operator!= (const Position& lhs, const Position& rhs) noexcept;
+
 Direction direction(Direction side, Coordinate coordinate) noexcept;
 Coordinate coordinate(Direction side, Direction dir) noexcept;
 int coordinateSign(Direction side, Coordinate coord) noexcept;
