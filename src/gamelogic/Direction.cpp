@@ -23,6 +23,17 @@ Direction opposite(Direction direction) noexcept
 	sfz_error("Impossible enum");
 }
 
+DirectionInput opposite(DirectionInput direction) noexcept
+{
+	switch (direction) {
+	case DirectionInput::UP: return DirectionInput::DOWN;
+	case DirectionInput::DOWN: return DirectionInput::UP;
+	case DirectionInput::LEFT: return DirectionInput::RIGHT;
+	case DirectionInput::RIGHT: return DirectionInput::LEFT;
+	case DirectionInput::DIVE: return DirectionInput::DIVE;
+	}
+	sfz_error("Impossible enum");
+}
 
 vec3i toIntVector(Direction direction) noexcept
 {

@@ -26,19 +26,29 @@ ResultScreen::ResultScreen(const ModelConfig& lastModelCfg, const Stats& results
 	const float titleHeight = 20.0f;
 	const float resultHeight = 6.0f;
 	const float buttonHeight = 8.0f;
-	const float numResultItems = 1.0f;
+	const float numResultItems = 5.0f;
 	const float bottomSpacing = 2.0f;
 	const float totalSpacing = menuDim.y - titleHeight - buttonHeight - (numResultItems * resultHeight) - bottomSpacing;
 	const float maxSpacing = 10.0f;
 	const float spacing = std::min(totalSpacing / (numResultItems + 1.0f), maxSpacing);
 	const float lastSpacing = totalSpacing - (numResultItems) * spacing;
 
-
 	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Results"}}, vec2{menuDim.x, titleHeight});
 
 	mGuiSystem.addSpacing(spacing);
 	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{std::string{"Score: "} + std::to_string(results.score)}}, vec2{menuDim.x, resultHeight});
 
+	mGuiSystem.addSpacing(spacing);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{std::string{"Objects eaten: "} +std::to_string(results.objectsEaten)}}, vec2{menuDim.x, resultHeight});
+
+	mGuiSystem.addSpacing(spacing);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{std::string{"Bonus objects eaten: "} +std::to_string(results.bonusObjectsEaten)}}, vec2{menuDim.x, resultHeight});
+
+	mGuiSystem.addSpacing(spacing);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{std::string{"Missed bonus objects: "} +std::to_string(results.missedBonusObjects)}}, vec2{menuDim.x, resultHeight});
+
+	mGuiSystem.addSpacing(spacing);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{std::string{"Number of dives: "} +std::to_string(results.numberOfDives)}}, vec2{menuDim.x, resultHeight});
 
 	mGuiSystem.addSpacing(lastSpacing);
 	mRetryExitCon = shared_ptr<BaseItem>{new SideSplitContainer{}};

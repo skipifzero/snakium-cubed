@@ -43,20 +43,6 @@ static bool freeRandomPosition(Model& model, Position* positionOut) noexcept
 	return true;
 }
 
-// DirectionInput functions
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-DirectionInput opposite(DirectionInput direction) noexcept
-{
-	switch (direction) {
-	case DirectionInput::UP: return DirectionInput::DOWN;
-	case DirectionInput::DOWN: return DirectionInput::UP;
-	case DirectionInput::LEFT: return DirectionInput::RIGHT;
-	case DirectionInput::RIGHT: return DirectionInput::LEFT;
-	case DirectionInput::DIVE: return DirectionInput::DIVE;
-	}
-}
-
 // Model: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -161,12 +147,20 @@ void Model::update(float delta, bool* changeOccured) noexcept
 	Position nextPos = nextPosition(mHeadPtr);
 	SnakeTile* nextHeadPtr = this->tilePtr(nextPos);
 
+	// Check if dive
+	bool isDive = nextPos.side == opposite(headPos.side);
+	if (isDive) {
+		mStats.numberOfDives += 1;
+	}
+
 	// Maybe eat object 
 	bool objectEaten = false;
 	for (size_t i = 0; i < mObjects.size(); ++i) {
 		if (mObjects[i].position == nextPos) {
 			objectEaten = true;
 			mStats.score += mObjects[i].value;
+			if (mObjects[i].type == TileType::OBJECT) mStats.objectsEaten += 1;
+			else mStats.bonusObjectsEaten += 1;
 			mObjects.erase(mObjects.begin() + i);
 			
 			break;
@@ -441,7 +435,7 @@ void Model::addBonusObject() noexcept
 
 	Object tmp;
 	tmp.position = objPos;
-	tmp.type = TileType::OBJECT;
+	tmp.type = TileType::BONUS_OBJECT;
 	tmp.value = mCfg.bonusObjectValue;
 	tmp.life = mCfg.bonusDuration;
 	mObjects.push_back(tmp);
@@ -460,6 +454,7 @@ void Model::updateObjects() noexcept
 			if (mObjects[i].life == 0) {
 				tilePtr(mObjects[i].position)->type = TileType::EMPTY;
 
+				mStats.missedBonusObjects += 1;
 				mObjects[i] = mObjects[mObjects.size()-1];
 				i -= 1;
 			}

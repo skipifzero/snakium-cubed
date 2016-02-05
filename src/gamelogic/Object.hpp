@@ -20,8 +20,6 @@ struct Object final {
 	TileType type = TileType::EMPTY;
 	int32_t value = -1;
 	int32_t life = -1;
-	//int32_t lifeUntilValueLoss;
-	//int32_t valueLossPerLife;
 };
 
 } // namespace s3

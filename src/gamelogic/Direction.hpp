@@ -31,10 +31,18 @@ enum class Direction : uint8_t {
 	LEFT = 5 // x-
 };
 
+/**
+ * @brief Simplified direction enum used for input to model
+ */
+enum class DirectionInput : uint8_t {
+	UP, DOWN, LEFT, RIGHT, DIVE
+};
+
 // Direction functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 Direction opposite(Direction direction) noexcept;
+DirectionInput opposite(DirectionInput direction) noexcept;
 vec3 toVector(Direction direction) noexcept;
 vec3i toIntVector(Direction direction) noexcept;
 Direction fromIntVector(const vec3i& vector) noexcept;

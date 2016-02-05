@@ -23,12 +23,6 @@ using std::uint8_t;
 using std::unique_ptr;
 using std::vector;
 
-enum class DirectionInput : uint8_t {
-	UP, DOWN, LEFT, RIGHT, DIVE
-};
-
-DirectionInput opposite(DirectionInput direction) noexcept;
-
 class Model final {
 public:
 	// Constructors & destructors
