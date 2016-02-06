@@ -26,6 +26,7 @@ using std::unique_ptr;
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 class Button;
+class DualTextItem;
 class ImageItem;
 class MultiChoiceSelector;
 class OnOffSelector;
@@ -37,6 +38,7 @@ class TextItem;
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 ItemRendererFactory<Button> defaultButtonRendererFactory() noexcept;
+ItemRendererFactory<DualTextItem> defaultDualTextItemRendererFactory() noexcept;
 ItemRendererFactory<ImageItem> defaultImageItemRendererFactory() noexcept;
 ItemRendererFactory<MultiChoiceSelector> defaultMultiChoiceSelectorRendererFactory() noexcept;
 ItemRendererFactory<OnOffSelector> defaultOnOffSelectorRendererFactory() noexcept;

@@ -24,60 +24,64 @@ ResultScreen::ResultScreen(const ModelConfig& lastModelCfg, const Stats& results
 
 	const vec2 menuDim = vec2{screens::MIN_DRAWABLE.x-0.1f, screens::MIN_DRAWABLE.y-0.1f};
 	const float titleHeight = 20.0f;
-	const float resultHeight = 7.0f;
+	const float subTitleHeight = 8.0f;
+	const float resultHeight = 6.0f;
 	const float subResultHeight = 4.0f;
 	const float buttonHeight = 8.0f;
 
+	const float numSubTitles = 2.0f;
 	const float numResultItems = 2.0f;
-	const float numSubResultItems = 8.0f;
+	const float numSubResultItems = 6.0f;
 	
 	const float spacing = 4.5f;
 	const float subSpacing = 2.0f;
 	const float bottomSpacing = 2.0f;
-	const float totalSpacing = menuDim.y - titleHeight - buttonHeight - (numResultItems * resultHeight) - (numSubResultItems * subResultHeight) - bottomSpacing;
-	const float lastSpacing = totalSpacing - (numResultItems) * spacing - (numSubResultItems) * subSpacing - bottomSpacing;
+	const float totalSpacing = menuDim.y - titleHeight - buttonHeight - (numSubTitles * subTitleHeight) - (numResultItems * resultHeight) - (numSubResultItems * subResultHeight) - bottomSpacing;
+	const float lastSpacing = totalSpacing - (numSubTitles) * spacing - (numResultItems + numSubResultItems) * subSpacing - bottomSpacing;
+
+	const float align = menuDim.x / 2.0f;
 
 	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Results"}}, vec2{menuDim.x, titleHeight});
 	char tmp[256];
 
 	mGuiSystem.addSpacing(spacing);
-	std::snprintf(tmp, sizeof(tmp), "Score: %i", totalScore(results, lastModelCfg));
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{tmp}}, vec2{menuDim.x, resultHeight});
+	std::snprintf(tmp, sizeof(tmp), "%i", totalScore(results, lastModelCfg));
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new DualTextItem{"Score: ", tmp, align, gl::HorizontalAlign::RIGHT}}, vec2{menuDim.x, subTitleHeight});
 
 	mGuiSystem.addSpacing(subSpacing);
-	std::snprintf(tmp, sizeof(tmp), "Objects: %i x %i points", results.objectsEaten, lastModelCfg.objectValue);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{tmp}}, vec2{menuDim.x, subResultHeight});
+	std::snprintf(tmp, sizeof(tmp), "%i x %i points", results.objectsEaten, lastModelCfg.objectValue);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new DualTextItem{"Objects: ", tmp, align, gl::HorizontalAlign::RIGHT}}, vec2{menuDim.x, resultHeight});
 
 	mGuiSystem.addSpacing(subSpacing);
-	std::snprintf(tmp, sizeof(tmp), "-- early bonus: %i x %i points", results.objectsEarly, lastModelCfg.objectEarlyBonus);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{tmp}}, vec2{menuDim.x, subResultHeight});
+	std::snprintf(tmp, sizeof(tmp), "%i x %i points", results.objectsEarly, lastModelCfg.objectEarlyBonus);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new DualTextItem{"early bonus: ", tmp, align, gl::HorizontalAlign::RIGHT}}, vec2{menuDim.x, subResultHeight});
 
 	mGuiSystem.addSpacing(subSpacing);
-	std::snprintf(tmp, sizeof(tmp), "-- shift bonus: %i x %i points", results.objectsShift, lastModelCfg.objectShiftBonus);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{tmp}}, vec2{menuDim.x, subResultHeight});
+	std::snprintf(tmp, sizeof(tmp), "%i x %i points", results.objectsShift, lastModelCfg.objectShiftBonus);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new DualTextItem{"shift bonus: ", tmp, align, gl::HorizontalAlign::RIGHT}}, vec2{menuDim.x, subResultHeight});
 
 	mGuiSystem.addSpacing(subSpacing);
-	std::snprintf(tmp, sizeof(tmp), "Bonus objects: %i x %i points", results.bonusObjectsEaten, lastModelCfg.bonusObjectValue);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{tmp}}, vec2{menuDim.x, subResultHeight});
+	std::snprintf(tmp, sizeof(tmp), "%i x %i points", results.bonusObjectsEaten, lastModelCfg.bonusObjectValue);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new DualTextItem{"Bonus objects: ", tmp, align, gl::HorizontalAlign::RIGHT}}, vec2{menuDim.x, resultHeight});
 
 	mGuiSystem.addSpacing(subSpacing);
-	std::snprintf(tmp, sizeof(tmp), "-- shift bonus: %i x %i points", results.bonusObjectsShift, lastModelCfg.bonusObjectShiftBonus);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{tmp}}, vec2{menuDim.x, subResultHeight});
+	std::snprintf(tmp, sizeof(tmp), "%i x %i points", results.bonusObjectsShift, lastModelCfg.bonusObjectShiftBonus);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new DualTextItem{"shift bonus: ", tmp, align, gl::HorizontalAlign::RIGHT}}, vec2{menuDim.x, subResultHeight});
 
 	mGuiSystem.addSpacing(subSpacing);
-	std::snprintf(tmp, sizeof(tmp), "-- missed: %i :(", results.bonusObjectsMissed);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{tmp}}, vec2{menuDim.x, subResultHeight});
+	std::snprintf(tmp, sizeof(tmp), "%i :(", results.bonusObjectsMissed);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new DualTextItem{"missed: ", tmp, align, gl::HorizontalAlign::RIGHT}}, vec2{menuDim.x, subResultHeight});
 
 	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Misc stats"}}, vec2{menuDim.x, resultHeight});
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Misc stats"}}, vec2{menuDim.x, subTitleHeight});
 
 	mGuiSystem.addSpacing(subSpacing);
-	std::snprintf(tmp, sizeof(tmp), "Tiles traversed: %i", results.tilesTraversed);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{tmp}}, vec2{menuDim.x, subResultHeight});
+	std::snprintf(tmp, sizeof(tmp), "%i", results.tilesTraversed);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new DualTextItem{"Tiles traversed: ", tmp, align, gl::HorizontalAlign::RIGHT}}, vec2{menuDim.x, subResultHeight});
 
 	mGuiSystem.addSpacing(subSpacing);
-	std::snprintf(tmp, sizeof(tmp), "Shifts: %i", results.numberOfShifts);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{tmp}}, vec2{menuDim.x, subResultHeight});
+	std::snprintf(tmp, sizeof(tmp), "%i", results.numberOfShifts);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new DualTextItem{"Shifts: ", tmp, align, gl::HorizontalAlign::RIGHT}}, vec2{menuDim.x, subResultHeight});
 
 
 	mGuiSystem.addSpacing(lastSpacing);

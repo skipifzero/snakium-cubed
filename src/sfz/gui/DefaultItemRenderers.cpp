@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "sfz/gui/Button.hpp"
+#include "sfz/gui/DualTextItem.hpp"
 #include "sfz/gui/ImageItem.hpp"
 #include "sfz/gui/MultiChoiceSelector.hpp"
 #include "sfz/gui/OnOffSelector.hpp"
@@ -76,6 +77,83 @@ ItemRendererFactory<Button> defaultButtonRendererFactory() noexcept
 
 	return [](Button& b) {
 		return unique_ptr<ItemRenderer>{new DefaultButtonRenderer{b}};
+	};
+}
+
+// Default DualTextItem Renderer Factory
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+ItemRendererFactory<DualTextItem> defaultDualTextItemRendererFactory() noexcept
+{
+	class DefaultDualTextItemRenderer final : public ItemRenderer {
+	public:
+		DefaultDualTextItemRenderer(DualTextItem& dti) : dti{dti} {}
+		DualTextItem& dti;
+
+		virtual void update(float delta) override final
+		{
+
+		}
+
+		virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
+		     override final
+		{
+			auto& settings = DefaultRenderersSettings::INSTANCE();
+			auto& sb = *settings.spriteBatchPtr;
+			auto& font = *settings.fontPtr;
+
+			// Render bounds if enabled
+			if (settings.renderBounds) {
+				sb.begin(cam);
+				sb.draw(dti.bounds(basePos), settings.boundsRegion);
+				sb.end(fbo, viewport, settings.boundsTexture);
+			}
+
+			// Calculate position and size
+			const float size = dti.dim.y * settings.fontScale;
+			const float leftStringWidth = font.measureStringWidth(size, dti.leftText.c_str());
+			const float spaceWidth = font.measureStringWidth(size, " ");
+			vec2 pos = basePos + dti.offset;
+			pos.x -= (dti.dim.x / 2.0f);
+			pos.y += (dti.dim.y * settings.fontVerticalOffsetScale);
+
+
+			vec2 leftPos = pos;
+			vec2 rightPos = pos;
+			if (dti.leftHAlign == HorizontalAlign::LEFT) {
+				rightPos.x += std::max(dti.alignOffset, leftStringWidth + spaceWidth);
+			} else { // HorizontalAlign::RIGHT
+				rightPos.x += dti.alignOffset;
+				leftPos.x = rightPos.x - leftStringWidth - spaceWidth;
+			}
+
+			// Set font alignment settings
+			font.horizontalAlign(gl::HorizontalAlign::LEFT);
+			font.verticalAlign(gl::VerticalAlign::BOTTOM);
+
+			// Render background text if enabled
+			if (settings.fontRenderBg) {
+				const vec2 bgOffs = settings.fontBgOffsetScale * size;
+				font.begin(cam);
+				font.write(leftPos + bgOffs, size, dti.leftText.c_str());
+				font.write(rightPos + bgOffs, size, dti.rightText.c_str());
+				if (settings.fontRenderDualBg) {
+					font.write(leftPos - bgOffs, size, dti.leftText.c_str());
+					font.write(rightPos - bgOffs, size, dti.rightText.c_str());
+				}
+				font.end(fbo, viewport, settings.fontBgColor);
+			}
+
+			// Render (foreground) text
+			font.begin(cam);
+			font.write(leftPos, size, dti.leftText.c_str());
+			font.write(rightPos, size, dti.rightText.c_str());
+			font.end(fbo, viewport, settings.fontColor);
+		}
+	};
+
+	return [](DualTextItem& dti) {
+		return unique_ptr<ItemRenderer>{new DefaultDualTextItemRenderer{dti}};
 	};
 }
 
