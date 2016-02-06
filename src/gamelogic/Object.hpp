@@ -18,8 +18,8 @@ using std::int32_t;
 struct Object final {
 	Position position;
 	TileType type = TileType::EMPTY;
-	int32_t value = -1;
 	int32_t life = -1;
+	int32_t earlyLife = -1;
 };
 
 } // namespace s3

@@ -78,7 +78,7 @@ UpdateOp GameScreen::update(UpdateState& state)
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym) {
 			case SDLK_SPACE:
-				updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::DIVE);
+				updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::SHIFT);
 				break;
 			case SDLK_UP:
 			case 'w':
@@ -188,7 +188,7 @@ void GameScreen::render(UpdateState& state)
 	font.begin(drawableDim/2.0f, drawableDim);
 
 	char scoreBuffer[128];
-	std::snprintf(scoreBuffer, 128, "Score: %i", mModel.stats().score);
+	std::snprintf(scoreBuffer, 128, "Score: %i", totalScore(mModel.stats(), mModel.config()));
 	font.write(vec2{0.0f, drawableDim.y}, 64.0f, scoreBuffer);
 
 	font.end(0, drawableDim, vec4{1.0f, 1.0f, 1.0f, 1.0f});

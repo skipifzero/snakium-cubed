@@ -35,7 +35,7 @@ enum class Direction : uint8_t {
  * @brief Simplified direction enum used for input to model
  */
 enum class DirectionInput : uint8_t {
-	UP, DOWN, LEFT, RIGHT, DIVE
+	UP, DOWN, LEFT, RIGHT, SHIFT
 };
 
 // Direction functions

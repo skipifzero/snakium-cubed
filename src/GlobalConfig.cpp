@@ -56,14 +56,7 @@ bool operator== (const ConfigData& lhs, const ConfigData& rhs) noexcept
 	lhs.inputBufferSize == rhs.inputBufferSize &&
 
 	// Custom Model
-	lhs.modelConfig.gridWidth == rhs.modelConfig.gridWidth &&
-	lhs.modelConfig.tilesPerSecond == rhs.modelConfig.tilesPerSecond &&
-	lhs.modelConfig.speedIncreasePerObject == rhs.modelConfig.speedIncreasePerObject &&
-	lhs.modelConfig.objectValue == rhs.modelConfig.objectValue &&
-	lhs.modelConfig.hasBonus == rhs.modelConfig.hasBonus &&
-	lhs.modelConfig.bonusFrequency == rhs.modelConfig.bonusFrequency &&
-	lhs.modelConfig.bonusDuration == rhs.modelConfig.bonusDuration &&
-	lhs.modelConfig.bonusObjectValue == rhs.modelConfig.bonusObjectValue;
+	lhs.modelConfig == rhs.modelConfig;
 }
 
 bool operator!= (const ConfigData& lhs, const ConfigData& rhs) noexcept
@@ -109,15 +102,23 @@ void GlobalConfig::load() noexcept
 	// [CustomModel]
 	static const string cmStr = "CustomModel";
 	ModelConfig& mc = modelConfig;
-	mc.hasBonus =               ip.sanitizeBool(cmStr, "bHasBonus", true);
-	mc.speedIncreasePerObject = ip.sanitizeFloat(cmStr, "fSpeedIncreasePerObject", 0.025f, 0.001f, 60.0f);
+	mc.gridWidth =              ip.sanitizeInt(cmStr, "iGridWidth", 3, 2, 128);
+
 	mc.tilesPerSecond =         ip.sanitizeFloat(cmStr, "fTilesPerSecond", 2.25f, 0.05f, 60.0f);
-	mc.gridWidth =              ip.sanitizeInt(cmStr, "iGridWidth", 3, 2, 128);;
-	mc.bonusDuration =          ip.sanitizeInt(cmStr, "iBonusDuration", 32, 0, 4096);
-	mc.bonusFrequency =         ip.sanitizeInt(cmStr, "iBonusFrequency", 8, 1, 1024);
-	mc.bonusObjectValue =       ip.sanitizeInt(cmStr, "iBonusObjectValue", 32, 32, 4096);
-	mc.objectValue =            ip.sanitizeInt(cmStr, "iObjectValue", 8, 0, 4096);
+	mc.speedIncreasePerObject = ip.sanitizeFloat(cmStr, "fSpeedIncreasePerObject", 0.025f, 0.001f, 60.0f);
 	
+	mc.bonusFrequency =         ip.sanitizeInt(cmStr, "iBonusFrequency", 8, 1, 1024);
+	mc.bonusDuration =          ip.sanitizeInt(cmStr, "iBonusDuration", 32, 0, 4096);
+	mc.numberOfBonusObjects =   ip.sanitizeInt(cmStr, "iNumberOfBonusObjects", 1, 0, 32);
+	mc.earlyDuration =          ip.sanitizeInt(cmStr, "iEarlyDuration", 8, 0, 1024);
+	mc.shiftBonusDuration =     ip.sanitizeInt(cmStr, "iShiftBonusDuration", 8, 0, 1024);
+
+	mc.objectValue =            ip.sanitizeInt(cmStr, "iObjectValue", 8, 0, 4096);
+	mc.objectEarlyBonus =       ip.sanitizeInt(cmStr, "iObjectEarlyBonus", 8, 0, 4096);
+	mc.objectShiftBonus =       ip.sanitizeInt(cmStr, "iObjectShiftBonus", 8, 0, 4096);
+	mc.bonusObjectValue =       ip.sanitizeInt(cmStr, "iBonusObjectValue", 32, 0, 4096);
+	mc.bonusObjectShiftBonus =  ip.sanitizeInt(cmStr, "iBonusObjectShiftBonus", 16, 0, 4096);
+
 	// [Debug]
 	static const string dStr = "Debug";
 	continuousShaderReload = ip.sanitizeBool(dStr, "bContinuousShaderReload", false);
@@ -148,14 +149,22 @@ void GlobalConfig::save() noexcept
 {
 	// [CustomModel]
 	static const string cmStr = "CustomModel";
-	mIniParser.setBool(cmStr, "bHasBonus", modelConfig.hasBonus);
 	mIniParser.setInt(cmStr, "iGridWidth", modelConfig.gridWidth);
-	mIniParser.setFloat(cmStr, "fSpeedIncreasePerObject", modelConfig.speedIncreasePerObject);
+
 	mIniParser.setFloat(cmStr, "fTilesPerSecond", modelConfig.tilesPerSecond);
-	mIniParser.setInt(cmStr, "iBonusDuration", modelConfig.bonusDuration);
+	mIniParser.setFloat(cmStr, "fSpeedIncreasePerObject", modelConfig.speedIncreasePerObject);
+	
 	mIniParser.setInt(cmStr, "iBonusFrequency", modelConfig.bonusFrequency);
-	mIniParser.setInt(cmStr, "iBonusObjectValue", modelConfig.bonusObjectValue);
+	mIniParser.setInt(cmStr, "iBonusDuration", modelConfig.bonusDuration);
+	mIniParser.setInt(cmStr, "iNumberOfBonusObjects", modelConfig.numberOfBonusObjects);
+	mIniParser.setInt(cmStr, "iEarlyDuration", modelConfig.earlyDuration);
+	mIniParser.setInt(cmStr, "iShiftBonusDuration", modelConfig.shiftBonusDuration);
+
 	mIniParser.setInt(cmStr, "iObjectValue", modelConfig.objectValue);
+	mIniParser.setInt(cmStr, "iObjectEarlyBonus", modelConfig.objectEarlyBonus);
+	mIniParser.setInt(cmStr, "iObjectShiftBonus", modelConfig.objectShiftBonus);
+	mIniParser.setInt(cmStr, "iBonusObjectValue", modelConfig.bonusObjectValue);
+	mIniParser.setInt(cmStr, "iBonusObjectShiftBonus", modelConfig.bonusObjectShiftBonus);
 
 	// [Debug]
 	static const string dStr = "Debug";

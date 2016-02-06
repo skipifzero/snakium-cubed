@@ -255,7 +255,7 @@ OptionsScreen::OptionsScreen() noexcept
 	// CustomModel
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	scrollList.addSpacing(spacing);
+	/*scrollList.addSpacing(spacing);
 	scrollList.addItem(shared_ptr<BaseItem>{new TextItem{"Custom Model", HorizontalAlign::LEFT}}, headingDim);
 
 	scrollList.addSpacing(itemSpacing);
@@ -368,7 +368,7 @@ OptionsScreen::OptionsScreen() noexcept
 		return val / 8;
 	}, [this](int choice) {
 		this->cfgData.modelConfig.bonusObjectValue = choice * 8;
-	}, stateAlignOffset}}, itemDim);
+	}, stateAlignOffset}}, itemDim);*/
 
 	mGuiSystem.addSpacing(spacing);
 	mCancelApplyCon = shared_ptr<BaseItem>{new SideSplitContainer{}};

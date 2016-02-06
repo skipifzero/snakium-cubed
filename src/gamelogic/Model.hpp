@@ -67,7 +67,6 @@ public:
 	inline bool isGameOver() const noexcept { return mGameOver; }
 	inline float currentSpeed() const noexcept { return mCurrentSpeed; }
 	inline const Stats& stats() const noexcept { return mStats; }
-	inline float currentMultiplier() const noexcept { return mDiveMultiplier; }
 
 private:
 	// Private methods
@@ -100,8 +99,7 @@ private:
 	bool mGameOver = false;
 	float mCurrentSpeed = 0.0f;
 	int32_t mTimeSinceBonus = 0;
-	float mDiveMultiplier = 1.0f;
-	int32_t mDiveMultiplierTimeLeft = 0;
+	int32_t mShiftTimeLeft = 0;
 
 	Stats mStats;
 };

@@ -30,7 +30,7 @@ DirectionInput opposite(DirectionInput direction) noexcept
 	case DirectionInput::DOWN: return DirectionInput::UP;
 	case DirectionInput::LEFT: return DirectionInput::RIGHT;
 	case DirectionInput::RIGHT: return DirectionInput::LEFT;
-	case DirectionInput::DIVE: return DirectionInput::DIVE;
+	case DirectionInput::SHIFT: return DirectionInput::SHIFT;
 	}
 	sfz_error("Impossible enum");
 }

@@ -24,31 +24,61 @@ ResultScreen::ResultScreen(const ModelConfig& lastModelCfg, const Stats& results
 
 	const vec2 menuDim = vec2{screens::MIN_DRAWABLE.x-0.1f, screens::MIN_DRAWABLE.y-0.1f};
 	const float titleHeight = 20.0f;
-	const float resultHeight = 6.0f;
+	const float resultHeight = 7.0f;
+	const float subResultHeight = 4.0f;
 	const float buttonHeight = 8.0f;
-	const float numResultItems = 5.0f;
+
+	const float numResultItems = 2.0f;
+	const float numSubResultItems = 8.0f;
+	
+	const float spacing = 4.5f;
+	const float subSpacing = 2.0f;
 	const float bottomSpacing = 2.0f;
-	const float totalSpacing = menuDim.y - titleHeight - buttonHeight - (numResultItems * resultHeight) - bottomSpacing;
-	const float maxSpacing = 10.0f;
-	const float spacing = std::min(totalSpacing / (numResultItems + 1.0f), maxSpacing);
-	const float lastSpacing = totalSpacing - (numResultItems) * spacing;
+	const float totalSpacing = menuDim.y - titleHeight - buttonHeight - (numResultItems * resultHeight) - (numSubResultItems * subResultHeight) - bottomSpacing;
+	const float lastSpacing = totalSpacing - (numResultItems) * spacing - (numSubResultItems) * subSpacing - bottomSpacing;
 
 	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Results"}}, vec2{menuDim.x, titleHeight});
+	char tmp[256];
 
 	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{std::string{"Score: "} + std::to_string(results.score)}}, vec2{menuDim.x, resultHeight});
+	std::snprintf(tmp, sizeof(tmp), "Score: %i", totalScore(results, lastModelCfg));
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{tmp}}, vec2{menuDim.x, resultHeight});
+
+	mGuiSystem.addSpacing(subSpacing);
+	std::snprintf(tmp, sizeof(tmp), "Objects: %i x %i points", results.objectsEaten, lastModelCfg.objectValue);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{tmp}}, vec2{menuDim.x, subResultHeight});
+
+	mGuiSystem.addSpacing(subSpacing);
+	std::snprintf(tmp, sizeof(tmp), "-- early bonus: %i x %i points", results.objectsEarly, lastModelCfg.objectEarlyBonus);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{tmp}}, vec2{menuDim.x, subResultHeight});
+
+	mGuiSystem.addSpacing(subSpacing);
+	std::snprintf(tmp, sizeof(tmp), "-- shift bonus: %i x %i points", results.objectsShift, lastModelCfg.objectShiftBonus);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{tmp}}, vec2{menuDim.x, subResultHeight});
+
+	mGuiSystem.addSpacing(subSpacing);
+	std::snprintf(tmp, sizeof(tmp), "Bonus objects: %i x %i points", results.bonusObjectsEaten, lastModelCfg.bonusObjectValue);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{tmp}}, vec2{menuDim.x, subResultHeight});
+
+	mGuiSystem.addSpacing(subSpacing);
+	std::snprintf(tmp, sizeof(tmp), "-- shift bonus: %i x %i points", results.bonusObjectsShift, lastModelCfg.bonusObjectShiftBonus);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{tmp}}, vec2{menuDim.x, subResultHeight});
+
+	mGuiSystem.addSpacing(subSpacing);
+	std::snprintf(tmp, sizeof(tmp), "-- missed: %i :(", results.bonusObjectsMissed);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{tmp}}, vec2{menuDim.x, subResultHeight});
 
 	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{std::string{"Objects eaten: "} +std::to_string(results.objectsEaten)}}, vec2{menuDim.x, resultHeight});
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Misc stats"}}, vec2{menuDim.x, resultHeight});
 
-	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{std::string{"Bonus objects eaten: "} +std::to_string(results.bonusObjectsEaten)}}, vec2{menuDim.x, resultHeight});
+	mGuiSystem.addSpacing(subSpacing);
+	std::snprintf(tmp, sizeof(tmp), "Tiles traversed: %i", results.tilesTraversed);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{tmp}}, vec2{menuDim.x, subResultHeight});
 
-	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{std::string{"Missed bonus objects: "} +std::to_string(results.missedBonusObjects)}}, vec2{menuDim.x, resultHeight});
+	mGuiSystem.addSpacing(subSpacing);
+	std::snprintf(tmp, sizeof(tmp), "Shifts: %i", results.numberOfShifts);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{tmp}}, vec2{menuDim.x, subResultHeight});
 
-	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{std::string{"Number of dives: "} +std::to_string(results.numberOfDives)}}, vec2{menuDim.x, resultHeight});
 
 	mGuiSystem.addSpacing(lastSpacing);
 	mRetryExitCon = shared_ptr<BaseItem>{new SideSplitContainer{}};

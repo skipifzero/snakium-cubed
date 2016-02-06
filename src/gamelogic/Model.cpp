@@ -115,7 +115,7 @@ void Model::changeDirection(Direction upDir, DirectionInput direction) noexcept
 	case DirectionInput::RIGHT:
 		dir = right(cubeSide, upDir);
 		break;
-	case DirectionInput::DIVE:
+	case DirectionInput::SHIFT:
 		dir = opposite(cubeSide);
 		break;
 	}
@@ -140,6 +140,8 @@ void Model::update(float delta, bool* changeOccured) noexcept
 	mProgress -= 1.0f;
 	if (changeOccured != nullptr) *changeOccured = true;
 
+	mStats.tilesTraversed += 1;
+
 	updateObjects();
 
 	// Calculate the next head position
@@ -147,30 +149,35 @@ void Model::update(float delta, bool* changeOccured) noexcept
 	Position nextPos = nextPosition(mHeadPtr);
 	SnakeTile* nextHeadPtr = this->tilePtr(nextPos);
 
-	// Check if dive
-	bool isDive = nextPos.side == opposite(headPos.side);
-	if (isDive) {
-		mStats.numberOfDives += 1;
-		mDiveMultiplier = mCfg.diveBonusMultiplier;
-		mDiveMultiplierTimeLeft = mCfg.diveBonusMultiplierDuration;
+	// Check if shift
+	bool isShift = nextPos.side == opposite(headPos.side);
+	if (isShift) {
+		mStats.numberOfShifts += 1;
+		mShiftTimeLeft = mCfg.shiftBonusDuration;
 	} else {
-		mDiveMultiplierTimeLeft -= 1;
-		if (mDiveMultiplierTimeLeft <= 0) {
-			mDiveMultiplier = 1.0f;
-			mDiveMultiplierTimeLeft = 0;
-		}
+		mShiftTimeLeft = std::max(mShiftTimeLeft-1, 0);
 	}
 
 	// Maybe eat object 
 	bool objectEaten = false;
 	for (size_t i = 0; i < mObjects.size(); ++i) {
 		if (mObjects[i].position == nextPos) {
-			objectEaten = true;
-			mStats.score += int32_t(std::round(mDiveMultiplier * mObjects[i].value));
-			if (mObjects[i].type == TileType::OBJECT) mStats.objectsEaten += 1;
-			else mStats.bonusObjectsEaten += 1;
+
+			if (mObjects[i].type == TileType::OBJECT) {
+				mStats.objectsEaten += 1;
+				if (mObjects[i].earlyLife > 0) mStats.objectsEarly += 1;
+				if (mShiftTimeLeft > 0) mStats.objectsShift += 1;
+
+			} else if (mObjects[i].type == TileType::BONUS_OBJECT) {
+				mStats.bonusObjectsEaten += 1;
+				if (mShiftTimeLeft > 0) mStats.bonusObjectsShift += 1;
+
+			} else {
+				sfz_error("Impossible object");
+			}
+
 			mObjects.erase(mObjects.begin() + i);
-			
+			objectEaten = true;
 			break;
 		}
 	}
@@ -181,7 +188,7 @@ void Model::update(float delta, bool* changeOccured) noexcept
 
 		mTimeSinceBonus += 1;
 		if (mTimeSinceBonus >= mCfg.bonusFrequency) {
-			addBonusObject();
+			for (int32_t i = 0; i < mCfg.numberOfBonusObjects; ++i) addBonusObject();
 			mTimeSinceBonus = 0;
 		}
 
@@ -426,8 +433,7 @@ void Model::addObject() noexcept
 	Object tmp;
 	tmp.position = objPos;
 	tmp.type = TileType::OBJECT;
-	tmp.value = mCfg.objectValue;
-	tmp.life = -1;
+	tmp.earlyLife = mCfg.earlyDuration;
 	mObjects.push_back(tmp);
 
 	SnakeTile* ptr = tilePtr(objPos);
@@ -444,7 +450,6 @@ void Model::addBonusObject() noexcept
 	Object tmp;
 	tmp.position = objPos;
 	tmp.type = TileType::BONUS_OBJECT;
-	tmp.value = mCfg.bonusObjectValue;
 	tmp.life = mCfg.bonusDuration;
 	mObjects.push_back(tmp);
 
@@ -457,12 +462,14 @@ void Model::addBonusObject() noexcept
 void Model::updateObjects() noexcept
 {
 	for (int32_t i = 0; i < mObjects.size(); ++i) {
+		mObjects[i].earlyLife = std::max(mObjects[i].earlyLife - 1, 0);
+
 		if (mObjects[i].life > 0) {
 			mObjects[i].life -= 1;
 			if (mObjects[i].life == 0) {
 				tilePtr(mObjects[i].position)->type = TileType::EMPTY;
 
-				mStats.missedBonusObjects += 1;
+				mStats.bonusObjectsMissed += 1;
 				mObjects[i] = mObjects[mObjects.size()-1];
 				i -= 1;
 			}
