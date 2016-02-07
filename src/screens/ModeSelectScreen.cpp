@@ -6,7 +6,7 @@
 #include "GlobalConfig.hpp"
 #include "screens/GameScreen.hpp"
 #include "screens/MainMenuScreen.hpp"
-#include "screens/ScreenMenuConstants.hpp"
+#include "screens/MenuConstants.hpp"
 #include "screens/ScreenUtils.hpp"
 
 namespace s3 {

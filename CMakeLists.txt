@@ -81,6 +81,8 @@ set(SOURCE_SCREENS_FILES
 	${SRC_DIR}/screens/GameScreen.cpp
 	${SRC_DIR}/screens/MainMenuScreen.hpp
 	${SRC_DIR}/screens/MainMenuScreen.cpp
+	${SRC_DIR}/screens/MenuConstants.hpp
+	${SRC_DIR}/screens/MenuConstants.cpp
 	${SRC_DIR}/screens/ModeSelectScreen.hpp
 	${SRC_DIR}/screens/ModeSelectScreen.cpp
 	${SRC_DIR}/screens/OptionsScreen.hpp
@@ -89,7 +91,7 @@ set(SOURCE_SCREENS_FILES
 	${SRC_DIR}/screens/ResultScreen.cpp
 	${SRC_DIR}/screens/S3ItemRenderers.hpp
 	${SRC_DIR}/screens/S3ItemRenderers.cpp
-	${SRC_DIR}/screens/ScreenMenuConstants.hpp
+	
 	${SRC_DIR}/screens/ScreenUtils.hpp
 	${SRC_DIR}/screens/ScreenUtils.cpp)
 source_group(screens FILES ${SOURCE_SCREENS_FILES})

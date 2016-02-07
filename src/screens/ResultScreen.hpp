@@ -47,8 +47,6 @@ private:
 
 	gui::System mGuiSystem;
 	UpdateOp mUpdateOp = sfz::SCREEN_NO_OP;
-
-	shared_ptr<BaseItem> mRetryExitCon, mRetryButton, mExitButton;
 };
 
 } // namespace s3

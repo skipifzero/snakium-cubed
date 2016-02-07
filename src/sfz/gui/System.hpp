@@ -44,6 +44,8 @@ public:
 
 	bool addItem(shared_ptr<BaseItem> item, vec2 dim,
 	             HorizontalAlign hAlign = HorizontalAlign::CENTER) noexcept;
+	bool addItem(shared_ptr<BaseItem> item, float height,
+	             HorizontalAlign hAlign = HorizontalAlign::CENTER) noexcept;
 	bool addSpacing(float amount) noexcept;
 
 	void update(InputData data, float delta);

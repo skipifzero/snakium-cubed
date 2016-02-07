@@ -24,7 +24,8 @@ bool System::addItem(shared_ptr<BaseItem> item, vec2 dim, HorizontalAlign hAlign
 {
 	if (((mNextItemTopPos.y - dim.y) < mBounds.min.y) ||
 	    (dim.x > mBounds.width())) {
-		std::cerr << "gui::System: Cannot add item, out of bounds.\n";
+		std::cerr << "gui::System: Cannot add item, out of bounds. Diff: "
+		          << ((mNextItemTopPos.y - dim.y) - mBounds.min.y) << "\n";
 		return false;
 	}
 	item->dim = dim;
@@ -37,10 +38,16 @@ bool System::addItem(shared_ptr<BaseItem> item, vec2 dim, HorizontalAlign hAlign
 	return true;
 }
 
+bool System::addItem(shared_ptr<BaseItem> item, float height, HorizontalAlign hAlign) noexcept
+{
+	return addItem(item, vec2{mBounds.width() - 0.001f, height}, hAlign);
+}
+
 bool System::addSpacing(float amount) noexcept
 {
 	if ((mNextItemTopPos.y - amount) < mBounds.min.y) {
-		std::cerr << "gui::System: Cannot add spacing, out of bounds.\n";
+		std::cerr << "gui::System: Cannot add spacing, out of bounds. Diff: "
+		          << ((mNextItemTopPos.y - amount) - mBounds.min.y) << "\n";
 		return false;
 	}
 	mNextItemTopPos.y -= amount;

@@ -10,7 +10,7 @@
 #include "rendering/Assets.hpp"
 #include "screens/ModeSelectScreen.hpp"
 #include "screens/OptionsScreen.hpp"
-#include "screens/ScreenMenuConstants.hpp"
+#include "screens/MenuConstants.hpp"
 #include "screens/ScreenUtils.hpp"
 
 namespace s3 {
