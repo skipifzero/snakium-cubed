@@ -24,6 +24,7 @@ ResultScreen::ResultScreen(const ModelConfig& lastModelCfg, const Stats& results
 	char tmp[256];
 
 	const float alignLine = MENU_DIM.x * 0.5f;
+	const float restPadding = calcRestPadding(2.0f, 2.0f, 9.0f, 1.0f);
 	const gl::HorizontalAlign hAlign = gl::HorizontalAlign::RIGHT;
 
 	// Title
@@ -72,7 +73,7 @@ ResultScreen::ResultScreen(const ModelConfig& lastModelCfg, const Stats& results
 	addHeading3(mGuiSystem, new DualTextItem{"Max speed: ", tmp, alignLine, hAlign});
 
 	// Navbar	
-	addNavbar(mGuiSystem, new SideSplitContainer{}, 2.0f, 2.0f, 9.0f, 1.0f);
+	addNavbar(mGuiSystem, new SideSplitContainer{}, restPadding);
 	SideSplitContainer& sideSplit = *(SideSplitContainer*)mGuiSystem.items().back().get();
 	sideSplit.setLeft(shared_ptr<BaseItem>{new Button{"Retry", [this](Button&) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,

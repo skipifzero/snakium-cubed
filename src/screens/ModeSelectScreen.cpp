@@ -21,7 +21,7 @@ ModeSelectScreen::ModeSelectScreen() noexcept
 	using namespace gui;
 
 	const float buttonWidth = MENU_DIM.x * 0.4f;
-	const float numButtons = 4.0f;
+	const float restPadding = calcRestPadding(4.0f, 0.0f, 0.0f, 4.0f);
 
 	addTitle(mGuiSystem, new TextItem{"Select Mode"});
 
@@ -52,7 +52,7 @@ ModeSelectScreen::ModeSelectScreen() noexcept
 	addNavbar(mGuiSystem, new Button{"Back", [this](Button&) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		       shared_ptr<BaseScreen>{new MainMenuScreen{}}};
-	}}, numButtons, 0.0f, 0.0f, numButtons, buttonWidth);
+	}}, restPadding, buttonWidth);
 }
 
 // ModeSelectScreen: Overriden screen methods

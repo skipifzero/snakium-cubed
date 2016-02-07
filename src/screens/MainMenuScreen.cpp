@@ -25,48 +25,43 @@ MainMenuScreen::MainMenuScreen() noexcept
 	mGuiSystem{sfz::Rectangle{MENU_SYSTEM_DIM/2.0f, MENU_SYSTEM_DIM}}
 {
 	using namespace gui;
-
-	float spacing = 4.0f;
-	float buttonWidth = MENU_DIM.x * 0.55f;
-	float numButtons = 6.0f;
-	float buttonHeight = (MENU_DIM.y - TITLE_HEIGHT - NAVBAR_HEIGHT - MENU_TOP_PADDING - MENU_BOTTOM_PADDING - ((numButtons+1.0f)*spacing))/numButtons;
-	vec2 buttonDim{buttonWidth, buttonHeight};
-
 	auto& a = Assets::INSTANCE();
 
-	vector<shared_ptr<BaseItem>> buttons;
-	buttons.emplace_back(new Button{"Continue", [](Button& ref) {
-		
-	}});
-	buttons.back()->disable();
-	buttons.emplace_back(new Button{"New Game", [this](Button& ref) {
+	const float buttonWidth = MENU_DIM.x * 0.45f;
+	const float restPadding = calcRestPadding(5.0f, 0.0f, 0.0f, 6.0f);
+
+	addTitle(mGuiSystem, new ImageItem{a.SNAKIUM_LOGO_REG, a.ATLAS_1024.texture()});
+
+	addStandardPadding(mGuiSystem);
+
+	addHeading1(mGuiSystem, new Button{"New Game", [this](Button& ref) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-		       shared_ptr<BaseScreen>{new ModeSelectScreen()}};
-	}});
-	buttons.emplace_back(new Button{"High Scores", [](Button& ref) {
+		                           shared_ptr<BaseScreen>{new ModeSelectScreen()}};
+	}}, buttonWidth);
+	addStandardPadding(mGuiSystem);
+
+	addHeading1(mGuiSystem, new Button{"High Scores", [this](Button& ref) {
 		
-	}});
-	buttons.back()->disable();
-	buttons.emplace_back(new Button{"Options", [this](Button& ref) {
+	}}, buttonWidth);
+	addStandardPadding(mGuiSystem);
+
+	addHeading1(mGuiSystem, new Button{"Options", [this](Button& ref) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                           shared_ptr<BaseScreen>{new OptionsScreen{}}};
-	}});
-	buttons.emplace_back(new Button{"About", [](Button& ref) {
-		
-	}});
-	buttons.back()->disable();
-	buttons.emplace_back(new Button{"Exit", [this](Button& ref) {
-		this->mUpdateOp = sfz::SCREEN_QUIT;
-	}});
+	}}, buttonWidth);
+	addStandardPadding(mGuiSystem);
 
-	mGuiSystem.addSpacing(MENU_TOP_PADDING);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new ImageItem{a.SNAKIUM_LOGO_REG, a.ATLAS_1024.texture()}}, vec2{MENU_DIM.x, TITLE_HEIGHT});
-	mGuiSystem.addSpacing(spacing);
-	for (auto& button : buttons) {
-		mGuiSystem.addItem(button, buttonDim);
-		mGuiSystem.addSpacing(spacing);
-	}
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new ImageItem{a.SKIPIFZERO_LOGO_SNAKIUM_VER_REG, a.ATLAS_1024.texture()}}, vec2{MENU_DIM.x, NAVBAR_HEIGHT});
+	addHeading1(mGuiSystem, new Button{"About", [this](Button& ref) {
+
+	}}, buttonWidth);
+	addStandardPadding(mGuiSystem);
+
+	addHeading1(mGuiSystem, new Button{"Exit", [this](Button& ref) {
+		this->mUpdateOp = sfz::SCREEN_QUIT;
+	}}, buttonWidth);
+	addStandardPadding(mGuiSystem);
+
+	addNavbar(mGuiSystem, new ImageItem{a.SKIPIFZERO_LOGO_SNAKIUM_VER_REG, a.ATLAS_1024.texture()}, restPadding);
 }
 
 // MainMenuScreen: Overriden screen methods

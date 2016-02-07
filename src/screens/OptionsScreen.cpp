@@ -84,41 +84,48 @@ OptionsScreen::OptionsScreen() noexcept
 :
 	mGuiSystem{sfz::Rectangle{MENU_SYSTEM_DIM/2.0f, MENU_SYSTEM_DIM}}
 {
+	using namespace gui;
 	cfgData = GlobalConfig::INSTANCE().data();
 
-	using namespace gui;
-
-	const float spacing = 3.5f;
-	const float itemSpacing = 1.8f;
+	// Constants
 	const float stateAlignOffset = MENU_DIM.x * 0.535f;
-	const vec2 headingDim{MENU_DIM.x * 0.95f, 7.5f};
-	const vec2 infoTextDim{MENU_DIM.x * 0.95f, 3.0f};
-	const vec2 itemDim{MENU_DIM.x * 0.95f, 4.6725f};
-	float scrollListHeight = MENU_DIM.y - TITLE_HEIGHT - NAVBAR_HEIGHT - 2.0f*spacing - MENU_BOTTOM_PADDING - MENU_TOP_PADDING;
 
-	mGuiSystem.addSpacing(MENU_TOP_PADDING);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Options"}}, vec2{MENU_DIM.x, TITLE_HEIGHT});
-	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new ScrollListContainer{7.5f}},
-	                   vec2{MENU_DIM.x, scrollListHeight});
+	// Title, scrollList and navbar
+	addTitle(mGuiSystem, new TextItem{"Options"});
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new ScrollListContainer{7.5f}}, SPACE_AVAILABLE);
+	ScrollListContainer& scrollList = *(ScrollListContainer*)mGuiSystem.items().back().get();
+	
+	mCancelApplyCon = shared_ptr<BaseItem>{new SideSplitContainer{}};
+	addNavbar(mGuiSystem, mCancelApplyCon, 0.0f);
+	SideSplitContainer& sideSplit = *(SideSplitContainer*)mGuiSystem.items().back().get();
 
-	// Graphics
+	mCancelButton = shared_ptr<BaseItem>{new Button{"Cancel", [this](Button&) {
+		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+			shared_ptr<BaseScreen>{new MainMenuScreen{}}};
+	}}};
+	sideSplit.setLeft(mCancelButton, MENU_DIM.x * 0.4f);
+
+	mApplyButton = shared_ptr<BaseItem>{new Button{"Apply", [this](Button&) {
+		this->applyConfig();
+		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+			shared_ptr<BaseScreen>{new MainMenuScreen{}}};
+	}}};
+	sideSplit.setRight(mApplyButton, MENU_DIM.x * 0.4f);
+
+	// ScrollList: Graphics
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	ScrollListContainer& scrollList = *(ScrollListContainer*)mGuiSystem.items().back().get();
-	scrollList.addItem(shared_ptr<BaseItem>{new TextItem{"Graphics", HorizontalAlign::LEFT}}, headingDim);
+	addHeading1(scrollList, shared_ptr<BaseItem>{new TextItem{"Graphics", gl::HorizontalAlign::LEFT}});
 
-	scrollList.addSpacing(itemSpacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Fullscreen", {"Off", "Windowed", "Exclusive"}, [this]() {
+	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Fullscreen", {"Off", "Windowed", "Exclusive"}, [this]() {
 		return this->cfgData.fullscreenMode;
 	}, [this](int choice) {
 		this->cfgData.fullscreenMode = choice;
-	}, stateAlignOffset}}, itemDim);
+	}, stateAlignOffset}});
 
-	scrollList.addSpacing(itemSpacing);
 	auto temp = getAvailableResolutions(cfgData);
 	mDisplayModes = std::move(temp.modes);
-	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Resolution", std::move(temp.names), [this]() {
+	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Resolution", std::move(temp.names), [this]() {
 		for (int i = 0; i < (int)this->mDisplayModes.size(); ++i) {
 			auto m = this->mDisplayModes[i];
 			auto& d = this->cfgData;
@@ -131,18 +138,16 @@ OptionsScreen::OptionsScreen() noexcept
 		this->cfgData.resolutionX = this->mDisplayModes[choice].w;
 		this->cfgData.resolutionY = this->mDisplayModes[choice].h;
 		this->cfgData.refreshRate = this->mDisplayModes[choice].refresh_rate;
-	}, stateAlignOffset}}, itemDim);
+	}, stateAlignOffset}});
 
-	scrollList.addSpacing(itemSpacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"VSync", {"Off", "On", "Swap Control Tear"}, [this]() {
+	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"VSync", {"Off", "On", "Swap Control Tear"}, [this]() {
 		return this->cfgData.vsync;
 	}, [this](int choice) {
 		this->cfgData.vsync = choice;
-	}, stateAlignOffset}}, itemDim);
+	}, stateAlignOffset}});
 
-	scrollList.addSpacing(itemSpacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new TextItem{"Internal resolution is a factor of the current output resolution", HorizontalAlign::LEFT}}, infoTextDim);
-	scrollList.addSpacing(itemSpacing);
+	addHeading3(scrollList, shared_ptr<BaseItem>{new TextItem{"Internal resolution is a factor of the current output resolution", HorizontalAlign::LEFT}});
+
 	mInternalResMultiChoicePtr = shared_ptr<BaseItem>{new MultiChoiceSelector{"Internal Resolution", {}, [this]() {
 		float val = this->cfgData.internalResScaling;
 		const float eps = 0.01f;
@@ -156,11 +161,11 @@ OptionsScreen::OptionsScreen() noexcept
 		this->cfgData.internalResScaling = 0.05f + ((float)choice)*0.05f;
 		this->mDrawableDim = vec2{-1.0f};
 	}, stateAlignOffset}};
-	scrollList.addItem(mInternalResMultiChoicePtr, itemDim);
 
-	scrollList.addSpacing(itemSpacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new TextItem{"The following resolutions are factors of the internal resolution", HorizontalAlign::LEFT}}, infoTextDim);
-	scrollList.addSpacing(itemSpacing);
+	addHeading3(scrollList, mInternalResMultiChoicePtr);
+
+	addHeading3(scrollList, shared_ptr<BaseItem>{new TextItem{"The following resolutions are factors of the internal resolution", HorizontalAlign::LEFT}});
+
 	mBlurResMultiChoicePtr = shared_ptr<BaseItem>{new MultiChoiceSelector{"Emissive Blur Resolution", {}, [this]() {
 		float val = this->cfgData.blurResScaling;
 		const float eps = 0.01f;
@@ -173,9 +178,8 @@ OptionsScreen::OptionsScreen() noexcept
 	}, [this](int choice) {
 		this->cfgData.blurResScaling = 0.05f + ((float)choice)*0.05f;
 	}, stateAlignOffset}};
-	scrollList.addItem(mBlurResMultiChoicePtr, itemDim);
-
-	scrollList.addSpacing(itemSpacing);
+	addHeading3(scrollList, mBlurResMultiChoicePtr);
+	
 	mSpotlightResMultiChoicePtr = shared_ptr<BaseItem>{new MultiChoiceSelector{"Spotlight Resolution", {}, [this]() {
 		float val = this->cfgData.spotlightResScaling;
 		const float eps = 0.01f;
@@ -188,9 +192,8 @@ OptionsScreen::OptionsScreen() noexcept
 	}, [this](int choice) {
 		this->cfgData.spotlightResScaling = 0.05f + ((float)choice)*0.05f;
 	}, stateAlignOffset}};
-	scrollList.addItem(mSpotlightResMultiChoicePtr, itemDim);
-
-	scrollList.addSpacing(itemSpacing);
+	addHeading3(scrollList, mSpotlightResMultiChoicePtr);
+	
 	mLightShaftResMultiChoicePtr = shared_ptr<BaseItem>{new MultiChoiceSelector{"Light Shaft Resolution", {}, [this]() {
 		float val = this->cfgData.lightShaftsResScaling;
 		const float eps = 0.01f;
@@ -203,50 +206,43 @@ OptionsScreen::OptionsScreen() noexcept
 	}, [this](int choice) {
 		this->cfgData.lightShaftsResScaling = 0.05f + ((float)choice)*0.05f;
 	}, stateAlignOffset}};
-	scrollList.addItem(mLightShaftResMultiChoicePtr, itemDim);
-
-	scrollList.addSpacing(itemSpacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Scaling Algorithm", { "Nearest", "Bilinear", "2x2 Nearest", "2x2 Bilinear", "4x4 Nearest", "4x4 Bilinear", "Bicubic Bspline", "Lanczos-2", "Lanczos-3"}, [this]() {
+	addHeading3(scrollList, mLightShaftResMultiChoicePtr);
+	
+	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Scaling Algorithm", {"Nearest", "Bilinear", "2x2 Nearest", "2x2 Bilinear", "4x4 Nearest", "4x4 Bilinear", "Bicubic Bspline", "Lanczos-2", "Lanczos-3"}, [this]() {
 		return this->cfgData.scalingAlgorithm;
 	}, [this](int choice) {
 		this->cfgData.scalingAlgorithm = choice;
-	}, stateAlignOffset}}, itemDim);
+	}, stateAlignOffset}});
 
-
-	// GameSettings
+	// ScrollList: GameSettings
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	scrollList.addSpacing(spacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new TextItem{"Game Settings", HorizontalAlign::LEFT}}, headingDim);
+	addHeading1(scrollList, shared_ptr<BaseItem>{new TextItem{"Game Settings", HorizontalAlign::LEFT}});
 
-	scrollList.addSpacing(itemSpacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new MultiChoiceSelector{"Input Buffer Size", {"1", "2", "3", "4", "5"}, [this]() {
+	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Input Buffer Size", {"1", "2", "3", "4", "5"}, [this]() {
 		int bs = this->cfgData.inputBufferSize;
 		if (1 <= bs && bs <= 5) return bs-1;
 		return -1;
 	}, [this](int choice) {
 		this->cfgData.inputBufferSize = (choice+1);
-	}, stateAlignOffset}}, itemDim);
+	}, stateAlignOffset}});
 
 	// Debug
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	scrollList.addSpacing(spacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new TextItem{"Debug", HorizontalAlign::LEFT}}, headingDim);
+	addHeading1(scrollList, shared_ptr<BaseItem>{new TextItem{"Debug", HorizontalAlign::LEFT}});
 
-	scrollList.addSpacing(itemSpacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new OnOffSelector{"Print Frametimes", [this]() {
+	addHeading3(scrollList, shared_ptr<BaseItem>{new OnOffSelector{"Print Frametimes", [this]() {
 		return this->cfgData.printFrametimes;
 	}, [this]() {
 		this->cfgData.printFrametimes = !this->cfgData.printFrametimes;
-	}, stateAlignOffset}}, itemDim);
+	}, stateAlignOffset}});
 
-	scrollList.addSpacing(itemSpacing);
-	scrollList.addItem(shared_ptr<BaseItem>{new OnOffSelector{"Continuous Shader Reload", [this]() {
+	addHeading3(scrollList, shared_ptr<BaseItem>{new OnOffSelector{"Continuous Shader Reload", [this]() {
 		return this->cfgData.continuousShaderReload;
 	}, [this]() {
 		this->cfgData.continuousShaderReload = !this->cfgData.continuousShaderReload;
-	}, stateAlignOffset}}, itemDim);
+	}, stateAlignOffset}});
 
 
 	// CustomModel
@@ -367,7 +363,7 @@ OptionsScreen::OptionsScreen() noexcept
 		this->cfgData.modelConfig.bonusObjectValue = choice * 8;
 	}, stateAlignOffset}}, itemDim);*/
 
-	mGuiSystem.addSpacing(spacing);
+	/*mGuiSystem.addSpacing(spacing);
 	mCancelApplyCon = shared_ptr<BaseItem>{new SideSplitContainer{}};
 	mGuiSystem.addItem(mCancelApplyCon, vec2{MENU_DIM.x, NAVBAR_HEIGHT});
 	SideSplitContainer& sideSplit = *(SideSplitContainer*)mGuiSystem.items().back().get();
@@ -383,7 +379,7 @@ OptionsScreen::OptionsScreen() noexcept
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                           shared_ptr<BaseScreen>{new MainMenuScreen{}}};
 	}}};
-	sideSplit.setRight(mApplyButton, MENU_DIM.x * 0.4f);
+	sideSplit.setRight(mApplyButton, MENU_DIM.x * 0.4f);*/
 }
 
 // OptionsScreen: Overriden screen methods

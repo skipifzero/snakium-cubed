@@ -2,6 +2,8 @@
 #ifndef S3_SCREENS_MENU_CONSTANTS_HPP
 #define S3_SCREENS_MENU_CONSTANTS_HPP
 
+#include <memory>
+
 #include <sfz/math/Vector.hpp>
 
 #include <sfz/GUI.hpp>
@@ -9,10 +11,12 @@
 namespace s3 {
 
 using gui::BaseItem;
+using gui::ScrollListContainer;
 using gui::System;
 using sfz::vec2;
 using sfz::vec3;
 using sfz::vec4;
+using std::shared_ptr;
 
 // Constants
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -51,15 +55,35 @@ const vec3 MENU_BG_COLOR = vec3{0.2f};
 float calcRestPadding(float numH1s, float numH2s, float numH3s, float numStandardPaddings) noexcept;
 
 void addTitle(System& system, BaseItem* titleItem) noexcept;
-void addNavbar(System& system, BaseItem* navbarItem, float numH1s, float numH2s, float numH3s,
-               float numStandardPaddings, float width = MENU_DIM.x) noexcept;
+
+void addNavbar(System& system, BaseItem* navbarItem, float restPadding, float width = MENU_DIM.x) noexcept;
+
+void addNavbar(System& system, shared_ptr<BaseItem> navbarItem, float restPadding, float width = MENU_DIM.x) noexcept;
+
 void addHeading1(System& system, BaseItem* item, float width = MENU_DIM.x,
                  gl::HorizontalAlign hAlign = gl::HorizontalAlign::CENTER) noexcept;
+
 void addHeading2(System& system, BaseItem* item, float width = MENU_DIM.x,
                  gl::HorizontalAlign hAlign = gl::HorizontalAlign::CENTER) noexcept;
+
 void addHeading3(System& system, BaseItem* item, float width = MENU_DIM.x,
                  gl::HorizontalAlign hAlign = gl::HorizontalAlign::CENTER) noexcept;
+
 void addStandardPadding(System& system) noexcept;
+
+
+void addHeading1(ScrollListContainer& scrollList, shared_ptr<BaseItem> item, float width = MENU_DIM.x,
+                 gl::HorizontalAlign hAlign = gl::HorizontalAlign::CENTER) noexcept;
+
+void addHeading2(ScrollListContainer& scrollList, shared_ptr<BaseItem> item, float width = MENU_DIM.x,
+                 gl::HorizontalAlign hAlign = gl::HorizontalAlign::CENTER) noexcept;
+
+void addHeading3(ScrollListContainer& scrollList, shared_ptr<BaseItem> item, float width = MENU_DIM.x,
+                 gl::HorizontalAlign hAlign = gl::HorizontalAlign::CENTER) noexcept;
+
+
+
+void addStandardPadding(ScrollListContainer& scrollList) noexcept;
 
 } // namespace s3
 #endif
