@@ -24,18 +24,18 @@ const vec2 MENU_DIM = MENU_SYSTEM_DIM - vec2{0.1f};
 // Heading sizes
 const float TITLE_HEIGHT = 20.0f;
 const float NAVBAR_HEIGHT = 8.0f;
-const float H1_HEIGHT = 8.0f;
-const float H2_HEIGHT = 6.0f;
-const float H3_HEIGHT = 4.0f;
+const float H1_HEIGHT = 7.5f;
+const float H2_HEIGHT = 5.75f;
+const float H3_HEIGHT = 3.8f;
 
 // Padding
 const float MENU_TOP_PADDING = 2.0f;
 const float MENU_BOTTOM_PADDING = 2.0f;
 const float TITLE_PADDING = 2.0f;
 const float NAVBAR_PADDING = 2.0f;
-const float H1_PADDING = 3.0f;
+const float H1_PADDING = 2.75f;
 const float H2_PADDING = 2.0f;
-const float H3_PADDING = 2.0f;
+const float H3_PADDING = 1.75f;
 const float STANDARD_PADDING = 2.0f;
 
 const float SPACE_AVAILABLE = MENU_DIM.y - TITLE_HEIGHT - NAVBAR_HEIGHT

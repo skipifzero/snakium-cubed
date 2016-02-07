@@ -141,6 +141,7 @@ void Model::update(float delta, bool* changeOccured) noexcept
 	if (changeOccured != nullptr) *changeOccured = true;
 
 	mStats.tilesTraversed += 1;
+	mStats.maxSpeed = mCurrentSpeed;
 
 	updateObjects();
 

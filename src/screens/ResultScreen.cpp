@@ -36,30 +36,30 @@ ResultScreen::ResultScreen(const ModelConfig& lastModelCfg, const Stats& results
 
 	addHeading2(mGuiSystem, new TextItem{"Objects"});
 
-	std::snprintf(tmp, sizeof(tmp), "%i x %i points", results.objectsEaten, lastModelCfg.objectValue);
+	std::snprintf(tmp, sizeof(tmp), "%i  (x%i pts)", results.objectsEaten, lastModelCfg.objectValue);
 	addHeading3(mGuiSystem, new DualTextItem{"Eaten: ", tmp, alignLine, hAlign});
 
-	std::snprintf(tmp, sizeof(tmp), "%i x %i points", results.objectsEarly, lastModelCfg.objectEarlyBonus);
+	std::snprintf(tmp, sizeof(tmp), "%i  (x%i pts)", results.objectsEarly, lastModelCfg.objectEarlyBonus);
 	addHeading3(mGuiSystem, new DualTextItem{"Early bonus: ", tmp, alignLine, hAlign});
 
-	std::snprintf(tmp, sizeof(tmp), "%i x %i points", results.objectsShift, lastModelCfg.objectShiftBonus);
+	std::snprintf(tmp, sizeof(tmp), "%i  (x%i pts)", results.objectsShift, lastModelCfg.objectShiftBonus);
 	addHeading3(mGuiSystem, new DualTextItem{"Shift bonus: ", tmp, alignLine, hAlign});
 
 
 	addHeading2(mGuiSystem, new TextItem{"Bonus objects"});
 
-	std::snprintf(tmp, sizeof(tmp), "%i x %i points", results.bonusObjectsEaten, lastModelCfg.bonusObjectValue);
+	std::snprintf(tmp, sizeof(tmp), "%i  (x%i pts)", results.bonusObjectsEaten, lastModelCfg.bonusObjectValue);
 	addHeading3(mGuiSystem, new DualTextItem{"Eaten: ", tmp, alignLine, hAlign});
 
-	std::snprintf(tmp, sizeof(tmp), "%i x %i points", results.bonusObjectsShift, lastModelCfg.bonusObjectShiftBonus);
+	std::snprintf(tmp, sizeof(tmp), "%i  (x%i pts)", results.bonusObjectsShift, lastModelCfg.bonusObjectShiftBonus);
 	addHeading3(mGuiSystem, new DualTextItem{"Shift bonus: ", tmp, alignLine, hAlign});
 
 	std::snprintf(tmp, sizeof(tmp), "%i", results.bonusObjectsMissed);
 	addHeading3(mGuiSystem, new DualTextItem{"Missed: ", tmp, alignLine, hAlign});
 	
 	addStandardPadding(mGuiSystem);
-
 	
+
 	addHeading1(mGuiSystem, new TextItem{"Misc stats"});
 
 	std::snprintf(tmp, sizeof(tmp), "%i", results.tilesTraversed);
@@ -68,8 +68,11 @@ ResultScreen::ResultScreen(const ModelConfig& lastModelCfg, const Stats& results
 	std::snprintf(tmp, sizeof(tmp), "%i", results.numberOfShifts);
 	addHeading3(mGuiSystem, new DualTextItem{"Number of shifts: ", tmp, alignLine, hAlign});
 
+	std::snprintf(tmp, sizeof(tmp), "%.2f tiles/second", results.maxSpeed);
+	addHeading3(mGuiSystem, new DualTextItem{"Max speed: ", tmp, alignLine, hAlign});
+
 	// Navbar	
-	addNavbar(mGuiSystem, new SideSplitContainer{}, 2.0f, 2.0f, 8.0f, 1.0f);
+	addNavbar(mGuiSystem, new SideSplitContainer{}, 2.0f, 2.0f, 9.0f, 1.0f);
 	SideSplitContainer& sideSplit = *(SideSplitContainer*)mGuiSystem.items().back().get();
 	sideSplit.setLeft(shared_ptr<BaseItem>{new Button{"Retry", [this](Button&) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,

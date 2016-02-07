@@ -21,6 +21,7 @@ struct Stats final {
 
 	int64_t tilesTraversed = 0;
 	int64_t numberOfShifts = 0;
+	float maxSpeed = 0.0f;
 };
 
 int32_t totalScore(const Stats& stats, const ModelConfig& cfg) noexcept;
