@@ -16,19 +16,18 @@ namespace s3 {
 
 ModeSelectScreen::ModeSelectScreen() noexcept
 :
-	mGuiSystem{sfz::Rectangle{screens::MIN_DRAWABLE/2.0f, screens::MIN_DRAWABLE}}
+	mGuiSystem{sfz::Rectangle{MENU_SYSTEM_DIM/2.0f, MENU_SYSTEM_DIM}}
 {
 	using namespace gui;
 
-	const vec2 menuDim = vec2{screens::MIN_DRAWABLE.x-0.1f, screens::MIN_DRAWABLE.y-0.1f};
 	float spacing = 8.0f;
-	float buttonWidth = menuDim.x * 0.55f;
-	float titleHeight = 20.0f;
+	float buttonWidth = MENU_DIM.x * 0.55f;
 	float numButtons = 5.0f;
-	float buttonHeight = (menuDim.y - titleHeight - ((numButtons+1.0f)*spacing))/numButtons;
+	float buttonHeight = (MENU_DIM.y - MENU_TOP_PADDING - MENU_BOTTOM_PADDING - TITLE_HEIGHT - ((numButtons+1.0f)*spacing))/numButtons;
 	vec2 buttonDim{buttonWidth, buttonHeight};
 
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Select Mode"}}, vec2{menuDim.x, titleHeight});
+	mGuiSystem.addSpacing(MENU_TOP_PADDING);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Select Mode"}}, vec2{MENU_DIM.x, TITLE_HEIGHT});
 	
 	mGuiSystem.addSpacing(spacing);
 	mGuiSystem.addItem(shared_ptr<BaseItem>{new Button{"Standard", [this](Button&) {
@@ -67,7 +66,7 @@ ModeSelectScreen::ModeSelectScreen() noexcept
 UpdateOp ModeSelectScreen::update(UpdateState& state)
 {
 	const vec2 drawableDim = state.window.drawableDimensions();
-	const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, screens::MIN_DRAWABLE);
+	const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, MENU_SYSTEM_DIM);
 
 	int32_t ctrlId = getFirstController(state);
 	bool cancelRef;
@@ -84,7 +83,7 @@ UpdateOp ModeSelectScreen::update(UpdateState& state)
 void ModeSelectScreen::render(UpdateState& state)
 {
 	// Clearing screen
-	glClearColor(screens::BG_COLOR.x, screens::BG_COLOR.y, screens::BG_COLOR.z, 1.0f);
+	glClearColor(MENU_BG_COLOR.x, MENU_BG_COLOR.y, MENU_BG_COLOR.z, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Enable blending
@@ -93,7 +92,7 @@ void ModeSelectScreen::render(UpdateState& state)
 
 	// Sizes
 	const vec2 drawableDim = state.window.drawableDimensions();
-	const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, screens::MIN_DRAWABLE);
+	const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, MENU_SYSTEM_DIM);
 
 	// Draw GUI
 	mGuiSystem.draw(0, drawableDim, guiCam);

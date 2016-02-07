@@ -82,28 +82,25 @@ static Resolutions getAvailableResolutions(ConfigData& data) noexcept
 
 OptionsScreen::OptionsScreen() noexcept
 :
-	mGuiSystem{sfz::Rectangle{screens::MIN_DRAWABLE/2.0f, screens::MIN_DRAWABLE}}
+	mGuiSystem{sfz::Rectangle{MENU_SYSTEM_DIM/2.0f, MENU_SYSTEM_DIM}}
 {
 	cfgData = GlobalConfig::INSTANCE().data();
 
 	using namespace gui;
 
-	const vec2 menuDim = vec2{screens::MIN_DRAWABLE.x-0.1f, screens::MIN_DRAWABLE.y-0.1f};
 	const float spacing = 3.5f;
 	const float itemSpacing = 1.8f;
-	const float bottomSpacing = 2.0f;
-	const float titleHeight = 20.0f;
-	const float buttonHeight = 8.0f;
-	const float stateAlignOffset = menuDim.x * 0.535f;
-	const vec2 headingDim{menuDim.x * 0.95f, 7.5f};
-	const vec2 infoTextDim{menuDim.x * 0.95f, 3.0f};
-	const vec2 itemDim{menuDim.x * 0.95f, 4.6725f};
-	float scrollListHeight = menuDim.y - titleHeight - buttonHeight - 2.0f*spacing - bottomSpacing;
+	const float stateAlignOffset = MENU_DIM.x * 0.535f;
+	const vec2 headingDim{MENU_DIM.x * 0.95f, 7.5f};
+	const vec2 infoTextDim{MENU_DIM.x * 0.95f, 3.0f};
+	const vec2 itemDim{MENU_DIM.x * 0.95f, 4.6725f};
+	float scrollListHeight = MENU_DIM.y - TITLE_HEIGHT - NAVBAR_HEIGHT - 2.0f*spacing - MENU_BOTTOM_PADDING - MENU_TOP_PADDING;
 
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Options"}}, vec2{menuDim.x, titleHeight});
+	mGuiSystem.addSpacing(MENU_TOP_PADDING);
+	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Options"}}, vec2{MENU_DIM.x, TITLE_HEIGHT});
 	mGuiSystem.addSpacing(spacing);
 	mGuiSystem.addItem(shared_ptr<BaseItem>{new ScrollListContainer{7.5f}},
-	                   vec2{menuDim.x, scrollListHeight});
+	                   vec2{MENU_DIM.x, scrollListHeight});
 
 	// Graphics
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -372,21 +369,21 @@ OptionsScreen::OptionsScreen() noexcept
 
 	mGuiSystem.addSpacing(spacing);
 	mCancelApplyCon = shared_ptr<BaseItem>{new SideSplitContainer{}};
-	mGuiSystem.addItem(mCancelApplyCon, vec2{menuDim.x, buttonHeight});
+	mGuiSystem.addItem(mCancelApplyCon, vec2{MENU_DIM.x, NAVBAR_HEIGHT});
 	SideSplitContainer& sideSplit = *(SideSplitContainer*)mGuiSystem.items().back().get();
 
 	mCancelButton = shared_ptr<BaseItem>{new Button{"Cancel", [this](Button&) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                           shared_ptr<BaseScreen>{new MainMenuScreen{}}};
 	}}};
-	sideSplit.setLeft(mCancelButton, menuDim.x * 0.4f);
+	sideSplit.setLeft(mCancelButton, MENU_DIM.x * 0.4f);
 
 	mApplyButton = shared_ptr<BaseItem>{new Button{"Apply", [this](Button&) {
 		this->applyConfig();
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                           shared_ptr<BaseScreen>{new MainMenuScreen{}}};
 	}}};
-	sideSplit.setRight(mApplyButton, menuDim.x * 0.4f);
+	sideSplit.setRight(mApplyButton, MENU_DIM.x * 0.4f);
 }
 
 // OptionsScreen: Overriden screen methods
@@ -397,7 +394,7 @@ UpdateOp OptionsScreen::update(UpdateState& state)
 	if (mWindowPtr == nullptr) mWindowPtr = &state.window;
 
 	const vec2 drawableDim = state.window.drawableDimensions();
-	const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, screens::MIN_DRAWABLE);
+	const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, MENU_SYSTEM_DIM);
 
 	if (mDrawableDim != drawableDim) {
 		mDrawableDim = drawableDim;
@@ -427,7 +424,7 @@ UpdateOp OptionsScreen::update(UpdateState& state)
 void OptionsScreen::render(UpdateState& state)
 {
 	// Clearing screen
-	glClearColor(screens::BG_COLOR.x, screens::BG_COLOR.y, screens::BG_COLOR.z, 1.0f);
+	glClearColor(MENU_BG_COLOR.x, MENU_BG_COLOR.y, MENU_BG_COLOR.z, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Enable blending
@@ -436,7 +433,7 @@ void OptionsScreen::render(UpdateState& state)
 
 	// Sizes
 	const vec2 drawableDim = state.window.drawableDimensions();
-	const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, screens::MIN_DRAWABLE);
+	const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, MENU_SYSTEM_DIM);
 
 	// Draw GUI
 	mGuiSystem.draw(0, drawableDim, guiCam);
