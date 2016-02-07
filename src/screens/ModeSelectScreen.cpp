@@ -20,44 +20,39 @@ ModeSelectScreen::ModeSelectScreen() noexcept
 {
 	using namespace gui;
 
-	float spacing = 8.0f;
-	float buttonWidth = MENU_DIM.x * 0.55f;
-	float numButtons = 5.0f;
-	float buttonHeight = (MENU_DIM.y - MENU_TOP_PADDING - MENU_BOTTOM_PADDING - TITLE_HEIGHT - ((numButtons+1.0f)*spacing))/numButtons;
-	vec2 buttonDim{buttonWidth, buttonHeight};
+	const float buttonWidth = MENU_DIM.x * 0.4f;
+	const float numButtons = 4.0f;
 
-	mGuiSystem.addSpacing(MENU_TOP_PADDING);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new TextItem{"Select Mode"}}, vec2{MENU_DIM.x, TITLE_HEIGHT});
-	
-	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new Button{"Standard", [this](Button&) {
+	addTitle(mGuiSystem, new TextItem{"Select Mode"});
+
+	addHeading1(mGuiSystem, new Button{"Standard", [this](Button&) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		       shared_ptr<BaseScreen>{new GameScreen{s3::STANDARD_CONFIG}}};
-	}}}, vec2{buttonWidth, buttonHeight});
+	}}, buttonWidth);
+	addStandardPadding(mGuiSystem);
 
-	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new Button{"Large", [this](Button&) {
+	addHeading1(mGuiSystem, new Button{"Large", [this](Button&) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		       shared_ptr<BaseScreen>{new GameScreen{s3::LARGE_CONFIG}}};
-	}}}, vec2{buttonWidth, buttonHeight});
+	}}, buttonWidth);
+	addStandardPadding(mGuiSystem);
 
-	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new Button{"Giant", [this](Button&) {
+	addHeading1(mGuiSystem, new Button{"Giant", [this](Button&) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		       shared_ptr<BaseScreen>{new GameScreen{s3::GIANT_CONFIG}}};
-	}}}, vec2{buttonWidth, buttonHeight});
+	}}, buttonWidth);
+	addStandardPadding(mGuiSystem);
 
-	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new Button{"Custom", [this](Button&) {
+	addHeading1(mGuiSystem, new Button{"Custom", [this](Button&) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		       shared_ptr<BaseScreen>{new GameScreen{GlobalConfig::INSTANCE().modelConfig}}};
-	}}}, vec2{buttonWidth, buttonHeight});
+	}}, buttonWidth);
+	addStandardPadding(mGuiSystem);
 
-	mGuiSystem.addSpacing(spacing);
-	mGuiSystem.addItem(shared_ptr<BaseItem>{new Button{"Back", [this](Button&) {
+	addNavbar(mGuiSystem, new Button{"Back", [this](Button&) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		       shared_ptr<BaseScreen>{new MainMenuScreen{}}};
-	}}}, vec2{buttonWidth, buttonHeight});
+	}}, numButtons, 0.0f, 0.0f, numButtons, buttonWidth);
 }
 
 // ModeSelectScreen: Overriden screen methods

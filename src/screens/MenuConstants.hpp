@@ -51,10 +51,14 @@ const vec3 MENU_BG_COLOR = vec3{0.2f};
 float calcRestPadding(float numH1s, float numH2s, float numH3s, float numStandardPaddings) noexcept;
 
 void addTitle(System& system, BaseItem* titleItem) noexcept;
-void addNavbar(System& system, BaseItem* navbarItem, float numH1s, float numH2s, float numH3s, float numStandardPaddings) noexcept;
-void addHeading1(System& system, BaseItem* item, gl::HorizontalAlign hAlign = gl::HorizontalAlign::CENTER) noexcept;
-void addHeading2(System& system, BaseItem* item, gl::HorizontalAlign hAlign = gl::HorizontalAlign::CENTER) noexcept;
-void addHeading3(System& system, BaseItem* item, gl::HorizontalAlign hAlign = gl::HorizontalAlign::CENTER) noexcept;
+void addNavbar(System& system, BaseItem* navbarItem, float numH1s, float numH2s, float numH3s,
+               float numStandardPaddings, float width = MENU_DIM.x) noexcept;
+void addHeading1(System& system, BaseItem* item, float width = MENU_DIM.x,
+                 gl::HorizontalAlign hAlign = gl::HorizontalAlign::CENTER) noexcept;
+void addHeading2(System& system, BaseItem* item, float width = MENU_DIM.x,
+                 gl::HorizontalAlign hAlign = gl::HorizontalAlign::CENTER) noexcept;
+void addHeading3(System& system, BaseItem* item, float width = MENU_DIM.x,
+                 gl::HorizontalAlign hAlign = gl::HorizontalAlign::CENTER) noexcept;
 void addStandardPadding(System& system) noexcept;
 
 } // namespace s3

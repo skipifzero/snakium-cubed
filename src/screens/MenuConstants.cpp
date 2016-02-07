@@ -27,29 +27,30 @@ void addTitle(System& system, BaseItem* titleItem) noexcept
 }
 
 
-void addNavbar(System& system, BaseItem* navbarItem, float numH1s, float numH2s, float numH3s, float numStandardPaddings) noexcept
+void addNavbar(System& system, BaseItem* navbarItem, float numH1s, float numH2s, float numH3s,
+               float numStandardPaddings, float width) noexcept
 {
 	system.addSpacing(calcRestPadding(numH1s, numH2s, numH3s, numStandardPaddings));
 	system.addSpacing(NAVBAR_PADDING);
-	system.addItem(shared_ptr<BaseItem>{navbarItem}, NAVBAR_HEIGHT);
+	system.addItem(shared_ptr<BaseItem>{navbarItem}, vec2{width, NAVBAR_HEIGHT});
 	system.addSpacing(MENU_BOTTOM_PADDING);
 }
 
-void addHeading1(System& system, BaseItem* item, gl::HorizontalAlign hAlign) noexcept
+void addHeading1(System& system, BaseItem* item, float width, gl::HorizontalAlign hAlign) noexcept
 {
-	system.addItem(shared_ptr<BaseItem>{item}, H1_HEIGHT, hAlign);
+	system.addItem(shared_ptr<BaseItem>{item}, vec2{width, H1_HEIGHT}, hAlign);
 	system.addSpacing(H1_PADDING);
 }
 
-void addHeading2(System& system, BaseItem* item, gl::HorizontalAlign hAlign) noexcept
+void addHeading2(System& system, BaseItem* item, float width, gl::HorizontalAlign hAlign) noexcept
 {
-	system.addItem(shared_ptr<BaseItem>{item}, H2_HEIGHT, hAlign);
+	system.addItem(shared_ptr<BaseItem>{item}, vec2{width, H2_HEIGHT}, hAlign);
 	system.addSpacing(H2_PADDING);
 }
 
-void addHeading3(System& system, BaseItem* item, gl::HorizontalAlign hAlign) noexcept
+void addHeading3(System& system, BaseItem* item, float width, gl::HorizontalAlign hAlign) noexcept
 {
-	system.addItem(shared_ptr<BaseItem>{item}, H3_HEIGHT, hAlign);
+	system.addItem(shared_ptr<BaseItem>{item}, vec2{width, H3_HEIGHT}, hAlign);
 	system.addSpacing(H3_PADDING);
 }
 
