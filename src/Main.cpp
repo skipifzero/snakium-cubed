@@ -41,8 +41,14 @@ int main(int argc, char* argv[])
 		cfg.save();
 	}
 
+	WindowFlags fullscreenFlag = [&cfg]() {
+		if (cfg.fullscreenMode == 1) return WindowFlags::FULLSCREEN_DESKTOP;
+		else if (cfg.fullscreenMode == 2) return WindowFlags::FULLSCREEN;
+		else return WindowFlags::MAXIMIZED;
+	}();
+
 	Window window{"snakium³", cfg.windowWidth, cfg.windowHeight,
-	     {WindowFlags::OPENGL, WindowFlags::RESIZABLE, WindowFlags::ALLOW_HIGHDPI}};
+	     {WindowFlags::OPENGL, WindowFlags::RESIZABLE, WindowFlags::ALLOW_HIGHDPI, fullscreenFlag}};
 	
 	// Creates OpenGL context, debug if SFZ_NO_DEBUG is not defined
 	SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 1);
@@ -65,7 +71,7 @@ int main(int argc, char* argv[])
 	gl::printSystemGLInfo();
 
 	// Sets correct displaymode
-	SDL_DisplayMode cfgDataMode;
+	/*SDL_DisplayMode cfgDataMode;
 	cfgDataMode.w = cfg.resolutionX;
 	cfgDataMode.h = cfg.resolutionY;
 	cfgDataMode.format = 0;
@@ -77,7 +83,7 @@ int main(int argc, char* argv[])
 	}
 	if (SDL_SetWindowDisplayMode(window.mPtr, &closest) < 0) {
 		std::cerr << "SDL_SetWindowDisplayMode() failed: " << SDL_GetError() << std::endl;
-	}
+	}*/
 
 	// Initializes GLEW, must happen after GL context is created.
 	glewExperimental = GL_TRUE;
@@ -101,13 +107,13 @@ int main(int argc, char* argv[])
 	}
 
 	// Fullscreen
-	int fullscreenFlags = 0;
+	/*int fullscreenFlags = 0;
 	if (cfg.fullscreenMode == 0) fullscreenFlags = 0;
 	else if (cfg.fullscreenMode == 1) fullscreenFlags = SDL_WINDOW_FULLSCREEN_DESKTOP;
 	else if (cfg.fullscreenMode == 2) fullscreenFlags = SDL_WINDOW_FULLSCREEN;
 	if (SDL_SetWindowFullscreen(window.mPtr, fullscreenFlags) < 0) {
 		std::cerr << "SDL_SetWindowFullscreen() failed: " << SDL_GetError() << std::endl;
-	}
+	}*/
 
 	// Initializes GUI rendering
 	{

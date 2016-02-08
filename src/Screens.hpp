@@ -7,6 +7,8 @@
 #include "screens/MainMenuScreen.hpp"
 #include "screens/MenuConstants.hpp"
 #include "screens/ModeSelectScreen.hpp"
+#include "screens/OptionsCustomScreen.hpp"
+#include "screens/OptionsGraphicsScreen.hpp"
 #include "screens/OptionsScreen.hpp"
 #include "screens/ResultScreen.hpp"
 #include "screens/S3ItemRenderers.hpp"

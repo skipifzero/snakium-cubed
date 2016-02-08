@@ -471,7 +471,7 @@ void OptionsScreen::applyConfig() noexcept
 	}
 
 	// Fullscreen
-	int fullscreenFlags = 0;
+	/*int fullscreenFlags = 0;
 	if (cfgData.fullscreenMode == 0) fullscreenFlags = 0;
 	else if (cfgData.fullscreenMode == 1) fullscreenFlags = SDL_WINDOW_FULLSCREEN_DESKTOP;
 	else if (cfgData.fullscreenMode == 2) fullscreenFlags = SDL_WINDOW_FULLSCREEN;
@@ -485,7 +485,7 @@ void OptionsScreen::applyConfig() noexcept
 		if (SDL_SetWindowFullscreen(mWindowPtr->mPtr, SDL_WINDOW_FULLSCREEN) < 0) {
 			std::cerr << "SDL_SetWindowFullscreen() failed: " << SDL_GetError() << std::endl;
 		}
-	}
+	}*/
 	
 	// VSync
 	int vsyncInterval = 1;
