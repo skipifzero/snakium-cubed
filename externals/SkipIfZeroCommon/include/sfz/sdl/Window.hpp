@@ -10,6 +10,9 @@ namespace sdl {
 
 using sfz::vec2;
 
+// Enums
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
 /**
  * @brief Enum wrapper for SDL_WindowFlags.
  * @see https://wiki.libsdl.org/SDL_WindowFlags
@@ -29,8 +32,24 @@ enum class WindowFlags : Uint32 {
 	MOUSE_FOCUS = SDL_WINDOW_MOUSE_FOCUS,
 	FOREIGN = SDL_WINDOW_FOREIGN,
 	ALLOW_HIGHDPI = SDL_WINDOW_ALLOW_HIGHDPI,
-	//MOUSE_CAPTURE = SDL_WINDOW_MOUSE_CAPTURE // TODO: Not implemented until SDL 2.0.4
+	MOUSE_CAPTURE = SDL_WINDOW_MOUSE_CAPTURE
 };
+
+enum class VSync : uint8_t {
+	OFF = 0,
+	ON = 1,
+	SWAP_CONTROL_TEAR = 2 // See https://www.opengl.org/registry/specs/EXT/wgl_swap_control_tear.txt
+};
+
+enum class Fullscreen : uint8_t {
+	OFF = 0,
+	WINDOWED = 1,
+	EXCLUSIVE = 2,
+	EXCLUSIVE_KEEP_CURRENT_DISPLAY_MODE = 3
+};
+
+// Window classs
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 /**
  * @brief Class responsible for creating, holding and destroying an SDL window.
@@ -45,7 +64,7 @@ public:
 	// Public members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	SDL_Window* const mPtr;
+	SDL_Window* const ptr;
 
 	// Constructors and destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -56,6 +75,12 @@ public:
 
 	Window(const char* title, int width, int height,
 	       std::initializer_list<WindowFlags> flags) noexcept;
+	
+	/**
+	 * @brief Common default constructor
+	 * Will init with SDL_WINDOW_RESIZABLE, SDL_WINDOW_OPENGL and SDL_WINDOW_ALLOW_HIGHDPI
+	 */
+	Window(const char* title) noexcept;
 
 	~Window() noexcept;
 
@@ -76,6 +101,14 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	void setSize(int width, int height) noexcept;
+	void setVSync(VSync mode) noexcept;
+
+	/** 
+	 * @brief Sets fullscreen mode
+	 * Display index is only used for Fullscreen::EXCLUSIVE. Default (-1) means that the current
+	 * display of the window will be used.
+	 */
+	void setFullscreen(Fullscreen mode, int displayIndex = -1) noexcept;
 };
 
 } // namespace sfz

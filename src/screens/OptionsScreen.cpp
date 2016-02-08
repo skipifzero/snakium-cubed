@@ -448,53 +448,12 @@ void OptionsScreen::applyConfig() noexcept
 {
 	auto& globalCfg = GlobalConfig::INSTANCE();
 	
-	bool needToUpdateFullscreen = (globalCfg.fullscreenMode == 2);
-
 	// Add the new settings to Global Config
 	globalCfg.data(cfgData);
 
 	// Enable new settings
-
-	// Resolution
-	SDL_DisplayMode cfgDataMode;
-	cfgDataMode.w = cfgData.resolutionX;
-	cfgDataMode.h = cfgData.resolutionY;
-	cfgDataMode.format = 0;
-	cfgDataMode.refresh_rate = cfgData.refreshRate;
-	cfgDataMode.driverdata = 0;
-	SDL_DisplayMode closest;
-	if (SDL_GetClosestDisplayMode(cfgData.displayIndex, &cfgDataMode, &closest) == NULL) {
-		std::cerr << "SDL_GetClosestDisplayMode() failed: " << SDL_GetError() << std::endl;
-	}
-	if (SDL_SetWindowDisplayMode(mWindowPtr->mPtr, &closest) < 0) {
-		std::cerr << "SDL_SetWindowDisplayMode() failed: " << SDL_GetError() << std::endl;
-	}
-
-	// Fullscreen
-	/*int fullscreenFlags = 0;
-	if (cfgData.fullscreenMode == 0) fullscreenFlags = 0;
-	else if (cfgData.fullscreenMode == 1) fullscreenFlags = SDL_WINDOW_FULLSCREEN_DESKTOP;
-	else if (cfgData.fullscreenMode == 2) fullscreenFlags = SDL_WINDOW_FULLSCREEN;
-	if (SDL_SetWindowFullscreen(mWindowPtr->mPtr, fullscreenFlags) < 0) {
-		std::cerr << "SDL_SetWindowFullscreen() failed: " << SDL_GetError() << std::endl;
-	}
-	if (needToUpdateFullscreen && fullscreenFlags == SDL_WINDOW_FULLSCREEN) {
-		if (SDL_SetWindowFullscreen(mWindowPtr->mPtr, 0) < 0) {
-			std::cerr << "SDL_SetWindowFullscreen() failed: " << SDL_GetError() << std::endl;
-		}
-		if (SDL_SetWindowFullscreen(mWindowPtr->mPtr, SDL_WINDOW_FULLSCREEN) < 0) {
-			std::cerr << "SDL_SetWindowFullscreen() failed: " << SDL_GetError() << std::endl;
-		}
-	}*/
-	
-	// VSync
-	int vsyncInterval = 1;
-	if (cfgData.vsync == 0) vsyncInterval = 0;
-	else if (cfgData.vsync == 1) vsyncInterval = 1;
-	else if (cfgData.vsync == 2) vsyncInterval = -1;
-	if (SDL_GL_SetSwapInterval(vsyncInterval) < 0) {
-		std::cerr << "SDL_GL_SetSwapInterval() failed: " << SDL_GetError() << std::endl;
-	}
+	mWindowPtr->setVSync(static_cast<sdl::VSync>(cfgData.vsync));
+	mWindowPtr->setFullscreen(static_cast<sdl::Fullscreen>(cfgData.fullscreenMode), cfgData.displayIndex);
 	
 	// Write to file
 	globalCfg.save();

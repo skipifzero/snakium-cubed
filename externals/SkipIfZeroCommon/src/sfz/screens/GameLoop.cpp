@@ -152,7 +152,7 @@ void runGameLoop(sdl::Window& window, shared_ptr<BaseScreen> currentScreen)
 		// Render current screen
 		currentScreen->render(state);
 
-		SDL_GL_SwapWindow(window.mPtr);
+		SDL_GL_SwapWindow(window.ptr);
 	}
 }
 
