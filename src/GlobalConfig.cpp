@@ -40,13 +40,8 @@ bool operator== (const ConfigData& lhs, const ConfigData& rhs) noexcept
 	// Graphics
 	lhs.displayIndex == rhs.displayIndex &&
 	lhs.fullscreenMode == rhs.fullscreenMode &&
-	lhs.refreshRate == rhs.refreshRate &&
-	lhs.resolutionX == rhs.resolutionX &&
-	lhs.resolutionY == rhs.resolutionY &&
-	lhs.windowWidth == rhs.windowWidth &&
-	lhs.windowHeight == rhs.windowHeight &&
 	lhs.vsync == rhs.vsync &&
-	lhs.internalResScaling == rhs.internalResScaling &&
+	lhs.internalResolutionY == rhs.internalResolutionY &&
 	lhs.blurResScaling == rhs.blurResScaling &&
 	lhs.spotlightResScaling == rhs.spotlightResScaling &&
 	lhs.lightShaftsResScaling == rhs.lightShaftsResScaling &&
@@ -130,19 +125,14 @@ void GlobalConfig::load() noexcept
 	
 	// [Graphics]
 	static const string grStr = "Graphics";
-	blurResScaling =     ip.sanitizeFloat(grStr, "fBlurResScaling", 0.4f, 0.01f, 2.0f);
-	internalResScaling = ip.sanitizeFloat(grStr, "fInternalResScaling", 1.0f, 0.01f, 10.0f);
+	blurResScaling =        ip.sanitizeFloat(grStr, "fBlurResScaling", 0.4f, 0.01f, 2.0f);
+	internalResolutionY =   ip.sanitizeInt(grStr, "iInternalResolutionY", 1080, 0, 8192);
 	lightShaftsResScaling = ip.sanitizeFloat(grStr, "fLightShaftsResScaling", 0.5f, 0.01f, 10.0f);
-	spotlightResScaling = ip.sanitizeFloat(grStr, "fSpotlightResScaling", 1.0f, 0.01f, 10.0f);
-	displayIndex =      ip.sanitizeInt(grStr, "iDisplayIndex", 0, 0, 32);
-	fullscreenMode =    ip.sanitizeInt(grStr, "iFullscreenMode", 1, 0, 2);
-	refreshRate =       ip.sanitizeInt(grStr, "iRefreshRate", 60, 15, 240);
-	resolutionX =       ip.sanitizeInt(grStr, "iResolutionX", 1920, 200, 30720);
-	resolutionY =       ip.sanitizeInt(grStr, "iResolutionY", 1080, 200, 17280);
-	scalingAlgorithm =  ip.sanitizeInt(grStr, "iScalingAlgorithm", 3, 0, 8);
-	vsync =             ip.sanitizeInt(grStr, "iVSync", 1, 0, 2);
-	windowHeight =      ip.sanitizeInt(grStr, "iWindowHeight", 800, 200, 10000);
-	windowWidth =       ip.sanitizeInt(grStr, "iWindowWidth", 800, 200, 10000);
+	spotlightResScaling =   ip.sanitizeFloat(grStr, "fSpotlightResScaling", 1.0f, 0.01f, 10.0f);
+	displayIndex =          ip.sanitizeInt(grStr, "iDisplayIndex", 0, 0, 32);
+	fullscreenMode =        ip.sanitizeInt(grStr, "iFullscreenMode", 1, 0, 2);
+	scalingAlgorithm =      ip.sanitizeInt(grStr, "iScalingAlgorithm", 3, 0, 8);
+	vsync =                 ip.sanitizeInt(grStr, "iVSync", 1, 0, 2);
 }
 
 void GlobalConfig::save() noexcept
@@ -178,18 +168,13 @@ void GlobalConfig::save() noexcept
 	// [Graphics]
 	static const string grStr = "Graphics";
 	mIniParser.setFloat(grStr, "fBlurResScaling", blurResScaling);
-	mIniParser.setFloat(grStr, "fInternalResScaling", internalResScaling);
+	mIniParser.setInt(grStr, "iInternalResolutionY", internalResolutionY);
 	mIniParser.setFloat(grStr, "fLightShaftsResScaling", lightShaftsResScaling);
 	mIniParser.setFloat(grStr, "fSpotlightResScaling", spotlightResScaling);
 	mIniParser.setInt(grStr, "iDisplayIndex", displayIndex);
 	mIniParser.setInt(grStr, "iFullscreenMode", fullscreenMode);
-	mIniParser.setInt(grStr, "iRefreshRate", refreshRate);
-	mIniParser.setInt(grStr, "iResolutionX", resolutionX);
-	mIniParser.setInt(grStr, "iResolutionY", resolutionY);
 	mIniParser.setInt(grStr, "iScalingAlgorithm", scalingAlgorithm);
 	mIniParser.setInt(grStr, "iVSync", vsync);
-	mIniParser.setInt(grStr, "iWindowHeight", windowHeight);
-	mIniParser.setInt(grStr, "iWindowWidth", windowWidth);
 
 	if (!mIniParser.save()) {
 		std::cerr << "Couldn't save config.ini at: " << userIniPath() << std::endl;
@@ -208,13 +193,8 @@ void GlobalConfig::data(const ConfigData& configData) noexcept
 	// Graphics
 	this->displayIndex = configData.displayIndex;
 	this->fullscreenMode = configData.fullscreenMode;
-	this->refreshRate = configData.refreshRate;
-	this->resolutionX = configData.resolutionX;
-	this->resolutionY = configData.resolutionY;
-	this->windowWidth = configData.windowWidth;
-	this->windowHeight = configData.windowHeight;
 	this->vsync = configData.vsync;
-	this->internalResScaling = configData.internalResScaling;
+	this->internalResolutionY = configData.internalResolutionY;
 	this->blurResScaling = configData.blurResScaling;
 	this->spotlightResScaling = configData.spotlightResScaling;
 	this->lightShaftsResScaling = configData.lightShaftsResScaling;

@@ -63,7 +63,6 @@ private:
 
 	sdl::Window* mWindowPtr = nullptr;
 	gui::System mGuiSystem;
-	vector<SDL_DisplayMode> mDisplayModes;
 	UpdateOp mUpdateOp = sfz::SCREEN_NO_OP;
 
 	shared_ptr<BaseItem> mInternalResMultiChoicePtr, mBlurResMultiChoicePtr,
@@ -71,7 +70,8 @@ private:
 
 	shared_ptr<BaseItem> mCancelApplyCon, mCancelButton, mApplyButton;
 
-	vector<string> mInternalResFactorStrs;
+	vector<int> mYResolutions;
+	vector<string> mInternalResStrs;
 	vector<string> mSecondaryResFactorStrs;
 };
 

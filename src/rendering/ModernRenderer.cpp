@@ -637,7 +637,8 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	Assets& assets = Assets::INSTANCE();
 
 	// Ensure framebuffers are of correct size
-	vec2i internalRes{(int)(drawableDim.x*cfg.internalResScaling), (int)(drawableDim.y*cfg.internalResScaling)};
+	float aspect = drawableDim.x / drawableDim.y;
+	vec2i internalRes{(int)std::round(cfg.internalResolutionY * aspect), cfg.internalResolutionY};
 	if (mGBuffer.dimensions() != internalRes) {
 		vec2i blurRes{(int)(internalRes.x*cfg.blurResScaling), (int)(internalRes.y*cfg.blurResScaling)};
 		vec2i spotlightRes{(int)(internalRes.x*cfg.spotlightResScaling), (int)(internalRes.y*cfg.spotlightResScaling)};

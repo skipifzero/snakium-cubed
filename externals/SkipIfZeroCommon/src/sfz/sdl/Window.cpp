@@ -1,5 +1,7 @@
 #include "sfz/sdl/Window.hpp"
 
+#include <algorithm>
+
 #include "sfz/Assert.hpp"
 
 namespace sdl {
@@ -181,6 +183,51 @@ void Window::setFullscreen(Fullscreen mode, int displayIndex) noexcept
 	if (SDL_SetWindowFullscreen(ptr, fullscreenFlags) < 0) {
 		std::cerr << "SDL_SetWindowFullscreen() failed: " << SDL_GetError() << std::endl;
 	}
+}
+
+// Functions
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+vector<vec2i> getAvailableResolutions() noexcept
+{
+	// Get number of displays
+	const int numDisplays = SDL_GetNumVideoDisplays();
+	if (numDisplays < 0) {
+		std::cerr << "SDL_GetNumVideoDisplays() failed: " << SDL_GetError() << std::endl;
+	}
+
+	// Get all resolutions
+	vector<vec2i> resolutions;
+	SDL_DisplayMode mode;
+	for (int index = 0; index < numDisplays; ++index) {
+		int numDisplayModes = SDL_GetNumDisplayModes(index);
+		if (numDisplayModes < 0) {
+			std::cerr << "SDL_GetNumDisplayModes() failed: " << SDL_GetError() << std::endl;
+			continue;
+		}
+		for (int i = 0; i < numDisplayModes; ++i) {
+			mode = {SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0};
+			if (SDL_GetDisplayMode(index, i, &mode) != 0) {
+				std::cerr << "SDL_GetDisplayMode failed: " << SDL_GetError() << std::endl;
+			}
+			resolutions.push_back(vec2i{mode.w, mode.h});
+		}
+	}
+
+	// Sort by vertical resolution
+	std::sort(resolutions.begin(), resolutions.end(), [](vec2i lhs, vec2i rhs) {
+		return lhs.y < rhs.y;
+	});
+
+	// Remove duplicates
+	for (int i = 1; i < resolutions.size(); ++i) {
+		if (resolutions[i] == resolutions[i-1]) {
+			resolutions.erase(resolutions.begin() + i);
+			i -= 1;
+		}
+	}
+
+	return std::move(resolutions);
 }
 
 } // namespace sdl

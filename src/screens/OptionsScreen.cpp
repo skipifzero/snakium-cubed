@@ -17,65 +17,53 @@
 
 namespace s3 {
 
-// Static functions
+// Statics
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-struct Resolutions {
-	vector<string> names;
-	vector<SDL_DisplayMode> modes;
-};
-
-static Resolutions getAvailableResolutions(ConfigData& data) noexcept
+static vector<int> availableVerticalResolutions() noexcept
 {
-	// Make sure current display index is valid
-	const int numDisplays = SDL_GetNumVideoDisplays();
-	if (numDisplays < 0) {
-		std::cerr << "SDL_GetNumVideoDisplays() failed: " << SDL_GetError() << std::endl;
+	auto& cfgData = GlobalConfig::INSTANCE().data();
+	auto tmp = sdl::getAvailableResolutions();
+	
+	vector<int> resolutions;
+	for (auto& res : tmp) {
+		resolutions.push_back(res.y);
 	}
-	if (data.displayIndex >= numDisplays) {
-		std::cerr << "Display index " << data.displayIndex << " is invalid, max is "
-		          << numDisplays << ". Resetting to 0." << std::endl;
-		data.displayIndex = 0;
-	}
+	
+	resolutions.push_back(cfgData.internalResolutionY);
+	resolutions.push_back(240);
+	resolutions.push_back(360);
+	resolutions.push_back(480);
+	resolutions.push_back(576);
+	resolutions.push_back(600);
+	resolutions.push_back(720);
+	resolutions.push_back(800);
+	resolutions.push_back(900);
+	resolutions.push_back(1080);
+	resolutions.push_back(1200);
+	resolutions.push_back(1440);
+	resolutions.push_back(1600);
+	resolutions.push_back(2160);
+	resolutions.push_back(2400);
+	resolutions.push_back(2880);
+	resolutions.push_back(3240);
+	resolutions.push_back(4320);
 
-	// Get all available display modes for the selected display index
-	vector<SDL_DisplayMode> modes;
-	SDL_DisplayMode mode;
-	const int numDisplayModes = SDL_GetNumDisplayModes(data.displayIndex);
-	if (numDisplayModes < 0) {
-		std::cerr << "SDL_GetNumDisplayModes failed: " << SDL_GetError() << std::endl;
-	}
-	for (int i = 0; i < numDisplayModes; ++i) {
-		mode = {SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0};
-		if (SDL_GetDisplayMode(data.displayIndex, i, &mode) != 0) {
-			std::cerr << "SDL_GetDisplayMode failed: " << SDL_GetError() << std::endl;
-		}
-		modes.push_back(mode);
-		//std::cout << "DisplayMode: " << mode.w << "x" << mode.h << ", " << mode.refresh_rate << "Hz, PixelFormat: " << mode.format << std::endl;
-	}
-
-	// Sort the display modes
-	std::sort(modes.begin(), modes.end(), [](const SDL_DisplayMode& lhs, const SDL_DisplayMode& rhs) {
-		if (lhs.w == rhs.w && lhs.h == rhs.h) {
-			return lhs.refresh_rate < rhs.refresh_rate;
-		}
-		float lhsSquaredLength = sfz::squaredLength(vec2{(float)lhs.w, (float)lhs.h});
-		float rhsSquaredLength = sfz::squaredLength(vec2{(float)rhs.w, (float)rhs.h});
-		return lhsSquaredLength < rhsSquaredLength;
+	// Sort
+	std::sort(resolutions.begin(), resolutions.end(), [](int lhs, int rhs) {
+		return lhs < rhs;
 	});
 
-	// Create display mode strings
-	vector<string> names;
-	for (auto& m : modes) {
-		names.emplace_back(std::to_string(m.w) + "x" + std::to_string(m.h) + " (" + std::to_string(m.refresh_rate) + "Hz)");
+	// Remove duplicates
+	for (int i = 1; i < resolutions.size(); ++i) {
+		if (resolutions[i] == resolutions[i-1]) {
+			resolutions.erase(resolutions.begin() + i);
+			i -= 1;
+		}
 	}
-
-	Resolutions temp;
-	temp.names = std::move(names);
-	temp.modes = std::move(modes);
-	return temp;
-};
-
+	
+	return std::move(resolutions);
+}
 
 // OptionsScreen: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -86,6 +74,7 @@ OptionsScreen::OptionsScreen() noexcept
 {
 	using namespace gui;
 	cfgData = GlobalConfig::INSTANCE().data();
+	mYResolutions = availableVerticalResolutions();
 
 	// Constants
 	const float stateAlignOffset = MENU_DIM.x * 0.535f;
@@ -123,42 +112,19 @@ OptionsScreen::OptionsScreen() noexcept
 		this->cfgData.fullscreenMode = choice;
 	}, stateAlignOffset}});
 
-	auto temp = getAvailableResolutions(cfgData);
-	mDisplayModes = std::move(temp.modes);
-	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Resolution", std::move(temp.names), [this]() {
-		for (int i = 0; i < (int)this->mDisplayModes.size(); ++i) {
-			auto m = this->mDisplayModes[i];
-			auto& d = this->cfgData;
-			if (m.w == d.resolutionX && m.h == d.resolutionY && m.refresh_rate == d.refreshRate) {
-				return i;
-			}
-		}
-		return -1;
-	}, [this](int choice) {
-		this->cfgData.resolutionX = this->mDisplayModes[choice].w;
-		this->cfgData.resolutionY = this->mDisplayModes[choice].h;
-		this->cfgData.refreshRate = this->mDisplayModes[choice].refresh_rate;
-	}, stateAlignOffset}});
-
 	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"VSync", {"Off", "On", "Swap Control Tear"}, [this]() {
 		return this->cfgData.vsync;
 	}, [this](int choice) {
 		this->cfgData.vsync = choice;
 	}, stateAlignOffset}});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{new TextItem{"Internal resolution is a factor of the current output resolution", HorizontalAlign::LEFT}});
-
-	mInternalResMultiChoicePtr = shared_ptr<BaseItem>{new MultiChoiceSelector{"Internal Resolution", {}, [this]() {
-		float val = this->cfgData.internalResScaling;
-		const float eps = 0.01f;
-		int i = 0;
-		for (float factor = 0.05f; factor <= 4.0f; factor += 0.05f) {
-			if (sfz::approxEqual(val, factor, eps)) return i;
-			++i;
-		}
-		return -1;
+	mInternalResMultiChoicePtr = shared_ptr<BaseItem>{new MultiChoiceSelector{"Internal Y-Resolution", {}, [this]() {
+		int val = this->cfgData.internalResolutionY;
+		auto itr = std::find(this->mYResolutions.begin(), this->mYResolutions.end(), val);
+		if (itr == this->mYResolutions.end()) return -1;
+		return static_cast<int>(itr - this->mYResolutions.begin());
 	}, [this](int choice) {
-		this->cfgData.internalResScaling = 0.05f + ((float)choice)*0.05f;
+		this->cfgData.internalResolutionY = this->mYResolutions[choice];
 		this->mDrawableDim = vec2{-1.0f};
 	}, stateAlignOffset}};
 
@@ -462,13 +428,18 @@ void OptionsScreen::applyConfig() noexcept
 void OptionsScreen::updateResolutionFactors() noexcept
 {
 	char buffer[128];
-	mInternalResFactorStrs.clear();
+	const float aspect = mDrawableDim.x / mDrawableDim.y;
+
+	mInternalResStrs.clear();
+	for (int i = 0; i < mYResolutions.size(); ++i) {
+		std::snprintf(buffer, sizeof(buffer), "%ip (%ix%i)", mYResolutions[i],
+		              (int)std::round(cfgData.internalResolutionY * aspect), mYResolutions[i]);
+		mInternalResStrs.push_back(buffer);
+	}
+
 	mSecondaryResFactorStrs.clear();
-	vec2 internalRes = mDrawableDim * cfgData.internalResScaling;
+	vec2i internalRes{(int)std::round(cfgData.internalResolutionY * aspect), cfgData.internalResolutionY};
 	for (float factor = 0.05f; factor <= 4.0f; factor += 0.05) {
-		std::snprintf(buffer, 128, "%ix%i (%.2f)", int(std::round(mDrawableDim.x * factor)), 
-		              int(std::round(mDrawableDim.y * factor)), factor);
-		mInternalResFactorStrs.push_back(buffer);
 		std::snprintf(buffer, 128, "%ix%i (%.2f)", int(std::round(internalRes.x * factor)), 
 		              int(std::round(internalRes.y * factor)), factor);
 		mSecondaryResFactorStrs.push_back(buffer);
@@ -485,7 +456,7 @@ void OptionsScreen::updateResolutionStrings() noexcept
 	MultiChoiceSelector& spotlightResMultiChoice = *static_cast<MultiChoiceSelector*>(mSpotlightResMultiChoicePtr.get());
 	MultiChoiceSelector& lightShaftResMultiChoice = *static_cast<MultiChoiceSelector*>(mLightShaftResMultiChoicePtr.get());
 
-	internalResMultiChoice.choiceNames = mInternalResFactorStrs;
+	internalResMultiChoice.choiceNames = mInternalResStrs;
 	blurResMultiChoice.choiceNames = vector<string>{mSecondaryResFactorStrs.begin(), mSecondaryResFactorStrs.begin()+20};
 	spotlightResMultiChoice.choiceNames = mSecondaryResFactorStrs;
 	lightShaftResMultiChoice.choiceNames = mSecondaryResFactorStrs;

@@ -2,13 +2,17 @@
 #ifndef SFZ_SDL_WINDOW_HPP
 #define SFZ_SDL_WINDOW_HPP
 
+#include <initializer_list>
+#include <vector>
+
 #include <sfz/math/Vector.hpp>
 #include <SDL.h>
-#include <initializer_list>
 
 namespace sdl {
 
 using sfz::vec2;
+using sfz::vec2i;
+using std::vector;
 
 // Enums
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -48,7 +52,7 @@ enum class Fullscreen : uint8_t {
 	EXCLUSIVE_KEEP_CURRENT_DISPLAY_MODE = 3
 };
 
-// Window classs
+// Window class
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 /**
@@ -110,6 +114,11 @@ public:
 	 */
 	void setFullscreen(Fullscreen mode, int displayIndex = -1) noexcept;
 };
+
+// Functions
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+vector<vec2i> getAvailableResolutions() noexcept;
 
 } // namespace sfz
 #endif
