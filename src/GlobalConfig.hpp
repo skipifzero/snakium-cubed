@@ -24,6 +24,7 @@ struct ConfigData {
 	int32_t displayIndex;
 	int32_t fullscreenMode; // 0 = off, 1 = windowed, 2 = exclusive
 	int32_t vsync; // 0 = off, 1 = on, 2 = swap control tear
+	bool nativeInternalRes;
 	int32_t internalResolutionY;
 	float blurResScaling;
 	float spotlightResScaling;

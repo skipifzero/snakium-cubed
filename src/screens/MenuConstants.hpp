@@ -26,7 +26,7 @@ const vec2 MENU_SYSTEM_DIM = vec2{100.0f, 125.0f};
 const vec2 MENU_DIM = MENU_SYSTEM_DIM - vec2{0.1f};
 
 // Heading sizes
-const float TITLE_HEIGHT = 20.0f;
+const float TITLE_HEIGHT = 18.0f;
 const float NAVBAR_HEIGHT = 8.0f;
 const float H1_HEIGHT = 7.5f;
 const float H2_HEIGHT = 5.75f;

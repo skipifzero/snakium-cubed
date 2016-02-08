@@ -41,6 +41,7 @@ bool operator== (const ConfigData& lhs, const ConfigData& rhs) noexcept
 	lhs.displayIndex == rhs.displayIndex &&
 	lhs.fullscreenMode == rhs.fullscreenMode &&
 	lhs.vsync == rhs.vsync &&
+	lhs.nativeInternalRes == rhs.nativeInternalRes &&
 	lhs.internalResolutionY == rhs.internalResolutionY &&
 	lhs.blurResScaling == rhs.blurResScaling &&
 	lhs.spotlightResScaling == rhs.spotlightResScaling &&
@@ -125,11 +126,12 @@ void GlobalConfig::load() noexcept
 	
 	// [Graphics]
 	static const string grStr = "Graphics";
+	nativeInternalRes =     ip.sanitizeBool(grStr, "bNativeInternalRes", false);
 	blurResScaling =        ip.sanitizeFloat(grStr, "fBlurResScaling", 0.4f, 0.01f, 2.0f);
-	internalResolutionY =   ip.sanitizeInt(grStr, "iInternalResolutionY", 1080, 0, 8192);
+	internalResolutionY =   ip.sanitizeInt(grStr, "iInternalResolutionY", 1080, 120, 8192);
 	lightShaftsResScaling = ip.sanitizeFloat(grStr, "fLightShaftsResScaling", 0.5f, 0.01f, 10.0f);
 	spotlightResScaling =   ip.sanitizeFloat(grStr, "fSpotlightResScaling", 1.0f, 0.01f, 10.0f);
-	displayIndex =          ip.sanitizeInt(grStr, "iDisplayIndex", 0, 0, 32);
+	displayIndex =          ip.sanitizeInt(grStr, "iDisplayIndex", -1, -1, 8);
 	fullscreenMode =        ip.sanitizeInt(grStr, "iFullscreenMode", 1, 0, 2);
 	scalingAlgorithm =      ip.sanitizeInt(grStr, "iScalingAlgorithm", 3, 0, 8);
 	vsync =                 ip.sanitizeInt(grStr, "iVSync", 1, 0, 2);
@@ -167,6 +169,7 @@ void GlobalConfig::save() noexcept
 
 	// [Graphics]
 	static const string grStr = "Graphics";
+	mIniParser.setBool(grStr, "bNativeInternalRes", nativeInternalRes);
 	mIniParser.setFloat(grStr, "fBlurResScaling", blurResScaling);
 	mIniParser.setInt(grStr, "iInternalResolutionY", internalResolutionY);
 	mIniParser.setFloat(grStr, "fLightShaftsResScaling", lightShaftsResScaling);
@@ -194,6 +197,7 @@ void GlobalConfig::data(const ConfigData& configData) noexcept
 	this->displayIndex = configData.displayIndex;
 	this->fullscreenMode = configData.fullscreenMode;
 	this->vsync = configData.vsync;
+	this->nativeInternalRes = configData.nativeInternalRes;
 	this->internalResolutionY = configData.internalResolutionY;
 	this->blurResScaling = configData.blurResScaling;
 	this->spotlightResScaling = configData.spotlightResScaling;

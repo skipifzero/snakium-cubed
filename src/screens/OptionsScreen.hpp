@@ -42,21 +42,17 @@ public:
 
 	virtual UpdateOp update(UpdateState& state) override final;
 	virtual void render(UpdateState& state) override final;
-	virtual void onResize(vec2 windowDimensions, vec2 drawableDimensions);
 
 	// Public members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	ConfigData cfgData;
-	vec2 mDrawableDim{-1.0f}; // Public access is slightly hack
 
 private:
 	// Private methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	void applyConfig() noexcept;
-	void updateResolutionFactors() noexcept;
-	void updateResolutionStrings() noexcept;
 
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -65,14 +61,7 @@ private:
 	gui::System mGuiSystem;
 	UpdateOp mUpdateOp = sfz::SCREEN_NO_OP;
 
-	shared_ptr<BaseItem> mInternalResMultiChoicePtr, mBlurResMultiChoicePtr,
-	                     mSpotlightResMultiChoicePtr, mLightShaftResMultiChoicePtr;
-
 	shared_ptr<BaseItem> mCancelApplyCon, mCancelButton, mApplyButton;
-
-	vector<int> mYResolutions;
-	vector<string> mInternalResStrs;
-	vector<string> mSecondaryResFactorStrs;
 };
 
 } // namespace s3

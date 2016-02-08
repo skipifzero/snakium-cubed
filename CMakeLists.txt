@@ -88,7 +88,7 @@ set(SOURCE_SCREENS_FILES
 	${SRC_DIR}/screens/OptionsCustomScreen.hpp
 	${SRC_DIR}/screens/OptionsCustomScreen.cpp
 	${SRC_DIR}/screens/OptionsGraphicsScreen.hpp
-	${SRC_DIR}/screens/OptionsGraphicsScreen.hpp
+	${SRC_DIR}/screens/OptionsGraphicsScreen.cpp
 	${SRC_DIR}/screens/OptionsScreen.hpp
 	${SRC_DIR}/screens/OptionsScreen.cpp
 	${SRC_DIR}/screens/ResultScreen.hpp
