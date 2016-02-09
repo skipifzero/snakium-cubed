@@ -107,6 +107,8 @@ set(SOURCE_GL_FILES
 	 ${SOURCE_DIR}/sfz/gl/PostProcessQuad.cpp
 	${INCLUDE_DIR}/sfz/gl/Program.hpp
 	 ${SOURCE_DIR}/sfz/gl/Program.cpp
+	${INCLUDE_DIR}/sfz/gl/Scaler.hpp
+	 ${SOURCE_DIR}/sfz/gl/Scaler.cpp
 	${INCLUDE_DIR}/sfz/gl/SimpleModel.hpp
 	 ${SOURCE_DIR}/sfz/gl/SimpleModel.cpp
 	${INCLUDE_DIR}/sfz/gl/Spotlight.hpp
