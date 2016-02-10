@@ -15,6 +15,25 @@ using std::int32_t;
 // ConfigData struct
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+struct GraphicsConfig {
+	int32_t vsync; // 0 = off, 1 = on, 2 = swap control tear
+	bool nativeInternalRes;
+	int32_t internalResolutionY;
+	float blurResScaling;
+	float spotlightResScaling;
+	float lightShaftsResScaling;
+	int32_t scalingAlgorithm;
+};
+
+extern const GraphicsConfig TOASTER_GRAPHICS_CONFIG;
+extern const GraphicsConfig LAPTOP_W_INTEL_GRAPHICS_CONFIG;
+extern const GraphicsConfig LAPTOP_W_NVIDIA_GRAPHICS_CONFIG;
+extern const GraphicsConfig GAMING_COMPUTER_GRAPHICS_CONFIG;
+extern const GraphicsConfig FUTURE_SUPERCOMPUTER_GRAPHICS_CONFIG;
+
+bool operator== (const GraphicsConfig& lhs, const GraphicsConfig& rhs) noexcept;
+bool operator!= (const GraphicsConfig& lhs, const GraphicsConfig& rhs) noexcept;
+
 struct ConfigData {
 	// Debug
 	bool continuousShaderReload;
@@ -23,13 +42,7 @@ struct ConfigData {
 	// Graphics
 	int32_t displayIndex;
 	int32_t fullscreenMode; // 0 = off, 1 = windowed, 2 = exclusive
-	int32_t vsync; // 0 = off, 1 = on, 2 = swap control tear
-	bool nativeInternalRes;
-	int32_t internalResolutionY;
-	float blurResScaling;
-	float spotlightResScaling;
-	float lightShaftsResScaling;
-	int32_t scalingAlgorithm;
+	GraphicsConfig gc;
 
 	// Game Settings
 	int32_t inputBufferSize;

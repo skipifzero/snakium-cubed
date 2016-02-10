@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
 	}
 
 	// Fullscreen & VSync
-	window.setVSync(static_cast<VSync>(cfg.vsync));
+	window.setVSync(static_cast<VSync>(cfg.gc.vsync));
 	window.setFullscreen(static_cast<Fullscreen>(cfg.fullscreenMode), cfg.displayIndex);
 
 	// Enable OpenGL debug message if in debug mode

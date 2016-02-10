@@ -30,7 +30,7 @@ static vector<int> availableVerticalResolutions() noexcept
 		resolutions.push_back(res.y);
 	}
 	
-	resolutions.push_back(cfgData.internalResolutionY);
+	resolutions.push_back(cfgData.gc.internalResolutionY);
 	resolutions.push_back(240);
 	resolutions.push_back(360);
 	resolutions.push_back(480);
@@ -113,19 +113,19 @@ OptionsGraphicsScreen::OptionsGraphicsScreen() noexcept
 	}, stateAlignOffset}});
 
 	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"VSync", {"Off", "On", "Swap Control Tear"}, [this]() {
-		return this->cfgData.vsync;
+		return this->cfgData.gc.vsync;
 	}, [this](int choice) {
-		this->cfgData.vsync = choice;
+		this->cfgData.gc.vsync = choice;
 	}, stateAlignOffset}});
 
 	addStandardPadding(scrollList);
 	addHeading2(scrollList, shared_ptr<BaseItem>{new TextItem{"Internal resolution", gl::HorizontalAlign::LEFT}});
 
 	addHeading3(scrollList, shared_ptr<BaseItem>{new OnOffSelector{"Native resolution", [this]() {
-		return this->cfgData.nativeInternalRes;
+		return this->cfgData.gc.nativeInternalRes;
 	}, [this]() {
-		this->cfgData.nativeInternalRes = !this->cfgData.nativeInternalRes;
-		if (this->cfgData.nativeInternalRes) {
+		this->cfgData.gc.nativeInternalRes = !this->cfgData.gc.nativeInternalRes;
+		if (this->cfgData.gc.nativeInternalRes) {
 			this->mInternalResMultiChoicePtr->disable();
 		} else {
 			this->mInternalResMultiChoicePtr->enable();
@@ -134,15 +134,15 @@ OptionsGraphicsScreen::OptionsGraphicsScreen() noexcept
 	}, stateAlignOffset}});
 
 	mInternalResMultiChoicePtr = shared_ptr<BaseItem>{new MultiChoiceSelector{"Internal y-resolution", {}, [this]() {
-		int val = this->cfgData.internalResolutionY;
+		int val = this->cfgData.gc.internalResolutionY;
 		auto itr = std::find(this->mYResolutions.begin(), this->mYResolutions.end(), val);
 		if (itr == this->mYResolutions.end()) return -1;
 		return static_cast<int>(itr - this->mYResolutions.begin());
 	}, [this](int choice) {
-		this->cfgData.internalResolutionY = this->mYResolutions[choice];
+		this->cfgData.gc.internalResolutionY = this->mYResolutions[choice];
 		this->mDrawableDim = vec2{-1.0f};
 	}, stateAlignOffset}};
-	if (this->cfgData.nativeInternalRes) {
+	if (this->cfgData.gc.nativeInternalRes) {
 		mInternalResMultiChoicePtr->disable();
 	} else {
 		mInternalResMultiChoicePtr->enable();
@@ -153,7 +153,7 @@ OptionsGraphicsScreen::OptionsGraphicsScreen() noexcept
 	addHeading2(scrollList, shared_ptr<BaseItem>{new TextItem{"Secondary resolutions", gl::HorizontalAlign::LEFT}});
 
 	mBlurResMultiChoicePtr = shared_ptr<BaseItem>{new MultiChoiceSelector{"Emissive blur resolution", {}, [this]() {
-		float val = this->cfgData.blurResScaling;
+		float val = this->cfgData.gc.blurResScaling;
 		const float eps = 0.01f;
 		int i = 0;
 		for (float factor = 0.05f; factor <= 4.0f; factor += 0.05f) {
@@ -162,12 +162,12 @@ OptionsGraphicsScreen::OptionsGraphicsScreen() noexcept
 		}
 		return -1;
 	}, [this](int choice) {
-		this->cfgData.blurResScaling = 0.05f + ((float)choice)*0.05f;
+		this->cfgData.gc.blurResScaling = 0.05f + ((float)choice)*0.05f;
 	}, stateAlignOffset}};
 	addHeading3(scrollList, mBlurResMultiChoicePtr);
 	
 	mSpotlightResMultiChoicePtr = shared_ptr<BaseItem>{new MultiChoiceSelector{"Spotlight resolution", {}, [this]() {
-		float val = this->cfgData.spotlightResScaling;
+		float val = this->cfgData.gc.spotlightResScaling;
 		const float eps = 0.01f;
 		int i = 0;
 		for (float factor = 0.05f; factor <= 4.0f; factor += 0.05f) {
@@ -176,12 +176,12 @@ OptionsGraphicsScreen::OptionsGraphicsScreen() noexcept
 		}
 		return -1;
 	}, [this](int choice) {
-		this->cfgData.spotlightResScaling = 0.05f + ((float)choice)*0.05f;
+		this->cfgData.gc.spotlightResScaling = 0.05f + ((float)choice)*0.05f;
 	}, stateAlignOffset}};
 	addHeading3(scrollList, mSpotlightResMultiChoicePtr);
 	
 	mLightShaftResMultiChoicePtr = shared_ptr<BaseItem>{new MultiChoiceSelector{"Volumetric lighting resolution", {}, [this]() {
-		float val = this->cfgData.lightShaftsResScaling;
+		float val = this->cfgData.gc.lightShaftsResScaling;
 		const float eps = 0.01f;
 		int i = 0;
 		for (float factor = 0.05f; factor <= 4.0f; factor += 0.05f) {
@@ -190,7 +190,7 @@ OptionsGraphicsScreen::OptionsGraphicsScreen() noexcept
 		}
 		return -1;
 	}, [this](int choice) {
-		this->cfgData.lightShaftsResScaling = 0.05f + ((float)choice)*0.05f;
+		this->cfgData.gc.lightShaftsResScaling = 0.05f + ((float)choice)*0.05f;
 	}, stateAlignOffset}};
 	addHeading3(scrollList, mLightShaftResMultiChoicePtr);
 	
@@ -198,9 +198,9 @@ OptionsGraphicsScreen::OptionsGraphicsScreen() noexcept
 	addHeading2(scrollList, shared_ptr<BaseItem>{new TextItem{"Misc", gl::HorizontalAlign::LEFT}});
 
 	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Scaling algorithm", {"Nearest", "Bilinear", "2x2 Nearest", "2x2 Bilinear", "4x4 Nearest", "4x4 Bilinear", "Bicubic Bspline", "Lanczos-2", "Lanczos-3"}, [this]() {
-		return this->cfgData.scalingAlgorithm;
+		return this->cfgData.gc.scalingAlgorithm;
 	}, [this](int choice) {
-		this->cfgData.scalingAlgorithm = choice;
+		this->cfgData.gc.scalingAlgorithm = choice;
 	}, stateAlignOffset}});
 }
 
@@ -274,7 +274,7 @@ void OptionsGraphicsScreen::applyConfig() noexcept
 	globalCfg.data(cfgData);
 
 	// Enable new settings
-	mWindowPtr->setVSync(static_cast<sdl::VSync>(cfgData.vsync));
+	mWindowPtr->setVSync(static_cast<sdl::VSync>(cfgData.gc.vsync));
 	mWindowPtr->setFullscreen(static_cast<sdl::Fullscreen>(cfgData.fullscreenMode), cfgData.displayIndex);
 	
 	// Write to file
@@ -289,16 +289,16 @@ void OptionsGraphicsScreen::updateResolutionFactors() noexcept
 	mInternalResStrs.clear();
 	for (int i = 0; i < mYResolutions.size(); ++i) {
 		std::snprintf(buffer, sizeof(buffer), "%ip (%ix%i)", mYResolutions[i],
-		              (int)std::round(cfgData.internalResolutionY * aspect), mYResolutions[i]);
+		              (int)std::round(cfgData.gc.internalResolutionY * aspect), mYResolutions[i]);
 		mInternalResStrs.push_back(buffer);
 	}
 
 	mSecondaryResFactorStrs.clear();
 	int internalResY;
-	if (cfgData.nativeInternalRes) {
+	if (cfgData.gc.nativeInternalRes) {
 		internalResY = (int)mDrawableDim.y;
 	} else {
-		internalResY = cfgData.internalResolutionY;
+		internalResY = cfgData.gc.internalResolutionY;
 	}
 	vec2i internalRes{(int)std::round(internalResY * aspect), internalResY};
 	for (float factor = 0.05f; factor <= 4.0f; factor += 0.05) {

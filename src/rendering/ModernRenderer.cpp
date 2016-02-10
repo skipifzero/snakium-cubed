@@ -638,16 +638,16 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 
 	// Ensure framebuffers are of correct size
 	vec2i internalRes;
-	if (cfg.nativeInternalRes) {
+	if (cfg.gc.nativeInternalRes) {
 		internalRes = vec2i{(int)drawableDim.x, (int)drawableDim.y};
 	} else {
 		float aspect = drawableDim.x / drawableDim.y;
-		internalRes = vec2i{(int)std::round(cfg.internalResolutionY * aspect), cfg.internalResolutionY};
+		internalRes = vec2i{(int)std::round(cfg.gc.internalResolutionY * aspect), cfg.gc.internalResolutionY};
 	}
 	if (mGBuffer.dimensions() != internalRes) {
-		vec2i blurRes{(int)(internalRes.x*cfg.blurResScaling), (int)(internalRes.y*cfg.blurResScaling)};
-		vec2i spotlightRes{(int)(internalRes.x*cfg.spotlightResScaling), (int)(internalRes.y*cfg.spotlightResScaling)};
-		vec2i lightShaftsRes{(int)(internalRes.x*cfg.lightShaftsResScaling), (int)(internalRes.y*cfg.lightShaftsResScaling)};
+		vec2i blurRes{(int)(internalRes.x*cfg.gc.blurResScaling), (int)(internalRes.y*cfg.gc.blurResScaling)};
+		vec2i spotlightRes{(int)(internalRes.x*cfg.gc.spotlightResScaling), (int)(internalRes.y*cfg.gc.spotlightResScaling)};
+		vec2i lightShaftsRes{(int)(internalRes.x*cfg.gc.lightShaftsResScaling), (int)(internalRes.y*cfg.gc.lightShaftsResScaling)};
 		
 		mGBuffer = FramebufferBuilder{internalRes}
 		          .addTexture(GBUFFER_LINEAR_DEPTH_INDEX, FBTextureFormat::R_F32, FBTextureFiltering::NEAREST)
@@ -1014,7 +1014,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	mScaler.changeScalingAlgorithm(static_cast<gl::ScalingAlgorithm>(cfg.scalingAlgorithm));
+	mScaler.changeScalingAlgorithm(static_cast<gl::ScalingAlgorithm>(cfg.gc.scalingAlgorithm));
 	mScaler.scale(0, drawableDim, mGlobalShadingFB.texture(0), mGlobalShadingFB.dimensionsFloat());
 }
 

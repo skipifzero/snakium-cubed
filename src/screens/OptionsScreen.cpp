@@ -66,6 +66,36 @@ OptionsScreen::OptionsScreen() noexcept
 		this->cfgData.fullscreenMode = choice;
 	}, stateAlignOffset}});
 
+	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Preset", {"Toaster", "Laptop (Intel GPU)", "Laptop (Nvidia GPU)", "Gaming computer", "Future supercomputer", "I-know-what-I'm-doing"}, [this]() {
+		if (this->cfgData.gc == TOASTER_GRAPHICS_CONFIG) return 0;
+		if (this->cfgData.gc == LAPTOP_W_INTEL_GRAPHICS_CONFIG) return 1;
+		if (this->cfgData.gc == LAPTOP_W_NVIDIA_GRAPHICS_CONFIG) return 2;
+		if (this->cfgData.gc == GAMING_COMPUTER_GRAPHICS_CONFIG) return 3;
+		if (this->cfgData.gc == FUTURE_SUPERCOMPUTER_GRAPHICS_CONFIG) return 4;
+		return 5;
+	}, [this](int choice) {
+		switch (choice) {
+		case 0:
+			this->cfgData.gc = TOASTER_GRAPHICS_CONFIG;
+			break;
+		case 1:
+			this->cfgData.gc = LAPTOP_W_INTEL_GRAPHICS_CONFIG;
+			break;
+		case 2:
+			this->cfgData.gc = LAPTOP_W_NVIDIA_GRAPHICS_CONFIG;
+			break;
+		case 3:
+			this->cfgData.gc = GAMING_COMPUTER_GRAPHICS_CONFIG;
+			break;
+		case 4:
+			this->cfgData.gc = FUTURE_SUPERCOMPUTER_GRAPHICS_CONFIG;
+			break;
+		case 5:
+			this->cfgData.gc.nativeInternalRes = true;
+			break;
+		}
+	}, stateAlignOffset}});
+
 	addHeading3(scrollList, shared_ptr<BaseItem>{new Button{"Advanced settings", [this](Button&) {
 		this->applyConfig();
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
@@ -301,7 +331,7 @@ void OptionsScreen::applyConfig() noexcept
 	globalCfg.data(cfgData);
 
 	// Enable new settings
-	mWindowPtr->setVSync(static_cast<sdl::VSync>(cfgData.vsync));
+	mWindowPtr->setVSync(static_cast<sdl::VSync>(cfgData.gc.vsync));
 	mWindowPtr->setFullscreen(static_cast<sdl::Fullscreen>(cfgData.fullscreenMode), cfgData.displayIndex);
 	
 	// Write to file

@@ -29,6 +29,72 @@ static const string& userIniPath() noexcept
 // ConfigData struct
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+const GraphicsConfig TOASTER_GRAPHICS_CONFIG = {
+	1, // int32_t vsync; // 0 = off, 1 = on, 2 = swap control tear
+	false, // bool nativeInternalRes;
+	480, // int32_t internalResolutionY;
+	0.15f, // float blurResScaling;
+	1.0f, // float spotlightResScaling;
+	0.15f, // float lightShaftsResScaling;
+	1 // int32_t scalingAlgorithm;
+};
+
+const GraphicsConfig LAPTOP_W_INTEL_GRAPHICS_CONFIG = {
+	1, // int32_t vsync; // 0 = off, 1 = on, 2 = swap control tear
+	false, // bool nativeInternalRes;
+	720, // int32_t internalResolutionY;
+	0.15f, // float blurResScaling;
+	1.0f, // float spotlightResScaling;
+	0.3f, // float lightShaftsResScaling;
+	1 // int32_t scalingAlgorithm;
+};
+
+const GraphicsConfig LAPTOP_W_NVIDIA_GRAPHICS_CONFIG = {
+	1, // int32_t vsync; // 0 = off, 1 = on, 2 = swap control tear
+	false, // bool nativeInternalRes;
+	1080, // int32_t internalResolutionY;
+	0.2f, // float blurResScaling;
+	1.0f, // float spotlightResScaling;
+	0.4f, // float lightShaftsResScaling;
+	1 // int32_t scalingAlgorithm;
+};
+
+const GraphicsConfig GAMING_COMPUTER_GRAPHICS_CONFIG = {
+	1, // int32_t vsync; // 0 = off, 1 = on, 2 = swap control tear
+	false, // bool nativeInternalRes;
+	1440, // int32_t internalResolutionY;
+	0.25f, // float blurResScaling;
+	1.0f, // float spotlightResScaling;
+	0.5f, // float lightShaftsResScaling;
+	3 // int32_t scalingAlgorithm;
+};
+
+const GraphicsConfig FUTURE_SUPERCOMPUTER_GRAPHICS_CONFIG = {
+	1, // int32_t vsync; // 0 = off, 1 = on, 2 = swap control tear
+	false, // bool nativeInternalRes;
+	2160, // int32_t internalResolutionY;
+	0.4f, // float blurResScaling;
+	1.0f, // float spotlightResScaling;
+	0.5f, // float lightShaftsResScaling;
+	3 // int32_t scalingAlgorithm;
+};
+
+bool operator== (const GraphicsConfig& lhs, const GraphicsConfig& rhs) noexcept
+{
+	return lhs.vsync == rhs.vsync &&
+	       lhs.nativeInternalRes == rhs.nativeInternalRes &&
+	       lhs.internalResolutionY == rhs.internalResolutionY &&
+	       lhs.blurResScaling == rhs.blurResScaling &&
+	       lhs.spotlightResScaling == rhs.spotlightResScaling &&
+	       lhs.lightShaftsResScaling == rhs.lightShaftsResScaling &&
+	       lhs.scalingAlgorithm == rhs.scalingAlgorithm;
+}
+
+bool operator!= (const GraphicsConfig& lhs, const GraphicsConfig& rhs) noexcept
+{
+	return !(lhs == rhs);
+}
+
 bool operator== (const ConfigData& lhs, const ConfigData& rhs) noexcept
 {
 	return
@@ -40,13 +106,7 @@ bool operator== (const ConfigData& lhs, const ConfigData& rhs) noexcept
 	// Graphics
 	lhs.displayIndex == rhs.displayIndex &&
 	lhs.fullscreenMode == rhs.fullscreenMode &&
-	lhs.vsync == rhs.vsync &&
-	lhs.nativeInternalRes == rhs.nativeInternalRes &&
-	lhs.internalResolutionY == rhs.internalResolutionY &&
-	lhs.blurResScaling == rhs.blurResScaling &&
-	lhs.spotlightResScaling == rhs.spotlightResScaling &&
-	lhs.lightShaftsResScaling == rhs.lightShaftsResScaling &&
-	lhs.scalingAlgorithm == rhs.scalingAlgorithm &&
+	lhs.gc == rhs.gc &&
 
 	// Game Settings
 	lhs.inputBufferSize == rhs.inputBufferSize &&
@@ -126,15 +186,15 @@ void GlobalConfig::load() noexcept
 	
 	// [Graphics]
 	static const string grStr = "Graphics";
-	nativeInternalRes =     ip.sanitizeBool(grStr, "bNativeInternalRes", false);
-	blurResScaling =        ip.sanitizeFloat(grStr, "fBlurResScaling", 0.4f, 0.01f, 2.0f);
-	internalResolutionY =   ip.sanitizeInt(grStr, "iInternalResolutionY", 1080, 120, 8192);
-	lightShaftsResScaling = ip.sanitizeFloat(grStr, "fLightShaftsResScaling", 0.5f, 0.01f, 10.0f);
-	spotlightResScaling =   ip.sanitizeFloat(grStr, "fSpotlightResScaling", 1.0f, 0.01f, 10.0f);
+	gc.nativeInternalRes =     ip.sanitizeBool(grStr, "bNativeInternalRes", false);
+	gc.blurResScaling =        ip.sanitizeFloat(grStr, "fBlurResScaling", 0.4f, 0.01f, 2.0f);
+	gc.internalResolutionY =   ip.sanitizeInt(grStr, "iInternalResolutionY", 1080, 120, 8192);
+	gc.lightShaftsResScaling = ip.sanitizeFloat(grStr, "fLightShaftsResScaling", 0.5f, 0.01f, 10.0f);
+	gc.spotlightResScaling =   ip.sanitizeFloat(grStr, "fSpotlightResScaling", 1.0f, 0.01f, 10.0f);
 	displayIndex =          ip.sanitizeInt(grStr, "iDisplayIndex", -1, -1, 8);
 	fullscreenMode =        ip.sanitizeInt(grStr, "iFullscreenMode", 1, 0, 2);
-	scalingAlgorithm =      ip.sanitizeInt(grStr, "iScalingAlgorithm", 3, 0, 8);
-	vsync =                 ip.sanitizeInt(grStr, "iVSync", 1, 0, 2);
+	gc.scalingAlgorithm =      ip.sanitizeInt(grStr, "iScalingAlgorithm", 3, 0, 8);
+	gc.vsync =                 ip.sanitizeInt(grStr, "iVSync", 1, 0, 2);
 }
 
 void GlobalConfig::save() noexcept
@@ -169,15 +229,15 @@ void GlobalConfig::save() noexcept
 
 	// [Graphics]
 	static const string grStr = "Graphics";
-	mIniParser.setBool(grStr, "bNativeInternalRes", nativeInternalRes);
-	mIniParser.setFloat(grStr, "fBlurResScaling", blurResScaling);
-	mIniParser.setInt(grStr, "iInternalResolutionY", internalResolutionY);
-	mIniParser.setFloat(grStr, "fLightShaftsResScaling", lightShaftsResScaling);
-	mIniParser.setFloat(grStr, "fSpotlightResScaling", spotlightResScaling);
+	mIniParser.setBool(grStr, "bNativeInternalRes", gc.nativeInternalRes);
+	mIniParser.setFloat(grStr, "fBlurResScaling", gc.blurResScaling);
+	mIniParser.setInt(grStr, "iInternalResolutionY", gc.internalResolutionY);
+	mIniParser.setFloat(grStr, "fLightShaftsResScaling", gc.lightShaftsResScaling);
+	mIniParser.setFloat(grStr, "fSpotlightResScaling", gc.spotlightResScaling);
 	mIniParser.setInt(grStr, "iDisplayIndex", displayIndex);
 	mIniParser.setInt(grStr, "iFullscreenMode", fullscreenMode);
-	mIniParser.setInt(grStr, "iScalingAlgorithm", scalingAlgorithm);
-	mIniParser.setInt(grStr, "iVSync", vsync);
+	mIniParser.setInt(grStr, "iScalingAlgorithm", gc.scalingAlgorithm);
+	mIniParser.setInt(grStr, "iVSync", gc.vsync);
 
 	if (!mIniParser.save()) {
 		std::cerr << "Couldn't save config.ini at: " << userIniPath() << std::endl;
@@ -196,13 +256,7 @@ void GlobalConfig::data(const ConfigData& configData) noexcept
 	// Graphics
 	this->displayIndex = configData.displayIndex;
 	this->fullscreenMode = configData.fullscreenMode;
-	this->vsync = configData.vsync;
-	this->nativeInternalRes = configData.nativeInternalRes;
-	this->internalResolutionY = configData.internalResolutionY;
-	this->blurResScaling = configData.blurResScaling;
-	this->spotlightResScaling = configData.spotlightResScaling;
-	this->lightShaftsResScaling = configData.lightShaftsResScaling;
-	this->scalingAlgorithm = configData.scalingAlgorithm;
+	this->gc = configData.gc;
 
 	// Game Settings
 	this->inputBufferSize = configData.inputBufferSize;
