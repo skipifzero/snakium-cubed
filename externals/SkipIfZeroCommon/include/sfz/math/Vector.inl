@@ -273,6 +273,30 @@ T dot(const Vector<T,N>& left, const Vector<T,N>& right) noexcept
 }
 
 template<typename T>
+T dot(const Vector<T,2>& left, const Vector<T,2>& right) noexcept
+{
+	return left.x * right.x
+	     + left.y * right.y;
+}
+
+template<typename T>
+T dot(const Vector<T,3>& left, const Vector<T,3>& right) noexcept
+{
+	return left.x * right.x
+	     + left.y * right.y
+	     + left.z * right.z;
+}
+
+template<typename T>
+T dot(const Vector<T,4>& left, const Vector<T,4>& right) noexcept
+{
+	return left.x * right.x
+	     + left.y * right.y
+	     + left.z * right.z
+	     + left.w * right.w;
+}
+
+template<typename T>
 constexpr Vector<T,3> cross(const Vector<T,3>& left, const Vector<T,3>& right) noexcept
 {
 	return sfz::Vector<T,3>{left.y*right.z - left.z*right.y,
@@ -419,12 +443,66 @@ Vector<T,N>& operator+= (Vector<T,N>& left, const Vector<T,N>& right) noexcept
 	return left;
 }
 
+template<typename T>
+Vector<T,2>& operator+= (Vector<T,2>& left, const Vector<T,2>& right) noexcept
+{
+	left.x += right.x;
+	left.y += right.y;
+	return left;
+}
+
+template<typename T>
+Vector<T,3>& operator+= (Vector<T,3>& left, const Vector<T,3>& right) noexcept
+{
+	left.x += right.x;
+	left.y += right.y;
+	left.z += right.z;
+	return left;
+}
+
+template<typename T>
+Vector<T,4>& operator+= (Vector<T,4>& left, const Vector<T,4>& right) noexcept
+{
+	left.x += right.x;
+	left.y += right.y;
+	left.z += right.z;
+	left.w += right.w;
+	return left;
+}
+
 template<typename T, size_t N>
 Vector<T,N>& operator-= (Vector<T,N>& left, const Vector<T,N>& right) noexcept
 {
 	for (size_t i = 0; i < N; ++i) {
 		left.elements[i] -= right.elements[i];
 	}
+	return left;
+}
+
+template<typename T>
+Vector<T,2>& operator-= (Vector<T,2>& left, const Vector<T,2>& right) noexcept
+{
+	left.x -= right.x;
+	left.y -= right.y;
+	return left;
+}
+
+template<typename T>
+Vector<T,3>& operator-= (Vector<T,3>& left, const Vector<T,3>& right) noexcept
+{
+	left.x -= right.x;
+	left.y -= right.y;
+	left.z -= right.z;
+	return left;
+}
+
+template<typename T>
+Vector<T,4>& operator-= (Vector<T,4>& left, const Vector<T,4>& right) noexcept
+{
+	left.x -= right.x;
+	left.y -= right.y;
+	left.z -= right.z;
+	left.w -= right.w;
 	return left;
 }
 
@@ -437,12 +515,66 @@ Vector<T,N>& operator*= (Vector<T,N>& left, T right) noexcept
 	return left;
 }
 
+template<typename T>
+Vector<T,2>& operator*= (Vector<T,2>& left, T right) noexcept
+{
+	left.x *= right;
+	left.y *= right;
+	return left;
+}
+
+template<typename T>
+Vector<T,3>& operator*= (Vector<T,3>& left, T right) noexcept
+{
+	left.x *= right;
+	left.y *= right;
+	left.z *= right;
+	return left;
+}
+
+template<typename T>
+Vector<T,4>& operator*= (Vector<T,4>& left, T right) noexcept
+{
+	left.x *= right;
+	left.y *= right;
+	left.z *= right;
+	left.w *= right;
+	return left;
+}
+
 template<typename T, size_t N>
 Vector<T,N>& operator*= (Vector<T,N>& left, const Vector<T,N>& right) noexcept
 {
 	for (size_t i = 0; i < N; ++i) {
 		left.elements[i] *= right.elements[i];
 	}
+	return left;
+}
+
+template<typename T>
+Vector<T,2>& operator*= (Vector<T,2>& left, const Vector<T,2>& right) noexcept
+{
+	left.x *= right.x;
+	left.y *= right.y;
+	return left;
+}
+
+template<typename T>
+Vector<T,3>& operator*= (Vector<T,3>& left, const Vector<T,3>& right) noexcept
+{
+	left.x *= right.x;
+	left.y *= right.y;
+	left.z *= right.z;
+	return left;
+}
+
+template<typename T>
+Vector<T,4>& operator*= (Vector<T,4>& left, const Vector<T,4>& right) noexcept
+{
+	left.x *= right.x;
+	left.y *= right.y;
+	left.z *= right.z;
+	left.w *= right.w;
 	return left;
 }
 
@@ -456,6 +588,36 @@ Vector<T,N>& operator/= (Vector<T,N>& left, T right) noexcept
 	return left;
 }
 
+template<typename T>
+Vector<T,2>& operator/= (Vector<T,2>& left, T right) noexcept
+{
+	sfz_assert_debug(right != T(0));
+	left.x /= right;
+	left.y /= right;
+	return left;
+}
+
+template<typename T>
+Vector<T,3>& operator/= (Vector<T,3>& left, T right) noexcept
+{
+	sfz_assert_debug(right != T(0));
+	left.x /= right;
+	left.y /= right;
+	left.z /= right;
+	return left;
+}
+
+template<typename T>
+Vector<T,4>& operator/= (Vector<T,4>& left, T right) noexcept
+{
+	sfz_assert_debug(right != T(0));
+	left.x /= right;
+	left.y /= right;
+	left.z /= right;
+	left.w /= right;
+	return left;
+}
+
 template<typename T, size_t N>
 Vector<T,N>& operator/= (Vector<T,N>& left, const Vector<T,N>& right) noexcept
 {
@@ -463,6 +625,42 @@ Vector<T,N>& operator/= (Vector<T,N>& left, const Vector<T,N>& right) noexcept
 		sfz_assert_debug(right.elements[i] != T(0));
 		left.elements[i] /= right.elements[i];
 	}
+	return left;
+}
+
+template<typename T>
+Vector<T,2>& operator/= (Vector<T,2>& left, const Vector<T,2>& right) noexcept
+{
+	sfz_assert_debug(right.x != T(0));
+	sfz_assert_debug(right.y != T(0));
+	left.x /= right.x;
+	left.y /= right.y;
+	return left;
+}
+
+template<typename T>
+Vector<T,3>& operator/= (Vector<T,3>& left, const Vector<T,3>& right) noexcept
+{
+	sfz_assert_debug(right.x != T(0));
+	sfz_assert_debug(right.y != T(0));
+	sfz_assert_debug(right.z != T(0));
+	left.x /= right.x;
+	left.y /= right.y;
+	left.z /= right.z;
+	return left;
+}
+
+template<typename T>
+Vector<T,4>& operator/= (Vector<T,4>& left, const Vector<T,4>& right) noexcept
+{
+	sfz_assert_debug(right.x != T(0));
+	sfz_assert_debug(right.y != T(0));
+	sfz_assert_debug(right.z != T(0));
+	sfz_assert_debug(right.w != T(0));
+	left.x /= right.x;
+	left.y /= right.y;
+	left.z /= right.z;
+	left.w /= right.w;
 	return left;
 }
 
@@ -534,6 +732,30 @@ bool operator== (const Vector<T,N>& left, const Vector<T,N>& right) noexcept
 		if (left.elements[i] != right.elements[i]) return false;
 	}
 	return true;
+}
+
+template<typename T>
+bool operator== (const Vector<T,2>& left, const Vector<T,2>& right) noexcept
+{
+	return left.x == right.x
+	    && left.y == right.y;
+}
+
+template<typename T>
+bool operator== (const Vector<T,3>& left, const Vector<T,3>& right) noexcept
+{
+	return left.x == right.x
+	    && left.y == right.y
+	    && left.z == right.z;
+}
+
+template<typename T>
+bool operator== (const Vector<T,4>& left, const Vector<T,4>& right) noexcept
+{
+	return left.x == right.x
+	    && left.y == right.y
+	    && left.z == right.z
+	    && left.w == right.w;
 }
 
 template<typename T, size_t N>
