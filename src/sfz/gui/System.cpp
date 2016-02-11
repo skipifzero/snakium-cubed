@@ -20,20 +20,21 @@ System::System(const AABB2D& bounds)
 // System: Public methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool System::addItem(shared_ptr<BaseItem> item, vec2 dim, HorizontalAlign hAlign) noexcept
+bool System::addItem(shared_ptr<BaseItem> item, vec2 itemDim, HorizontalAlign hAlign) noexcept
 {
-	if (((mNextItemTopPos.y - dim.y) < mBounds.min.y) ||
-	    (dim.x > mBounds.width())) {
+	if (((mNextItemTopPos.y - itemDim.y) < mBounds.min.y) ||
+	    (itemDim.x > mBounds.width())) {
 		std::cerr << "gui::System: Cannot add item, out of bounds. Diff: "
-		          << ((mNextItemTopPos.y - dim.y) - mBounds.min.y) << "\n";
+		          << ((mNextItemTopPos.y - itemDim.y) - mBounds.min.y) << "\n";
 		return false;
 	}
-	item->dim = dim;
-	mNextItemTopPos.y -= dim.y/2.0f;
+	item->dim = itemDim;
+	mNextItemTopPos.y -= itemDim.y/2.0f;
 	vec2 itemPos = mNextItemTopPos;
-	itemPos.x += ((float)(int8_t)hAlign)*dim.x/2.0f;
+	itemPos.x = itemPos.x + (((float)(int8_t)hAlign) * mBounds.width() / 2.0f) - (((float)(int8_t)hAlign) * itemDim.x / 2.0f);
+	itemPos.x += ((float)(int8_t)hAlign) * itemDim.x/2.0f;
 	item->offset = itemPos - mBounds.position();
-	mNextItemTopPos.y -= dim.y/2.0f;
+	mNextItemTopPos.y -= itemDim.y/2.0f;
 	mItems.push_back(item);
 	return true;
 }

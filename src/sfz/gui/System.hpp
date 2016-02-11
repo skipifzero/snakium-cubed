@@ -42,7 +42,7 @@ public:
 	// Public methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	bool addItem(shared_ptr<BaseItem> item, vec2 dim,
+	bool addItem(shared_ptr<BaseItem> item, vec2 itemDim,
 	             HorizontalAlign hAlign = HorizontalAlign::CENTER) noexcept;
 	bool addItem(shared_ptr<BaseItem> item, float height,
 	             HorizontalAlign hAlign = HorizontalAlign::CENTER) noexcept;

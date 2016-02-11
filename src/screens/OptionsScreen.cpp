@@ -30,7 +30,7 @@ OptionsScreen::OptionsScreen() noexcept
 
 	// Constants
 	const float stateAlignOffset = MENU_DIM.x * 0.535f;
-	const float buttonWidth = 40.0f;
+	const float buttonWidth = 42.0f;
 
 	// Title, scrollList and navbar
 	addTitle(mGuiSystem, new TextItem{"Options"});
@@ -96,7 +96,7 @@ OptionsScreen::OptionsScreen() noexcept
 		}
 	}, stateAlignOffset}});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{new Button{"Advanced settings", [this](Button&) {
+	addHeading2(scrollList, shared_ptr<BaseItem>{new Button{"Advanced settings", [this](Button&) {
 		this->applyConfig();
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                           shared_ptr<BaseScreen>{new OptionsGraphicsScreen{}}};

@@ -35,27 +35,27 @@ ScrollListContainer::ScrollListContainer(float scrollSpeed) noexcept
 // ScrollListContainer: Public methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool ScrollListContainer::addItem(shared_ptr<BaseItem> item, vec2 dim,
+bool ScrollListContainer::addItem(shared_ptr<BaseItem> item, vec2 itemDim,
                                   HorizontalAlign hAlign) noexcept
 {
 	if (mNextItemTopPos == UNINITIALIZED_POS) {
 		mNextItemTopPos = vec2{offset.x, offset.y + (this->dim.y/2.0f)};
 	}
 
-	if (dim.x > this->dim.x) {
+	if (itemDim.x > this->dim.x) {
 		std::cerr << "gui::ScrollListContainer: Cannot add item, too wide.\n";
 		return false;
 	}
 
-	item->dim = dim;
-	mNextItemTopPos.y -= dim.y/2.0f;
+	item->dim = itemDim;
+	mNextItemTopPos.y -= itemDim.y/2.0f;
 	vec2 itemPos = mNextItemTopPos;
-	itemPos.x += ((float)(int8_t)hAlign)*dim.x/2.0f;
+	itemPos.x = itemPos.x + (((float)(int8_t)hAlign) * this->dim.x / 2.0f) - (((float)(int8_t)hAlign) * itemDim.x / 2.0f);
 	item->offset = itemPos - offset;
-	mNextItemTopPos.y -= dim.y/2.0f;
+	mNextItemTopPos.y -= itemDim.y/2.0f;
 	items.push_back(item);
 
-	mMinScrollOffset += dim.y;
+	mMinScrollOffset += itemDim.y;
 	return true;
 }
 
