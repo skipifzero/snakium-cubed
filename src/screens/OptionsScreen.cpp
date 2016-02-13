@@ -118,6 +118,28 @@ OptionsScreen::OptionsScreen() noexcept
 		this->cfgData.inputBufferSize = (choice+1);
 	}, stateAlignOffset}});
 
+	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Custom model preset", {"Standard", "Large", "Giant", "Custom"}, [this]() {
+		if (this->cfgData.modelConfig == STANDARD_CONFIG) return 0;
+		if (this->cfgData.modelConfig == LARGE_CONFIG) return 1;
+		if (this->cfgData.modelConfig == GIANT_CONFIG) return 2;
+		return 3;
+	}, [this](int choice) {
+		switch (choice) {
+		case 0:
+			this->cfgData.modelConfig = STANDARD_CONFIG;
+			break;
+		case 1:
+			this->cfgData.modelConfig = LARGE_CONFIG;
+			break;
+		case 2:
+			this->cfgData.modelConfig = GIANT_CONFIG;
+			break;
+		case 3:
+			this->cfgData.modelConfig.tilesPerSecond = 2.51f;
+			break;
+		}
+	}, stateAlignOffset}});
+
 	addHeading2(scrollList, shared_ptr<BaseItem>{new Button{"Custom model", [this](Button&) {
 		this->applyConfig();
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
