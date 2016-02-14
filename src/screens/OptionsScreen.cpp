@@ -110,13 +110,7 @@ OptionsScreen::OptionsScreen() noexcept
 	addStandardPadding(scrollList);
 	addHeading2(scrollList, shared_ptr<BaseItem>{new TextItem{"Game settings", HorizontalAlign::LEFT}});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Input buffer size", {"1", "2", "3", "4", "5"}, [this]() {
-		int bs = this->cfgData.inputBufferSize;
-		if (1 <= bs && bs <= 5) return bs-1;
-		return -1;
-	}, [this](int choice) {
-		this->cfgData.inputBufferSize = (choice+1);
-	}, stateAlignOffset}});
+	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Input buffer size", &cfgData.inputBufferSize, 1, 1, 5, stateAlignOffset, " frames")});
 
 	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Custom model preset", {"Standard", "Large", "Giant", "Custom"}, [this]() {
 		if (this->cfgData.modelConfig == STANDARD_CONFIG) return 0;

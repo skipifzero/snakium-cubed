@@ -35,4 +35,27 @@ MultiChoiceSelector* createLinearFloatMultiChoiceSelector(const string& text, fl
 	}, stateAlignOffset};
 }
 
+MultiChoiceSelector* createLinearIntegerMultiChoiceSelector(const string& text, int32_t* valuePtr, int32_t minValue, int32_t intervalSize, size_t numIntervals, float stateAlignOffset, const string& unit) noexcept
+{
+	// Create the choice strings
+	char buffer[256];
+	vector<string> choices;
+	for (size_t i = 0; i < numIntervals; ++i) {
+		std::snprintf(buffer, sizeof(buffer), "%i%s", minValue + int32_t(i) * intervalSize, unit.c_str());
+		choices.emplace_back(buffer);
+	}
+	
+	return new (std::nothrow) MultiChoiceSelector{text, choices, [valuePtr, minValue, intervalSize, numIntervals]() {
+		int32_t val = *valuePtr;
+		for (size_t i = 0; i < numIntervals; ++i) {
+			if (val == (minValue + int32_t(i) * intervalSize)) {
+				return int(i);
+			}
+		}
+		return -1;
+	}, [valuePtr, minValue, intervalSize](int choice) {
+		*valuePtr =  minValue + int32_t(choice) * intervalSize;
+	}, stateAlignOffset};
+}
+
 } // namespace gui

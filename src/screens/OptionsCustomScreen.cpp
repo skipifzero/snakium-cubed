@@ -59,14 +59,7 @@ OptionsCustomScreen::OptionsCustomScreen() noexcept
 
 	addHeading2(scrollList, shared_ptr<BaseItem>{new TextItem{"Cube size", gl::HorizontalAlign::LEFT}});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Grid width", {"2", "3", "4", "5", "6"}, [this]() {
-		int gw = this->cfgData.modelConfig.gridWidth;
-		if (2 <= gw && gw <= 6) return gw-2;
-		return -1;
-	}, [this](int choice) {
-		this->cfgData.modelConfig.gridWidth = (choice+2);
-	}, stateAlignOffset}});
-
+	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Grid width", &cfgData.modelConfig.gridWidth, 2, 1, 5, stateAlignOffset)});
 
 	addStandardPadding(scrollList);
 	addHeading2(scrollList, shared_ptr<BaseItem>{new TextItem{"Movement speed", gl::HorizontalAlign::LEFT}});
@@ -79,94 +72,29 @@ OptionsCustomScreen::OptionsCustomScreen() noexcept
 	addStandardPadding(scrollList);
 	addHeading2(scrollList, shared_ptr<BaseItem>{new TextItem{"Bonus settings", gl::HorizontalAlign::LEFT}});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Bonus frequency", {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32"}, [this]() {
-		int val = this->cfgData.modelConfig.bonusFrequency;
-		if (val < 0 || 32 < val) return -1;
-		return val;
-	}, [this](int choice) {
-		this->cfgData.modelConfig.bonusFrequency = choice;
-	}, stateAlignOffset}});
+	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Bonus frequency", &cfgData.modelConfig.bonusFrequency, 0, 1, 33, stateAlignOffset)});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Bonus duration", {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32"}, [this]() {
-		int val = this->cfgData.modelConfig.bonusDuration;
-		if (val < 0 || 32 < val) return -1;
-		return val;
-	}, [this](int choice) {
-		this->cfgData.modelConfig.bonusDuration = choice;
-	}, stateAlignOffset}});
+	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Bonus duration", &cfgData.modelConfig.bonusDuration, 0, 1, 33, stateAlignOffset, " tiles")});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Number of bonus objects", {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"}, [this]() {
-		int val = this->cfgData.modelConfig.numberOfBonusObjects;
-		if (val < 0 || 16 < val) return -1;
-		return val;
-	}, [this](int choice) {
-		this->cfgData.modelConfig.numberOfBonusObjects = choice;
-	}, stateAlignOffset}});
+	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Number of bonus objects", &cfgData.modelConfig.numberOfBonusObjects, 0, 1, 17, stateAlignOffset)});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Early bonus duration", {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32"}, [this]() {
-		int val = this->cfgData.modelConfig.earlyDuration;
-		if (val < 0 || 32 < val) return -1;
-		return val;
-	}, [this](int choice) {
-		this->cfgData.modelConfig.earlyDuration = choice;
-	}, stateAlignOffset}});
+	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Early bonus duration", &cfgData.modelConfig.earlyDuration, 0, 1, 33, stateAlignOffset, " tiles")});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Shift bonus duration", {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32"}, [this]() {
-		int val = this->cfgData.modelConfig.shiftBonusDuration;
-		if (val < 0 || 32 < val) return -1;
-		return val;
-	}, [this](int choice) {
-		this->cfgData.modelConfig.shiftBonusDuration = choice;
-	}, stateAlignOffset}});
+	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Shift bonus duration", &cfgData.modelConfig.shiftBonusDuration, 0, 1, 33, stateAlignOffset, " tiles")});
 
 
 	addStandardPadding(scrollList);
 	addHeading2(scrollList, shared_ptr<BaseItem>{new TextItem{"Scoring", gl::HorizontalAlign::LEFT}});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Object value", {"0", "8", "16", "24", "32", "40", "48", "56", "64", "72", "80", "88", "96", "104", "112", "120", "128"}, [this]() {
-		int val = this->cfgData.modelConfig.objectValue;
-		if (val < 0 || 128 < val) return -1;
-		if ((val % 8) != 0) return -1;
-		return val / 8;
-	}, [this](int choice) {
-		this->cfgData.modelConfig.objectValue = choice * 8;
-	}, stateAlignOffset}});
+	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Object value", &cfgData.modelConfig.objectValue, 0, 8, 17, stateAlignOffset, " points")});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Object early bonus value", {"0", "8", "16", "24", "32", "40", "48", "56", "64", "72", "80", "88", "96", "104", "112", "120", "128"}, [this]() {
-		int val = this->cfgData.modelConfig.objectEarlyBonus;
-		if (val < 0 || 128 < val) return -1;
-		if ((val % 8) != 0) return -1;
-		return val / 8;
-	}, [this](int choice) {
-		this->cfgData.modelConfig.objectEarlyBonus = choice * 8;
-	}, stateAlignOffset}});
+	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Object early bonus value", &cfgData.modelConfig.objectEarlyBonus, 0, 8, 17, stateAlignOffset, " points")});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Object shift bonus value", {"0", "8", "16", "24", "32", "40", "48", "56", "64", "72", "80", "88", "96", "104", "112", "120", "128"}, [this]() {
-		int val = this->cfgData.modelConfig.objectShiftBonus;
-		if (val < 0 || 128 < val) return -1;
-		if ((val % 8) != 0) return -1;
-		return val / 8;
-	}, [this](int choice) {
-		this->cfgData.modelConfig.objectShiftBonus = choice * 8;
-	}, stateAlignOffset}});
+	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Object shift bonus value", &cfgData.modelConfig.objectShiftBonus, 0, 8, 17, stateAlignOffset, " points")});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Bonus object value", {"0", "8", "16", "24", "32", "40", "48", "56", "64", "72", "80", "88", "96", "104", "112", "120", "128"}, [this]() {
-		int val = this->cfgData.modelConfig.bonusObjectValue;
-		if (val < 0 || 128 < val) return -1;
-		if ((val % 8) != 0) return -1;
-		return val / 8;
-	}, [this](int choice) {
-		this->cfgData.modelConfig.bonusObjectValue = choice * 8;
-	}, stateAlignOffset}});
+	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Bonus object value", &cfgData.modelConfig.bonusObjectValue, 0, 8, 17, stateAlignOffset, " points")});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Bonus object shift bonus value", {"0", "8", "16", "24", "32", "40", "48", "56", "64", "72", "80", "88", "96", "104", "112", "120", "128"}, [this]() {
-		int val = this->cfgData.modelConfig.bonusObjectShiftBonus;
-		if (val < 0 || 128 < val) return -1;
-		if ((val % 8) != 0) return -1;
-		return val / 8;
-	}, [this](int choice) {
-		this->cfgData.modelConfig.bonusObjectShiftBonus = choice * 8;
-	}, stateAlignOffset}});
+	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Bonus object shift bonus value", &cfgData.modelConfig.bonusObjectShiftBonus, 0, 8, 17, stateAlignOffset, " points")});
 }
 
 // OptionsCustomScreen: Overriden screen methods
