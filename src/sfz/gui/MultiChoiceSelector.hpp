@@ -36,7 +36,7 @@ public:
 	 * @param choiceNames a vector with the different possible options
 	 * @param checkStateFunc a function which should return the index to the currently active choice
 	 * @param changeStateFunc a function which should change the active choice to that of given index
-	 * @param stateAlignOffset a offset to align choice strings against
+	 * @param stateAlignOffset an offset to align choice strings against
 	 */
 	MultiChoiceSelector(const string& text, const vector<string>& choiceNames,
 	                    const function<int(void)>& checkStateFunc,
