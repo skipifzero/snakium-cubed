@@ -43,7 +43,7 @@ public:
 	                    const function<void(int)>& changeStateFunc,
 	                    float stateAlignOffset = 0.0f);
 	
-	// Constructors functions
+	// Constructor functions
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	/**

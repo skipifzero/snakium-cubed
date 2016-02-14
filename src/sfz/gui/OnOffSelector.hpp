@@ -12,6 +12,9 @@ namespace gui {
 using std::function;
 using std::string;
 
+/**
+ * @brief A menu item for enabling or disabling an option
+ */
 class OnOffSelector final : public BaseItem {
 public:
 	// Renderer Factory (by default the default renderer)
@@ -26,8 +29,23 @@ public:
 	OnOffSelector(const OnOffSelector&) = default;
 	OnOffSelector& operator= (const OnOffSelector&) = default;
 
+	/**
+	 * @param text the name of the option
+	 * @param checkStateFunc a function which should return whether the option is currently active
+	 * @param changeStateFunc a function which should switch the active state of the option
+	 * @param stateAlignOffset an offset to align the on/off strings against
+	 */
 	OnOffSelector(const string& text, const function<bool(void)>& checkStateFunc,
 	              const function<void(void)>& changeStateFunc, float stateAlignOffset = 0.0f);
+
+	// Constructor functions
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	/**
+	 * @brief Creates a OnOffSelector using a bool pointer
+	 * @param valuePtr the pointer to the value (for both reading and writing)
+	 */
+	static OnOffSelector* createSimple(const string& text, bool* valuePtr, float stateAlignOffset = 0.0f);
 
 	// Virtual methods overriden from BaseItem
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

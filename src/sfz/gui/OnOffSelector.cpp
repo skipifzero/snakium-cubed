@@ -1,5 +1,7 @@
 #include "sfz/gui/OnOffSelector.hpp"
 
+#include <new>
+
 #include "sfz/geometry/Intersection.hpp"
 #include "sfz/gui/DefaultItemRenderers.hpp"
 
@@ -23,6 +25,18 @@ OnOffSelector::OnOffSelector(const string& text, const function<bool(void)>& che
 	stateAlignOffset{stateAlignOffset}
 {
 	renderer = rendererFactory(*this);
+}
+
+// OnOffSelector: Constructor functions
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+OnOffSelector* OnOffSelector::createSimple(const string& text, bool* valuePtr, float stateAlignOffset)
+{
+	return new (std::nothrow) OnOffSelector{text, [valuePtr]() {
+		return *valuePtr;
+	}, [valuePtr]() {
+		*valuePtr = !*valuePtr;
+	}, stateAlignOffset};
 }
 
 // OnOffSelector: Virtual methods overriden from BaseItem

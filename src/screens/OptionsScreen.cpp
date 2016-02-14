@@ -147,17 +147,9 @@ OptionsScreen::OptionsScreen() noexcept
 	addStandardPadding(scrollList);
 	addHeading2(scrollList, shared_ptr<BaseItem>{new TextItem{"Debug", HorizontalAlign::LEFT}});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{new OnOffSelector{"Print frametimes", [this]() {
-		return this->cfgData.printFrametimes;
-	}, [this]() {
-		this->cfgData.printFrametimes = !this->cfgData.printFrametimes;
-	}, stateAlignOffset}});
+	addHeading3(scrollList, shared_ptr<BaseItem>{OnOffSelector::createSimple("Print frametimes", &cfgData.printFrametimes, stateAlignOffset)});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{new OnOffSelector{"Continuous shader reload", [this]() {
-		return this->cfgData.continuousShaderReload;
-	}, [this]() {
-		this->cfgData.continuousShaderReload = !this->cfgData.continuousShaderReload;
-	}, stateAlignOffset}});
+	addHeading3(scrollList, shared_ptr<BaseItem>{OnOffSelector::createSimple("Continuous shader reload", &cfgData.continuousShaderReload, stateAlignOffset)});
 }
 
 // OptionsScreen: Overriden screen methods
