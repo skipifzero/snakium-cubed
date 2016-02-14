@@ -110,8 +110,6 @@ set(SOURCE_SFZ_GUI_TEMP_FILES
 	${SRC_DIR}/sfz/gui/BaseItem.hpp
 	${SRC_DIR}/sfz/gui/Button.hpp
 	${SRC_DIR}/sfz/gui/Button.cpp
-	${SRC_DIR}/sfz/gui/CommonMultiChoiceSelectors.hpp
-	${SRC_DIR}/sfz/gui/CommonMultiChoiceSelectors.cpp
 	${SRC_DIR}/sfz/gui/DefaultItemRenderers.hpp
 	${SRC_DIR}/sfz/gui/DefaultItemRenderers.cpp
 	${SRC_DIR}/sfz/gui/DualTextItem.hpp

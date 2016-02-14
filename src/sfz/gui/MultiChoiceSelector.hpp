@@ -42,6 +42,35 @@ public:
 	                    const function<int(void)>& checkStateFunc,
 	                    const function<void(int)>& changeStateFunc,
 	                    float stateAlignOffset = 0.0f);
+	
+	// Constructors functions
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	/**
+	 * @brief Creates a MultiChoiceSelector for a float value with evenly placed intervals
+	 * @param valuePtr the pointer to the value (for both reading and writing)
+	 * @param minValue the minimum value
+	 * @param intervalSize the interval between values
+	 * @param unit the unit for the value
+	 * @param numberOfDecimals the number of float decimals to print
+	 */
+	static MultiChoiceSelector* createLinearFloat(const string& text, float* valuePtr,
+	                                              float minValue, float intervalSize, size_t numIntervals, 
+	                                              float stateAlignOffset = 0.0f, const string& unit = "", 
+	                                              size_t numberOfDecimals = 2);
+
+	/**
+	 * @brief Creates a MultiChoiceSelector for a integer value with evenly placed intervals
+	 * @param text the name of the value
+	 * @param valuePtr the pointer to the value (for both reading and writing)
+	 * @param minValue the minimum value
+	 * @param intervalSize the interval between values
+	 * @param stateAlignOffset see MultiChoiceSelector constructor
+	 * @param unit the unit for the value
+	 */
+	static MultiChoiceSelector* createLinearInteger(const string& text, int32_t* valuePtr,
+	                                                int32_t minValue, int32_t intervalSize, size_t numIntervals,
+	                                                float stateAlignOffset = 0.0f, const string& unit = "");
 
 	// Virtual methods overriden from BaseItem
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

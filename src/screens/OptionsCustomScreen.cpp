@@ -59,42 +59,42 @@ OptionsCustomScreen::OptionsCustomScreen() noexcept
 
 	addHeading2(scrollList, shared_ptr<BaseItem>{new TextItem{"Cube size", gl::HorizontalAlign::LEFT}});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Grid width", &cfgData.modelConfig.gridWidth, 2, 1, 5, stateAlignOffset)});
+	addHeading3(scrollList, shared_ptr<BaseItem>{MultiChoiceSelector::createLinearInteger("Grid width", &cfgData.modelConfig.gridWidth, 2, 1, 5, stateAlignOffset)});
 
 	addStandardPadding(scrollList);
 	addHeading2(scrollList, shared_ptr<BaseItem>{new TextItem{"Movement speed", gl::HorizontalAlign::LEFT}});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>(createLinearFloatMultiChoiceSelector("Base speed", &cfgData.modelConfig.tilesPerSecond, 0.5f, 0.25f, 19, stateAlignOffset, " tiles/s", 2)));
+	addHeading3(scrollList, shared_ptr<BaseItem>(MultiChoiceSelector::createLinearFloat("Base speed", &cfgData.modelConfig.tilesPerSecond, 0.5f, 0.25f, 19, stateAlignOffset, " tiles/s", 2)));
 
-	addHeading3(scrollList, shared_ptr<BaseItem>(createLinearFloatMultiChoiceSelector("Speed increase (per object)", &cfgData.modelConfig.speedIncreasePerObject, 0.0f, 0.005f, 21, stateAlignOffset, " tiles/s", 3)));
+	addHeading3(scrollList, shared_ptr<BaseItem>(MultiChoiceSelector::createLinearFloat("Speed increase (per object)", &cfgData.modelConfig.speedIncreasePerObject, 0.0f, 0.005f, 21, stateAlignOffset, " tiles/s", 3)));
 
 
 	addStandardPadding(scrollList);
 	addHeading2(scrollList, shared_ptr<BaseItem>{new TextItem{"Bonus settings", gl::HorizontalAlign::LEFT}});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Bonus frequency", &cfgData.modelConfig.bonusFrequency, 0, 1, 33, stateAlignOffset)});
+	addHeading3(scrollList, shared_ptr<BaseItem>{MultiChoiceSelector::createLinearInteger("Bonus frequency", &cfgData.modelConfig.bonusFrequency, 0, 1, 33, stateAlignOffset)});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Bonus duration", &cfgData.modelConfig.bonusDuration, 0, 1, 33, stateAlignOffset, " tiles")});
+	addHeading3(scrollList, shared_ptr<BaseItem>{MultiChoiceSelector::createLinearInteger("Bonus duration", &cfgData.modelConfig.bonusDuration, 0, 1, 33, stateAlignOffset, " tiles")});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Number of bonus objects", &cfgData.modelConfig.numberOfBonusObjects, 0, 1, 17, stateAlignOffset)});
+	addHeading3(scrollList, shared_ptr<BaseItem>{MultiChoiceSelector::createLinearInteger("Number of bonus objects", &cfgData.modelConfig.numberOfBonusObjects, 0, 1, 17, stateAlignOffset)});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Early bonus duration", &cfgData.modelConfig.earlyDuration, 0, 1, 33, stateAlignOffset, " tiles")});
+	addHeading3(scrollList, shared_ptr<BaseItem>{MultiChoiceSelector::createLinearInteger("Early bonus duration", &cfgData.modelConfig.earlyDuration, 0, 1, 33, stateAlignOffset, " tiles")});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Shift bonus duration", &cfgData.modelConfig.shiftBonusDuration, 0, 1, 33, stateAlignOffset, " tiles")});
+	addHeading3(scrollList, shared_ptr<BaseItem>{MultiChoiceSelector::createLinearInteger("Shift bonus duration", &cfgData.modelConfig.shiftBonusDuration, 0, 1, 33, stateAlignOffset, " tiles")});
 
 
 	addStandardPadding(scrollList);
 	addHeading2(scrollList, shared_ptr<BaseItem>{new TextItem{"Scoring", gl::HorizontalAlign::LEFT}});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Object value", &cfgData.modelConfig.objectValue, 0, 8, 17, stateAlignOffset, " points")});
+	addHeading3(scrollList, shared_ptr<BaseItem>{MultiChoiceSelector::createLinearInteger("Object value", &cfgData.modelConfig.objectValue, 0, 8, 17, stateAlignOffset, " points")});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Object early bonus value", &cfgData.modelConfig.objectEarlyBonus, 0, 8, 17, stateAlignOffset, " points")});
+	addHeading3(scrollList, shared_ptr<BaseItem>{MultiChoiceSelector::createLinearInteger("Object early bonus value", &cfgData.modelConfig.objectEarlyBonus, 0, 8, 17, stateAlignOffset, " points")});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Object shift bonus value", &cfgData.modelConfig.objectShiftBonus, 0, 8, 17, stateAlignOffset, " points")});
+	addHeading3(scrollList, shared_ptr<BaseItem>{MultiChoiceSelector::createLinearInteger("Object shift bonus value", &cfgData.modelConfig.objectShiftBonus, 0, 8, 17, stateAlignOffset, " points")});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Bonus object value", &cfgData.modelConfig.bonusObjectValue, 0, 8, 17, stateAlignOffset, " points")});
+	addHeading3(scrollList, shared_ptr<BaseItem>{MultiChoiceSelector::createLinearInteger("Bonus object value", &cfgData.modelConfig.bonusObjectValue, 0, 8, 17, stateAlignOffset, " points")});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{createLinearIntegerMultiChoiceSelector("Bonus object shift bonus value", &cfgData.modelConfig.bonusObjectShiftBonus, 0, 8, 17, stateAlignOffset, " points")});
+	addHeading3(scrollList, shared_ptr<BaseItem>{MultiChoiceSelector::createLinearInteger("Bonus object shift bonus value", &cfgData.modelConfig.bonusObjectShiftBonus, 0, 8, 17, stateAlignOffset, " points")});
 }
 
 // OptionsCustomScreen: Overriden screen methods
