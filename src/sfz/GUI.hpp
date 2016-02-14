@@ -4,6 +4,7 @@
 
 #include "sfz/gui/BaseItem.hpp"
 #include "sfz/gui/Button.hpp"
+#include "sfz/gui/CommonMultiChoiceSelectors.hpp"
 #include "sfz/gui/DefaultItemRenderers.hpp"
 #include "sfz/gui/DualTextItem.hpp"
 #include "sfz/gui/GUIUtils.hpp"

@@ -71,61 +71,9 @@ OptionsCustomScreen::OptionsCustomScreen() noexcept
 	addStandardPadding(scrollList);
 	addHeading2(scrollList, shared_ptr<BaseItem>{new TextItem{"Movement speed", gl::HorizontalAlign::LEFT}});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Tiles per second", {"0.50", "0.75", "1.00", "1.25", "1.50", "1.75", "2.00", "2.25", "2.50", "2.75", "3.00", "3.25", "3.50", "3.75", "4.00", "4.25", "4.50", "4.75", "5.00"}, [this]() {
-		float val = this->cfgData.modelConfig.tilesPerSecond;
-		const float eps = 0.01f;
-		if (sfz::approxEqual(val, 0.5f, eps)) return 0;
-		if (sfz::approxEqual(val, 0.75f, eps)) return 1;
-		if (sfz::approxEqual(val, 1.0f, eps)) return 2;
-		if (sfz::approxEqual(val, 1.25f, eps)) return 3;
-		if (sfz::approxEqual(val, 1.5f, eps)) return 4;
-		if (sfz::approxEqual(val, 1.75f, eps)) return 5;
-		if (sfz::approxEqual(val, 2.0f, eps)) return 6;
-		if (sfz::approxEqual(val, 2.25f, eps)) return 7;
-		if (sfz::approxEqual(val, 2.5f, eps)) return 8;
-		if (sfz::approxEqual(val, 2.75f, eps)) return 9;
-		if (sfz::approxEqual(val, 3.0f, eps)) return 10;
-		if (sfz::approxEqual(val, 3.25f, eps)) return 11;
-		if (sfz::approxEqual(val, 3.5f, eps)) return 12;
-		if (sfz::approxEqual(val, 3.75f, eps)) return 13;
-		if (sfz::approxEqual(val, 4.0f, eps)) return 14;
-		if (sfz::approxEqual(val, 4.25f, eps)) return 15;
-		if (sfz::approxEqual(val, 4.5f, eps)) return 16;
-		if (sfz::approxEqual(val, 4.75f, eps)) return 17;
-		if (sfz::approxEqual(val, 5.0f, eps)) return 18;
-		return -1;
-	}, [this](int choice) {
-		this->cfgData.modelConfig.tilesPerSecond = 0.5f + ((float)choice)*0.25f;
-	}, stateAlignOffset}});
+	addHeading3(scrollList, shared_ptr<BaseItem>(createLinearFloatMultiChoiceSelector("Base speed", &cfgData.modelConfig.tilesPerSecond, 0.5f, 0.25f, 19, stateAlignOffset, " tiles/s", 2)));
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Speed increase", {"0.000", "0.005", "0.010", "0.015", "0.020", "0.025", "0.030", "0.035", "0.040", "0.045", "0.050", "0.055", "0.060", "0.065", "0.070", "0.075", "0.080", "0.085", "0.090", "0.095", "0.100"}, [this]() {
-		float val = this->cfgData.modelConfig.speedIncreasePerObject;
-		const float eps = 0.0001f;
-		if (sfz::approxEqual(val, 0.000f, eps)) return 0;
-		if (sfz::approxEqual(val, 0.005f, eps)) return 1;
-		if (sfz::approxEqual(val, 0.010f, eps)) return 2;
-		if (sfz::approxEqual(val, 0.015f, eps)) return 3;
-		if (sfz::approxEqual(val, 0.020f, eps)) return 4;
-		if (sfz::approxEqual(val, 0.025f, eps)) return 5;
-		if (sfz::approxEqual(val, 0.030f, eps)) return 6;
-		if (sfz::approxEqual(val, 0.035f, eps)) return 7;
-		if (sfz::approxEqual(val, 0.040f, eps)) return 8;
-		if (sfz::approxEqual(val, 0.045f, eps)) return 9;
-		if (sfz::approxEqual(val, 0.050f, eps)) return 10;
-		if (sfz::approxEqual(val, 0.055f, eps)) return 11;
-		if (sfz::approxEqual(val, 0.060f, eps)) return 12;
-		if (sfz::approxEqual(val, 0.065f, eps)) return 13;
-		if (sfz::approxEqual(val, 0.070f, eps)) return 14;
-		if (sfz::approxEqual(val, 0.075f, eps)) return 15;
-		if (sfz::approxEqual(val, 0.080f, eps)) return 16;
-		if (sfz::approxEqual(val, 0.085f, eps)) return 17;
-		if (sfz::approxEqual(val, 0.090f, eps)) return 18;
-		if (sfz::approxEqual(val, 0.095f, eps)) return 19;
-		if (sfz::approxEqual(val, 0.100f, eps)) return 20;
-		return -1;
-	}, [this](int choice) {
-		this->cfgData.modelConfig.speedIncreasePerObject = ((float)choice)*0.005f;
-	}, stateAlignOffset}});
+	addHeading3(scrollList, shared_ptr<BaseItem>(createLinearFloatMultiChoiceSelector("Speed increase (per object)", &cfgData.modelConfig.speedIncreasePerObject, 0.0f, 0.005f, 21, stateAlignOffset, " tiles/s", 3)));
 
 
 	addStandardPadding(scrollList);

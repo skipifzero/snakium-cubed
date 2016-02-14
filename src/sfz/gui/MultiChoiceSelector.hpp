@@ -14,6 +14,9 @@ using std::function;
 using std::string;
 using std::vector;
 
+/**
+ * @brief A menu item for selecting between different options
+ */
 class MultiChoiceSelector final : public BaseItem {
 public:
 	// Renderer Factory (by default the default renderer)
@@ -28,6 +31,13 @@ public:
 	MultiChoiceSelector(const MultiChoiceSelector&) = default;
 	MultiChoiceSelector& operator= (const MultiChoiceSelector&) = default;
 
+	/**
+	 * @param text the name of the the option
+	 * @param choiceNames a vector with the different possible options
+	 * @param checkStateFunc a function which should return the index to the currently active choice
+	 * @param changeStateFunc a function which should change the active choice to that of given index
+	 * @param stateAlignOffset a offset to align choice strings against
+	 */
 	MultiChoiceSelector(const string& text, const vector<string>& choiceNames,
 	                    const function<int(void)>& checkStateFunc,
 	                    const function<void(int)>& changeStateFunc,
