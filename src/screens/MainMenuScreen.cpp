@@ -8,6 +8,7 @@
 
 #include "GlobalConfig.hpp"
 #include "rendering/Assets.hpp"
+#include "screens/HighScoreScreen.hpp"
 #include "screens/ModeSelectScreen.hpp"
 #include "screens/OptionsScreen.hpp"
 #include "screens/MenuConstants.hpp"
@@ -41,7 +42,8 @@ MainMenuScreen::MainMenuScreen() noexcept
 	addStandardPadding(mGuiSystem);
 
 	addHeading1(mGuiSystem, new Button{"High Scores", [this](Button& ref) {
-		
+		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+		                           shared_ptr<BaseScreen>{new HighScoreScreen()}};
 	}}, buttonWidth);
 	addStandardPadding(mGuiSystem);
 
@@ -55,6 +57,7 @@ MainMenuScreen::MainMenuScreen() noexcept
 
 	}}, buttonWidth);
 	addStandardPadding(mGuiSystem);
+	mGuiSystem.items().back()->disable();
 
 	addHeading1(mGuiSystem, new Button{"Exit", [this](Button& ref) {
 		this->mUpdateOp = sfz::SCREEN_QUIT;

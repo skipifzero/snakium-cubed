@@ -79,6 +79,8 @@ set(SOURCE_SCREENS_FILES
 	${SRC_DIR}/Screens.hpp
 	${SRC_DIR}/screens/GameScreen.hpp
 	${SRC_DIR}/screens/GameScreen.cpp
+	${SRC_DIR}/screens/HighScoreScreen.hpp
+	${SRC_DIR}/screens/HighScoreScreen.cpp
 	${SRC_DIR}/screens/MainMenuScreen.hpp
 	${SRC_DIR}/screens/MainMenuScreen.cpp
 	${SRC_DIR}/screens/MenuConstants.hpp
