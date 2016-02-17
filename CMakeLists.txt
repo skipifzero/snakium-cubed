@@ -40,8 +40,8 @@ set(SOURCE_BASE_FILES
 	${SRC_DIR}/GlobalConfig.hpp
 	${SRC_DIR}/GlobalConfig.cpp
 	${SRC_DIR}/Main.cpp
-	${SRC_DIR}/ScoreIO.hpp
-	${SRC_DIR}/ScoreIO.cpp)
+	${SRC_DIR}/ScoreManagement.hpp
+	${SRC_DIR}/ScoreManagement.cpp)
 source_group(snakium_cubed_root FILES ${SOURCE_BASE_FILES})
 
 set(SOURCE_GAMELOGIC_FILES
