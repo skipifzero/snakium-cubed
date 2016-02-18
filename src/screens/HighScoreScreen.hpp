@@ -5,6 +5,8 @@
 #include <sfz/Screens.hpp>
 #include <sfz/GUI.hpp>
 
+#include "ScoreManagement.hpp"
+
 namespace s3 {
 
 using sfz::UpdateOp;
@@ -33,6 +35,7 @@ private:
 
 	gui::System mGuiSystem;
 	UpdateOp mUpdateOp = sfz::SCREEN_NO_OP;
+	ScoreBundle mScores;
 };
 
 } // namespace s3

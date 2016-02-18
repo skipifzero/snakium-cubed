@@ -21,7 +21,26 @@ HighScoreScreen::HighScoreScreen() noexcept
 	using namespace gui;
 	auto& a = Assets::INSTANCE();
 
+	bool hasScores = loadScores(mScores);
+	const float buttonWidth = MENU_DIM.x * 0.4f;
+	float restPadding;
+	if (hasScores) restPadding = calcRestPadding(0.0f, 0.0f, 0.0f, 0.0f);
+	else restPadding = calcRestPadding(0.0f, 0.0f, 2.0f, 1.0f);
 
+	// Title
+	addTitle(mGuiSystem, new TextItem{"High Scores"});
+	
+	// Error text if high scores couldn't be loaded
+	if (!hasScores) {
+		addStandardPadding(mGuiSystem);
+		addHeading3(mGuiSystem, new TextItem{"Could not load high scores file"});
+		addHeading3(mGuiSystem, new TextItem{"(this is normal if no high scores has been made)"});
+		addNavbar(mGuiSystem, new Button{"Back", [this](Button&) {
+			this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+			                           shared_ptr<BaseScreen>{new MainMenuScreen{}}};
+		}}, restPadding, buttonWidth);
+		return;
+	}
 }
 
 // HighScoreScreen: Overriden screen methods
