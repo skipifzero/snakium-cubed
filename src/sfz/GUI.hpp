@@ -16,5 +16,6 @@
 #include "sfz/gui/SideSplitContainer.hpp"
 #include "sfz/gui/System.hpp"
 #include "sfz/gui/TextItem.hpp"
+#include "sfz/gui/ThreeSplitContainer.hpp"
 
 #endif

@@ -135,7 +135,9 @@ set(SOURCE_SFZ_GUI_TEMP_FILES
 	${SRC_DIR}/sfz/gui/System.hpp
 	${SRC_DIR}/sfz/gui/System.cpp
 	${SRC_DIR}/sfz/gui/TextItem.hpp
-	${SRC_DIR}/sfz/gui/TextItem.cpp)
+	${SRC_DIR}/sfz/gui/TextItem.cpp
+	${SRC_DIR}/sfz/gui/ThreeSplitContainer.hpp
+	${SRC_DIR}/sfz/gui/ThreeSplitContainer.cpp)
 source_group(sfz_gui_temp FILES ${SOURCE_SFZ_GUI_TEMP_FILES})
 
 set(SOURCE_ALL_FILES

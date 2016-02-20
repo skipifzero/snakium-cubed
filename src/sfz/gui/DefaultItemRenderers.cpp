@@ -10,6 +10,7 @@
 #include "sfz/gui/ScrollListContainer.hpp"
 #include "sfz/gui/SideSplitContainer.hpp"
 #include "sfz/gui/TextItem.hpp"
+#include "sfz/gui/ThreeSplitContainer.hpp"
 
 namespace gui {
 
@@ -523,6 +524,41 @@ ItemRendererFactory<TextItem> defaultTextItemRendererFactory() noexcept
 
 	return [](TextItem& ti) {
 		return unique_ptr<ItemRenderer>{new DefaultTextItemRenderer{ti}};
+	};
+}
+
+// Default Three Split Container Renderer Factory
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+ItemRendererFactory<ThreeSplitContainer> defaultThreeSplitContainerRendererFactory() noexcept
+{
+	class DefaultThreeSplitContainerRenderer final : public ItemRenderer {
+	public:
+		DefaultThreeSplitContainerRenderer(ThreeSplitContainer& ts) : ts{ts} { }
+		ThreeSplitContainer& ts;
+
+		virtual void update(float delta) override final
+		{
+
+		}
+
+		virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
+		     override final
+		{
+			auto& settings = DefaultRenderersSettings::INSTANCE();
+			auto& sb = *settings.spriteBatchPtr;
+
+			// Render bounds if enabled
+			if (settings.renderBounds) {
+				sb.begin(cam);
+				sb.draw(ts.bounds(basePos), settings.boundsRegion);
+				sb.end(fbo, viewport, settings.boundsTexture);
+			}
+		}
+	};
+
+	return [](ThreeSplitContainer& ts) {
+		return unique_ptr<ItemRenderer>{new DefaultThreeSplitContainerRenderer{ts}};
 	};
 }
 

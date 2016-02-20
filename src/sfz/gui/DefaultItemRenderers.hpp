@@ -33,6 +33,7 @@ class OnOffSelector;
 class ScrollListContainer;
 class SideSplitContainer;
 class TextItem;
+class ThreeSplitContainer;
 
 // Default renderer factories
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -45,6 +46,7 @@ ItemRendererFactory<OnOffSelector> defaultOnOffSelectorRendererFactory() noexcep
 ItemRendererFactory<ScrollListContainer> defaultScrollListContainerRendererFactory() noexcept;
 ItemRendererFactory<SideSplitContainer> defaultSideSplitContainerRendererFactory() noexcept;
 ItemRendererFactory<TextItem> defaultTextItemRendererFactory() noexcept;
+ItemRendererFactory<ThreeSplitContainer> defaultThreeSplitContainerRendererFactory() noexcept;
 
 // Default renderer settings class
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
