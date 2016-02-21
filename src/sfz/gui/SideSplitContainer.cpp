@@ -39,7 +39,6 @@ SideSplitContainer::SideSplitContainer() noexcept
 bool SideSplitContainer::setLeft(const shared_ptr<BaseItem>& item, float width,
                                  HorizontalAlign hAlign)
 {
-	
 	if (width > (dim.x/2.0f)) {
 		std::cerr << "gui::SideSplitContainer: Cannot add item, too wide.\n";
 		return false;
@@ -57,7 +56,6 @@ bool SideSplitContainer::setLeft(const shared_ptr<BaseItem>& item, float width,
 bool SideSplitContainer::setRight(const shared_ptr<BaseItem>& item, float width,
                                   HorizontalAlign hAlign)
 {
-
 	if (width > (dim.x/2.0f)) {
 		std::cerr << "gui::SideSplitContainer: Cannot add item, too wide.\n";
 		return false;
@@ -70,6 +68,16 @@ bool SideSplitContainer::setRight(const shared_ptr<BaseItem>& item, float width,
 
 	this->rightItem = item;
 	return true;
+}
+
+bool SideSplitContainer::setLeft(BaseItem* item, float width, HorizontalAlign hAlign)
+{
+	return this->setLeft(shared_ptr<BaseItem>{item}, width, hAlign);
+}
+
+bool SideSplitContainer::setRight(BaseItem* item, float width, HorizontalAlign hAlign)
+{
+	return this->setRight(shared_ptr<BaseItem>{item}, width, hAlign);
 }
 
 // SideSplitContainer: Virtual methods overriden from BaseItem
@@ -136,7 +144,7 @@ KeyInput SideSplitContainer::input(KeyInput key)
 		return key;
 	}
 
-	// Update current ittem
+	// Update current item
 	shared_ptr<BaseItem> currItem = this->item(mCurrentSelectedIndex);
 	KeyInput res = currItem->input(key);
 
@@ -167,7 +175,8 @@ KeyInput SideSplitContainer::input(KeyInput key)
 
 void SideSplitContainer::update(float delta)
 {
-	renderer->update(delta);	if (leftItem != nullptr) leftItem->update(delta);
+	renderer->update(delta);
+	if (leftItem != nullptr) leftItem->update(delta);
 	if (rightItem != nullptr) rightItem->update(delta);
 }
 

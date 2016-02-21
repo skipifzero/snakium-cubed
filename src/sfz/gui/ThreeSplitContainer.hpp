@@ -38,6 +38,10 @@ public:
 	bool setRight(const shared_ptr<BaseItem>& item, float width,
 	              HorizontalAlign hAlign = HorizontalAlign::CENTER);
 
+	bool setLeft(BaseItem* item, float width, HorizontalAlign hAlign = HorizontalAlign::CENTER);
+	bool setMiddle(BaseItem* item, float width, HorizontalAlign hAlign = HorizontalAlign::CENTER);
+	bool setRight(BaseItem* item, float width, HorizontalAlign hAlign = HorizontalAlign::CENTER);
+
 	// Virtual methods overriden from BaseItem
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -65,6 +69,11 @@ public:
 	shared_ptr<BaseItem> leftItem, middleItem, rightItem;
 
 private:
+	// Private methods
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	shared_ptr<BaseItem> item(int index) noexcept;
+	
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

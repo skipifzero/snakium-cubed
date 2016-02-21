@@ -24,7 +24,7 @@ HighScoreScreen::HighScoreScreen() noexcept
 	bool hasScores = loadScores(mScores);
 	const float buttonWidth = MENU_DIM.x * 0.4f;
 	float restPadding;
-	if (hasScores) restPadding = calcRestPadding(0.0f, 0.0f, 0.0f, 0.0f);
+	if (hasScores) restPadding = calcRestPadding(0.0f, 0.0f, 1.0f, 0.0f);
 	else restPadding = calcRestPadding(0.0f, 0.0f, 2.0f, 1.0f);
 
 	// Title
@@ -41,6 +41,30 @@ HighScoreScreen::HighScoreScreen() noexcept
 		}}, restPadding, buttonWidth);
 		return;
 	}
+
+	ThreeSplitContainer* tsc = new (std::nothrow) ThreeSplitContainer{};
+	addHeading3(mGuiSystem, tsc);
+
+	float tscWidth = tsc->dim.x / 4.0f;
+
+	tsc->setLeft(new Button{"left", [](Button& b){
+		b.disable();
+	}}, tscWidth, HorizontalAlign::CENTER);
+
+	tsc->setMiddle(new Button{"middle", [](Button& b) {
+		b.disable();
+	}}, tscWidth, HorizontalAlign::CENTER);
+
+	tsc->setRight(new Button{"right", [](Button& b) {
+		b.disable();
+	}}, tscWidth, HorizontalAlign::CENTER);
+
+
+	// Navbar
+	addNavbar(mGuiSystem, new Button{"Back", [this](Button&) {
+		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+		                           shared_ptr<BaseScreen>{new MainMenuScreen{}}};
+	}}, restPadding, buttonWidth);
 }
 
 // HighScoreScreen: Overriden screen methods

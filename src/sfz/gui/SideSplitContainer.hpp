@@ -36,6 +36,9 @@ public:
 	bool setRight(const shared_ptr<BaseItem>& item, float width,
 	              HorizontalAlign hAlign = HorizontalAlign::CENTER);
 
+	bool setLeft(BaseItem* item, float width, HorizontalAlign hAlign = HorizontalAlign::CENTER);
+	bool setRight(BaseItem* item, float width, HorizontalAlign hAlign = HorizontalAlign::CENTER);
+
 	// Virtual methods overriden from BaseItem
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

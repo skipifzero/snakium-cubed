@@ -179,6 +179,13 @@ ItemRendererFactory<ImageItem> defaultImageItemRendererFactory() noexcept
 			auto& settings = DefaultRenderersSettings::INSTANCE();
 			auto& sb = *settings.spriteBatchPtr;
 
+			// Render bounds if enabled
+			if (settings.renderBounds) {
+				sb.begin(cam);
+				sb.draw(ii.bounds(basePos), settings.boundsRegion);
+				sb.end(fbo, viewport, settings.boundsTexture);
+			}
+
 			vec2 imageDim = ii.imageRegion.dimensions() * ii.imageScale;
 			float imageAspect = imageDim.x / imageDim.y;
 			float boundsAspect = ii.dim.x / ii.dim.y;
