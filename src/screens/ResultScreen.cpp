@@ -45,7 +45,7 @@ ResultScreen::ResultScreen(const ModelConfig& lastModelCfg, const Stats& results
 	loadScores(scores);
 	int rank = -1;
 	if (scoresActive) {
-		char name[SCORE_NAME_LENGTH+1] = "herp_name"; 
+		char name[SCORE_NAME_LENGTH+1] = "123456789abcdef"; 
 		rank = tryAddScoreToBundle(scores, cfgToType(lastModelCfg), results, name);
 		if (rank != -1) {
 			if (writeScores(scores)) {

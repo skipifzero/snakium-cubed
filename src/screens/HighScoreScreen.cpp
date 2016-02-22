@@ -24,7 +24,7 @@ HighScoreScreen::HighScoreScreen() noexcept
 	bool hasScores = loadScores(mScores);
 	const float buttonWidth = MENU_DIM.x * 0.4f;
 	float restPadding;
-	if (hasScores) restPadding = calcRestPadding(0.0f, 0.0f, 1.0f, 0.0f);
+	if (hasScores) restPadding = calcRestPadding(1.0f, 5.0f, 1.0f, 0.0f);
 	else restPadding = calcRestPadding(0.0f, 0.0f, 2.0f, 1.0f);
 
 	// Title
@@ -41,6 +41,24 @@ HighScoreScreen::HighScoreScreen() noexcept
 		}}, restPadding, buttonWidth);
 		return;
 	}
+
+	mModeStr = new TextItem{"Standard"};
+	addHeading1(mGuiSystem, mModeStr);
+
+	for (size_t i = 0; i < NUM_SCORES_SAVED; ++i) {
+		mScoreItems[i].scoreItem = new (std::nothrow) TextItem{std::to_string(totalScore(mScores.standardResults[i], STANDARD_CONFIG))};
+		mScoreItems[i].nameItem = new (std::nothrow) TextItem{mScores.standardNames[i]};
+		mScoreItems[i].detailsButton = new (std::nothrow) Button{">>", [](Button&) {
+			
+		}};
+		ThreeSplitContainer* tsc = new (std::nothrow) ThreeSplitContainer{};
+		addHeading2(mGuiSystem, tsc);
+		tsc->setLeft(mScoreItems[i].scoreItem, tsc->dim.x / 4.0f);
+		tsc->setMiddle(mScoreItems[i].nameItem, tsc->dim.x / 4.0f);
+		tsc->setRight(mScoreItems[i].detailsButton, tsc->dim.x / 4.0f);
+	}
+	
+
 
 	ThreeSplitContainer* tsc = new (std::nothrow) ThreeSplitContainer{};
 	addHeading3(mGuiSystem, tsc);
