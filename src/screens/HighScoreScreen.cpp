@@ -27,12 +27,12 @@ HighScoreScreen::HighScoreScreen() noexcept
 	if (hasScores) restPadding = calcRestPadding(3.0f, 0.0f, 9.0f, 4.0f);
 	else restPadding = calcRestPadding(0.0f, 0.0f, 2.0f, 1.0f);
 
-	const float scoreStrRatio = 0.25f;
-	const float scoreButtonRatio = 0.25f;
+	const float scoreStrRatio = 0.3f;
+	const float scoreButtonRatio = 0.3f;
 	const float scoreNameRatio = 1.0f - scoreStrRatio - scoreButtonRatio;
-	const float scoreStrWidth = 0.75f * (mGuiSystem.bounds().width() * scoreStrRatio) - 0.1f;
-	const float scoreNameWidth = 0.75f * (mGuiSystem.bounds().width() * scoreNameRatio) - 0.1f;
-	const float scoreButtonWidth = 0.75f * (mGuiSystem.bounds().width() * scoreButtonRatio) - 0.1f;
+	const float scoreStrWidth = 0.5f * mGuiSystem.bounds().width() * scoreStrRatio;
+	const float scoreNameWidth = 0.85f * mGuiSystem.bounds().width() * scoreNameRatio;
+	const float scoreButtonWidth = 0.5f * mGuiSystem.bounds().width() * scoreButtonRatio;
 
 	// Title
 	addTitle(mGuiSystem, new TextItem{"High Scores"});
@@ -53,11 +53,11 @@ HighScoreScreen::HighScoreScreen() noexcept
 	for (size_t i = 0; i < NUM_SCORES_SAVED; ++i) {
 		ThreeSplitContainer* tsc = new ThreeSplitContainer{scoreStrRatio, scoreButtonRatio};
 		addHeading3(mGuiSystem, tsc);
-		tsc->setLeft(new TextItem{std::to_string(totalScore(mScores.standardResults[i], STANDARD_CONFIG)), HorizontalAlign::LEFT}, scoreStrWidth);
+		tsc->setLeft(new TextItem{std::to_string(totalScore(mScores.standardResults[i], STANDARD_CONFIG)), HorizontalAlign::LEFT}, scoreStrWidth, HorizontalAlign::RIGHT);
 		tsc->setMiddle(new TextItem{mScores.standardNames[i], HorizontalAlign::LEFT}, scoreNameWidth);
 		tsc->setRight(new Button{"Details", [](Button&) {
 			
-		}}, scoreButtonWidth);
+		}}, scoreButtonWidth, HorizontalAlign::LEFT);
 		if (i >= mScores.numStandardResults) tsc->rightItem->disable();
 	}
 	addStandardPadding(mGuiSystem);
@@ -66,11 +66,11 @@ HighScoreScreen::HighScoreScreen() noexcept
 	for (size_t i = 0; i < NUM_SCORES_SAVED; ++i) {
 		ThreeSplitContainer* tsc = new ThreeSplitContainer{scoreStrRatio, scoreButtonRatio};
 		addHeading3(mGuiSystem, tsc);
-		tsc->setLeft(new TextItem{std::to_string(totalScore(mScores.largeResults[i], LARGE_CONFIG)), HorizontalAlign::LEFT}, scoreStrWidth);
+		tsc->setLeft(new TextItem{std::to_string(totalScore(mScores.largeResults[i], LARGE_CONFIG)), HorizontalAlign::LEFT}, scoreStrWidth, HorizontalAlign::RIGHT);
 		tsc->setMiddle(new TextItem{mScores.largeNames[i], HorizontalAlign::LEFT}, scoreNameWidth);
 		tsc->setRight(new Button{"Details", [](Button&) {
 			
-		}}, scoreButtonWidth);
+		}}, scoreButtonWidth, HorizontalAlign::LEFT);
 		if (i >= mScores.numLargeResults) tsc->rightItem->disable();
 	}
 	addStandardPadding(mGuiSystem);
@@ -79,11 +79,11 @@ HighScoreScreen::HighScoreScreen() noexcept
 	for (size_t i = 0; i < NUM_SCORES_SAVED; ++i) {
 		ThreeSplitContainer* tsc = new ThreeSplitContainer{scoreStrRatio, scoreButtonRatio};
 		addHeading3(mGuiSystem, tsc);
-		tsc->setLeft(new TextItem{std::to_string(totalScore(mScores.giantResults[i], STANDARD_CONFIG)), HorizontalAlign::LEFT}, scoreStrWidth);
+		tsc->setLeft(new TextItem{std::to_string(totalScore(mScores.giantResults[i], STANDARD_CONFIG)), HorizontalAlign::LEFT}, scoreStrWidth, HorizontalAlign::RIGHT);
 		tsc->setMiddle(new TextItem{mScores.giantNames[i], HorizontalAlign::LEFT}, scoreNameWidth);
 		tsc->setRight(new Button{"Details", [](Button&) {
 			
-		}}, scoreButtonWidth);
+		}}, scoreButtonWidth, HorizontalAlign::LEFT);
 		if (i >= mScores.numGiantResults) tsc->rightItem->disable();
 	}
 	addStandardPadding(mGuiSystem);
