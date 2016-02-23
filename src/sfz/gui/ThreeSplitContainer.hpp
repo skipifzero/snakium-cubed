@@ -26,7 +26,7 @@ public:
 	ThreeSplitContainer(const ThreeSplitContainer&) = default;
 	ThreeSplitContainer& operator= (const ThreeSplitContainer&) = default;
 
-	ThreeSplitContainer() noexcept;
+	ThreeSplitContainer(float leftSideRatio = 0.33f, float rightSideRatio = 0.33f) noexcept;
 
 	// Public methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -80,6 +80,7 @@ private:
 	bool mSelected = false;
 	bool mEnabled = true;
 	int mCurrentSelectedIndex = -1;
+	float mLeftSideRatio, mRightSideRatio;
 };
 
 } // namespace gui

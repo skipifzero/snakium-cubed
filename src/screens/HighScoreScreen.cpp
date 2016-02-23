@@ -24,15 +24,22 @@ HighScoreScreen::HighScoreScreen() noexcept
 	bool hasScores = loadScores(mScores);
 	const float buttonWidth = MENU_DIM.x * 0.4f;
 	float restPadding;
-	if (hasScores) restPadding = calcRestPadding(1.0f, 5.0f, 1.0f, 0.0f);
+	if (hasScores) restPadding = calcRestPadding(3.0f, 0.0f, 9.0f, 4.0f);
 	else restPadding = calcRestPadding(0.0f, 0.0f, 2.0f, 1.0f);
+
+	const float scoreStrRatio = 0.25f;
+	const float scoreButtonRatio = 0.25f;
+	const float scoreNameRatio = 1.0f - scoreStrRatio - scoreButtonRatio;
+	const float scoreStrWidth = 0.75f * (mGuiSystem.bounds().width() * scoreStrRatio) - 0.1f;
+	const float scoreNameWidth = 0.75f * (mGuiSystem.bounds().width() * scoreNameRatio) - 0.1f;
+	const float scoreButtonWidth = 0.75f * (mGuiSystem.bounds().width() * scoreButtonRatio) - 0.1f;
 
 	// Title
 	addTitle(mGuiSystem, new TextItem{"High Scores"});
+	addStandardPadding(mGuiSystem);
 	
 	// Error text if high scores couldn't be loaded
 	if (!hasScores) {
-		addStandardPadding(mGuiSystem);
 		addHeading3(mGuiSystem, new TextItem{"Could not load high scores file"});
 		addHeading3(mGuiSystem, new TextItem{"(this is normal if no high scores has been made)"});
 		addNavbar(mGuiSystem, new Button{"Back", [this](Button&) {
@@ -42,41 +49,44 @@ HighScoreScreen::HighScoreScreen() noexcept
 		return;
 	}
 
-	mModeStr = new TextItem{"Standard"};
-	addHeading1(mGuiSystem, mModeStr);
-
+	addHeading1(mGuiSystem, new TextItem{"Standard"});
 	for (size_t i = 0; i < NUM_SCORES_SAVED; ++i) {
-		mScoreItems[i].scoreItem = new (std::nothrow) TextItem{std::to_string(totalScore(mScores.standardResults[i], STANDARD_CONFIG))};
-		mScoreItems[i].nameItem = new (std::nothrow) TextItem{mScores.standardNames[i]};
-		mScoreItems[i].detailsButton = new (std::nothrow) Button{">>", [](Button&) {
+		ThreeSplitContainer* tsc = new ThreeSplitContainer{scoreStrRatio, scoreButtonRatio};
+		addHeading3(mGuiSystem, tsc);
+		tsc->setLeft(new TextItem{std::to_string(totalScore(mScores.standardResults[i], STANDARD_CONFIG)), HorizontalAlign::LEFT}, scoreStrWidth);
+		tsc->setMiddle(new TextItem{mScores.standardNames[i], HorizontalAlign::LEFT}, scoreNameWidth);
+		tsc->setRight(new Button{"Details", [](Button&) {
 			
-		}};
-		ThreeSplitContainer* tsc = new (std::nothrow) ThreeSplitContainer{};
-		addHeading2(mGuiSystem, tsc);
-		tsc->setLeft(mScoreItems[i].scoreItem, tsc->dim.x / 4.0f);
-		tsc->setMiddle(mScoreItems[i].nameItem, tsc->dim.x / 4.0f);
-		tsc->setRight(mScoreItems[i].detailsButton, tsc->dim.x / 4.0f);
+		}}, scoreButtonWidth);
+		if (i >= mScores.numStandardResults) tsc->rightItem->disable();
 	}
+	addStandardPadding(mGuiSystem);
 	
+	addHeading1(mGuiSystem, new TextItem{"Large"});
+	for (size_t i = 0; i < NUM_SCORES_SAVED; ++i) {
+		ThreeSplitContainer* tsc = new ThreeSplitContainer{scoreStrRatio, scoreButtonRatio};
+		addHeading3(mGuiSystem, tsc);
+		tsc->setLeft(new TextItem{std::to_string(totalScore(mScores.largeResults[i], LARGE_CONFIG)), HorizontalAlign::LEFT}, scoreStrWidth);
+		tsc->setMiddle(new TextItem{mScores.largeNames[i], HorizontalAlign::LEFT}, scoreNameWidth);
+		tsc->setRight(new Button{"Details", [](Button&) {
+			
+		}}, scoreButtonWidth);
+		if (i >= mScores.numLargeResults) tsc->rightItem->disable();
+	}
+	addStandardPadding(mGuiSystem);
 
-
-	ThreeSplitContainer* tsc = new (std::nothrow) ThreeSplitContainer{};
-	addHeading3(mGuiSystem, tsc);
-
-	float tscWidth = tsc->dim.x / 4.0f;
-
-	tsc->setLeft(new Button{"left", [](Button& b){
-		b.disable();
-	}}, tscWidth, HorizontalAlign::CENTER);
-
-	tsc->setMiddle(new Button{"middle", [](Button& b) {
-		b.disable();
-	}}, tscWidth, HorizontalAlign::CENTER);
-
-	tsc->setRight(new Button{"right", [](Button& b) {
-		b.disable();
-	}}, tscWidth, HorizontalAlign::CENTER);
-
+	addHeading1(mGuiSystem, new TextItem{"Giant"});
+	for (size_t i = 0; i < NUM_SCORES_SAVED; ++i) {
+		ThreeSplitContainer* tsc = new ThreeSplitContainer{scoreStrRatio, scoreButtonRatio};
+		addHeading3(mGuiSystem, tsc);
+		tsc->setLeft(new TextItem{std::to_string(totalScore(mScores.giantResults[i], STANDARD_CONFIG)), HorizontalAlign::LEFT}, scoreStrWidth);
+		tsc->setMiddle(new TextItem{mScores.giantNames[i], HorizontalAlign::LEFT}, scoreNameWidth);
+		tsc->setRight(new Button{"Details", [](Button&) {
+			
+		}}, scoreButtonWidth);
+		if (i >= mScores.numGiantResults) tsc->rightItem->disable();
+	}
+	addStandardPadding(mGuiSystem);
 
 	// Navbar
 	addNavbar(mGuiSystem, new Button{"Back", [this](Button&) {

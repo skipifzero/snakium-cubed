@@ -39,12 +39,6 @@ private:
 	gui::System mGuiSystem;
 	UpdateOp mUpdateOp = sfz::SCREEN_NO_OP;
 	ScoreBundle mScores;
-	gui::TextItem* mModeStr = nullptr;
-	struct {
-		gui::TextItem* scoreItem = nullptr;
-		gui::TextItem* nameItem = nullptr;
-		gui::Button* detailsButton = nullptr;
-	} mScoreItems[NUM_SCORES_SAVED];
 };
 
 } // namespace s3

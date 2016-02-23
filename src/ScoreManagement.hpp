@@ -13,7 +13,7 @@ using std::size_t;
 // Constants
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-constexpr size_t NUM_SCORES_SAVED = 5;
+constexpr size_t NUM_SCORES_SAVED = 3;
 constexpr size_t SCORE_NAME_LENGTH = 15;
 
 enum class ScoreConfigType {

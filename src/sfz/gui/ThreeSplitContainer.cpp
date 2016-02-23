@@ -37,9 +37,11 @@ ItemRendererFactory<ThreeSplitContainer> ThreeSplitContainer::rendererFactory =
 // ThreeSplitContainer: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-ThreeSplitContainer::ThreeSplitContainer() noexcept
+ThreeSplitContainer::ThreeSplitContainer(float leftSideRatio, float rightSideRatio) noexcept
 {
 	renderer = rendererFactory(*this);
+	mLeftSideRatio = leftSideRatio;
+	mRightSideRatio = rightSideRatio;
 }
 
 // ThreeSplitContainer: Public methods
@@ -48,15 +50,20 @@ ThreeSplitContainer::ThreeSplitContainer() noexcept
 bool ThreeSplitContainer::setLeft(const shared_ptr<BaseItem>& item, float width,
                                   HorizontalAlign hAlign)
 {
-	if (width > (dim.x / 3.0f)) {
-		std::cerr << "gui::ThreeSplitContainer: Cannot add item, too wide.\n";
+	const float leftWidth = dim.x * mLeftSideRatio;
+	if (width > leftWidth) {
+		std::cerr << "gui::ThreeSplitContainer: Cannot add item, too wide. (" << width
+		          << ", max allowed: " << leftWidth << ")\n";
 		return false;
 	}
 
+	const float leftPosOffs = (-(0.5f - mLeftSideRatio) - 0.5f*mLeftSideRatio) * dim.x;
+	const float alignSign = static_cast<float>(static_cast<int8_t>(hAlign));
+	const float xOffset = leftPosOffs + alignSign * leftWidth * 0.5f - alignSign * width * 0.5f;
+
 	item->dim = vec2{width, this->dim.y};
 	item->offset = vec2{0.0f};
-	float alignSign = static_cast<float>(static_cast<int8_t>(hAlign));
-	item->offset.x = (-this->dim.x / 3.0f) + (alignSign * width / 6.0f);
+	item->offset.x = xOffset;
 
 	this->leftItem = item;
 	return true;
@@ -65,15 +72,20 @@ bool ThreeSplitContainer::setLeft(const shared_ptr<BaseItem>& item, float width,
 bool ThreeSplitContainer::setMiddle(const shared_ptr<BaseItem>& item, float width,
                                     HorizontalAlign hAlign)
 {
-	if (width > (dim.x / 3.0f)) {
-		std::cerr << "gui::ThreeSplitContainer: Cannot add item, too wide.\n";
+	const float middleWidth = dim.x * (1.0f - mLeftSideRatio - mRightSideRatio);
+	if (width > middleWidth) {
+		std::cerr << "gui::ThreeSplitContainer: Cannot add item, too wide. (" << width
+		          << ", max allowed: " << middleWidth << ")\n";
 		return false;
 	}
 
+	const float middlePosOffs = (mLeftSideRatio - mRightSideRatio) * 0.5f * dim.x;
+	const float alignSign = static_cast<float>(static_cast<int8_t>(hAlign));
+	const float xOffset = middlePosOffs + alignSign * middleWidth * 0.5f - alignSign * width * 0.5f;
+
 	item->dim = vec2{width, this->dim.y};
 	item->offset = vec2{0.0f};
-	float alignSign = static_cast<float>(static_cast<int8_t>(hAlign));
-	item->offset.x = (alignSign * width / 6.0f);
+	item->offset.x = xOffset;
 
 	this->middleItem = item;
 	return true;
@@ -82,15 +94,20 @@ bool ThreeSplitContainer::setMiddle(const shared_ptr<BaseItem>& item, float widt
 bool ThreeSplitContainer::setRight(const shared_ptr<BaseItem>& item, float width,
                                    HorizontalAlign hAlign)
 {
-	if (width > (dim.x / 3.0f)) {
-		std::cerr << "gui::ThreeSplitContainer: Cannot add item, too wide.\n";
+	const float rightWidth = dim.x * mRightSideRatio;
+	if (width > rightWidth) {
+		std::cerr << "gui::ThreeSplitContainer: Cannot add item, too wide. (" << width
+		          << ", max allowed: " << rightWidth << ")\n";
 		return false;
 	}
 
+	const float rightPosOffs = ((0.5f - mRightSideRatio) + 0.5f * mRightSideRatio) * dim.x;
+	const float alignSign = static_cast<float>(static_cast<int8_t>(hAlign));
+	const float xOffset = rightPosOffs + alignSign * rightWidth * 0.5f - alignSign * width * 0.5f;
+
 	item->dim = vec2{width, this->dim.y};
 	item->offset = vec2{0.0f};
-	float alignSign = static_cast<float>(static_cast<int8_t>(hAlign));
-	item->offset.x = (this->dim.x / 3.0f) + (alignSign * width / 6.0f);
+	item->offset.x = xOffset;
 
 	this->rightItem = item;
 	return true;
