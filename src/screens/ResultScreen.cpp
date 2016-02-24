@@ -13,22 +13,6 @@
 
 namespace s3 {
 
-// Statics
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-bool isValidScoreConfig(const ModelConfig& cfg) noexcept
-{
-	return cfg == STANDARD_CONFIG || cfg == LARGE_CONFIG || cfg == GIANT_CONFIG;
-}
-
-ScoreConfigType cfgToType(const ModelConfig& cfg) noexcept
-{
-	if (cfg == STANDARD_CONFIG) return ScoreConfigType::STANDARD;
-	if (cfg == LARGE_CONFIG) return ScoreConfigType::LARGE;
-	if (cfg == GIANT_CONFIG) return ScoreConfigType::GIANT;
-	sfz_error("Logic error! Impossible config!");
-}
-
 // ResultScreen: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -41,22 +25,6 @@ ResultScreen::ResultScreen(const ModelConfig& lastModelCfg, const Stats& results
 {
 	using namespace gui;
 	char tmp[256];
-
-	if (!fromHighScoreScreen) {
-		bool scoresActive = isValidScoreConfig(lastModelCfg);
-		ScoreBundle scores = createEmptyScoreBundle();
-		loadScores(scores);
-		int rank = -1;
-		if (scoresActive) {
-			char name[SCORE_NAME_LENGTH+1] = "123456789abcdef"; 
-			rank = tryAddScoreToBundle(scores, cfgToType(lastModelCfg), results, name);
-			if (rank != -1) {
-				if (writeScores(scores)) {
-					std::cout << "Wrote scores to file!\n";
-				}
-			}
-		}
-	}
 
 	const float alignLine = MENU_DIM.x * 0.5f;
 	const float restPadding = calcRestPadding(2.0f, 2.0f, 9.0f, 1.0f);

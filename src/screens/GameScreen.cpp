@@ -7,8 +7,8 @@
 #include "GameLogic.hpp"
 #include "GlobalConfig.hpp"
 #include "Rendering.hpp"
-#include "screens/ResultScreen.hpp"
 #include "screens/MainMenuScreen.hpp"
+#include "screens/NewHighScoreScreen.hpp"
 
 namespace s3 {
 
@@ -119,7 +119,7 @@ UpdateOp GameScreen::update(UpdateState& state)
 			case SDLK_ESCAPE:
 				if (mModel.isGameOver()) {
 					return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-					                std::shared_ptr<sfz::BaseScreen>{new ResultScreen{mModel.config(), mModel.stats(), false}}};
+					                std::shared_ptr<sfz::BaseScreen>{new NewHighScoreScreen{mModel.config(), mModel.stats()}}};
 				} else {
 					return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 					                std::shared_ptr<sfz::BaseScreen>{new MainMenuScreen{}}};
@@ -133,7 +133,7 @@ UpdateOp GameScreen::update(UpdateState& state)
 	if (mModel.isGameOver()) {
 		if (mTimeSinceGameOver >= TIME_UNTIL_GAME_OVER_SCREEN) {
 			return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-			                std::shared_ptr<sfz::BaseScreen>{new ResultScreen{mModel.config(), mModel.stats(), false}}};
+			                std::shared_ptr<sfz::BaseScreen>{new NewHighScoreScreen{mModel.config(), mModel.stats()}}};
 		}
 		mTimeSinceGameOver += state.delta;
 	}

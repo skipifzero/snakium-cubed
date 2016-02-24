@@ -14,7 +14,7 @@ using std::size_t;
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 constexpr size_t NUM_SCORES_SAVED = 3;
-constexpr size_t SCORE_NAME_LENGTH = 15;
+constexpr size_t SCORE_NAME_LENGTH = 20;
 
 enum class ScoreConfigType {
 	STANDARD,
@@ -54,6 +54,8 @@ ScoreBundle createEmptyScoreBundle() noexcept;
  */
 int tryAddScoreToBundle(ScoreBundle& currentHighScores, ScoreConfigType configType,
                         Stats newScore, const char* scoreName) noexcept;
+
+int checkScoreRank(const ScoreBundle& currentHighScores, ScoreConfigType configType, Stats newScore) noexcept;
 
 // IO functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

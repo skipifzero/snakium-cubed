@@ -96,6 +96,47 @@ int tryAddScoreToBundle(ScoreBundle& currentHighScores, ScoreConfigType configTy
 	return -1;
 }
 
+int checkScoreRank(const ScoreBundle& currentHighScores, ScoreConfigType configType, Stats newScore) noexcept
+{
+	int32_t score = 0;
+	const Stats* scores = nullptr;
+	const size_t* numScores = nullptr;
+	const ModelConfig* mc = nullptr;
+	switch (configType) {
+	case ScoreConfigType::STANDARD:
+		score = totalScore(newScore, STANDARD_CONFIG);
+		scores = currentHighScores.standardResults;
+		numScores = &currentHighScores.numStandardResults;
+		mc = &STANDARD_CONFIG;
+		break;
+	case ScoreConfigType::LARGE:
+		score = totalScore(newScore, LARGE_CONFIG);
+		scores = currentHighScores.largeResults;
+		numScores = &currentHighScores.numLargeResults;
+		mc = &LARGE_CONFIG;
+		break;
+	case ScoreConfigType::GIANT:
+		score = totalScore(newScore, GIANT_CONFIG);
+		scores = currentHighScores.giantResults;
+		numScores = &currentHighScores.numGiantResults;
+		mc = &GIANT_CONFIG;
+		break;
+	}
+
+	for (size_t i = 0; i < *numScores; ++i) {
+		int32_t ithScore = totalScore(scores[i], *mc);
+		if (ithScore < score) {
+			return (int)i+1;
+		}
+	}
+
+	if (*numScores < NUM_SCORES_SAVED) {
+		return (int)*numScores + 1;
+	}
+
+	return -1;
+}
+
 // IO functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 

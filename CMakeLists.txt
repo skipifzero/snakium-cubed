@@ -89,6 +89,8 @@ set(SOURCE_SCREENS_FILES
 	${SRC_DIR}/screens/MenuConstants.cpp
 	${SRC_DIR}/screens/ModeSelectScreen.hpp
 	${SRC_DIR}/screens/ModeSelectScreen.cpp
+	${SRC_DIR}/screens/NewHighScoreScreen.hpp
+	${SRC_DIR}/screens/NewHighScoreScreen.cpp
 	${SRC_DIR}/screens/OptionsCustomScreen.hpp
 	${SRC_DIR}/screens/OptionsCustomScreen.cpp
 	${SRC_DIR}/screens/OptionsGraphicsScreen.hpp

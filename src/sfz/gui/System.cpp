@@ -31,8 +31,8 @@ bool System::addItem(shared_ptr<BaseItem> item, vec2 itemDim, HorizontalAlign hA
 	item->dim = itemDim;
 	mNextItemTopPos.y -= itemDim.y/2.0f;
 	vec2 itemPos = mNextItemTopPos;
-	itemPos.x = itemPos.x + (((float)(int8_t)hAlign) * mBounds.width() / 2.0f) - (((float)(int8_t)hAlign) * itemDim.x / 2.0f);
-	itemPos.x += ((float)(int8_t)hAlign) * itemDim.x/2.0f;
+	float alignSign = (float)(int8_t)hAlign;
+	itemPos.x += (alignSign * mBounds.width() / 2.0f) - (alignSign * itemDim.x / 2.0f);
 	item->offset = itemPos - mBounds.position();
 	mNextItemTopPos.y -= itemDim.y/2.0f;
 	mItems.push_back(item);
