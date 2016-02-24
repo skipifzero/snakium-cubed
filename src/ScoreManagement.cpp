@@ -74,12 +74,12 @@ int tryAddScoreToBundle(ScoreBundle& currentHighScores, ScoreConfigType configTy
 	for (size_t i = 0; i < *numScores; ++i) {
 		int32_t ithScore = totalScore(scores[i], *mc);
 		if (ithScore < score) {
-			for (size_t j = NUM_SCORES_SAVED - 1; i >= j; --j) {
-				scores[j+1] = scores[j];
-				std::memcpy(names[j+1], names[j], SCORE_NAME_LENGTH);
+			for (size_t j = NUM_SCORES_SAVED - 1; j > i; --j) {
+				scores[j] = scores[j-1];
+				std::memcpy(names[j], names[j-1], SCORE_NAME_LENGTH+1);
 			}
 			scores[i] = newScore;
-			std::memcpy(names[i], scoreName, SCORE_NAME_LENGTH);
+			std::memcpy(names[i], scoreName, SCORE_NAME_LENGTH+1);
 			*numScores = std::min(*numScores + 1, NUM_SCORES_SAVED);
 			return (int)i+1;
 		}
@@ -88,7 +88,7 @@ int tryAddScoreToBundle(ScoreBundle& currentHighScores, ScoreConfigType configTy
 	// Just add score if list is not filled
 	if (*numScores < NUM_SCORES_SAVED) {
 		scores[*numScores] = newScore;
-		std::memcpy(names[*numScores], scoreName, SCORE_NAME_LENGTH);
+		std::memcpy(names[*numScores], scoreName, SCORE_NAME_LENGTH+1);
 		*numScores += 1;
 		return (int)*numScores;
 	}
