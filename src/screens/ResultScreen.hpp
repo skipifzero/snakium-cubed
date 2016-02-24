@@ -27,7 +27,7 @@ public:
 	ResultScreen& operator= (const ResultScreen&) = delete;
 	~ResultScreen() noexcept = default;
 
-	ResultScreen(const ModelConfig& lastModelCfg, const Stats& results) noexcept;
+	ResultScreen(const ModelConfig& lastModelCfg, const Stats& results, bool fromHighScoreScreen) noexcept;
 
 	// Overriden screen methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -47,6 +47,7 @@ private:
 
 	gui::System mGuiSystem;
 	UpdateOp mUpdateOp = sfz::SCREEN_NO_OP;
+	bool mFromHighScoreScreen;
 };
 
 } // namespace s3

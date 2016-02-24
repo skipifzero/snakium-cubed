@@ -119,7 +119,7 @@ UpdateOp GameScreen::update(UpdateState& state)
 			case SDLK_ESCAPE:
 				if (mModel.isGameOver()) {
 					return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-					                std::shared_ptr<sfz::BaseScreen>{new ResultScreen{mModel.config(), mModel.stats()}}};
+					                std::shared_ptr<sfz::BaseScreen>{new ResultScreen{mModel.config(), mModel.stats(), false}}};
 				} else {
 					return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 					                std::shared_ptr<sfz::BaseScreen>{new MainMenuScreen{}}};
@@ -133,7 +133,7 @@ UpdateOp GameScreen::update(UpdateState& state)
 	if (mModel.isGameOver()) {
 		if (mTimeSinceGameOver >= TIME_UNTIL_GAME_OVER_SCREEN) {
 			return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-			                std::shared_ptr<sfz::BaseScreen>{new ResultScreen{mModel.config(), mModel.stats()}}};
+			                std::shared_ptr<sfz::BaseScreen>{new ResultScreen{mModel.config(), mModel.stats(), false}}};
 		}
 		mTimeSinceGameOver += state.delta;
 	}

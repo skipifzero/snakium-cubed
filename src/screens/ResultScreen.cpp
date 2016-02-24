@@ -4,6 +4,7 @@
 #include <sfz/GL.hpp>
 #include <sfz/gl/OpenGL.hpp>
 
+#include "screens/HighScoreScreen.hpp"
 #include "screens/GameScreen.hpp"
 #include "screens/MainMenuScreen.hpp"
 #include "screens/MenuConstants.hpp"
@@ -31,25 +32,28 @@ ScoreConfigType cfgToType(const ModelConfig& cfg) noexcept
 // ResultScreen: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-ResultScreen::ResultScreen(const ModelConfig& lastModelCfg, const Stats& results) noexcept
+ResultScreen::ResultScreen(const ModelConfig& lastModelCfg, const Stats& results, bool fromHighScoreScreen) noexcept
 :
 	lastModelConfig{lastModelCfg},
 	results{results},
-	mGuiSystem{sfz::Rectangle{MENU_SYSTEM_DIM/2.0f, MENU_SYSTEM_DIM}}
+	mGuiSystem{sfz::Rectangle{MENU_SYSTEM_DIM/2.0f, MENU_SYSTEM_DIM}},
+	mFromHighScoreScreen{fromHighScoreScreen}
 {
 	using namespace gui;
 	char tmp[256];
 
-	bool scoresActive = isValidScoreConfig(lastModelCfg);
-	ScoreBundle scores = createEmptyScoreBundle();
-	loadScores(scores);
-	int rank = -1;
-	if (scoresActive) {
-		char name[SCORE_NAME_LENGTH+1] = "123456789abcdef"; 
-		rank = tryAddScoreToBundle(scores, cfgToType(lastModelCfg), results, name);
-		if (rank != -1) {
-			if (writeScores(scores)) {
-				std::cout << "Wrote scores to file!\n";
+	if (!fromHighScoreScreen) {
+		bool scoresActive = isValidScoreConfig(lastModelCfg);
+		ScoreBundle scores = createEmptyScoreBundle();
+		loadScores(scores);
+		int rank = -1;
+		if (scoresActive) {
+			char name[SCORE_NAME_LENGTH+1] = "123456789abcdef"; 
+			rank = tryAddScoreToBundle(scores, cfgToType(lastModelCfg), results, name);
+			if (rank != -1) {
+				if (writeScores(scores)) {
+					std::cout << "Wrote scores to file!\n";
+				}
 			}
 		}
 	}
@@ -103,17 +107,25 @@ ResultScreen::ResultScreen(const ModelConfig& lastModelCfg, const Stats& results
 	std::snprintf(tmp, sizeof(tmp), "%.2f tiles/second", results.maxSpeed);
 	addHeading3(mGuiSystem, new DualTextItem{"Max speed: ", tmp, alignLine, hAlign});
 
-	// Navbar	
-	addNavbar(mGuiSystem, new SideSplitContainer{}, restPadding);
-	SideSplitContainer& sideSplit = *(SideSplitContainer*)mGuiSystem.items().back().get();
-	sideSplit.setLeft(shared_ptr<BaseItem>{new Button{"Retry", [this](Button&) {
-		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-		                           shared_ptr<BaseScreen>{new GameScreen{this->lastModelConfig}}};
-	}}}, MENU_DIM.x * 0.4f);
-	sideSplit.setRight(shared_ptr<BaseItem>{new Button{"Main Menu", [this](Button&) {
-		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-		                           shared_ptr<BaseScreen>{new MainMenuScreen{}}};
-	}}}, MENU_DIM.x * 0.4f);
+	// Navbar
+	if (fromHighScoreScreen) {
+		addNavbar(mGuiSystem, new Button{"Back", [this](Button&) {
+			this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+			                           shared_ptr<BaseScreen>{new HighScoreScreen{}}};
+		}}, restPadding, MENU_DIM.x * 0.4f);
+	}
+	else {
+		addNavbar(mGuiSystem, new SideSplitContainer{}, restPadding);
+		SideSplitContainer& sideSplit = *(SideSplitContainer*)mGuiSystem.items().back().get();
+		sideSplit.setLeft(shared_ptr<BaseItem>{new Button{"Retry", [this](Button&) {
+			this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+			                           shared_ptr<BaseScreen>{new GameScreen{this->lastModelConfig}}};
+		}}}, MENU_DIM.x * 0.4f);
+		sideSplit.setRight(shared_ptr<BaseItem>{new Button{"Main Menu", [this](Button&) {
+			this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+			                           shared_ptr<BaseScreen>{new MainMenuScreen{}}};
+		}}}, MENU_DIM.x * 0.4f);
+	}
 }
 
 // ResultScreen: Overriden screen methods
@@ -128,8 +140,13 @@ UpdateOp ResultScreen::update(UpdateState& state)
 	bool cancelRef;
 	gui::InputData data = inputDataFromUpdateState(state, guiCam, ctrlId, &cancelRef);
 	if (cancelRef) {
-		return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-		                std::shared_ptr<sfz::BaseScreen>{new MainMenuScreen{}}};
+		if (mFromHighScoreScreen) {
+			return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+			                std::shared_ptr<sfz::BaseScreen>{new HighScoreScreen{}}};
+		} else {
+			return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+			                std::shared_ptr<sfz::BaseScreen>{new MainMenuScreen{}}};
+		}
 	}
 	mGuiSystem.update(data, state.delta);
 

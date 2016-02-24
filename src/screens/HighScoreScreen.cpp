@@ -5,6 +5,7 @@
 #include "rendering/Assets.hpp"
 #include "screens/MainMenuScreen.hpp"
 #include "screens/MenuConstants.hpp"
+#include "screens/ResultScreen.hpp"
 #include "screens/ScreenUtils.hpp"
 
 namespace s3 {
@@ -55,8 +56,9 @@ HighScoreScreen::HighScoreScreen() noexcept
 		addHeading3(mGuiSystem, tsc);
 		tsc->setLeft(new TextItem{std::to_string(totalScore(mScores.standardResults[i], STANDARD_CONFIG)), HorizontalAlign::LEFT}, scoreStrWidth, HorizontalAlign::RIGHT);
 		tsc->setMiddle(new TextItem{mScores.standardNames[i], HorizontalAlign::LEFT}, scoreNameWidth);
-		tsc->setRight(new Button{"Details", [](Button&) {
-			
+		tsc->setRight(new Button{"Details", [this, i](Button&) {
+			this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+			                           shared_ptr<BaseScreen>{new ResultScreen{STANDARD_CONFIG, this->mScores.standardResults[i], true}}};
 		}}, scoreButtonWidth, HorizontalAlign::LEFT);
 		if (i >= mScores.numStandardResults) tsc->rightItem->disable();
 	}
@@ -68,8 +70,9 @@ HighScoreScreen::HighScoreScreen() noexcept
 		addHeading3(mGuiSystem, tsc);
 		tsc->setLeft(new TextItem{std::to_string(totalScore(mScores.largeResults[i], LARGE_CONFIG)), HorizontalAlign::LEFT}, scoreStrWidth, HorizontalAlign::RIGHT);
 		tsc->setMiddle(new TextItem{mScores.largeNames[i], HorizontalAlign::LEFT}, scoreNameWidth);
-		tsc->setRight(new Button{"Details", [](Button&) {
-			
+		tsc->setRight(new Button{"Details", [this, i](Button&) {
+			this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+			                           shared_ptr<BaseScreen>{new ResultScreen{LARGE_CONFIG, this->mScores.largeResults[i], true}}};
 		}}, scoreButtonWidth, HorizontalAlign::LEFT);
 		if (i >= mScores.numLargeResults) tsc->rightItem->disable();
 	}
@@ -81,8 +84,9 @@ HighScoreScreen::HighScoreScreen() noexcept
 		addHeading3(mGuiSystem, tsc);
 		tsc->setLeft(new TextItem{std::to_string(totalScore(mScores.giantResults[i], STANDARD_CONFIG)), HorizontalAlign::LEFT}, scoreStrWidth, HorizontalAlign::RIGHT);
 		tsc->setMiddle(new TextItem{mScores.giantNames[i], HorizontalAlign::LEFT}, scoreNameWidth);
-		tsc->setRight(new Button{"Details", [](Button&) {
-			
+		tsc->setRight(new Button{"Details", [this, i](Button&) {
+			this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+			                           shared_ptr<BaseScreen>{new ResultScreen{GIANT_CONFIG, this->mScores.giantResults[i], true}}};
 		}}, scoreButtonWidth, HorizontalAlign::LEFT);
 		if (i >= mScores.numGiantResults) tsc->rightItem->disable();
 	}
