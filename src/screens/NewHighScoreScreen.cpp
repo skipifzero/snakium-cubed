@@ -121,7 +121,18 @@ UpdateOp NewHighScoreScreen::update(UpdateState& state)
 	const vec2 drawableDim = state.window.drawableDimensions();
 	const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, MENU_SYSTEM_DIM);
 
-	auto eventsBackup = std::move(state.events); // Remove all events temporarily so keyboard can't be used
+	// Remove all events temporarily so keyboard can't be used
+	auto eventsBackup = std::move(state.events);
+
+	// Re-add a few events
+	for (auto& event : eventsBackup) {
+		if (event.type == SDL_KEYUP) {
+			int key = event.key.keysym.sym;
+			if (key == SDLK_DOWN || key == SDLK_UP || key == SDLK_LEFT || key == SDLK_RIGHT || key == SDLK_RETURN) {
+				state.events.push_back(event);
+			}
+		}
+	}
 
 	int32_t ctrlId = getFirstController(state);
 	gui::InputData data = inputDataFromUpdateState(state, guiCam, ctrlId, nullptr);
