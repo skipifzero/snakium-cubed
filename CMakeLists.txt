@@ -107,6 +107,8 @@ set(SOURCE_SCREENS_FILES
 source_group(screens FILES ${SOURCE_SCREENS_FILES})
 
 set(SOURCE_SFZ_GL_TEMP_FILES
+	${SRC_DIR}/sfz/gl/GaussianBlur.hpp
+	${SRC_DIR}/sfz/gl/GaussianBlur.cpp
 	${SRC_DIR}/sfz/gl/BoxBlur.hpp
 	${SRC_DIR}/sfz/gl/BoxBlur.cpp)
 source_group(sfz_gl_temp FILES ${SOURCE_SFZ_GL_TEMP_FILES})
