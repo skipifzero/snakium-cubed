@@ -3,6 +3,7 @@
 #define SFZ_GL_GAUSSIAN_BLUR_HPP
 
 #include <cstdint>
+#include <memory>
 
 #include <sfz/gl/Framebuffer.hpp>
 #include <sfz/gl/PostProcessQuad.hpp>
@@ -14,6 +15,10 @@ namespace gl {
 using sfz::vec2i;
 using std::int32_t;
 using std::uint32_t;
+using std::unique_ptr;
+
+// Gaussian blur class
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 class GaussianBlur final {
 public:
@@ -34,12 +39,25 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	/**
-	 * @brief Applies the box blur filter to the texture and writes it to the specifed fbo
+	 * @brief Applies the gaussian blur filter to the texture and writes it to the specifed fbo
 	 * @param srcDimensions the dimensions of the texture, needs to be same as the internal
 	 *                      resolution of this BoxBlur object.
-	 * @param radius the amount of pixels to sample in each direction
 	 */
-	void apply(uint32_t dstFBO, uint32_t srcTexture, vec2i srcDimensions, int32_t radius) noexcept;
+	void apply(uint32_t dstFBO, uint32_t srcTexture, vec2i srcDimensions) noexcept;
+
+	/**
+	* @brief Applies the gaussian blur filter to the texture and writes it to the specifed fbo
+	* @param radius the amount of pixels to sample in a direction (pixels sampled = 2*radius + 1)
+	* @param 
+	*/
+	bool setBlurParams(int32_t radius, float sigma) noexcept;
+
+	// Getters
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+	inline int32_t radius() const noexcept { return mRadius; }
+	inline float sigma() const noexcept { return mSigma; }
+	inline const float* samples() const noexcept { return &mSamples[0]; }
 
 private:
 	// Private members
@@ -49,9 +67,11 @@ private:
 	Framebuffer mTempFB;
 	PostProcessQuad mPostProcessQuad;
 	uint32_t mSamplerObject = 0;
-};
 
-void herps(int32_t radius, float sigma) noexcept;
+	int32_t mRadius = -1;
+	float mSigma = 1.0f;
+	unique_ptr<float[]> mSamples;
+};
 
 } // namespace sfz
 #endif

@@ -679,7 +679,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		             .addTexture(0, FBTextureFormat::RGB_U8, FBTextureFiltering::LINEAR)
 		             .build();
 
-		mBoxBlur = gl::BoxBlur{blurRes};
+		mGaussianBlur = gl::GaussianBlur{blurRes, 1, 1.0f};
 		
 		std::cout << "Resized framebuffers"
 		          << "\nGBuffer && Global Shading resolution: " << internalRes
@@ -789,15 +789,21 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 
 	mPostProcessQuad.render();
 	
-	const float blurRadiusFactor = 0.005f;
+	const float blurRadiusFactor = 0.01f;
 	int blurRadius = std::round(mEmissiveFB.height() * blurRadiusFactor);
 	blurRadius = std::max(blurRadius, 2);
 	blurRadius = ((blurRadius % 2) != 0) ? blurRadius + 1 : blurRadius;
 
-	mBoxBlur.apply(mEmissiveFB.fbo(), mEmissiveFB.texture(0), mEmissiveFB.dimensions(), blurRadius);
-	mBoxBlur.apply(mEmissiveFB.fbo(), mEmissiveFB.texture(0), mEmissiveFB.dimensions(), blurRadius);
-	mBoxBlur.apply(mEmissiveFB.fbo(), mEmissiveFB.texture(0), mEmissiveFB.dimensions(), blurRadius);
-
+	if (mGaussianBlur.setBlurParams(blurRadius, blurRadius*0.75f)) {
+		/*char buffer[256];
+		std::cout << "Updated gaussian blur samples (radius = " << mGaussianBlur.radius()
+		          << ", sigma = " << mGaussianBlur.sigma() << "):\n";
+		for (int i = 0; i < mGaussianBlur.radius(); ++i) {
+			std::snprintf(buffer, sizeof(buffer), "%i: %.5f\n", i, mGaussianBlur.samples()[i]);
+			std::cout << buffer;
+		}*/
+	}
+	mGaussianBlur.apply(mEmissiveFB.fbo(), mEmissiveFB.texture(0), mEmissiveFB.dimensions());
 
 	// Spotlights (Shadow Map + Shading + Lightshafts)
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <new>
 
 #include <sfz/gl/OpenGL.hpp>
 
@@ -46,19 +47,6 @@ static void normalizeGaussianSamples(float* sampleArray, int32_t numberOfSamples
 	}
 }
 
-void herps(int32_t radius, float sigma) noexcept
-{
-	sfz_assert_debug(radius + 1 < 20);
-	float samples[20];
-	char tmp[100];
-	calculateGaussians(samples, radius, sigma);
-	normalizeGaussianSamples(samples, radius);
-	for (int32_t i = 0; i <= radius; ++i) {
-		std::snprintf(tmp, sizeof(tmp), "%i: %.6f", i, samples[i]);
-		std::cout << tmp << std::endl;
-	}
-}
-
 static const char* HORIZONTAL_SOURCE = R"(
 	#version 330
 
@@ -67,38 +55,19 @@ static const char* HORIZONTAL_SOURCE = R"(
 
 	uniform sampler2D uSrcTex;
 	uniform vec2 uSrcDim;
+	uniform float uGaussianSamples[257];
 	uniform int uRadius;
 
 	void main()
 	{
-		// Somewhat smarter version with 2 pixels per sample
 		vec2 offs = vec2(1.0 / uSrcDim.x, 0.0);
-		vec2 halfOffs = offs * 0.5;
-		float weight = 1.0 / float((uRadius * 2) + 1);
-
-		vec4 result = vec4(0.0);
-
-		for (int i = 1; i < uRadius; i += 2) {
-			vec2 currOffs = (float(i) * offs) + halfOffs;
-			result += texture(uSrcTex, uvCoord + currOffs);
-			result += texture(uSrcTex, uvCoord - currOffs);
+		vec4 result = uGaussianSamples[0] * texture(uSrcTex, uvCoord);
+		for (int i = 1; i <= uRadius; ++i) {
+			vec2 sampleOffs = float(i) * offs;
+			result += uGaussianSamples[i] * texture(uSrcTex, uvCoord - sampleOffs);
+			result += uGaussianSamples[i] * texture(uSrcTex, uvCoord + sampleOffs);
 		}
-
-		result *= 2.0; // Linear sampling (2 pixels per fetch)
-		result += texture(uSrcTex, uvCoord); // Pixel 0
-		result *= weight;
 		outFragColor = result;
-
-
-		/* // Naive version with 1 sample per pixel
-		vec2 offs = vec2(1.0 / uSrcDim.x, 0.0);
-		float weight = 1.0 / float((uRadius * 2) + 1);
-
-		vec4 result = vec4(0.0);
-		for (int i = -uRadius; i <= uRadius; ++i) {
-			result += texture(uSrcTex, uvCoord + (float(i)*offs));
-		}
-		outFragColor = result * weight;*/
 	}
 )";
 
@@ -110,38 +79,19 @@ static const char* VERTICAL_SOURCE = R"(
 
 	uniform sampler2D uSrcTex;
 	uniform vec2 uSrcDim;
+	uniform float uGaussianSamples[257];
 	uniform int uRadius;
 
 	void main()
 	{
-		// Somewhat smarter version with 2 pixels per sample
 		vec2 offs = vec2(0.0, 1.0 / uSrcDim.y);
-		vec2 halfOffs = offs * 0.5;
-		float weight = 1.0 / float((uRadius * 2) + 1);
-
-		vec4 result = vec4(0.0);
-
-		for (int i = 1; i < uRadius; i += 2) {
-			vec2 currOffs = (float(i) * offs) + halfOffs;
-			result += texture(uSrcTex, uvCoord + currOffs);
-			result += texture(uSrcTex, uvCoord - currOffs);
+		vec4 result = uGaussianSamples[0] * texture(uSrcTex, uvCoord);
+		for (int i = 1; i <= uRadius; ++i) {
+			vec2 sampleOffs = float(i) * offs;
+			result += uGaussianSamples[i] * texture(uSrcTex, uvCoord - sampleOffs);
+			result += uGaussianSamples[i] * texture(uSrcTex, uvCoord + sampleOffs);
 		}
-
-		result *= 2.0; // Linear sampling (2 pixels per fetch)
-		result += texture(uSrcTex, uvCoord); // Pixel 0
-		result *= weight;
 		outFragColor = result;
-
-
-		/* // Naive version with 1 sample per pixel
-		vec2 offs = vec2(0.0, 1.0 / uSrcDim.y);
-		float weight = 1.0 / float((uRadius * 2) + 1);
-
-		vec4 result = vec4(0.0);
-		for (int i = -uRadius; i <= uRadius; ++i) {
-			result += texture(uSrcTex, uvCoord + (float(i)*offs));
-		}
-		outFragColor = result * weight;*/
 	}
 )";
 
@@ -159,6 +109,8 @@ GaussianBlur::GaussianBlur(vec2i dimensions, int32_t radius, float sigma) noexce
 	glSamplerParameteri(mSamplerObject, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_S, GL_CLAMP);
 	glSamplerParameteri(mSamplerObject, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+	setBlurParams(radius, sigma);
 }
 
 GaussianBlur::GaussianBlur(GaussianBlur&& other) noexcept
@@ -168,6 +120,10 @@ GaussianBlur::GaussianBlur(GaussianBlur&& other) noexcept
 	mTempFB = std::move(other.mTempFB);
 	mPostProcessQuad = std::move(other.mPostProcessQuad);
 	std::swap(this->mSamplerObject, other.mSamplerObject);
+
+	std::swap(this->mRadius, other.mRadius);
+	std::swap(this->mSigma, other.mSigma);
+	std::swap(this->mSamples, other.mSamples);
 }
 
 GaussianBlur& GaussianBlur::operator= (GaussianBlur&& other) noexcept
@@ -177,6 +133,10 @@ GaussianBlur& GaussianBlur::operator= (GaussianBlur&& other) noexcept
 	mTempFB = std::move(other.mTempFB);
 	mPostProcessQuad = std::move(other.mPostProcessQuad);
 	std::swap(this->mSamplerObject, other.mSamplerObject);
+
+	std::swap(this->mRadius, other.mRadius);
+	std::swap(this->mSigma, other.mSigma);
+	std::swap(this->mSamples, other.mSamples);
 	return *this;
 }
 
@@ -188,10 +148,9 @@ GaussianBlur::~GaussianBlur() noexcept
 // GaussianBlur: Public methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void GaussianBlur::apply(uint32_t dstFBO, uint32_t srcTexture, vec2i srcDimensions, int32_t radius) noexcept
+void GaussianBlur::apply(uint32_t dstFBO, uint32_t srcTexture, vec2i srcDimensions) noexcept
 {
 	sfz_assert_debug(srcDimensions == mTempFB.dimensions());
-	sfz_assert_debug(((radius % 2) == 0));
 	vec2 srcDimFloat{(float)srcDimensions.x, (float)srcDimensions.y};
 
 	glUseProgram(mHorizontalBlurProgram.handle());
@@ -202,10 +161,11 @@ void GaussianBlur::apply(uint32_t dstFBO, uint32_t srcTexture, vec2i srcDimensio
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, srcTexture);
-	gl::setUniform(mHorizontalBlurProgram, "uSrcTex", 0);
 	glBindSampler(0, mSamplerObject);
+	gl::setUniform(mHorizontalBlurProgram, "uSrcTex", 0);
 	gl::setUniform(mHorizontalBlurProgram, "uSrcDim", srcDimFloat);
-	gl::setUniform(mHorizontalBlurProgram, "uRadius", radius);
+	gl::setUniform(mHorizontalBlurProgram, "uGaussianSamples", &mSamples[0], mRadius);
+	gl::setUniform(mHorizontalBlurProgram, "uRadius", mRadius);
 
 	mPostProcessQuad.render();
 
@@ -217,10 +177,11 @@ void GaussianBlur::apply(uint32_t dstFBO, uint32_t srcTexture, vec2i srcDimensio
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, mTempFB.texture(0));
-	gl::setUniform(mVerticalBlurProgram, "uSrcTex", 0);
 	glBindSampler(0, mSamplerObject);
+	gl::setUniform(mVerticalBlurProgram, "uSrcTex", 0);
 	gl::setUniform(mVerticalBlurProgram, "uSrcDim", srcDimFloat);
-	gl::setUniform(mVerticalBlurProgram, "uRadius", radius);
+	gl::setUniform(mVerticalBlurProgram, "uGaussianSamples", &mSamples[0], mRadius);
+	gl::setUniform(mVerticalBlurProgram, "uRadius", mRadius);
 
 	mPostProcessQuad.render();
 
@@ -229,6 +190,24 @@ void GaussianBlur::apply(uint32_t dstFBO, uint32_t srcTexture, vec2i srcDimensio
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glBindSampler(0, 0);
+}
+
+bool GaussianBlur::setBlurParams(int32_t radius, float sigma) noexcept
+{
+	sfz_assert_debug(radius > 0);
+	sfz_assert_debug(radius < 257);
+	sfz_assert_debug(sigma > 0.0f);
+
+	if (mRadius == radius && mSigma == sigma) {
+		return false;
+	}
+
+	mRadius = radius;
+	mSigma = sigma;
+	mSamples = unique_ptr<float[]>{new (std::nothrow) float[radius+1]};
+	calculateGaussians(&mSamples[0], radius, sigma);
+	normalizeGaussianSamples(&mSamples[0], radius);
+	return true;
 }
 
 } // namespace gl
