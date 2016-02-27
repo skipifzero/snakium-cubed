@@ -29,7 +29,7 @@ public:
 	GaussianBlur(const GaussianBlur&) = delete;
 	GaussianBlur& operator= (const GaussianBlur&) = delete;
 	
-	GaussianBlur(vec2i dimensions, int32_t radius, float sigma) noexcept;
+	GaussianBlur(vec2i dimensions, int32_t radius, float sigma, bool interpolatedSamples = true) noexcept;
 	
 	GaussianBlur(GaussianBlur&& other) noexcept;
 	GaussianBlur& operator= (GaussianBlur&& other) noexcept;
@@ -50,7 +50,7 @@ public:
 	* @param radius the amount of pixels to sample in a direction (pixels sampled = 2*radius + 1)
 	* @param 
 	*/
-	bool setBlurParams(int32_t radius, float sigma) noexcept;
+	bool setBlurParams(int32_t radius, float sigma, bool interpolatedSamples = true) noexcept;
 
 	// Getters
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -63,7 +63,8 @@ private:
 	// Private members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	
-	Program mHorizontalBlurProgram, mVerticalBlurProgram;
+	Program mHorizontalBlurProgram, mVerticalBlurProgram,
+	        mHorizontalBlurInterpolatedProgram, mVerticalBlurInterpolatedProgram;
 	Framebuffer mTempFB;
 	PostProcessQuad mPostProcessQuad;
 	uint32_t mSamplerObject = 0;
@@ -71,6 +72,7 @@ private:
 	int32_t mRadius = -1;
 	float mSigma = 1.0f;
 	unique_ptr<float[]> mSamples;
+	bool mInterpolatedSamples = false;
 };
 
 } // namespace sfz

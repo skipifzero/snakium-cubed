@@ -679,7 +679,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		             .addTexture(0, FBTextureFormat::RGB_U8, FBTextureFiltering::LINEAR)
 		             .build();
 
-		mGaussianBlur = gl::GaussianBlur{blurRes, 1, 1.0f};
+		mGaussianBlur = gl::GaussianBlur{blurRes, 2, 1.0f};
 		
 		std::cout << "Resized framebuffers"
 		          << "\nGBuffer && Global Shading resolution: " << internalRes
@@ -794,7 +794,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	blurRadius = std::max(blurRadius, 2);
 	blurRadius = ((blurRadius % 2) != 0) ? blurRadius + 1 : blurRadius;
 
-	if (mGaussianBlur.setBlurParams(blurRadius, blurRadius*0.75f)) {
+	if (mGaussianBlur.setBlurParams(blurRadius, blurRadius*0.75f, true)) {
 		/*char buffer[256];
 		std::cout << "Updated gaussian blur samples (radius = " << mGaussianBlur.radius()
 		          << ", sigma = " << mGaussianBlur.sigma() << "):\n";
