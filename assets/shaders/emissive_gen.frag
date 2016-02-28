@@ -22,6 +22,7 @@ out vec4 outFragColor;
 
 // Uniforms
 uniform usampler2D uMaterialIdTexture;
+uniform sampler2D uBlurWeightsTexture;
 uniform Material uMaterials[20];
 
 // Main
@@ -30,5 +31,6 @@ uniform Material uMaterials[20];
 void main()
 {
 	uint materialId = texture(uMaterialIdTexture, uvCoord).r;
-	outFragColor = vec4(uMaterials[materialId].emissive, 1.0);
+	float weight = texture(uBlurWeightsTexture, uvCoord).r;
+	outFragColor = vec4(uMaterials[materialId].emissive * weight, 1.0);
 }

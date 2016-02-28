@@ -20,6 +20,7 @@ using sfz::vec4;
 const uint32_t GBUFFER_LINEAR_DEPTH_INDEX = 0;
 const uint32_t GBUFFER_NORMAL_INDEX = 1;
 const uint32_t GBUFFER_MATERIAL_INDEX = 2;
+const uint32_t GBUFFER_BLUR_WEIGHTS_INDEX = 3;
 
 static void stupidSetSpotlightUniform(const gl::Program& program, const char* name, const Spotlight& spotlight,
                                       const mat4& viewMatrix, const mat4& invViewMatrix) noexcept
@@ -342,6 +343,7 @@ static void renderOpaque(const Model& model, gl::Program& program, const mat4& v
 		gl::setUniform(program, "uNormalMatrix", normalMatrix);
 
 		// Render tile decoration
+		gl::setUniform(program, "uBlurWeight", 1.0f);
 		setUniform(program, "uMaterialId", tileDecorationMaterialId(tilePtr));
 		assets.TILE_DECORATION_MODEL.render();
 
@@ -349,6 +351,7 @@ static void renderOpaque(const Model& model, gl::Program& program, const mat4& v
 		if (tilePtr->type == s3::TileType::EMPTY) continue;
 
 		// Render dive & ascend models
+		gl::setUniform(program, "uBlurWeight", 1.0f);
 		if (isDive(tilePos.side, tilePtr->to)) {
 			setUniform(program, "uMaterialId", MATERIAL_ID_TILE_DIVE_ASCEND);
 			assets.DIVE_MODEL.render();
@@ -359,6 +362,7 @@ static void renderOpaque(const Model& model, gl::Program& program, const mat4& v
 		}
 
 		// Render tile model
+		gl::setUniform(program, "uBlurWeight", 3.0f);
 		setUniform(program, "uMaterialId", tileMaterialId(tilePtr));
 		getTileModel(tilePtr, tilePos.side, model.progress(), model.isGameOver()).render();
 	}
@@ -382,6 +386,7 @@ static void renderOpaque(const Model& model, gl::Program& program, const mat4& v
 		gl::setUniform(program, "uNormalMatrix", normalMatrix);
 
 		// Render dive & ascend models
+		gl::setUniform(program, "uBlurWeight", 1.0f);
 		if (isDive(tilePos.side, tilePtr->to)) {
 			setUniform(program, "uMaterialId", MATERIAL_ID_TILE_DIVE_ASCEND);
 			assets.DIVE_MODEL.render();
@@ -392,6 +397,7 @@ static void renderOpaque(const Model& model, gl::Program& program, const mat4& v
 		}
 
 		// Render tile model
+		gl::setUniform(program, "uBlurWeight", 3.0f);
 		setUniform(program, "uMaterialId", tileMaterialId(tilePtr));
 		getTileModel(tilePtr, tilePos.side, model.progress(), model.isGameOver()).render();
 	}
@@ -545,6 +551,8 @@ static void renderTransparentCube(const Model& model, gl::Program& program, cons
 static void renderBackground(gl::Program& program, const mat4& viewMatrix) noexcept
 {
 	Assets& assets = Assets::INSTANCE();
+
+	gl::setUniform(program, "uBlurWeight", 0.0f);
 	
 	// Set uniforms
 	const mat4 skyModelMatrix = sfz::scalingMatrix4(5.0f);
@@ -579,6 +587,7 @@ ModernRenderer::ModernRenderer() noexcept
 		glBindFragDataLocation(shaderProgram, 1, "outFragNormal");
 		glBindFragDataLocation(shaderProgram, 2, "outFragEmissive");
 		glBindFragDataLocation(shaderProgram, 3, "outFragMaterialId");
+		glBindFragDataLocation(shaderProgram, 4, "outBlurWeights");
 	});
 
 	mTransparencyProgram = Program::fromFile((sfz::basePath() + "assets/shaders/transparency.vert").c_str(),
@@ -613,7 +622,7 @@ ModernRenderer::ModernRenderer() noexcept
 
 	
 	mAmbientLight = vec3(0.05f);
-	mSpotlights.emplace_back(vec3{0.0f, 1.2f, 0.0f}, vec3{0.0f, -1.0f, 0.0f}, 60.0f, 40.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
+	mSpotlights.emplace_back(vec3{0.0f, 1.2f, 0.0f}, vec3{0.0f, -1.0f, 0.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
 	mSpotlights.emplace_back(vec3{0.0f, -1.2f, 0.0f}, vec3{0.0f, 1.0f, 0.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
 
 	mSpotlights.emplace_back(vec3{1.2f, 0.0f, 0.0f}, vec3{-1.0f, 0.0f, 0.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
@@ -653,6 +662,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		          .addTexture(GBUFFER_LINEAR_DEPTH_INDEX, FBTextureFormat::R_F32, FBTextureFiltering::NEAREST)
 		          .addTexture(GBUFFER_NORMAL_INDEX, FBTextureFormat::RGB_F32, FBTextureFiltering::NEAREST)
 		          .addTexture(GBUFFER_MATERIAL_INDEX, FBTextureFormat::R_INT_U8, FBTextureFiltering::NEAREST)
+		          .addTexture(GBUFFER_BLUR_WEIGHTS_INDEX, FBTextureFormat::R_F16, FBTextureFiltering::NEAREST)
 		          .addDepthBuffer(FBDepthFormat::F32)
 		          .build();
 
@@ -676,7 +686,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		                  .build();
 		
 		mEmissiveFB = FramebufferBuilder{blurRes}
-		             .addTexture(0, FBTextureFormat::RGB_U8, FBTextureFiltering::LINEAR)
+		             .addTexture(0, FBTextureFormat::RGB_F16, FBTextureFiltering::LINEAR)
 		             .build();
 
 		mGaussianBlur = gl::GaussianBlur{blurRes, 2, 1.0f};
@@ -693,6 +703,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	if (cfg.continuousShaderReload) {
 		mGBufferGenProgram.reload();
 		mTransparencyProgram.reload();
+		mEmissiveGenProgram.reload();
 		mShadowMapProgram.reload();
 		mSpotlightShadingProgram.reload();
 		mLightShaftsProgram.reload();
@@ -784,7 +795,12 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, mGBuffer.texture(GBUFFER_MATERIAL_INDEX));
-	gl::setUniform(mEmissiveGenProgram, "uMaterialIdTexture", 0);
+	gl::setUniform(mEmissiveGenProgram, "uMaterialIdTexture", 0);	
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, mGBuffer.texture(GBUFFER_BLUR_WEIGHTS_INDEX));
+	gl::setUniform(mEmissiveGenProgram, "uBlurWeightsTexture", 1);
+
 	stupidSetUniformMaterials(mEmissiveGenProgram, "uMaterials");
 
 	mPostProcessQuad.render();
