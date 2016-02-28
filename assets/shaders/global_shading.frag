@@ -58,7 +58,7 @@ void main()
 	vec3 shading = vec3(0);
 	shading += ambientContribution;
 	shading += spotlightShading;
-	shading += (float(mtl.emissive == vec3(0)) * blurredEmissive * 1.5);
+	shading += (float(mtl.emissive == vec3(0)) * blurredEmissive * 2.5);
 	shading += mtl.emissive;
 
 	shading = transparency.rgb * transparency.a + (1 - transparency.a) * shading;

@@ -624,7 +624,7 @@ ModernRenderer::ModernRenderer() noexcept
 
 
 
-	mShadowMapHighRes = gl::createShadowMap(sfz::vec2i{1024}, FBDepthFormat::F32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f});
+	mShadowMapHighRes = gl::createShadowMap(sfz::vec2i{512}, FBDepthFormat::F32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f});
 	//mShadowMapLowRes = gl::createShadowMap(sfz::vec2i{256}, FBDepthFormat::F32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f});
 }
 

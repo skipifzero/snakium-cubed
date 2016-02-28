@@ -66,7 +66,7 @@ private:
 	UpdateOp mUpdateOp = sfz::SCREEN_NO_OP;
 
 	shared_ptr<BaseItem> mInternalResMultiChoicePtr, mBlurResMultiChoicePtr,
-	                     mSpotlightResMultiChoicePtr, mLightShaftResMultiChoicePtr;
+	                     mSpotlightResMultiChoicePtr/*, mLightShaftResMultiChoicePtr*/;
 
 	shared_ptr<BaseItem> mCancelApplyCon, mCancelButton, mApplyButton;
 

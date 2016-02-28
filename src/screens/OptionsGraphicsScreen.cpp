@@ -180,7 +180,7 @@ OptionsGraphicsScreen::OptionsGraphicsScreen() noexcept
 	}, stateAlignOffset}};
 	addHeading3(scrollList, mSpotlightResMultiChoicePtr);
 	
-	mLightShaftResMultiChoicePtr = shared_ptr<BaseItem>{new MultiChoiceSelector{"Volumetric lighting resolution", {}, [this]() {
+	/*mLightShaftResMultiChoicePtr = shared_ptr<BaseItem>{new MultiChoiceSelector{"Volumetric lighting resolution", {}, [this]() {
 		float val = this->cfgData.gc.lightShaftsResScaling;
 		const float eps = 0.01f;
 		int i = 0;
@@ -192,7 +192,7 @@ OptionsGraphicsScreen::OptionsGraphicsScreen() noexcept
 	}, [this](int choice) {
 		this->cfgData.gc.lightShaftsResScaling = 0.05f + ((float)choice)*0.05f;
 	}, stateAlignOffset}};
-	addHeading3(scrollList, mLightShaftResMultiChoicePtr);
+	addHeading3(scrollList, mLightShaftResMultiChoicePtr);*/
 	
 	addStandardPadding(scrollList);
 	addHeading2(scrollList, shared_ptr<BaseItem>{new TextItem{"Misc", gl::HorizontalAlign::LEFT}});
@@ -316,12 +316,12 @@ void OptionsGraphicsScreen::updateResolutionStrings() noexcept
 	MultiChoiceSelector& internalResMultiChoice = *static_cast<MultiChoiceSelector*>(mInternalResMultiChoicePtr.get());
 	MultiChoiceSelector& blurResMultiChoice = *static_cast<MultiChoiceSelector*>(mBlurResMultiChoicePtr.get());
 	MultiChoiceSelector& spotlightResMultiChoice = *static_cast<MultiChoiceSelector*>(mSpotlightResMultiChoicePtr.get());
-	MultiChoiceSelector& lightShaftResMultiChoice = *static_cast<MultiChoiceSelector*>(mLightShaftResMultiChoicePtr.get());
+	//MultiChoiceSelector& lightShaftResMultiChoice = *static_cast<MultiChoiceSelector*>(mLightShaftResMultiChoicePtr.get());
 
 	internalResMultiChoice.choiceNames = mInternalResStrs;
 	blurResMultiChoice.choiceNames = vector<string>{mSecondaryResFactorStrs.begin(), mSecondaryResFactorStrs.begin()+20};
 	spotlightResMultiChoice.choiceNames = mSecondaryResFactorStrs;
-	lightShaftResMultiChoice.choiceNames = mSecondaryResFactorStrs;
+	//lightShaftResMultiChoice.choiceNames = mSecondaryResFactorStrs;
 }
 
 } // namespace s3

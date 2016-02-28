@@ -12,13 +12,13 @@ const Material* getMaterials() noexcept
 	materials[MATERIAL_ID_TILE_OBJECT].emissive = vec3{0.0f, 1.0f, 1.0f} * 0.75f;
 
 	materials[MATERIAL_ID_TILE_BONUS_OBJECT].diffuse = vec3{1.0f, 0.0f, 0.85f} * 0.25f;
-	materials[MATERIAL_ID_TILE_BONUS_OBJECT].emissive = vec3{1.0f, 0.0f, 0.85f} * 0.75f;
+	materials[MATERIAL_ID_TILE_BONUS_OBJECT].emissive = vec3{1.0f, 0.0f, 0.85f} * 0.6f;
 	
 	materials[MATERIAL_ID_TILE_SNAKE].diffuse = vec3{0.0f, 1.0f, 0.25f} * 0.25f;
-	materials[MATERIAL_ID_TILE_SNAKE].emissive = vec3{0.0f, 1.0f, 0.25f} * 0.75f;
+	materials[MATERIAL_ID_TILE_SNAKE].emissive = vec3{0.0f, 1.0f, 0.25f} * 0.6f;
 
 	materials[MATERIAL_ID_TILE_SNAKE_DIG].diffuse = vec3{0.0f, 1.0f, 0.25f} * 0.25f;
-	materials[MATERIAL_ID_TILE_SNAKE_DIG].emissive = vec3{0.0f, 1.0f, 0.25f} * 0.75f;
+	materials[MATERIAL_ID_TILE_SNAKE_DIG].emissive = vec3{0.0f, 1.0f, 0.25f} * 0.6f;
 
 	materials[MATERIAL_ID_TILE_DECORATION].diffuse = vec3{0.25f, 0.5f, 0.5f};
 	//materials[MATERIAL_ID_TILE_DECORATION].emissive = vec3{0.25f, 0.5f, 0.5f} * 0.4f;
@@ -31,7 +31,7 @@ const Material* getMaterials() noexcept
 
 	materials[MATERIAL_ID_TILE_PROJECTION].diffuse = vec3{0.5f, 0.5f, 0.5f} * 0.4f;
 	//materials[MATERIAL_ID_TILE_PROJECTION].emissive = vec3{0.1f};
-	materials[MATERIAL_ID_TILE_PROJECTION].opaque = 0.75f;
+	materials[MATERIAL_ID_TILE_PROJECTION].opaque = 0.8f;
 
 	materials[MATERIAL_ID_CUBE_SIDE].diffuse = vec3{0.25f, 0.25f, 0.25f};
 	materials[MATERIAL_ID_CUBE_SIDE].opaque = 0.6f;
