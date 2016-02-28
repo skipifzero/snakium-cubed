@@ -42,8 +42,6 @@ uint32_t tileDecorationMaterialId(const SnakeTile* tilePtr) noexcept;
 
 bool isSnake(const SnakeTile* tilePtr) noexcept;
 
-bool isObject(const SnakeTile* tilePtr) noexcept;
-
 // Render functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -53,7 +51,7 @@ void renderOpaqueSnakeProjection(const Model& model, Program& program, const mat
 
 void renderCube(const Model& model, Program& program, const mat4& viewMatrix) noexcept;
 
-void renderSnake(const Model& model, Program& program, const mat4& viewMatrix) noexcept;
+void renderSnake(const Model& model, Program& program, const mat4& viewMatrix, float blurWeight) noexcept;
 
 void renderObjects(const Model& model, Program& program, const mat4& viewMatrix) noexcept;
 

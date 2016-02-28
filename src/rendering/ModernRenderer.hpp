@@ -43,7 +43,7 @@ public:
 	// Public methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	void render(const Model& model, const Camera& cam, vec2 drawableDim) noexcept;
+	void render(const Model& model, const Camera& cam, vec2 drawableDim, float delta) noexcept;
 
 private:
 	// Private members
@@ -58,6 +58,8 @@ private:
 	vec3 mAmbientLight;
 	vector<Spotlight> mSpotlights;
 	Framebuffer mShadowMapHighRes/*, mShadowMapLowRes*/;
+
+	float mTime = 0.0f;
 };
 
 } // namespace s3

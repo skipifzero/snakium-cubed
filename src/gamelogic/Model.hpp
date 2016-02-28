@@ -68,6 +68,9 @@ public:
 	inline float currentSpeed() const noexcept { return mCurrentSpeed; }
 	inline const Stats& stats() const noexcept { return mStats; }
 
+	inline const vector<Object>& objects() const noexcept { return mObjects; }
+	inline const bool hasTimeShiftBonus() const noexcept { return mShiftTimeLeft > 0; }
+
 private:
 	// Private methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

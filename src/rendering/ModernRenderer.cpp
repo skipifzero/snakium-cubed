@@ -116,7 +116,7 @@ ModernRenderer::ModernRenderer() noexcept
 // ModernRenderer: Public methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawableDim) noexcept
+void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawableDim, float delta) noexcept
 {
 	GlobalConfig& cfg = GlobalConfig::INSTANCE();
 	Assets& assets = Assets::INSTANCE();
@@ -186,6 +186,15 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		mGlobalShadingProgram.reload();
 	}
 
+	// Update time and blur weights
+	mTime += delta;
+	mTime = std::fmod(mTime, 5000.0f);
+	float snakeBlurWeight;
+	if (model.hasTimeShiftBonus()) {
+		snakeBlurWeight = 3.2f + (0.5f * (1.0f + std::sin(mTime * model.currentSpeed() * 2.5f))) * 2.0f;
+	} else {
+		snakeBlurWeight = 1.0 + (0.5f * (1.0f + std::sin(mTime * model.currentSpeed() * 2.5f))) * 0.75f;
+	}
 
 	// Rendering GBuffer
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -215,7 +224,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	// Render things
 	renderBackground(mGBufferGenProgram, viewMatrix);
 	renderCube(model, mGBufferGenProgram, viewMatrix);
-	renderSnake(model, mGBufferGenProgram, viewMatrix);
+	renderSnake(model, mGBufferGenProgram, viewMatrix, snakeBlurWeight);
 	renderObjects(model, mGBufferGenProgram, viewMatrix);
 
 	// Rendering transparent objects
@@ -375,7 +384,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		renderCube(model, mShadowMapProgram, viewMatrix);
-		renderSnake(model, mShadowMapProgram, viewMatrix);
+		renderSnake(model, mShadowMapProgram, viewMatrix, snakeBlurWeight);
 		renderObjects(model, mShadowMapProgram, viewMatrix);
 		renderOpaqueSnakeProjection(model, mShadowMapProgram, lightFrustum.viewMatrix());
 

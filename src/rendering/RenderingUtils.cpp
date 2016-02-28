@@ -297,17 +297,6 @@ bool isSnake(const SnakeTile* tilePtr) noexcept
 	}
 }
 
-bool isObject(const SnakeTile* tilePtr) noexcept
-{
-	switch (tilePtr->type) {
-	case TileType::OBJECT:
-	case TileType::BONUS_OBJECT:
-		return true;
-	default:
-		return false;
-	}
-}
-
 // Render functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
@@ -409,13 +398,13 @@ void renderCube(const Model& model, Program& program, const mat4& viewMatrix) no
 	}
 }
 
-void renderSnake(const Model& model, Program& program, const mat4& viewMatrix) noexcept
+void renderSnake(const Model& model, Program& program, const mat4& viewMatrix, float blurWeight) noexcept
 {
 	Assets& assets = Assets::INSTANCE();
 	
 	const mat4 tileScaling = sfz::scalingMatrix4(1.0f / (16.0f * (float)model.config().gridWidth));
 
-	gl::setUniform(program, "uBlurWeight", 3.0f);
+	gl::setUniform(program, "uBlurWeight", blurWeight);
 
 	for (size_t i = 0; i < model.numTiles(); ++i) {
 		const SnakeTile* tilePtr = model.tilePtr(i);
@@ -490,15 +479,21 @@ void renderObjects(const Model& model, Program& program, const mat4& viewMatrix)
 
 	const mat4 tileScaling = sfz::scalingMatrix4(1.0f / (16.0f * (float)model.config().gridWidth));
 
-	gl::setUniform(program, "uBlurWeight", 3.0f);
+	const auto& objects = model.objects();
+	for (const auto& object : objects) {
+		Position tilePos = object.position;
+		const SnakeTile* tilePtr = model.tilePtr(tilePos);
 
-	for (size_t i = 0; i < model.numTiles(); ++i) {
-		const SnakeTile* tilePtr = model.tilePtr(i);
-		Position tilePos = model.tilePosition(tilePtr);
-
-		// Skip non-object tiles
-		if (!isObject(tilePtr)) continue;
-
+		if (tilePtr->type == TileType::OBJECT) {
+			if (object.earlyLife > 0) {
+				gl::setUniform(program, "uBlurWeight", 3.2f);
+			} else {
+				gl::setUniform(program, "uBlurWeight", 0.75f);
+			}
+		} else if (tilePtr->type == TileType::BONUS_OBJECT) {
+			gl::setUniform(program, "uBlurWeight", 5.0f);
+		}
+		
 		// Calculate base transform
 		mat4 tileSpaceRot = tileSpaceRotation(tilePos.side);
 		mat4 tileSpaceRotScaling = tileSpaceRot * tileScaling;

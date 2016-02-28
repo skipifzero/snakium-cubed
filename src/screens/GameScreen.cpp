@@ -163,7 +163,7 @@ void GameScreen::render(UpdateState& state)
 	GlobalConfig& cfg = GlobalConfig::INSTANCE();
 
 	if (mUseModernRenderer) {
-		mModernRenderer.render(mModel, mCam, state.window.drawableDimensions());
+		mModernRenderer.render(mModel, mCam, state.window.drawableDimensions(), state.delta);
 	} else {
 		mClassicRenderer.render(mModel, mCam, AABB2D{state.window.drawableDimensions()/2.0f, state.window.drawableDimensions()});
 	}

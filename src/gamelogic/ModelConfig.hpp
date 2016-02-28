@@ -38,14 +38,14 @@ const ModelConfig STANDARD_CONFIG = []() {
 
 	tmp.gridWidth = 3;
 
-	tmp.tilesPerSecond = 2.5f;
+	tmp.tilesPerSecond = 2.25f;
 	tmp.speedIncreasePerObject = 0.025f;
 	
 	tmp.bonusFrequency = 8;
 	tmp.bonusDuration = 8;
 	tmp.numberOfBonusObjects = 1;
 	tmp.earlyDuration = 8;
-	tmp.shiftBonusDuration = 3;
+	tmp.shiftBonusDuration = 5;
 
 	return tmp;
 }();
@@ -55,14 +55,14 @@ const ModelConfig LARGE_CONFIG = []() {
 
 	tmp.gridWidth = 4;
 
-	tmp.tilesPerSecond = 2.5f;
+	tmp.tilesPerSecond = 2.25f;
 	tmp.speedIncreasePerObject = 0.025f;
 
 	tmp.bonusFrequency = 8;
 	tmp.bonusDuration = 12;
 	tmp.numberOfBonusObjects = 2;
 	tmp.earlyDuration = 8;
-	tmp.shiftBonusDuration = 4;
+	tmp.shiftBonusDuration = 6;
 
 	return tmp;
 }();
@@ -79,7 +79,7 @@ const ModelConfig GIANT_CONFIG = []() {
 	tmp.bonusDuration = 16;
 	tmp.numberOfBonusObjects = 3;
 	tmp.earlyDuration = 8;
-	tmp.shiftBonusDuration = 5;
+	tmp.shiftBonusDuration = 8;
 
 	return tmp;
 }();
