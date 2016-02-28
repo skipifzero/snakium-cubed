@@ -21,20 +21,20 @@ const Material* getMaterials() noexcept
 	materials[MATERIAL_ID_TILE_SNAKE_DIG].emissive = vec3{0.0f, 1.0f, 0.25f} * 0.75f;
 
 	materials[MATERIAL_ID_TILE_DECORATION].diffuse = vec3{0.25f, 0.5f, 0.5f};
-	materials[MATERIAL_ID_TILE_DECORATION].emissive = vec3{0.25f, 0.5f, 0.5f} * 0.4f;
+	//materials[MATERIAL_ID_TILE_DECORATION].emissive = vec3{0.25f, 0.5f, 0.5f} * 0.4f;
 
 	materials[MATERIAL_ID_TILE_DECORATION_OCCUPIED].diffuse = vec3{0.0f, 1.0f, 0.25f};
-	materials[MATERIAL_ID_TILE_DECORATION_OCCUPIED].emissive = vec3{0.0f, 1.0f, 0.25f} * 0.4f;
+	//materials[MATERIAL_ID_TILE_DECORATION_OCCUPIED].emissive = vec3{0.0f, 1.0f, 0.25f} * 0.4f;
 
 	materials[MATERIAL_ID_TILE_DIVE_ASCEND].diffuse = vec3{0.5f, 0.0f, 0.75f} * 0.25f;
 	materials[MATERIAL_ID_TILE_DIVE_ASCEND].emissive = vec3{0.5f, 0.0f, 0.75f} * 0.6f;
 
 	materials[MATERIAL_ID_TILE_PROJECTION].diffuse = vec3{0.5f, 0.5f, 0.5f} * 0.4f;
-	materials[MATERIAL_ID_TILE_PROJECTION].emissive = vec3{0.1f};
+	//materials[MATERIAL_ID_TILE_PROJECTION].emissive = vec3{0.1f};
 	materials[MATERIAL_ID_TILE_PROJECTION].opaque = 0.75f;
 
 	materials[MATERIAL_ID_CUBE_SIDE].diffuse = vec3{0.25f, 0.25f, 0.25f};
-	materials[MATERIAL_ID_CUBE_SIDE].opaque = 0.3f;
+	materials[MATERIAL_ID_CUBE_SIDE].opaque = 0.6f;
 
 	materials[MATERIAL_ID_SKY].diffuse = vec3{0.2f, 0.2f, 0.2f};
 

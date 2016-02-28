@@ -28,7 +28,7 @@ uniform sampler2D uNormalTexture;
 uniform usampler2D uMaterialIdTexture;
 uniform sampler2D uTransparencyTexture;
 uniform sampler2D uSpotlightShadingTexture;
-uniform sampler2D uLightShaftsTexture;
+//uniform sampler2D uLightShaftsTexture;
 uniform sampler2D uBlurredEmissiveTexture;
 
 uniform Material uMaterials[20];
@@ -48,7 +48,7 @@ void main()
 
 	vec4 transparency = texture(uTransparencyTexture, uvCoord);
 	vec3 spotlightShading = texture(uSpotlightShadingTexture, uvCoord).rgb;
-	vec3 lightShafts = texture(uLightShaftsTexture, uvCoord).rgb;
+	//vec3 lightShafts = texture(uLightShaftsTexture, uvCoord).rgb;
 	vec3 blurredEmissive = texture(uBlurredEmissiveTexture, uvCoord).rgb;
 
 	// Ambient lighting
@@ -58,11 +58,11 @@ void main()
 	vec3 shading = vec3(0);
 	shading += ambientContribution;
 	shading += spotlightShading;
-	shading += (float(mtl.emissive == vec3(0)) * blurredEmissive * 1.1);
+	shading += (float(mtl.emissive == vec3(0)) * blurredEmissive * 1.5);
 	shading += mtl.emissive;
 
 	shading = transparency.rgb * transparency.a + (1 - transparency.a) * shading;
-	shading += lightShafts;
+	//shading += lightShafts;
 
 	outFragColor = vec4(shading, 1.0);
 }

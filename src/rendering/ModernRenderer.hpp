@@ -54,10 +54,10 @@ private:
 	        mSpotlightShadingProgram, mLightShaftsProgram, mGlobalShadingProgram;
 	gl::Scaler mScaler;
 	gl::GaussianBlur mGaussianBlur;
-	Framebuffer mGBuffer, mTransparencyFB, mEmissiveFB, mSpotlightShadingFB, mLightShaftsFB, mGlobalShadingFB;
+	Framebuffer mGBuffer, mTransparencyFB, mEmissiveFB, mSpotlightShadingFB/*, mLightShaftsFB*/, mGlobalShadingFB;
 	vec3 mAmbientLight;
 	vector<Spotlight> mSpotlights;
-	Framebuffer mShadowMapHighRes, mShadowMapLowRes;
+	Framebuffer mShadowMapHighRes/*, mShadowMapLowRes*/;
 };
 
 } // namespace s3

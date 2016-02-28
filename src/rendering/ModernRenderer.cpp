@@ -612,20 +612,20 @@ ModernRenderer::ModernRenderer() noexcept
 	mGlobalShadingProgram = Program::postProcessFromFile((sfz::basePath() + "assets/shaders/global_shading.frag").c_str());
 
 	
-	mAmbientLight = vec3(0.025f);
-	mSpotlights.emplace_back(vec3{0.0f, 1.2f, 0.0f}, vec3{0.0f, -1.0f, 0.0f}, 60.0f, 40.0f, 4.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
-	//mSpotlights.emplace_back(vec3{0.0f, -1.2f, 0.0f}, vec3{0.0f, 1.0f, 0.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
+	mAmbientLight = vec3(0.05f);
+	mSpotlights.emplace_back(vec3{0.0f, 1.2f, 0.0f}, vec3{0.0f, -1.0f, 0.0f}, 60.0f, 40.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
+	mSpotlights.emplace_back(vec3{0.0f, -1.2f, 0.0f}, vec3{0.0f, 1.0f, 0.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
 
-	//mSpotlights.emplace_back(vec3{1.2f, 0.0f, 0.0f}, vec3{-1.0f, 0.0f, 0.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
-	//mSpotlights.emplace_back(vec3{-1.2f, 0.0f, 0.0f}, vec3{1.0f, 0.0f, 0.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
+	mSpotlights.emplace_back(vec3{1.2f, 0.0f, 0.0f}, vec3{-1.0f, 0.0f, 0.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
+	mSpotlights.emplace_back(vec3{-1.2f, 0.0f, 0.0f}, vec3{1.0f, 0.0f, 0.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
 
-	//mSpotlights.emplace_back(vec3{0.0f, 0.0f, 1.2f}, vec3{0.0f, 0.0f, -1.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
-	//mSpotlights.emplace_back(vec3{0.0f, 0.0f, -1.2f}, vec3{0.0f, 0.0f, 1.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
+	mSpotlights.emplace_back(vec3{0.0f, 0.0f, 1.2f}, vec3{0.0f, 0.0f, -1.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
+	mSpotlights.emplace_back(vec3{0.0f, 0.0f, -1.2f}, vec3{0.0f, 0.0f, 1.0f}, 60.0f, 50.0f, 5.0f, 0.01f, vec3{0.0f, 0.5f, 1.0f});
 
 
 
 	mShadowMapHighRes = gl::createShadowMap(sfz::vec2i{1024}, FBDepthFormat::F32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f});
-	mShadowMapLowRes = gl::createShadowMap(sfz::vec2i{256}, FBDepthFormat::F32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f});
+	//mShadowMapLowRes = gl::createShadowMap(sfz::vec2i{256}, FBDepthFormat::F32, true, vec4{0.0f, 0.0f, 0.0f, 1.0f});
 }
 
 // ModernRenderer: Public methods
@@ -666,10 +666,10 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 		                     .addStencilBuffer()
 		                     .build();
 
-		mLightShaftsFB = FramebufferBuilder{lightShaftsRes}
+		/*mLightShaftsFB = FramebufferBuilder{lightShaftsRes}
 		                .addTexture(0, FBTextureFormat::RGB_U8, FBTextureFiltering::LINEAR)
 		                .addStencilBuffer()
-		                .build();
+		                .build();*/
 		
 		mGlobalShadingFB = FramebufferBuilder{internalRes}
 		                  .addTexture(0, FBTextureFormat::RGB_U8, FBTextureFiltering::LINEAR)
@@ -789,7 +789,7 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 
 	mPostProcessQuad.render();
 	
-	const float blurRadiusFactor = 0.01f;
+	const float blurRadiusFactor = 0.03f;
 	int blurRadius = std::round(mEmissiveFB.height() * blurRadiusFactor);
 	blurRadius = std::max(blurRadius, 2);
 	blurRadius = ((blurRadius % 2) != 0) ? blurRadius + 1 : blurRadius;
@@ -817,12 +817,12 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glBindTexture(GL_TEXTURE_2D, mGBuffer.texture(GBUFFER_MATERIAL_INDEX));
 	glActiveTexture(GL_TEXTURE3);
 	glBindTexture(GL_TEXTURE_2D, mSpotlightShadingFB.texture(0));
-	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, mLightShaftsFB.texture(0));
+	//glActiveTexture(GL_TEXTURE4);
+	//glBindTexture(GL_TEXTURE_2D, mLightShaftsFB.texture(0));
 	glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, mShadowMapHighRes.depthTexture());
-	glActiveTexture(GL_TEXTURE6);
-	glBindTexture(GL_TEXTURE_2D, mShadowMapLowRes.depthTexture());
+	//glActiveTexture(GL_TEXTURE6);
+	//glBindTexture(GL_TEXTURE_2D, mShadowMapLowRes.depthTexture());
 
 	
 	glUseProgram(mSpotlightShadingProgram.handle());
@@ -850,10 +850,10 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	gl::setUniform(mLightShaftsProgram, "uShadowMap", 6);
 	
 	// Clear volumetric shadows texture
-	glBindFramebuffer(GL_FRAMEBUFFER, mLightShaftsFB.fbo());
+	/*glBindFramebuffer(GL_FRAMEBUFFER, mLightShaftsFB.fbo());
 	glViewport(0, 0, mLightShaftsFB.width(), mLightShaftsFB.height());
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);*/
 
 	
 
@@ -886,14 +886,14 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 
 		// Set low res shadow map fbo, clear it and render it
 		// TODO: Might want to downscale high res shadow map for better quality low res shadow map?
-		glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapLowRes.fbo());
+		/*glBindFramebuffer(GL_FRAMEBUFFER, mShadowMapLowRes.fbo());
 		glViewport(0, 0, mShadowMapLowRes.width(), mShadowMapLowRes.height());
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClearDepth(1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		renderOpaque(model, mShadowMapProgram, lightFrustum.viewMatrix());
-		renderOpaqueSnakeProjection(model, mShadowMapProgram, lightFrustum.viewMatrix());
+		renderOpaqueSnakeProjection(model, mShadowMapProgram, lightFrustum.viewMatrix());*/
 
 		//glDisable(GL_POLYGON_OFFSET_FILL);
 		glCullFace(GL_BACK);
@@ -920,12 +920,12 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 
 		spotlight.renderViewFrustum();
 
-		glBindFramebuffer(GL_FRAMEBUFFER, mLightShaftsFB.fbo());
+		/*glBindFramebuffer(GL_FRAMEBUFFER, mLightShaftsFB.fbo());
 		glViewport(0, 0, mLightShaftsFB.width(), mLightShaftsFB.height());
 		glClearStencil(0);
 		glClear(GL_STENCIL_BUFFER_BIT);
 
-		spotlight.renderViewFrustum();
+		spotlight.renderViewFrustum();*/
 
 
 		glEnable(GL_CULL_FACE);
@@ -948,13 +948,13 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 
 
 		// Light shafts
-		glUseProgram(mLightShaftsProgram.handle());
+		/*glUseProgram(mLightShaftsProgram.handle());
 		glBindFramebuffer(GL_FRAMEBUFFER, mLightShaftsFB.fbo());
 		glViewport(0, 0, mLightShaftsFB.width(), mLightShaftsFB.height());
 
 		stupidSetSpotlightUniform(mLightShaftsProgram, "uSpotlight", spotlight, viewMatrix, invViewMatrix);
 
-		mPostProcessQuad.render();
+		mPostProcessQuad.render();*/
 		
 
 		glDisable(GL_STENCIL_TEST);
@@ -998,9 +998,9 @@ void ModernRenderer::render(const Model& model, const Camera& cam, vec2 drawable
 	glBindTexture(GL_TEXTURE_2D, mSpotlightShadingFB.texture(0));
 	gl::setUniform(mGlobalShadingProgram, "uSpotlightShadingTexture", 4);
 
-	glActiveTexture(GL_TEXTURE5);
+	/*glActiveTexture(GL_TEXTURE5);
 	glBindTexture(GL_TEXTURE_2D, mLightShaftsFB.texture(0));
-	gl::setUniform(mGlobalShadingProgram, "uLightShaftsTexture", 5);
+	gl::setUniform(mGlobalShadingProgram, "uLightShaftsTexture", 5);*/
 
 	glActiveTexture(GL_TEXTURE6);
 	glBindTexture(GL_TEXTURE_2D, mEmissiveFB.texture(0));
