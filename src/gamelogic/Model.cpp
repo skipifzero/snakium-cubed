@@ -472,6 +472,7 @@ void Model::updateObjects() noexcept
 
 				mStats.bonusObjectsMissed += 1;
 				mObjects[i] = mObjects[mObjects.size()-1];
+				mObjects.pop_back();
 				i -= 1;
 			}
 		}
