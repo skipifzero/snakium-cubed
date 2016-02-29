@@ -3,6 +3,7 @@
 #define S3_SCREENS_GAME_SCREEN_HPP
 
 #include <sfz/gl/Program.hpp>
+#include <sfz/GUI.hpp>
 #include <sfz/math/Matrix.hpp>
 #include <sfz/math/Vector.hpp>
 #include <sfz/Screens.hpp>
@@ -50,13 +51,16 @@ private:
 	ClassicRenderer mClassicRenderer;
 	ModernRenderer mModernRenderer;
 	bool mUseModernRenderer = true;
-	bool mIsPaused = false;
 	float mTimeSinceGameOver = 0.0f;
 
 	DirectionInput mInputBuffer[5];
 	size_t mInputBufferIndex = 0;
 
 	sfz::FrametimeStats mShortTermPerfStats, mLongerTermPerfStats, mLongestTermPerfStats;
+
+	bool mIsPaused = false;
+	gui::System mPauseSystem;
+	UpdateOp mUpdateOp = sfz::SCREEN_NO_OP;
 };
 
 } // namespace s3

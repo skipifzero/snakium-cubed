@@ -1,5 +1,7 @@
 #include "screens/GameScreen.hpp"
 
+#include <sfz/geometry/AABB2D.hpp>
+
 #include <sfz/GL.hpp>
 #include <sfz/gl/OpenGL.hpp>
 #include <sfz/gl/Scaler.hpp>
@@ -8,7 +10,9 @@
 #include "GlobalConfig.hpp"
 #include "Rendering.hpp"
 #include "screens/MainMenuScreen.hpp"
+#include "screens/MenuConstants.hpp"
 #include "screens/NewHighScoreScreen.hpp"
+#include "screens/ScreenUtils.hpp"
 
 namespace s3 {
 
@@ -55,8 +59,29 @@ GameScreen::GameScreen(const ModelConfig& modelCfg) noexcept
 
 	mShortTermPerfStats{20}, 
 	mLongerTermPerfStats{120},
-	mLongestTermPerfStats{960}
-{ }
+	mLongestTermPerfStats{960},
+
+	mPauseSystem{sfz::AABB2D{MENU_SYSTEM_DIM / 2.0f, MENU_SYSTEM_DIM}}
+{
+	using namespace gui;
+
+	const float buttonWidth = MENU_DIM.x * 0.35f;
+
+	mPauseSystem.addSpacing(MENU_SYSTEM_DIM.y * 0.25f);
+	addTitle(mPauseSystem, new TextItem{"Paused"});
+	addStandardPadding(mPauseSystem);
+	addHeading2(mPauseSystem, new Button{"Continue", [this](Button&) {
+		this->mIsPaused = false;
+		for (const auto& item : this->mPauseSystem.items()) {
+			item->deselect();
+		}
+	}}, buttonWidth);
+	addStandardPadding(mPauseSystem);
+	addHeading2(mPauseSystem, new Button{"Quit", [this](Button&) {
+		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+		                  shared_ptr<BaseScreen>{new MainMenuScreen{}}};
+	}}, buttonWidth);
+}
 
 // GameScreen: Overriden screen methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -104,10 +129,6 @@ UpdateOp GameScreen::update(UpdateState& state)
 			break;
 		case SDL_KEYUP:
 			switch (event.key.keysym.sym) {
-			case 'p':
-			case 'P':
-				mIsPaused = !mIsPaused;
-				break;
 			case 'r':
 			case 'R':
 				mUseModernRenderer = !mUseModernRenderer;
@@ -121,8 +142,12 @@ UpdateOp GameScreen::update(UpdateState& state)
 					return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 					                std::shared_ptr<sfz::BaseScreen>{new NewHighScoreScreen{mModel.config(), mModel.stats()}}};
 				} else {
-					return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-					                std::shared_ptr<sfz::BaseScreen>{new MainMenuScreen{}}};
+					mIsPaused = !mIsPaused;
+					if (mIsPaused) {
+						for (const auto& item : mPauseSystem.items()) {
+							item->deselect();
+						}
+					}
 				}
 			}
 			break;
@@ -139,7 +164,17 @@ UpdateOp GameScreen::update(UpdateState& state)
 	}
 
 	// Updating
-	if (mIsPaused) return sfz::SCREEN_NO_OP;
+	if (mIsPaused) {
+		const vec2 drawableDim = state.window.drawableDimensions();
+		const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, MENU_SYSTEM_DIM);
+
+		int32_t ctrlId = getFirstController(state);
+		bool cancelRef;
+		gui::InputData data = inputDataFromUpdateState(state, guiCam, ctrlId, &cancelRef);
+		mPauseSystem.update(data, state.delta);
+		
+		return mUpdateOp;
+	}
 
 	if (mInputBufferIndex > 0) mModel.changeDirection(mCam.upDir(), mInputBuffer[0]);
 	bool changeOccured = false;
@@ -155,7 +190,7 @@ UpdateOp GameScreen::update(UpdateState& state)
 	mCam.onResize(60.0f, (float)state.window.drawableWidth()/(float)state.window.drawableHeight());
 	mCam.update(mModel, state.delta);
 
-	return sfz::SCREEN_NO_OP;
+	return mUpdateOp;
 }
 
 void GameScreen::render(UpdateState& state)
@@ -202,6 +237,15 @@ void GameScreen::render(UpdateState& state)
 		font.write(drawableDim/2.0f, 160.0f, "Game Over");
 
 		font.end(0, drawableDim, sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+	}
+
+	if (mIsPaused) {
+		// Sizes
+		const vec2 drawableDim = state.window.drawableDimensions();
+		const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, MENU_SYSTEM_DIM);
+
+		// Draw GUI
+		mPauseSystem.draw(0, drawableDim, guiCam);
 	}
 
 	// Render frametime stats
