@@ -70,14 +70,14 @@ GameScreen::GameScreen(const ModelConfig& modelCfg) noexcept
 	mPauseSystem.addSpacing(MENU_SYSTEM_DIM.y * 0.25f);
 	addTitle(mPauseSystem, new TextItem{"Paused"});
 	addStandardPadding(mPauseSystem);
-	addHeading2(mPauseSystem, new Button{"Continue", [this](Button&) {
+	addHeading1(mPauseSystem, new Button{"Continue", [this](Button&) {
 		this->mIsPaused = false;
 		for (const auto& item : this->mPauseSystem.items()) {
 			item->deselect();
 		}
 	}}, buttonWidth);
 	addStandardPadding(mPauseSystem);
-	addHeading2(mPauseSystem, new Button{"Quit", [this](Button&) {
+	addHeading1(mPauseSystem, new Button{"Quit", [this](Button&) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                  shared_ptr<BaseScreen>{new MainMenuScreen{}}};
 	}}, buttonWidth);
@@ -204,6 +204,7 @@ void GameScreen::render(UpdateState& state)
 	}
 
 	vec2 drawableDim = state.window.drawableDimensions();
+	const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, MENU_SYSTEM_DIM);
 
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
@@ -218,15 +219,22 @@ void GameScreen::render(UpdateState& state)
 	gl::FontRenderer& font = Assets::INSTANCE().fontRenderer;
 
 	font.verticalAlign(gl::VerticalAlign::TOP);
-	font.horizontalAlign(gl::HorizontalAlign::LEFT);
-
-	font.begin(drawableDim/2.0f, drawableDim);
+	font.horizontalAlign(gl::HorizontalAlign::CENTER);
 
 	char scoreBuffer[128];
 	std::snprintf(scoreBuffer, 128, "Score: %i", totalScore(mModel.stats(), mModel.config()));
-	font.write(vec2{0.0f, drawableDim.y}, 64.0f, scoreBuffer);
 
-	font.end(0, drawableDim, vec4{1.0f, 1.0f, 1.0f, 1.0f});
+	const float size = 8.0f;
+	const vec2 bgOffs = vec2{0.02f, -0.02f} * size;
+
+	font.begin(guiCam);
+	font.write(vec2{MENU_DIM.x / 2.0f, MENU_DIM.y} + bgOffs, size, scoreBuffer);
+	font.write(vec2{MENU_DIM.x / 2.0f, MENU_DIM.y} - bgOffs, size, scoreBuffer);
+	font.end(0, drawableDim, vec4{0.0f, 0.0f, 0.0f, 1.0f});
+
+	font.begin(guiCam);
+	font.write(vec2{MENU_DIM.x / 2.0f, MENU_DIM.y}, size, scoreBuffer);
+	font.end(0, drawableDim, vec4{0.84f, 1.0f, 0.84f, 1.0f});
 
 	if (mModel.isGameOver()) {
 		font.verticalAlign(gl::VerticalAlign::MIDDLE);
@@ -240,11 +248,6 @@ void GameScreen::render(UpdateState& state)
 	}
 
 	if (mIsPaused) {
-		// Sizes
-		const vec2 drawableDim = state.window.drawableDimensions();
-		const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, MENU_SYSTEM_DIM);
-
-		// Draw GUI
 		mPauseSystem.draw(0, drawableDim, guiCam);
 	}
 
