@@ -132,6 +132,8 @@ void Model::update(float delta, bool* changeOccured) noexcept
 		return;
 	}
 
+	updateObjectTimes(delta);
+
 	mProgress += delta * mCurrentSpeed;
 	if (mProgress <= 1.0f) {
 		if (changeOccured != nullptr) *changeOccured = false;
@@ -476,6 +478,13 @@ void Model::updateObjects() noexcept
 				i -= 1;
 			}
 		}
+	}
+}
+
+void Model::updateObjectTimes(float delta) noexcept
+{
+	for (int32_t i = 0; i < mObjects.size(); ++i) {
+		mObjects[i].timeSinceCreation += delta;
 	}
 }
 

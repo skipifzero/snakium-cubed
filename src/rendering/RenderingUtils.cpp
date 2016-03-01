@@ -20,10 +20,6 @@ SimpleModel& getTileModel(const SnakeTile* tilePtr, Direction side, float progre
 	const bool frame1 = progress <= 0.5f;
 
 	switch (tilePtr->type) {
-	//case s3::TileType::EMPTY:
-	case s3::TileType::OBJECT: return a.OBJECT_MODEL;
-	case s3::TileType::BONUS_OBJECT: return a.BONUS_OBJECT_MODEL;
-
 	case TileType::HEAD:
 		if (frame1) return a.HEAD_D2U_F1_MODEL;
 		else return a.HEAD_D2U_F2_MODEL;
@@ -508,7 +504,20 @@ void renderObjects(const Model& model, Program& program, const mat4& viewMatrix)
 
 		// Render tile model
 		setUniform(program, "uMaterialId", tileMaterialId(tilePtr));
-		getTileModel(tilePtr, tilePos.side, model.progress(), model.isGameOver()).render();
+		if (tilePtr->type == TileType::OBJECT) {
+			gl::setUniform(program, "uModelMatrix", transform * sfz::translationMatrix(vec3{0.0f, std::sin(object.timeSinceCreation * 1.2f) * 2.5f, 0.0f}));
+			assets.OBJECT_PART1_MODEL.render();
+			gl::setUniform(program, "uModelMatrix", transform * sfz::yRotationMatrix4(object.timeSinceCreation * 0.8f));
+			assets.OBJECT_PART2_MODEL.render();
+			gl::setUniform(program, "uModelMatrix", transform * sfz::yRotationMatrix4(-object.timeSinceCreation * 1.25f));
+			assets.OBJECT_PART3_MODEL.render();
+			gl::setUniform(program, "uModelMatrix", transform * sfz::yRotationMatrix4(object.timeSinceCreation * 1.1f));
+			assets.OBJECT_PART4_MODEL.render();
+		} else if (tilePtr->type == TileType::BONUS_OBJECT) {
+			assets.BONUS_OBJECT_MODEL.render();
+		} else {
+			sfz_error("Invalid object");
+		}
 	}
 }
 

@@ -82,6 +82,7 @@ private:
 	void addObject() noexcept;
 	void addBonusObject() noexcept;
 	void updateObjects() noexcept;
+	void updateObjectTimes(float delta) noexcept;
 
 	// Private Members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

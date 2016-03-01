@@ -20,6 +20,7 @@ struct Object final {
 	TileType type = TileType::EMPTY;
 	int32_t life = -1;
 	int32_t earlyLife = -1;
+	float timeSinceCreation = 0.0f;
 };
 
 } // namespace s3

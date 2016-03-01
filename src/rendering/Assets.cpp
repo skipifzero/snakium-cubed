@@ -251,7 +251,10 @@ Assets::Assets() noexcept
 	DIVE_MODEL{modelPath(), "dive.obj"},
 	ASCEND_MODEL{modelPath(), "ascend.obj"},
 
-	OBJECT_MODEL{modelPath(), "object.obj"},
+	OBJECT_PART1_MODEL{modelPath(), "object_part1.obj"},
+	OBJECT_PART2_MODEL{modelPath(), "object_part2.obj"},
+	OBJECT_PART3_MODEL{modelPath(), "object_part3.obj"},
+	OBJECT_PART4_MODEL{modelPath(), "object_part4.obj"},
 	BONUS_OBJECT_MODEL{modelPath(), "bonus_object.obj"},
 
 	TILE_DECORATION_MODEL{modelPath(), "tile_decoration.obj"},

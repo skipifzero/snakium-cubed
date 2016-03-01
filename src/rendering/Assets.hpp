@@ -181,7 +181,10 @@ public:
 	                DIVE_MODEL,
 	                ASCEND_MODEL,
 
-	                OBJECT_MODEL,
+	                OBJECT_PART1_MODEL,
+	                OBJECT_PART2_MODEL,
+	                OBJECT_PART3_MODEL,
+	                OBJECT_PART4_MODEL,
 	                BONUS_OBJECT_MODEL,
 
 	                TILE_DECORATION_MODEL,
