@@ -480,15 +480,17 @@ void renderObjects(const Model& model, Program& program, const mat4& viewMatrix)
 		Position tilePos = object.position;
 		const SnakeTile* tilePtr = model.tilePtr(tilePos);
 
+		float blurWeight = 0.0f;
 		if (tilePtr->type == TileType::OBJECT) {
 			if (object.earlyLife > 0) {
-				gl::setUniform(program, "uBlurWeight", 3.2f);
+				blurWeight = 2.5f + (0.5f * (1.0f + std::sin(object.timeSinceCreation * model.currentSpeed() * 2.5f))) * 1.5f;
 			} else {
-				gl::setUniform(program, "uBlurWeight", 0.75f);
+				blurWeight = 0.5f + (0.5f * (1.0f + std::sin(object.timeSinceCreation * model.currentSpeed() * 2.0f))) * 0.75f;
 			}
 		} else if (tilePtr->type == TileType::BONUS_OBJECT) {
-			gl::setUniform(program, "uBlurWeight", 5.0f);
+			blurWeight = 3.0f + (0.5f * (1.0f + std::sin(object.timeSinceCreation * model.currentSpeed() * 4.0f))) * 2.5f;
 		}
+		gl::setUniform(program, "uBlurWeight", blurWeight);
 		
 		// Calculate base transform
 		mat4 tileSpaceRot = tileSpaceRotation(tilePos.side);
@@ -499,7 +501,6 @@ void renderObjects(const Model& model, Program& program, const mat4& viewMatrix)
 
 		// Set uniforms
 		const mat4 normalMatrix = sfz::inverse(sfz::transpose(viewMatrix * transform));
-		gl::setUniform(program, "uModelMatrix", transform);
 		gl::setUniform(program, "uNormalMatrix", normalMatrix);
 
 		// Render tile model
@@ -514,6 +515,9 @@ void renderObjects(const Model& model, Program& program, const mat4& viewMatrix)
 			gl::setUniform(program, "uModelMatrix", transform * sfz::yRotationMatrix4(object.timeSinceCreation * 1.1f));
 			assets.OBJECT_PART4_MODEL.render();
 		} else if (tilePtr->type == TileType::BONUS_OBJECT) {
+			gl::setUniform(program, "uModelMatrix", transform * sfz::zRotationMatrix4(object.timeSinceCreation * 1.6f)
+			                                                  * sfz::yRotationMatrix4(object.timeSinceCreation * 1.1f)
+			                                                  * sfz::xRotationMatrix4(object.timeSinceCreation * 0.75f));
 			assets.BONUS_OBJECT_MODEL.render();
 		} else {
 			sfz_error("Invalid object");
