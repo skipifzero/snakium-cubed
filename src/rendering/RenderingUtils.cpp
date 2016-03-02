@@ -506,7 +506,7 @@ void renderObjects(const Model& model, Program& program, const mat4& viewMatrix)
 		// Render tile model
 		setUniform(program, "uMaterialId", tileMaterialId(tilePtr));
 		if (tilePtr->type == TileType::OBJECT) {
-			gl::setUniform(program, "uModelMatrix", transform * sfz::translationMatrix(vec3{0.0f, std::sin(object.timeSinceCreation * 1.2f) * 2.5f, 0.0f}));
+			gl::setUniform(program, "uModelMatrix", transform * sfz::translationMatrix(vec3{0.0f, std::sin(object.timeSinceCreation * 1.2f) * 1.25f, 0.0f}));
 			assets.OBJECT_PART1_MODEL.render();
 			gl::setUniform(program, "uModelMatrix", transform * sfz::yRotationMatrix4(object.timeSinceCreation * 0.8f));
 			assets.OBJECT_PART2_MODEL.render();
