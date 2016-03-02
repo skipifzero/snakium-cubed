@@ -13,5 +13,6 @@
 #include "screens/ResultScreen.hpp"
 #include "screens/S3ItemRenderers.hpp"
 #include "screens/ScreenUtils.hpp"
+#include "screens/TutorialScreen.hpp"
 
 #endif

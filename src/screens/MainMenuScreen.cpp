@@ -13,6 +13,7 @@
 #include "screens/OptionsScreen.hpp"
 #include "screens/MenuConstants.hpp"
 #include "screens/ScreenUtils.hpp"
+#include "screens/TutorialScreen.hpp"
 
 namespace s3 {
 
@@ -29,7 +30,7 @@ MainMenuScreen::MainMenuScreen() noexcept
 	auto& a = Assets::INSTANCE();
 
 	const float buttonWidth = MENU_DIM.x * 0.45f;
-	const float restPadding = calcRestPadding(5.0f, 0.0f, 0.0f, 6.0f);
+	const float restPadding = calcRestPadding(6.0f, 0.0f, 0.0f, 7.0f);
 
 	addTitle(mGuiSystem, new ImageItem{a.SNAKIUM_LOGO_REG, a.ATLAS_1024.texture()});
 
@@ -44,6 +45,12 @@ MainMenuScreen::MainMenuScreen() noexcept
 	addHeading1(mGuiSystem, new Button{"High Scores", [this](Button& ref) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                           shared_ptr<BaseScreen>{new HighScoreScreen()}};
+	}}, buttonWidth);
+	addStandardPadding(mGuiSystem);
+
+	addHeading1(mGuiSystem, new Button{"Tutorial", [this](Button& ref) {
+		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+		                           shared_ptr<BaseScreen>{new TutorialScreen()}};
 	}}, buttonWidth);
 	addStandardPadding(mGuiSystem);
 
