@@ -20,6 +20,18 @@ using std::unique_ptr;
 // Gaussian blur class
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+/**
+ * @brief A class holding a shader and framebuffer for calculating gaussian blur
+ *
+ * The size of the blur is controlled by two parameters, radius and sigma. Sigma is the standard
+ * deviation of the gaussian blur kernel (in pixels) while radius is the amount of pixels to
+ * sample in each direction (i.e. a radius of 2 would result in 5 pixel samples). The gaussian
+ * kernel is normalized so that the total weight of all samples equal to 1.
+ *
+ * If the interpolated samples mode is enabled the shader will sample two pixels at once using
+ * linear interpolation. Basically equal to the following formula: (w1 + w2) * ((p1 + p2)/2).
+ * This will of course introduce a slight error to the blur kernel, but it is much faster.
+ */
 class GaussianBlur final {
 public:
 	// Constructors & destructors
@@ -48,7 +60,8 @@ public:
 	/**
 	* @brief Applies the gaussian blur filter to the texture and writes it to the specifed fbo
 	* @param radius the amount of pixels to sample in a direction (pixels sampled = 2*radius + 1)
-	* @param 
+	* @param interpolatedSamples a flag used to determine if interpolated sampling should be used
+	*                            or not, see class documentation.
 	*/
 	bool setBlurParams(int32_t radius, float sigma, bool interpolatedSamples = true) noexcept;
 
