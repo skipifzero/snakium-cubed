@@ -35,6 +35,9 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_MODULES})
 # Finds SDL2 and SDL2_image, will make use of $SDL2 environment variable on Windows.
 find_package(SDL2 REQUIRED) # ${SDL2_INCLUDE_DIR}, ${SDL2_LIBRARY}
 
+# Finds SDL2_mixer, will make use of $SDL2 environment variable on Windows.
+find_package(SDL2_mixer REQUIRED) # ${SDL2_MIXER_INCLUDE_DIRS}, ${SDL2_MIXER_LIBRARIES}
+
 # stb nothings
 add_subdirectory(${EXTERNALS_DIR}/stb)
 
@@ -56,6 +59,7 @@ add_subdirectory(${EXTERNALS_DIR}/catch)
 include_directories(
 	${INCLUDE_DIR}
 	${SDL2_INCLUDE_DIR}
+	${SDL2_MIXER_INCLUDE_DIRS}
 	${GLEW_INCLUDE_DIRS}
 	${STB_INCLUDE_DIRS}
 	${TINYOBJLOADER_INCLUDE_DIRS}
@@ -189,6 +193,7 @@ target_link_libraries(
 	SkipIfZeroCommon
 
 	${SDL2_LIBRARY}
+	${SDL2_MIXER_LIBRARIES}
 	${TINYOBJLOADER_LIBRARIES}
 	${GLEW_LIBRARIES}
 	${OPENGL_LIBRARIES}
@@ -198,6 +203,7 @@ target_link_libraries(
 set(SFZ_COMMON_INCLUDE_DIRS
 	${INCLUDE_DIR}
 	${SDL2_INCLUDE_DIR}
+	${SDL2_MIXER_LIBRARIES}
 	${TINYOBJLOADER_INCLUDE_DIRS}
 	${GLEW_INCLUDE_DIRS}
 	${OPENGL_INCLUDE_DIR}

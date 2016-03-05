@@ -4,10 +4,11 @@ SkipIfZero Common is a collection of code intended for games and graphical appli
 SkipIfZero Common handles common dependencies in C++ OpenGL applications. It links to SDL and OpenGL and exposes these libraries through CMake, no need to link them individually. It also comes bundled with a few libraries (among them GLEW) in order to minimize external dependency requirements.
 
 ## Building
-It is advisable to let CMake generate the wanted build solution in a directory called `build` inside the project folder as this folder is ignored by git. The CMake variable `SFZ_COMMON_BUILD_TESTS` determines whether the tests should be built or not.
+It is advisable to let CMake generate the wanted build solution in a directory called `build` inside the project folder as this folder is ignored by git. The CMake variable `SFZ_COMMON_BUILD_TESTS` determines whether the tests should be built or not. Do note that the library is currently only regularly tested on Windows, so building on other platforms may not work. If you find any problems please create an issue.
 
 ### Requirements
 - __SDL2__
+- __SDL2_Mixer__
 - __OpenGL 3.3__ or newer
 - Windows: __Visual Studio 2015__ or newer
 - Mac OS X: __Xcode 7__ or newer
@@ -16,8 +17,8 @@ It is advisable to let CMake generate the wanted build solution in a directory c
 
 #### Installing dependencies
 
-##### SDL2
-Download and install the SDL2 development libraries for Visual C++ from the official website. Then create an environment variable called `SDL2` and point it to the root of the SDL2 installation.
+##### SDL2 & SDL2 Mixer
+Download and install the SDL2 development libraries for Visual C++ from the official website. Then create an environment variable called `SDL2` and point it to the root of the SDL2 installation. Then do the same for the SDL2_Mixer library. Note that the `SDL2` variable should contain the path to both libraries.
 
 ##### OpenGL
 Up to date OpenGL drivers are by default not shipped with Windows. As long as you have installed the latest drivers for your graphics card you should be okay.
