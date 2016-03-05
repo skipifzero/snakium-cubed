@@ -237,14 +237,18 @@ void GameScreen::render(UpdateState& state)
 	font.end(0, drawableDim, vec4{0.84f, 1.0f, 0.84f, 1.0f});
 
 	if (mModel.isGameOver()) {
+
 		font.verticalAlign(gl::VerticalAlign::MIDDLE);
 		font.horizontalAlign(gl::HorizontalAlign::CENTER);
 
-		font.begin(drawableDim/2.0f, drawableDim);
+		font.begin(guiCam);
+		font.write((MENU_DIM / 2.0f) + bgOffs, 20.0f, "Game Over");
+		font.write((MENU_DIM / 2.0f) - bgOffs, 20.0f, "Game Over");
+		font.end(0, drawableDim, vec4{0.0f, 0.0f, 0.0f, 1.0f});
 
-		font.write(drawableDim/2.0f, 160.0f, "Game Over");
-
-		font.end(0, drawableDim, sfz::vec4{1.0f, 1.0f, 1.0f, 1.0f});
+		font.begin(guiCam);
+		font.write((MENU_DIM / 2.0f), 20.0f, "Game Over");
+		font.end(0, drawableDim, vec4{0.84f, 1.0f, 0.84f, 1.0f});
 	}
 
 	if (mIsPaused) {
