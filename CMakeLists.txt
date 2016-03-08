@@ -147,13 +147,20 @@ set(SOURCE_SFZ_GUI_TEMP_FILES
 	${SRC_DIR}/sfz/gui/ThreeSplitContainer.cpp)
 source_group(sfz_gui_temp FILES ${SOURCE_SFZ_GUI_TEMP_FILES})
 
+set(SOURCE_SFZ_SDL_TEMP_FILES
+	${SRC_DIR}/sfz/sdl/Music.hpp
+	${SRC_DIR}/sfz/sdl/Music.cpp)
+source_group(sfz_sdl_temp FILES ${SOURCE_SFZ_SDL_TEMP_FILES})
+
+
 set(SOURCE_ALL_FILES
 	${SOURCE_BASE_FILES}
 	${SOURCE_GAMELOGIC_FILES}
 	${SOURCE_RENDERING_FILES}
 	${SOURCE_SCREENS_FILES}
 	${SOURCE_SFZ_GL_TEMP_FILES}
-	${SOURCE_SFZ_GUI_TEMP_FILES})
+	${SOURCE_SFZ_GUI_TEMP_FILES}
+	${SOURCE_SFZ_SDL_TEMP_FILES})
 
 # Main executable
 add_executable(snakium-cubed ${SOURCE_ALL_FILES})

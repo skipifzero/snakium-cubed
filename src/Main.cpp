@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 	s3::GlobalConfig& cfg = s3::GlobalConfig::INSTANCE();
 	cfg.save();
 
-	Session sdlSession{{InitFlags::EVENTS, InitFlags::VIDEO, InitFlags::GAMECONTROLLER}};
+	Session sdlSession{{InitFlags::EVENTS, InitFlags::VIDEO, InitFlags::AUDIO, InitFlags::GAMECONTROLLER}};
 
 	// Initialize SDL_mixer
 	int mixInitted = Mix_Init(MIX_INIT_MP3);
