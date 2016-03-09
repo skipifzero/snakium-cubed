@@ -39,6 +39,11 @@ int main(int argc, char* argv[])
 		std::cerr << "Failed to initialize SDL_mixer with MP3 support: " << Mix_GetError() << std::endl;
 		std::terminate();
 	}
+	// open 44.1KHz, signed 16bit, system byte order, stereo audio, using 1024 byte chunks
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0) {
+		std::cerr << "Mix_OpenAudio: " << Mix_GetError() << std::endl;
+		std::terminate();
+	}
 
 	// Make sure selected display index is valid
 	const int numDisplays = SDL_GetNumVideoDisplays();
@@ -117,9 +122,9 @@ int main(int argc, char* argv[])
 
 	sfz::runGameLoop(window, std::shared_ptr<sfz::BaseScreen>{new s3::MainMenuScreen{}});
 
-	// Unloads SDL2_Mixer
+	// Cleanup SDL_mixer
+	Mix_CloseAudio();
 	Mix_Quit();
-	// force a quit
 	while (Mix_Init(0)) Mix_Quit();
 
 	return 0;

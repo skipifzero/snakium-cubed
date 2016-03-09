@@ -44,9 +44,26 @@ void Music::play() noexcept
 {
 	if (this->ptr == nullptr) return;
 	// TODO: 2nd argument is number of loops. -1 is forever, 0 is 0 times.
-	int res = Mix_PlayMusic(this->ptr, 1);
+	int res = Mix_PlayMusic(this->ptr, -1);
 	if (res == -1) {
 		std::cerr << "Mix_PlayMusic() failed, error: " << Mix_GetError() << std::endl;
+	}
+}
+
+// Music functions
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+void stopMusic(int fadeOutLengthMs) noexcept
+{
+	if (Mix_PlayingMusic()) {
+		if (fadeOutLengthMs <= 0) {
+			Mix_HaltMusic();
+			return;
+		}
+
+		if (Mix_FadeOutMusic(fadeOutLengthMs) == 0) {
+			std::cerr << "Mix_FadeOutMusic() failed, error: " << Mix_GetError() << std::endl;
+		}
 	}
 }
 

@@ -6,9 +6,12 @@
 
 #include <sfz/gl/SimpleModel.hpp> // TODO: Temp
 
+#include <sfz/sdl/Music.hpp>
+
 namespace s3 {
 
 using gl::Texture;
+using sdl::Music;
 
 // Assets class
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -194,6 +197,8 @@ public:
 	                GROUND_MODEL,
 
 	                NOT_FOUND_MODEL;
+
+	Music GAME_MUSIC;
 
 private:
 	// Private constructors & destructors

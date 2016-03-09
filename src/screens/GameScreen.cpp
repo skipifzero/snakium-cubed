@@ -81,6 +81,14 @@ GameScreen::GameScreen(const ModelConfig& modelCfg) noexcept
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                  shared_ptr<BaseScreen>{new MainMenuScreen{}}};
 	}}, buttonWidth);
+
+
+	Assets::INSTANCE().GAME_MUSIC.play();
+}
+
+GameScreen::~GameScreen() noexcept
+{
+	sdl::stopMusic(500);
 }
 
 // GameScreen: Overriden screen methods

@@ -192,8 +192,11 @@ if(MSVC)
 	# Runtime DLLs
 	file(COPY RuntimeDLLs/SDL2.dll DESTINATION ${CMAKE_BINARY_DIR}/Debug)
 	file(COPY RuntimeDLLs/SDL2_mixer.dll DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+	file(COPY RuntimeDLLs/smpeg2.dll DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+
 	file(COPY RuntimeDLLs/SDL2.dll DESTINATION ${CMAKE_BINARY_DIR}/Release)
 	file(COPY RuntimeDLLs/SDL2_mixer.dll DESTINATION ${CMAKE_BINARY_DIR}/Release)
+	file(COPY RuntimeDLLs/smpeg2.dll DESTINATION ${CMAKE_BINARY_DIR}/Release)
 
 else()
 	# Create assets symlinks bash script (for non windows platforms)

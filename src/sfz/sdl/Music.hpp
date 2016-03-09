@@ -4,7 +4,6 @@
 
 namespace sdl {
 
-
 class Music final {
 public:
 	// Public members
@@ -29,5 +28,10 @@ public:
 
 	void play() noexcept;
 };
+
+// Music functions
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+void stopMusic(int fadeOutLengthMs = 0) noexcept;
 
 } // namespace sdl

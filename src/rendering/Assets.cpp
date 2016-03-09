@@ -263,7 +263,9 @@ Assets::Assets() noexcept
 	SKYSPHERE_MODEL{modelPath(), "skysphere.obj"},
 	GROUND_MODEL{modelPath(), "ground.obj"},
 
-	NOT_FOUND_MODEL{modelPath(), "notfound.obj"}
+	NOT_FOUND_MODEL{modelPath(), "notfound.obj"},
+
+	GAME_MUSIC{(assetsPath() + "audio/music/game_music.mp3").c_str()}
 { }
 
 } // namespace s3

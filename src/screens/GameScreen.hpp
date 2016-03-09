@@ -34,7 +34,7 @@ public:
 	GameScreen& operator= (const GameScreen&) noexcept = delete;
 
 	GameScreen(const ModelConfig& modelCfg) noexcept;
-	~GameScreen() noexcept = default;
+	~GameScreen() noexcept;
 
 	// Overriden screen methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
