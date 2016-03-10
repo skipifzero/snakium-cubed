@@ -18,6 +18,7 @@
 #include <sfz/gui/DefaultItemRenderers.hpp>
 
 #include <SDL_mixer.h>
+#include <sfz/sdl/Session2.hpp>
 
 int main(int argc, char* argv[])
 {
@@ -31,19 +32,7 @@ int main(int argc, char* argv[])
 	s3::GlobalConfig& cfg = s3::GlobalConfig::INSTANCE();
 	cfg.save();
 
-	Session sdlSession{{InitFlags::EVENTS, InitFlags::VIDEO, InitFlags::AUDIO, InitFlags::GAMECONTROLLER}};
-
-	// Initialize SDL_mixer
-	int mixInitted = Mix_Init(MIX_INIT_MP3);
-	if (mixInitted & MIX_INIT_MP3 != MIX_INIT_MP3) {
-		std::cerr << "Failed to initialize SDL_mixer with MP3 support: " << Mix_GetError() << std::endl;
-		std::terminate();
-	}
-	// open 44.1KHz, signed 16bit, system byte order, stereo audio, using 1024 byte chunks
-	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0) {
-		std::cerr << "Mix_OpenAudio: " << Mix_GetError() << std::endl;
-		std::terminate();
-	}
+	Session2 sdlSession{{InitFlags::EVENTS, InitFlags::VIDEO, InitFlags::AUDIO, InitFlags::GAMECONTROLLER}};
 
 	// Make sure selected display index is valid
 	const int numDisplays = SDL_GetNumVideoDisplays();
@@ -122,10 +111,6 @@ int main(int argc, char* argv[])
 
 	sfz::runGameLoop(window, std::shared_ptr<sfz::BaseScreen>{new s3::MainMenuScreen{}});
 
-	// Cleanup SDL_mixer
-	Mix_CloseAudio();
-	Mix_Quit();
-	while (Mix_Init(0)) Mix_Quit();
-
-	return 0;
+	// Super ugly hack, need to rethink assets.
+	Mix_FreeMusic(s3::Assets::INSTANCE().GAME_MUSIC.ptr);
 }

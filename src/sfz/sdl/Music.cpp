@@ -33,7 +33,7 @@ Music& Music::operator= (Music&& other) noexcept
 Music::~Music() noexcept
 {
 	if (this->ptr != nullptr) { // The documentation doesn't say anything about freeing nullptr
-		Mix_FreeMusic(ptr); // Note, if music is fading out this will block until it is complete
+		//Mix_FreeMusic(ptr); // Note, if music is fading out this will block until it is complete
 	}
 }
 
