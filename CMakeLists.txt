@@ -151,7 +151,9 @@ set(SOURCE_SFZ_SDL_TEMP_FILES
 	${SRC_DIR}/sfz/sdl/Music.hpp
 	${SRC_DIR}/sfz/sdl/Music.cpp
 	${SRC_DIR}/sfz/sdl/Session2.hpp
-	${SRC_DIR}/sfz/sdl/Session2.cpp)
+	${SRC_DIR}/sfz/sdl/Session2.cpp
+	${SRC_DIR}/sfz/sdl/SoundEffect.hpp
+	${SRC_DIR}/sfz/sdl/SoundEffect.cpp)
 source_group(sfz_sdl_temp FILES ${SOURCE_SFZ_SDL_TEMP_FILES})
 
 
