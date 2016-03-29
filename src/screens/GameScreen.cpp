@@ -185,14 +185,25 @@ UpdateOp GameScreen::update(UpdateState& state)
 	}
 
 	if (mInputBufferIndex > 0) mModel.changeDirection(mCam.upDir(), mInputBuffer[0]);
-	bool changeOccured = false;
-	if (!mCam.delayModelUpdate()) mModel.update(state.delta, &changeOccured);
+	if (!mCam.delayModelUpdate()) mModel.update(state.delta);
 
-	if (changeOccured && mInputBufferIndex > 0) {
-		mInputBufferIndex -= 1;
-		for (size_t i = 0; i < (cfg.inputBufferSize-1); ++i) {
-			mInputBuffer[i] = mInputBuffer[i+1];
+	// Handle model events
+	Event event = mModel.popEvent();
+	while (event != Event::NONE) {
+		switch (event) {
+		case Event::NONE:
+			sfz_assert_debug(false);
+			break;
+		case Event::STATE_CHANGE:
+			if (mInputBufferIndex > 0) {
+				mInputBufferIndex -= 1;
+				for (size_t i = 0; i < (cfg.inputBufferSize-1); ++i) {
+					mInputBuffer[i] = mInputBuffer[i+1];
+				}
+			}
+			break;
 		}
+		event = mModel.popEvent();
 	}
 
 	mCam.onResize(60.0f, (float)state.window.drawableWidth()/(float)state.window.drawableHeight());

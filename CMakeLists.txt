@@ -48,6 +48,7 @@ set(SOURCE_GAMELOGIC_FILES
 	${SRC_DIR}/GameLogic.hpp
 	${SRC_DIR}/gamelogic/Direction.hpp
 	${SRC_DIR}/gamelogic/Direction.cpp
+	${SRC_DIR}/gamelogic/Event.hpp
 	${SRC_DIR}/gamelogic/Model.hpp
 	${SRC_DIR}/gamelogic/Model.cpp
 	${SRC_DIR}/gamelogic/ModelConfig.hpp

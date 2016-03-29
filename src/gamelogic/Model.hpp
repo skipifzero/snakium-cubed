@@ -7,6 +7,7 @@
 #include <memory>
 #include <vector>
 
+#include "gamelogic/Event.hpp"
 #include "gamelogic/ModelConfig.hpp"
 #include "gamelogic/Object.hpp"
 #include "gamelogic/Direction.hpp"
@@ -38,8 +39,8 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	void changeDirection(Direction upDir, DirectionInput direction) noexcept;
-	void update(float delta, bool* changeOccured = nullptr) noexcept;
-	void updateSetProgress(float progress, bool* changeOccured = nullptr) noexcept;
+	void update(float delta) noexcept;
+	void updateSetProgress(float progress) noexcept;
 	bool isChangingDirection(Direction upDir, DirectionInput direction) noexcept;
 
 	// Access methods
@@ -51,6 +52,7 @@ public:
 	SnakeTile* tilePtr(Position pos) noexcept;
 
 	Position tilePosition(const SnakeTile* tilePtr) const noexcept;
+	Event popEvent() noexcept;
 
 	// Getters
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -98,6 +100,7 @@ private:
 	Position mDeadHeadPos;
 
 	vector<Object> mObjects;
+	vector<Event> mEventQueue;
 
 	float mProgress = 0.0f;
 	bool mGameOver = false;

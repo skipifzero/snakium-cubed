@@ -125,22 +125,18 @@ void Model::changeDirection(Direction upDir, DirectionInput direction) noexcept
 	mHeadPtr->to = dir;
 }
 
-void Model::update(float delta, bool* changeOccured) noexcept
+void Model::update(float delta) noexcept
 {
-	if (mGameOver) {
-		if (changeOccured != nullptr) *changeOccured = false;
-		return;
-	}
+	mEventQueue.clear();
+
+	if (mGameOver) return;
 
 	updateObjectTimes(delta);
 
 	mProgress += delta * mCurrentSpeed;
-	if (mProgress <= 1.0f) {
-		if (changeOccured != nullptr) *changeOccured = false;
-		return;
-	}
+	if (mProgress <= 1.0f) return;
 	mProgress -= 1.0f;
-	if (changeOccured != nullptr) *changeOccured = true;
+	mEventQueue.push_back(Event::STATE_CHANGE);
 
 	mStats.tilesTraversed += 1;
 	mStats.maxSpeed = std::max(mStats.maxSpeed, mCurrentSpeed);
@@ -248,10 +244,10 @@ void Model::update(float delta, bool* changeOccured) noexcept
 	mTailPtr = nextTailPtr;
 }
 
-void Model::updateSetProgress(float progress, bool* changeOccured) noexcept
+void Model::updateSetProgress(float progress) noexcept
 {
 	sfz_assert_debug(mProgress <= progress && progress <= 1.0f);
-	this->update((progress - mProgress) / mCurrentSpeed, changeOccured);
+	this->update((progress - mProgress) / mCurrentSpeed);
 }
 
 bool Model::isChangingDirection(Direction upDir, DirectionInput direction) noexcept
@@ -312,6 +308,14 @@ Position Model::tilePosition(const SnakeTile* tilePtr) const noexcept
 	sfz_assert_debug(static_cast<uint8_t>(pos.side) <= 5);
 
 	return pos;
+}
+
+Event Model::popEvent() noexcept
+{
+	if (mEventQueue.empty()) return Event::NONE;
+	Event last = mEventQueue.back();
+	mEventQueue.pop_back();
+	return last;
 }
 
 // Model: Private methods
