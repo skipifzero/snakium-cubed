@@ -202,6 +202,36 @@ UpdateOp GameScreen::update(UpdateState& state)
 				}
 			}
 			break;
+		case Event::GAME_OVER:
+
+			break;
+		case Event::SHIFT_INITIATED:
+
+			break;
+		case Event::OBJECT_EATEN_LATE:
+
+			break;
+		case Event::OBJECT_EATEN_LATE_SHIFT:
+
+			break;
+		case Event::OBJECT_EATEN:
+
+			break;
+		case Event::OBJECT_EATEN_SHIFT:
+
+			break;
+		case Event::BONUS_OBJECT_ADDED:
+
+			break;
+		case Event::BONUS_OBJECT_EATEN:
+
+			break;
+		case Event::BONUS_OBJECT_EATEN_SHIFT:
+
+			break;
+		case Event::BONUS_OBJECT_MISSED:
+
+			break;
 		}
 		event = mModel.popEvent();
 	}

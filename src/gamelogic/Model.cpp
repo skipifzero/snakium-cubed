@@ -153,6 +153,7 @@ void Model::update(float delta) noexcept
 	if (isShift) {
 		mStats.numberOfShifts += 1;
 		mShiftTimeLeft = mCfg.shiftBonusDuration;
+		mEventQueue.push_back(Event::SHIFT_INITIATED);
 	} else {
 		mShiftTimeLeft = std::max(mShiftTimeLeft-1, 0);
 	}
@@ -163,13 +164,32 @@ void Model::update(float delta) noexcept
 		if (mObjects[i].position == nextPos) {
 
 			if (mObjects[i].type == TileType::OBJECT) {
+				bool early = mObjects[i].earlyLife > 0;
+				bool shift = mShiftTimeLeft > 0;
+
 				mStats.objectsEaten += 1;
-				if (mObjects[i].earlyLife > 0) mStats.objectsEarly += 1;
-				if (mShiftTimeLeft > 0) mStats.objectsShift += 1;
+				if (early && shift) {
+					mStats.objectsEarly += 1;
+					mStats.objectsShift += 1;
+					mEventQueue.push_back(Event::OBJECT_EATEN_SHIFT);
+				} else if (early) {
+					mStats.objectsEarly += 1;
+					mEventQueue.push_back(Event::OBJECT_EATEN);
+				} else if (shift) {
+					mStats.objectsShift += 1;
+					mEventQueue.push_back(Event::OBJECT_EATEN_LATE_SHIFT);
+				} else {
+					mEventQueue.push_back(Event::OBJECT_EATEN_LATE);
+				}
 
 			} else if (mObjects[i].type == TileType::BONUS_OBJECT) {
 				mStats.bonusObjectsEaten += 1;
-				if (mShiftTimeLeft > 0) mStats.bonusObjectsShift += 1;
+				if (mShiftTimeLeft > 0) {
+					mStats.bonusObjectsShift += 1;
+					mEventQueue.push_back(Event::BONUS_OBJECT_EATEN_SHIFT);
+				} else {
+					mEventQueue.push_back(Event::BONUS_OBJECT_EATEN);
+				}
 
 			} else {
 				sfz_error("Impossible object");
@@ -200,6 +220,7 @@ void Model::update(float delta) noexcept
 		nextHeadPtr = mDeadHeadPtr;
 		mDeadHeadPos = nextPos;
 		mGameOver = true;
+		mEventQueue.push_back(Event::GAME_OVER);
 	}
 
 	// Calculate more next pointers
@@ -464,6 +485,17 @@ void Model::addBonusObject() noexcept
 	ptr->type = TileType::BONUS_OBJECT;
 	ptr->to = defaultUp(objPos.side);
 	ptr->from = opposite(ptr->to);
+
+	bool bonusEventFound = false;
+	for (Event e : mEventQueue) {
+		if (e == Event::BONUS_OBJECT_ADDED) {
+			bonusEventFound = true;
+			break;
+		}
+	}
+	if (!bonusEventFound) {
+		mEventQueue.push_back(Event::BONUS_OBJECT_ADDED);
+	}
 }
 
 void Model::updateObjects() noexcept
@@ -476,6 +508,7 @@ void Model::updateObjects() noexcept
 			if (mObjects[i].life == 0) {
 				tilePtr(mObjects[i].position)->type = TileType::EMPTY;
 
+				mEventQueue.push_back(Event::BONUS_OBJECT_MISSED);
 				mStats.bonusObjectsMissed += 1;
 				mObjects[i] = mObjects[mObjects.size()-1];
 				mObjects.pop_back();
