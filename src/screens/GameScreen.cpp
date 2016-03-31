@@ -97,6 +97,7 @@ GameScreen::~GameScreen() noexcept
 UpdateOp GameScreen::update(UpdateState& state)
 {
 	GlobalConfig& cfg = GlobalConfig::INSTANCE();
+	Assets& assets = Assets::INSTANCE();
 
 	mShortTermPerfStats.addSample(state.delta);
 	mLongerTermPerfStats.addSample(state.delta);
@@ -209,16 +210,16 @@ UpdateOp GameScreen::update(UpdateState& state)
 
 			break;
 		case Event::OBJECT_EATEN_LATE:
-
+			assets.OBJECT_EATEN_LATE_SFX.play();
 			break;
 		case Event::OBJECT_EATEN_LATE_SHIFT:
-
+			assets.OBJECT_EATEN_LATE_SHIFT_SFX.play();
 			break;
 		case Event::OBJECT_EATEN:
-
+			assets.OBJECT_EATEN_SFX.play();
 			break;
 		case Event::OBJECT_EATEN_SHIFT:
-
+			assets.OBJECT_EATEN_SHIFT_SFX.play();
 			break;
 		case Event::BONUS_OBJECT_ADDED:
 

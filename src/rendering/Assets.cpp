@@ -1,5 +1,6 @@
 #include "Assets.hpp"
 
+#include <new>
 #include <string>
 
 namespace s3 {
@@ -36,10 +37,23 @@ static const char* modelPath() noexcept
 // Assets: Singleton instance
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+static Assets* assetsInstancePtr = nullptr;
+
 Assets& Assets::INSTANCE() noexcept
 {
-	static Assets instance;
-	return instance;
+	return *assetsInstancePtr;
+}
+
+void Assets::load() noexcept
+{
+	sfz_assert_debug(assetsInstancePtr == nullptr);
+	assetsInstancePtr = new (std::nothrow) Assets();
+}
+
+void Assets::destroy() noexcept
+{
+	sfz_assert_debug(assetsInstancePtr != nullptr);
+	delete assetsInstancePtr;
 }
 
 // Assets: Private constructors & destructors
@@ -265,7 +279,12 @@ Assets::Assets() noexcept
 
 	NOT_FOUND_MODEL{modelPath(), "notfound.obj"},
 
-	GAME_MUSIC{(assetsPath() + "audio/music/game_music.mp3").c_str()}
+	GAME_MUSIC{(assetsPath() + "audio/music/game_music.mp3").c_str()},
+
+	OBJECT_EATEN_LATE_SFX{(assetsPath() + "audio/sfx/object_eaten_late.mp3").c_str()},
+	OBJECT_EATEN_LATE_SHIFT_SFX{(assetsPath() + "audio/sfx/object_eaten_late_shift.mp3").c_str()},
+	OBJECT_EATEN_SFX{(assetsPath() + "audio/sfx/object_eaten.mp3").c_str()},
+	OBJECT_EATEN_SHIFT_SFX{(assetsPath() + "audio/sfx/object_eaten_shift.mp3").c_str()}
 { }
 
 } // namespace s3

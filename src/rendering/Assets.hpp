@@ -7,11 +7,13 @@
 #include <sfz/gl/SimpleModel.hpp> // TODO: Temp
 
 #include <sfz/sdl/Music.hpp>
+#include <sfz/sdl/SoundEffect.hpp>
 
 namespace s3 {
 
 using gl::Texture;
 using sdl::Music;
+using sdl::SoundEffect;
 
 // Assets class
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -22,6 +24,8 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 	static Assets& INSTANCE() noexcept;
+	static void load() noexcept;
+	static void destroy() noexcept;
 
 	// Public members
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -199,6 +203,11 @@ public:
 	                NOT_FOUND_MODEL;
 
 	Music GAME_MUSIC;
+
+	SoundEffect OBJECT_EATEN_LATE_SFX,
+	            OBJECT_EATEN_LATE_SHIFT_SFX,
+	            OBJECT_EATEN_SFX,
+	            OBJECT_EATEN_SHIFT_SFX;
 
 private:
 	// Private constructors & destructors

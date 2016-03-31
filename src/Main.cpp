@@ -82,6 +82,9 @@ int main(int argc, char* argv[])
 	gl::setupDebugMessages(gl::Severity::MEDIUM, gl::Severity::MEDIUM);
 #endif
 
+	// Load assets
+	s3::Assets::load();
+
 	// Initializes GUI rendering
 	{
 		auto& settings = gui::DefaultRenderersSettings::INSTANCE();
@@ -111,6 +114,6 @@ int main(int argc, char* argv[])
 
 	sfz::runGameLoop(window, std::shared_ptr<sfz::BaseScreen>{new s3::MainMenuScreen{}});
 
-	// Super ugly hack, need to rethink assets.
-	Mix_FreeMusic(s3::Assets::INSTANCE().GAME_MUSIC.ptr);
+	// Destroy assets
+	s3::Assets::destroy();
 }

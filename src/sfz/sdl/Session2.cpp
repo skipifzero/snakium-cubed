@@ -25,16 +25,19 @@ Session2::Session2(std::initializer_list<InitFlags> initFlags) noexcept
 		std::cerr << "Failed to initialize SDL_mixer with MP3 support: " << Mix_GetError() << std::endl;
 		std::terminate();
 	}
-	// open 44.1KHz, signed 16bit, system byte order, stereo audio, using 1024 byte chunks
+	// Open 44.1KHz, signed 16bit, system byte order, stereo audio, using 1024 byte chunks
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) < 0) {
 		std::cerr << "Mix_OpenAudio: " << Mix_GetError() << std::endl;
 		std::terminate();
 	}
+	// Allocate mixing channels
+	Mix_AllocateChannels(64);
 }
 	
 Session2::~Session2() noexcept
 {
 	// Cleanup SDL_mixer
+	Mix_AllocateChannels(0); // Deallocate mixing channels
 	Mix_CloseAudio();
 	Mix_Quit();
 	while (Mix_Init(0)) Mix_Quit();
