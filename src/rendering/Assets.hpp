@@ -204,10 +204,18 @@ public:
 
 	Music GAME_MUSIC;
 
-	SoundEffect OBJECT_EATEN_LATE_SFX,
+	SoundEffect GAME_OVER_SFX,
+	            SHIFT_INITIATED_SFX,
+
+	            OBJECT_EATEN_LATE_SFX,
 	            OBJECT_EATEN_LATE_SHIFT_SFX,
 	            OBJECT_EATEN_SFX,
-	            OBJECT_EATEN_SHIFT_SFX;
+	            OBJECT_EATEN_SHIFT_SFX,
+
+	            BONUS_OBJECT_ADDED_SFX,
+	            BONUS_OBJECT_EATEN_SFX,
+	            BONUS_OBJECT_EATEN_SHIFT_SFX,
+	            BONUS_OBJECT_MISSED_SFX;
 
 private:
 	// Private constructors & destructors
@@ -217,6 +225,7 @@ private:
 	Assets& operator= (const Assets&) = delete;
 
 	Assets() noexcept;
+	~Assets() noexcept;
 };
 
 } // namespace s3

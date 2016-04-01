@@ -19,6 +19,18 @@ namespace s3 {
 // Statics
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
+static const std::string& basePath() noexcept
+{
+	static const std::string BASE_PATH{SDL_GetBasePath()};
+	return BASE_PATH;
+}
+
+static const std::string& assetsPath() noexcept
+{
+	static const std::string ASSETS_PATH{basePath() + "assets/"};
+	return ASSETS_PATH;
+}
+
 static const float TIME_UNTIL_GAME_OVER_SCREEN = 2.5f;
 
 static void updateInputBuffer(Model& model, Camera& cam, DirectionInput* inputBufferPtr,
@@ -75,8 +87,30 @@ GameScreen::GameScreen(const ModelConfig& modelCfg) noexcept
 		for (const auto& item : this->mPauseSystem.items()) {
 			item->deselect();
 		}
+		Mix_ResumeMusic();
 	}}, buttonWidth);
 	addStandardPadding(mPauseSystem);
+
+	// TODO: Remove later
+	addHeading1(mPauseSystem, new Button{"Reload audio", [this](Button&) {
+		Assets& assets = Assets::INSTANCE();
+
+		assets.GAME_OVER_SFX = SoundEffect{(assetsPath() + "audio/sfx/game_over.wav").c_str()};
+		assets.SHIFT_INITIATED_SFX = SoundEffect{(assetsPath() + "audio/sfx/shift_initiated.wav").c_str()};
+		
+		assets.OBJECT_EATEN_LATE_SFX = SoundEffect{(assetsPath() + "audio/sfx/object_eaten_late.wav").c_str()};
+		assets.OBJECT_EATEN_LATE_SHIFT_SFX = SoundEffect{(assetsPath() + "audio/sfx/object_eaten_late_shift.wav").c_str()};
+		assets.OBJECT_EATEN_SFX = SoundEffect{(assetsPath() + "audio/sfx/object_eaten.wav").c_str()};
+		assets.OBJECT_EATEN_SHIFT_SFX = SoundEffect{(assetsPath() + "audio/sfx/object_eaten_shift.wav").c_str()};
+		
+		assets.BONUS_OBJECT_ADDED_SFX = SoundEffect{(assetsPath() + "audio/sfx/bonus_object_added.wav").c_str()};
+		assets.BONUS_OBJECT_EATEN_SFX = SoundEffect{(assetsPath() + "audio/sfx/bonus_object_eaten.wav").c_str()};
+		assets.BONUS_OBJECT_EATEN_SHIFT_SFX = SoundEffect{(assetsPath() + "audio/sfx/bonus_object_eaten_shift.wav").c_str()};
+		assets.BONUS_OBJECT_MISSED_SFX = SoundEffect{(assetsPath() + "audio/sfx/bonus_object_missed.wav").c_str()};
+	
+	}}, buttonWidth);
+	addStandardPadding(mPauseSystem);
+
 	addHeading1(mPauseSystem, new Button{"Quit", [this](Button&) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                  shared_ptr<BaseScreen>{new MainMenuScreen{}}};
@@ -88,7 +122,7 @@ GameScreen::GameScreen(const ModelConfig& modelCfg) noexcept
 
 GameScreen::~GameScreen() noexcept
 {
-	sdl::stopMusic(500);
+	sdl::stopMusic(200);
 }
 
 // GameScreen: Overriden screen methods
@@ -108,58 +142,67 @@ UpdateOp GameScreen::update(UpdateState& state)
 
 	// Handle input
 	for (const SDL_Event& event : state.events) {
-		switch (event.type) {
-		case SDL_KEYDOWN:
-			switch (event.key.keysym.sym) {
-			case SDLK_SPACE:
-				updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::SHIFT);
+		if (!mIsPaused) {
+			switch (event.type) {
+			case SDL_KEYDOWN:
+				switch (event.key.keysym.sym) {
+				case SDLK_SPACE:
+					updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::SHIFT);
+					break;
+				case SDLK_UP:
+				case 'w':
+				case 'W':
+					updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::UP);
+					break;
+				case SDLK_DOWN:
+				case 's':
+				case 'S':
+					updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::DOWN);
+					break;
+				case SDLK_LEFT:
+				case 'a':
+				case 'A':
+					updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::LEFT);
+					break;
+				case SDLK_RIGHT:
+				case 'd':
+				case 'D':
+					updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::RIGHT);
+					break;
+				}
 				break;
-			case SDLK_UP:
-			case 'w':
-			case 'W':
-				updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::UP);
-				break;
-			case SDLK_DOWN:
-			case 's':
-			case 'S':
-				updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::DOWN);
-				break;
-			case SDLK_LEFT:
-			case 'a':
-			case 'A':
-				updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::LEFT);
-				break;
-			case SDLK_RIGHT:
-			case 'd':
-			case 'D':
-				updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::RIGHT);
-				break;
-			}
-			break;
-		case SDL_KEYUP:
-			switch (event.key.keysym.sym) {
-			case 'r':
-			case 'R':
-				mUseModernRenderer = !mUseModernRenderer;
-				break;
-			case SDLK_F1:
+			case SDL_KEYUP:
+				switch (event.key.keysym.sym) {
+				case 'r':
+				case 'R':
+					mUseModernRenderer = !mUseModernRenderer;
+					break;
+				case SDLK_F1:
 					cfg.printFrametimes = !cfg.printFrametimes;
-				break;
+					break;
 
-			case SDLK_ESCAPE:
-				if (mModel.isGameOver()) {
-					return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-					                std::shared_ptr<sfz::BaseScreen>{new NewHighScoreScreen{mModel.config(), mModel.stats()}}};
-				} else {
-					mIsPaused = !mIsPaused;
-					if (mIsPaused) {
+				case SDLK_ESCAPE:
+					if (mModel.isGameOver()) {
+						return UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
+						                std::shared_ptr<sfz::BaseScreen>{new NewHighScoreScreen{mModel.config(), mModel.stats()}}};
+					} else {
+						mIsPaused = true;
+						Mix_PauseMusic();
 						for (const auto& item : mPauseSystem.items()) {
 							item->deselect();
 						}
 					}
 				}
+				break;
 			}
-			break;
+		}
+		else {
+			if (event.type == SDL_KEYUP) {
+				if (event.key.keysym.sym == SDLK_ESCAPE) {
+					mIsPaused = false;
+					Mix_ResumeMusic();
+				}
+			}
 		}
 	}
 
@@ -204,10 +247,11 @@ UpdateOp GameScreen::update(UpdateState& state)
 			}
 			break;
 		case Event::GAME_OVER:
-
+			sdl::stopMusic(150);
+			assets.GAME_OVER_SFX.play();
 			break;
 		case Event::SHIFT_INITIATED:
-
+			assets.SHIFT_INITIATED_SFX.play();
 			break;
 		case Event::OBJECT_EATEN_LATE:
 			assets.OBJECT_EATEN_LATE_SFX.play();
@@ -222,16 +266,16 @@ UpdateOp GameScreen::update(UpdateState& state)
 			assets.OBJECT_EATEN_SHIFT_SFX.play();
 			break;
 		case Event::BONUS_OBJECT_ADDED:
-
+			assets.BONUS_OBJECT_ADDED_SFX.play();
 			break;
 		case Event::BONUS_OBJECT_EATEN:
-
+			assets.BONUS_OBJECT_EATEN_SFX.play();
 			break;
 		case Event::BONUS_OBJECT_EATEN_SHIFT:
-
+			assets.BONUS_OBJECT_EATEN_SHIFT_SFX.play();
 			break;
 		case Event::BONUS_OBJECT_MISSED:
-
+			assets.BONUS_OBJECT_MISSED_SFX.play();
 			break;
 		}
 		event = mModel.popEvent();

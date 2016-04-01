@@ -281,10 +281,24 @@ Assets::Assets() noexcept
 
 	GAME_MUSIC{(assetsPath() + "audio/music/game_music.mp3").c_str()},
 
-	OBJECT_EATEN_LATE_SFX{(assetsPath() + "audio/sfx/object_eaten_late.mp3").c_str()},
-	OBJECT_EATEN_LATE_SHIFT_SFX{(assetsPath() + "audio/sfx/object_eaten_late_shift.mp3").c_str()},
-	OBJECT_EATEN_SFX{(assetsPath() + "audio/sfx/object_eaten.mp3").c_str()},
-	OBJECT_EATEN_SHIFT_SFX{(assetsPath() + "audio/sfx/object_eaten_shift.mp3").c_str()}
+	GAME_OVER_SFX{(assetsPath() + "audio/sfx/game_over.wav").c_str()},
+	SHIFT_INITIATED_SFX{(assetsPath() + "audio/sfx/shift_initiated.wav").c_str()},
+
+	OBJECT_EATEN_LATE_SFX{(assetsPath() + "audio/sfx/object_eaten_late.wav").c_str()},
+	OBJECT_EATEN_LATE_SHIFT_SFX{(assetsPath() + "audio/sfx/object_eaten_late_shift.wav").c_str()},
+	OBJECT_EATEN_SFX{(assetsPath() + "audio/sfx/object_eaten.wav").c_str()},
+	OBJECT_EATEN_SHIFT_SFX{(assetsPath() + "audio/sfx/object_eaten_shift.wav").c_str()},
+
+	BONUS_OBJECT_ADDED_SFX{(assetsPath() + "audio/sfx/bonus_object_added.wav").c_str()},
+	BONUS_OBJECT_EATEN_SFX{(assetsPath() + "audio/sfx/bonus_object_eaten.wav").c_str()},
+	BONUS_OBJECT_EATEN_SHIFT_SFX{(assetsPath() + "audio/sfx/bonus_object_eaten_shift.wav").c_str()},
+	BONUS_OBJECT_MISSED_SFX{(assetsPath() + "audio/sfx/bonus_object_missed.wav").c_str()}
 { }
+
+
+Assets::~Assets() noexcept
+{
+	sdl::stopMusic();
+}
 
 } // namespace s3
