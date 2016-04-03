@@ -206,6 +206,47 @@ UpdateOp GameScreen::update(UpdateState& state)
 		}
 	}
 
+	// Controller input
+	const vec2 drawableDim = state.window.drawableDimensions();
+	const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, MENU_SYSTEM_DIM);
+	int32_t ctrlId = getFirstController(state);
+	bool cancelRef;
+	gui::InputData data = inputDataFromUpdateState(state, guiCam, ctrlId, &cancelRef);
+	if (!mIsPaused) {
+		if (ctrlId != -1) {
+			const auto& ctrl = state.controllers[ctrlId];
+			if (ctrl.padUp == sdl::ButtonState::UP) {
+				updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::UP);
+			} else if (ctrl.padDown == sdl::ButtonState::UP) {
+				updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::DOWN);
+			} else if (ctrl.padLeft == sdl::ButtonState::UP) {
+				updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::LEFT);
+			} else if (ctrl.padRight == sdl::ButtonState::UP) {
+				updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::RIGHT);
+			} else if (ctrl.a == sdl::ButtonState::UP) {
+				updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::SHIFT);
+			} else if (ctrl.start == sdl::ButtonState::UP) {
+				mIsPaused = true;
+				Mix_PauseMusic();
+				for (const auto& item : mPauseSystem.items()) {
+					item->deselect();
+				}
+			}
+
+		}
+	}
+	else {
+		if (ctrlId != -1) {
+			const auto& ctrl = state.controllers[ctrlId];
+			if (ctrl.start == sdl::ButtonState::UP) {
+				mIsPaused = false;
+				Mix_ResumeMusic();
+			}
+		}
+		mPauseSystem.update(data, state.delta);
+		return mUpdateOp;
+	}
+
 	// Game over updating
 	if (mModel.isGameOver()) {
 		if (mTimeSinceGameOver >= TIME_UNTIL_GAME_OVER_SCREEN) {
@@ -213,19 +254,6 @@ UpdateOp GameScreen::update(UpdateState& state)
 			                std::shared_ptr<sfz::BaseScreen>{new NewHighScoreScreen{mModel.config(), mModel.stats()}}};
 		}
 		mTimeSinceGameOver += state.delta;
-	}
-
-	// Updating
-	if (mIsPaused) {
-		const vec2 drawableDim = state.window.drawableDimensions();
-		const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, MENU_SYSTEM_DIM);
-
-		int32_t ctrlId = getFirstController(state);
-		bool cancelRef;
-		gui::InputData data = inputDataFromUpdateState(state, guiCam, ctrlId, &cancelRef);
-		mPauseSystem.update(data, state.delta);
-		
-		return mUpdateOp;
 	}
 
 	if (mInputBufferIndex > 0) mModel.changeDirection(mCam.upDir(), mInputBuffer[0]);
