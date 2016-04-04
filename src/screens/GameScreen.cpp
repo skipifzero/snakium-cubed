@@ -78,6 +78,7 @@ GameScreen::GameScreen(const ModelConfig& modelCfg) noexcept
 	using namespace gui;
 
 	const float buttonWidth = MENU_DIM.x * 0.35f;
+	const int32_t musicVolume = GlobalConfig::INSTANCE().musicVolume;
 
 	mPauseSystem.addSpacing(MENU_SYSTEM_DIM.y * 0.25f);
 	addTitle(mPauseSystem, new TextItem{"Paused"});
@@ -116,8 +117,11 @@ GameScreen::GameScreen(const ModelConfig& modelCfg) noexcept
 		                  shared_ptr<BaseScreen>{new MainMenuScreen{}}};
 	}}, buttonWidth);
 
-
-	Assets::INSTANCE().GAME_MUSIC.play();
+	
+	if (musicVolume > 0) {
+		Mix_VolumeMusic(int32_t(std::round(musicVolume * 12.8f)));
+		Assets::INSTANCE().GAME_MUSIC.play();
+	}
 }
 
 GameScreen::~GameScreen() noexcept
@@ -262,49 +266,54 @@ UpdateOp GameScreen::update(UpdateState& state)
 	// Handle model events
 	Event event = mModel.popEvent();
 	while (event != Event::NONE) {
-		switch (event) {
-		case Event::NONE:
-			sfz_assert_debug(false);
-			break;
-		case Event::STATE_CHANGE:
+		if (event == Event::STATE_CHANGE) {
 			if (mInputBufferIndex > 0) {
 				mInputBufferIndex -= 1;
 				for (size_t i = 0; i < (cfg.inputBufferSize-1); ++i) {
 					mInputBuffer[i] = mInputBuffer[i+1];
 				}
 			}
-			break;
-		case Event::GAME_OVER:
+		}
+		else if (event == Event::GAME_OVER) {
 			sdl::stopMusic(150);
-			assets.GAME_OVER_SFX.play();
-			break;
-		case Event::SHIFT_INITIATED:
-			assets.SHIFT_INITIATED_SFX.play();
-			break;
-		case Event::OBJECT_EATEN_LATE:
-			assets.OBJECT_EATEN_LATE_SFX.play();
-			break;
-		case Event::OBJECT_EATEN_LATE_SHIFT:
-			assets.OBJECT_EATEN_LATE_SHIFT_SFX.play();
-			break;
-		case Event::OBJECT_EATEN:
-			assets.OBJECT_EATEN_SFX.play();
-			break;
-		case Event::OBJECT_EATEN_SHIFT:
-			assets.OBJECT_EATEN_SHIFT_SFX.play();
-			break;
-		case Event::BONUS_OBJECT_ADDED:
-			assets.BONUS_OBJECT_ADDED_SFX.play();
-			break;
-		case Event::BONUS_OBJECT_EATEN:
-			assets.BONUS_OBJECT_EATEN_SFX.play();
-			break;
-		case Event::BONUS_OBJECT_EATEN_SHIFT:
-			assets.BONUS_OBJECT_EATEN_SHIFT_SFX.play();
-			break;
-		case Event::BONUS_OBJECT_MISSED:
-			assets.BONUS_OBJECT_MISSED_SFX.play();
-			break;
+			if (cfg.sfxVolume > 0) {
+				Mix_Volume(-1, int32_t(std::round(cfg.sfxVolume * 12.8f)));
+				assets.GAME_OVER_SFX.play();
+			}
+		}
+		else if (cfg.sfxVolume > 0) {
+			Mix_Volume(-1, int32_t(std::round(cfg.sfxVolume * 12.8f)));
+			switch (event) {
+			case Event::SHIFT_INITIATED:
+				assets.SHIFT_INITIATED_SFX.play();
+				break;
+			case Event::OBJECT_EATEN_LATE:
+				assets.OBJECT_EATEN_LATE_SFX.play();
+				break;
+			case Event::OBJECT_EATEN_LATE_SHIFT:
+				assets.OBJECT_EATEN_LATE_SHIFT_SFX.play();
+				break;
+			case Event::OBJECT_EATEN:
+				assets.OBJECT_EATEN_SFX.play();
+				break;
+			case Event::OBJECT_EATEN_SHIFT:
+				assets.OBJECT_EATEN_SHIFT_SFX.play();
+				break;
+			case Event::BONUS_OBJECT_ADDED:
+				assets.BONUS_OBJECT_ADDED_SFX.play();
+				break;
+			case Event::BONUS_OBJECT_EATEN:
+				assets.BONUS_OBJECT_EATEN_SFX.play();
+				break;
+			case Event::BONUS_OBJECT_EATEN_SHIFT:
+				assets.BONUS_OBJECT_EATEN_SHIFT_SFX.play();
+				break;
+			case Event::BONUS_OBJECT_MISSED:
+				assets.BONUS_OBJECT_MISSED_SFX.play();
+				break;
+			default:
+				sfz_assert_debug(false);
+			}
 		}
 		event = mModel.popEvent();
 	}

@@ -108,6 +108,10 @@ bool operator== (const ConfigData& lhs, const ConfigData& rhs) noexcept
 	lhs.fullscreenMode == rhs.fullscreenMode &&
 	lhs.gc == rhs.gc &&
 
+	// Audio
+	lhs.musicVolume == rhs.musicVolume &&
+	lhs.sfxVolume == rhs.sfxVolume &&
+
 	// Game Settings
 	lhs.inputBufferSize == rhs.inputBufferSize &&
 
@@ -155,6 +159,11 @@ void GlobalConfig::load() noexcept
 
 	sfz::IniParser& ip = mIniParser;
 	
+	// [Audio]
+	static const string aStr = "Audio";
+	musicVolume = ip.sanitizeInt(aStr, "iMusicVolume", 10, 0, 10);
+	sfxVolume =   ip.sanitizeInt(aStr, "iSfxVolume", 10, 0, 10);
+
 	// [CustomModel]
 	static const string cmStr = "CustomModel";
 	ModelConfig& mc = modelConfig;
@@ -199,6 +208,11 @@ void GlobalConfig::load() noexcept
 
 void GlobalConfig::save() noexcept
 {
+	// [Audio]
+	static const string aStr = "Audio";
+	mIniParser.setInt(aStr, "iMusicVolume", musicVolume);
+	mIniParser.setInt(aStr, "iSfxVolume", sfxVolume);
+
 	// [CustomModel]
 	static const string cmStr = "CustomModel";
 	mIniParser.setInt(cmStr, "iGridWidth", modelConfig.gridWidth);
@@ -257,6 +271,10 @@ void GlobalConfig::data(const ConfigData& configData) noexcept
 	this->displayIndex = configData.displayIndex;
 	this->fullscreenMode = configData.fullscreenMode;
 	this->gc = configData.gc;
+
+	// Audio
+	this->musicVolume = configData.musicVolume;
+	this->sfxVolume = configData.sfxVolume;
 
 	// Game Settings
 	this->inputBufferSize = configData.inputBufferSize;

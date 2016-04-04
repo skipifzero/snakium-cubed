@@ -44,6 +44,10 @@ struct ConfigData {
 	int32_t fullscreenMode; // 0 = off, 1 = windowed, 2 = exclusive
 	GraphicsConfig gc;
 
+	// Audio
+	int32_t musicVolume; // [0, 10]
+	int32_t sfxVolume; // [0, 10]
+
 	// Game Settings
 	int32_t inputBufferSize;
 

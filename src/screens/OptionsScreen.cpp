@@ -104,6 +104,17 @@ OptionsScreen::OptionsScreen() noexcept
 	}}}, buttonWidth, gl::HorizontalAlign::LEFT);
 
 
+	// ScrollList: Audio
+	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+
+	addStandardPadding(scrollList);
+	addHeading2(scrollList, shared_ptr<BaseItem>{new TextItem{"Audio", HorizontalAlign::LEFT}});
+
+	addHeading3(scrollList, shared_ptr<BaseItem>{MultiChoiceSelector::createLinearInteger("Music volume", &cfgData.musicVolume, 0, 1, 11, stateAlignOffset)});
+	addHeading3(scrollList, shared_ptr<BaseItem>{MultiChoiceSelector::createLinearInteger("Sound effect volume", &cfgData.sfxVolume, 0, 1, 11, stateAlignOffset)});
+
+
 	// ScrollList: GameSettings
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
