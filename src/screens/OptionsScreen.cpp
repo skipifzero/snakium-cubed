@@ -121,27 +121,13 @@ OptionsScreen::OptionsScreen() noexcept
 	addStandardPadding(scrollList);
 	addHeading2(scrollList, shared_ptr<BaseItem>{new TextItem{"Game settings", HorizontalAlign::LEFT}});
 
-	addHeading3(scrollList, shared_ptr<BaseItem>{MultiChoiceSelector::createLinearInteger("Input buffer size", &cfgData.inputBufferSize, 1, 1, 5, stateAlignOffset, " frames")});
-
-	addHeading3(scrollList, shared_ptr<BaseItem>{new MultiChoiceSelector{"Custom model preset", {"Standard", "Large", "Giant", "Custom"}, [this]() {
-		if (this->cfgData.modelConfig == STANDARD_CONFIG) return 0;
-		if (this->cfgData.modelConfig == LARGE_CONFIG) return 1;
-		if (this->cfgData.modelConfig == GIANT_CONFIG) return 2;
-		return 3;
-	}, [this](int choice) {
-		switch (choice) {
-		case 0:
-			this->cfgData.modelConfig = STANDARD_CONFIG;
-			break;
-		case 1:
-			this->cfgData.modelConfig = LARGE_CONFIG;
-			break;
-		case 2:
-			this->cfgData.modelConfig = GIANT_CONFIG;
-			break;
-		case 3:
-			this->cfgData.modelConfig.tilesPerSecond = 2.51f;
-			break;
+	addHeading3(scrollList, shared_ptr<BaseItem>{new OnOffSelector{"Input buffer", [this]() {
+		return this->cfgData.inputBufferSize == 2;
+	}, [this]() {
+		if (this->cfgData.inputBufferSize == 2) {
+			this->cfgData.inputBufferSize = 1;
+		} else {
+			this->cfgData.inputBufferSize = 2;
 		}
 	}, stateAlignOffset}});
 
@@ -150,17 +136,6 @@ OptionsScreen::OptionsScreen() noexcept
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                           shared_ptr<BaseScreen>{new OptionsCustomScreen{}}};
 	}}}, buttonWidth, gl::HorizontalAlign::LEFT);
-
-
-	// Debug
-	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-
-	addStandardPadding(scrollList);
-	addHeading2(scrollList, shared_ptr<BaseItem>{new TextItem{"Debug", HorizontalAlign::LEFT}});
-
-	addHeading3(scrollList, shared_ptr<BaseItem>{OnOffSelector::createSimple("Print frametimes", &cfgData.printFrametimes, stateAlignOffset)});
-
-	addHeading3(scrollList, shared_ptr<BaseItem>{OnOffSelector::createSimple("Continuous shader reload", &cfgData.continuousShaderReload, stateAlignOffset)});
 }
 
 // OptionsScreen: Overriden screen methods
