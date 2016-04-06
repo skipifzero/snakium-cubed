@@ -177,12 +177,11 @@ UpdateOp GameScreen::update(UpdateState& state)
 				break;
 			case SDL_KEYUP:
 				switch (event.key.keysym.sym) {
-				case 'r':
-				case 'R':
-					mUseModernRenderer = !mUseModernRenderer;
-					break;
 				case SDLK_F1:
 					cfg.printFrametimes = !cfg.printFrametimes;
+					break;
+				case SDLK_F2:
+					mUseModernRenderer = !mUseModernRenderer;
 					break;
 
 				case SDLK_ESCAPE:
