@@ -508,7 +508,9 @@ void Model::updateObjects() noexcept
 			if (mObjects[i].life == 0) {
 				tilePtr(mObjects[i].position)->type = TileType::EMPTY;
 
-				mEventQueue.push_back(Event::BONUS_OBJECT_MISSED);
+				if (std::find(mEventQueue.begin(), mEventQueue.end(), Event::BONUS_OBJECT_MISSED) == mEventQueue.end()) {
+					mEventQueue.push_back(Event::BONUS_OBJECT_MISSED);
+				}
 				mStats.bonusObjectsMissed += 1;
 				mObjects[i] = mObjects[mObjects.size()-1];
 				mObjects.pop_back();
