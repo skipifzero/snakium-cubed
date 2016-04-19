@@ -6,6 +6,7 @@
 #include <sfz/gui/DefaultItemRenderers.hpp>
 #include <sfz/math/Vector.hpp>
 
+#include "GlobalConfig.hpp"
 #include "rendering/Assets.hpp"
 
 namespace s3 {
@@ -25,10 +26,22 @@ ItemRendererFactory<Button> snakiumButtonRendererFactory() noexcept
 	public:
 		SnakiumButtonRenderer(Button& b) : b{b} {}
 		Button& b;
+		bool selectedLastFrame = false;
 
 		virtual void update(float delta) override final
 		{
+			bool lastFrame = selectedLastFrame;
+			bool currentFrame = b.isSelected();
+			selectedLastFrame = currentFrame;
 
+			GlobalConfig& cfg = GlobalConfig::INSTANCE();
+
+			if (!lastFrame && currentFrame) {
+				if (cfg.sfxVolume > 0) {
+					Mix_Volume(-1, int32_t(std::round(cfg.sfxVolume * 12.8f)));
+					Assets::INSTANCE().MENU_BUTTON_SELECTED_SFX.play();
+				}
+			}
 		}
 
 		virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
