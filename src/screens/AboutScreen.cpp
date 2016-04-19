@@ -21,9 +21,22 @@ AboutScreen::AboutScreen() noexcept
 	using namespace gui;
 
 	const float buttonWidth = MENU_DIM.x * 0.4f;
-	const float restPadding = calcRestPadding(0.0f, 0.0f, 0.0f, 0.0f);
+	const float restPadding = calcRestPadding(2.0f, 4.0f, 0.0f, 5.0f);
 
 	addTitle(mGuiSystem, new TextItem{"About"});
+	addStandardPadding(mGuiSystem);
+
+	addHeading1(mGuiSystem, new TextItem("Programming & Design"));
+	addHeading2(mGuiSystem, new TextItem("Peter Hillerstrom"));
+	addHeading2(mGuiSystem, new TextItem("skipifzero.com"));
+	addStandardPadding(mGuiSystem);
+	addStandardPadding(mGuiSystem);
+	addStandardPadding(mGuiSystem);
+
+	addHeading1(mGuiSystem, new TextItem("Music & Sound"));
+	addHeading2(mGuiSystem, new TextItem("Christoffer Matsson"));
+	addHeading2(mGuiSystem, new TextItem("coffer.se"));
+
 
 	addNavbar(mGuiSystem, new Button{"Back", [this](Button&) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
