@@ -82,6 +82,8 @@ source_group(rendering FILES ${SOURCE_RENDERING_FILES})
 
 set(SOURCE_SCREENS_FILES
 	${SRC_DIR}/Screens.hpp
+	${SRC_DIR}/screens/AboutScreen.hpp
+	${SRC_DIR}/screens/AboutScreen.cpp
 	${SRC_DIR}/screens/GameScreen.hpp
 	${SRC_DIR}/screens/GameScreen.cpp
 	${SRC_DIR}/screens/HighScoreScreen.hpp
@@ -102,12 +104,12 @@ set(SOURCE_SCREENS_FILES
 	${SRC_DIR}/screens/OptionsScreen.cpp
 	${SRC_DIR}/screens/ResultScreen.hpp
 	${SRC_DIR}/screens/ResultScreen.cpp
+	${SRC_DIR}/screens/RulesScreen.hpp
+	${SRC_DIR}/screens/RulesScreen.cpp
 	${SRC_DIR}/screens/S3ItemRenderers.hpp
 	${SRC_DIR}/screens/S3ItemRenderers.cpp
 	${SRC_DIR}/screens/ScreenUtils.hpp
-	${SRC_DIR}/screens/ScreenUtils.cpp
-	${SRC_DIR}/screens/TutorialScreen.hpp
-	${SRC_DIR}/screens/TutorialScreen.cpp)
+	${SRC_DIR}/screens/ScreenUtils.cpp)
 source_group(screens FILES ${SOURCE_SCREENS_FILES})
 
 set(SOURCE_SFZ_GL_TEMP_FILES

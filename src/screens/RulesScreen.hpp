@@ -1,6 +1,6 @@
 #pragma once
-#ifndef S3_SCREENS_TUTORIAL_SCREEN_HPP
-#define S3_SCREENS_TUTORIAL_SCREEN_HPP
+#ifndef S3_SCREENS_RULES_SCREEN_HPP
+#define S3_SCREENS_RULES_SCREEN_HPP
 
 #include <sfz/Screens.hpp>
 #include <sfz/GUI.hpp>
@@ -10,17 +10,17 @@ namespace s3 {
 using sfz::UpdateOp;
 using sfz::UpdateState;
 
-class TutorialScreen : public sfz::BaseScreen {
+class RulesScreen : public sfz::BaseScreen {
 public:
 	// Constructors & destructors
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-	TutorialScreen(const TutorialScreen&) = delete;
-	TutorialScreen& operator= (const TutorialScreen&) = delete;
-	~TutorialScreen() noexcept = default;
+	RulesScreen(const RulesScreen&) = delete;
+	RulesScreen& operator= (const RulesScreen&) = delete;
+	~RulesScreen() noexcept = default;
 
 
-	TutorialScreen() noexcept;
+	RulesScreen() noexcept;
 
 	// Overriden screen methods
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

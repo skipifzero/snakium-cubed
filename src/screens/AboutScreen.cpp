@@ -1,4 +1,4 @@
-#include "screens/TutorialScreen.hpp"
+#include "screens/AboutScreen.hpp"
 
 #include <sfz/gl/OpenGL.hpp>
 
@@ -11,10 +11,10 @@
 
 namespace s3 {
 
-// TutorialScreen: Constructors & destructors
+// AboutScreen: Constructors & destructors
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-TutorialScreen::TutorialScreen() noexcept
+AboutScreen::AboutScreen() noexcept
 :
 	mGuiSystem{sfz::Rectangle{MENU_SYSTEM_DIM/2.0f, MENU_SYSTEM_DIM}}
 {
@@ -23,7 +23,7 @@ TutorialScreen::TutorialScreen() noexcept
 	const float buttonWidth = MENU_DIM.x * 0.4f;
 	const float restPadding = calcRestPadding(0.0f, 0.0f, 0.0f, 0.0f);
 
-	addTitle(mGuiSystem, new TextItem{"Tutorial"});
+	addTitle(mGuiSystem, new TextItem{"About"});
 
 	addNavbar(mGuiSystem, new Button{"Back", [this](Button&) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
@@ -31,10 +31,10 @@ TutorialScreen::TutorialScreen() noexcept
 	}}, restPadding, buttonWidth);
 }
 
-// TutorialScreen: Overriden screen methods
+// AboutScreen: Overriden screen methods
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-UpdateOp TutorialScreen::update(UpdateState& state)
+UpdateOp AboutScreen::update(UpdateState& state)
 {
 	const vec2 drawableDim = state.window.drawableDimensions();
 	const sfz::AABB2D guiCam = gui::calculateGUICamera(drawableDim, MENU_SYSTEM_DIM);
@@ -51,7 +51,7 @@ UpdateOp TutorialScreen::update(UpdateState& state)
 	return mUpdateOp;
 }
 
-void TutorialScreen::render(UpdateState& state)
+void AboutScreen::render(UpdateState& state)
 {
 	// Clearing screen
 	glClearColor(MENU_BG_COLOR.x, MENU_BG_COLOR.y, MENU_BG_COLOR.z, 1.0f);
