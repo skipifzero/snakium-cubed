@@ -129,7 +129,13 @@ KeyInput ScrollListContainer::input(KeyInput key)
 		if (mCurrentSelectedIndex == -1) mCurrentScrollOffset = 0.0f;
 		if (selectNextItemDown()) return KeyInput::NONE;
 	} else if (key == KeyInput::UP) {
-		if (mCurrentSelectedIndex == -1) mCurrentScrollOffset = mMinScrollOffset - dim.y;
+		if (mCurrentSelectedIndex == -1) {
+			if (mNextItemTopPos.y > (offset.y - dim.y/2.0f)) {
+				mCurrentScrollOffset = 0.0f;
+			} else {
+				mCurrentScrollOffset = mMinScrollOffset - dim.y;
+			}
+		}
 		if (selectNextItemUp()) return KeyInput::NONE;
 	}
 
@@ -149,7 +155,13 @@ KeyInput ScrollListContainer::input(KeyInput key)
 
 	// If key is UP or DOWN at this point we are exiting the scroll list, so we fix the scroll offset here.
 	if (key == KeyInput::UP) mCurrentScrollOffset = 0.0f;
-	if (key == KeyInput::DOWN) mCurrentScrollOffset = mMinScrollOffset - dim.y;
+	if (key == KeyInput::DOWN) {
+		if (mNextItemTopPos.y > (offset.y - dim.y/2.0f)) {
+			mCurrentScrollOffset = 0.0f;
+		} else {
+			mCurrentScrollOffset = mMinScrollOffset - dim.y;
+		}
+	}
 	return key;
 }
 
