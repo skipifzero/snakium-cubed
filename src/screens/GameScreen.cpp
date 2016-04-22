@@ -218,6 +218,32 @@ UpdateOp GameScreen::update(UpdateState& state)
 	if (!mIsPaused) {
 		if (ctrlId != -1) {
 			const auto& ctrl = state.controllers[ctrlId];
+
+			vec2 stick = ctrl.leftStick;
+			float stickLen = length(stick);
+			if (std::isnan(stickLen)) stickLen = 0.0f; // :v
+			if (stickLen > 0.4f) {
+				float upProj = dot(stick, vec2{0.0f, 1.0f});
+				float downProj = dot(stick, vec2{0.0f, -1.0f});
+				float leftProj = dot(stick, vec2{-1.0f, 0.0f});
+				float rightProj = dot(stick, vec2{1.0f, 0.0f});
+				float largestProj = std::max(upProj, std::max(downProj, std::max(leftProj, rightProj)));
+
+				if (largestProj == upProj) {
+					updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::UP);
+				}
+				else if (largestProj == downProj) {
+					updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::DOWN);
+				}
+				else if (largestProj == leftProj) {
+					updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::LEFT);
+				}
+				else if (largestProj == rightProj) {
+					updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::RIGHT);
+				}
+			}
+
+
 			if (ctrl.padUp == sdl::ButtonState::UP) {
 				updateInputBuffer(mModel, mCam, mInputBuffer, 5, mInputBufferIndex, DirectionInput::UP);
 			} else if (ctrl.padDown == sdl::ButtonState::UP) {
