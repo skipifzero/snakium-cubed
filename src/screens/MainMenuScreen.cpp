@@ -72,7 +72,11 @@ MainMenuScreen::MainMenuScreen() noexcept
 	}}, buttonWidth);
 	addStandardPadding(mGuiSystem);
 
-	addNavbar(mGuiSystem, new ImageItem(a.CREDITS_LOGO), restPadding);
+	// Add navbar
+	mGuiSystem.addSpacing(restPadding - NAVBAR_HEIGHT * 1.0f);
+	mGuiSystem.addSpacing(NAVBAR_PADDING);
+	mGuiSystem.addItem(shared_ptr<BaseItem>(new ImageItem(a.CREDITS_LOGO)), vec2{MENU_DIM.x, NAVBAR_HEIGHT * 2.0f});
+	mGuiSystem.addSpacing(MENU_BOTTOM_PADDING);
 }
 
 // MainMenuScreen: Overriden screen methods

@@ -47,7 +47,7 @@ const float SPACE_AVAILABLE = MENU_DIM.y - TITLE_HEIGHT - NAVBAR_HEIGHT
                             - TITLE_PADDING - NAVBAR_PADDING;
 
 // Colors
-const vec3 MENU_BG_COLOR = vec3{0.2f};
+const vec3 MENU_BG_COLOR = vec3{0.15f};
 
 // Helper functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
