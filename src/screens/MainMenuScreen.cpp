@@ -33,7 +33,7 @@ MainMenuScreen::MainMenuScreen() noexcept
 	const float buttonWidth = MENU_DIM.x * 0.45f;
 	const float restPadding = calcRestPadding(6.0f, 0.0f, 0.0f, 7.0f);
 
-	addTitle(mGuiSystem, new ImageItem{a.SNAKIUM_LOGO_REG, a.ATLAS_1024.texture()});
+	addTitle(mGuiSystem, new ImageItem(a.SNAKIUM_LOGO));
 
 	addStandardPadding(mGuiSystem);
 
@@ -72,7 +72,7 @@ MainMenuScreen::MainMenuScreen() noexcept
 	}}, buttonWidth);
 	addStandardPadding(mGuiSystem);
 
-	addNavbar(mGuiSystem, new ImageItem{a.SKIPIFZERO_LOGO_SNAKIUM_VER_REG, a.ATLAS_1024.texture()}, restPadding);
+	addNavbar(mGuiSystem, new ImageItem(a.CREDITS_LOGO), restPadding);
 }
 
 // MainMenuScreen: Overriden screen methods

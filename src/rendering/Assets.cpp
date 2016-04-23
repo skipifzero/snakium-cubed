@@ -28,6 +28,12 @@ static const string& snakeTexturePath() noexcept
 	return SNAKE_TEXTURE_PATH;
 }
 
+static const string& texturePath() noexcept
+{
+	static const string TEXTURE_PATH{assetsPath() + "textures/"};
+	return TEXTURE_PATH;
+}
+
 static const char* modelPath() noexcept
 {
 	static const string path = assetsPath() + "models/";
@@ -186,16 +192,8 @@ Assets::Assets() noexcept
 	FILLED_REG{*ATLAS_128.textureRegion("filled_64.png")},
 	TILE_FACE_REG{*ATLAS_128.textureRegion("tile_face_128.png")},
 
-	ATLAS_1024{assetsPath() + "1024pix/", {
-		"coffer_logo_1024x256.png",
-		"skipifzero_logo_1024x256.png",
-		"skipifzero_snakium_logo_1024x256.png",
-		"snakium_ascii_logo_1024x256.png"
-	}},
-	SNAKIUM_LOGO_REG{*ATLAS_1024.textureRegion("snakium_ascii_logo_1024x256.png")},
-	SKIPIFZERO_LOGO_REG{*ATLAS_1024.textureRegion("skipifzero_logo_1024x256.png")},
-	SKIPIFZERO_LOGO_SNAKIUM_VER_REG{*ATLAS_1024.textureRegion("skipifzero_snakium_logo_1024x256.png")},
-	COFFER_LOGO_REG{*ATLAS_1024.textureRegion("coffer_logo_1024x256.png")},
+	SNAKIUM_LOGO(Texture::fromFile((texturePath() + "logos/snakium_logo.png").c_str())),
+	CREDITS_LOGO(Texture::fromFile((texturePath() + "logos/credits_logo.png").c_str())),
 
 	HEAD_D2U_F1_MODEL{modelPath(), "head_d2u_f1.obj"},
 	HEAD_D2U_F1_PROJECTION_MODEL{modelPath(), "head_d2u_f1_projection.obj"},

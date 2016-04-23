@@ -50,7 +50,7 @@ static float anisotropicFactor(TextureFiltering filtering) noexcept
 	}
 }
 
-static GLuint loadTexture(const char* path, int numChannelsWanted, TextureFiltering filtering) noexcept
+static GLuint loadTexture(const char* path, int numChannelsWanted, TextureFiltering filtering, AABB2D& dims) noexcept
 {
 	// Loading image
 	int width, height, numChannels;
@@ -115,6 +115,10 @@ static GLuint loadTexture(const char* path, int numChannelsWanted, TextureFilter
 		break;
 	}
 
+	float wf = (float)width;
+	float hf = (float)height;
+	dims = AABB2D(wf/2.0f, hf/2.0f, wf, hf);
+
 	return texture;
 }
 
@@ -124,7 +128,7 @@ static GLuint loadTexture(const char* path, int numChannelsWanted, TextureFilter
 Texture Texture::fromFile(const char* path, TextureFormat format, TextureFiltering filtering) noexcept
 {
 	Texture tmp;
-	tmp.mHandle = loadTexture(path, static_cast<uint8_t>(format), filtering);
+	tmp.mHandle = loadTexture(path, static_cast<uint8_t>(format), filtering, tmp.mDim);
 	return std::move(tmp);
 }
 
@@ -134,11 +138,13 @@ Texture Texture::fromFile(const char* path, TextureFormat format, TextureFilteri
 Texture::Texture(Texture&& other) noexcept
 {
 	std::swap(this->mHandle, other.mHandle);
+	std::swap(this->mDim, other.mDim);
 }
 
 Texture& Texture::operator= (Texture&& other) noexcept
 {
 	std::swap(this->mHandle, other.mHandle);
+	std::swap(this->mDim, other.mDim);
 	return *this;
 }
 

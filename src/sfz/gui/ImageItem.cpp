@@ -14,15 +14,21 @@ ItemRendererFactory<ImageItem> ImageItem::rendererFactory = defaultImageItemRend
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 ImageItem::ImageItem(gl::TextureRegion imageRegion, unsigned int texture,
-                     HorizontalAlign hAlign, vec2 imageScale) noexcept
+                     const AABB2D& imageDim, HorizontalAlign hAlign, vec2 imageScale) noexcept
 :
 	imageRegion{imageRegion},
 	texture{texture},
+	imageDim{imageDim},
 	hAlign{hAlign},
 	imageScale{imageScale}
 {
 	renderer = rendererFactory(*this);
 }
+
+ImageItem::ImageItem(const gl::Texture& texture, HorizontalAlign hAlign, vec2 imageScale) noexcept
+:
+	ImageItem(gl::TextureRegion(vec2(0.0f), vec2(1.0f)), texture.handle(), texture.dimensions(), hAlign, imageScale)
+{ }
 
 // ImageItem: Virtual methods overriden from BaseItem
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

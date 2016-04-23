@@ -4,12 +4,15 @@
 
 #include "sfz/gui/BaseItem.hpp"
 
+#include "sfz/geometry/AABB2D.hpp"
 #include "sfz/gl/Alignment.hpp"
 #include "sfz/gl/TextureRegion.hpp"
+#include "sfz/gl/Texture.hpp"
 
 namespace gui {
 
 using gl::HorizontalAlign;
+using sfz::AABB2D;
 
 class ImageItem final : public BaseItem {
 public:
@@ -25,7 +28,11 @@ public:
 	ImageItem(const ImageItem&) noexcept = delete;
 	ImageItem& operator= (const ImageItem&) noexcept = delete;
 
-	ImageItem(gl::TextureRegion imageRegion, unsigned int texture,
+	ImageItem(gl::TextureRegion imageRegion, unsigned int texture, const AABB2D& imageDim,
+	          HorizontalAlign hAlign = HorizontalAlign::CENTER,
+	          vec2 imageScale = vec2{1.0f, 1.0f}) noexcept;
+
+	ImageItem(const gl::Texture& texture,
 	          HorizontalAlign hAlign = HorizontalAlign::CENTER,
 	          vec2 imageScale = vec2{1.0f, 1.0f}) noexcept;
 
@@ -54,6 +61,7 @@ public:
 	// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 	
 	gl::TextureRegion imageRegion;
+	AABB2D imageDim;
 	unsigned int texture;
 	HorizontalAlign hAlign;
 	vec2 imageScale;

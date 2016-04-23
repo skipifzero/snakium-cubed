@@ -114,11 +114,8 @@ public:
 	                  FILLED_REG,
 	                  TILE_FACE_REG;
 
-	gl::TexturePacker ATLAS_1024;
-	gl::TextureRegion SNAKIUM_LOGO_REG,
-	                  SKIPIFZERO_LOGO_REG,
-	                  SKIPIFZERO_LOGO_SNAKIUM_VER_REG,
-	                  COFFER_LOGO_REG;
+	Texture SNAKIUM_LOGO,
+	        CREDITS_LOGO;
 
 	gl::SimpleModel HEAD_D2U_F1_MODEL,
 	                HEAD_D2U_F1_PROJECTION_MODEL,

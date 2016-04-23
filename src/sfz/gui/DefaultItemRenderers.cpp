@@ -186,7 +186,7 @@ ItemRendererFactory<ImageItem> defaultImageItemRendererFactory() noexcept
 				sb.end(fbo, viewport, settings.boundsTexture);
 			}
 
-			vec2 imageDim = ii.imageRegion.dimensions() * ii.imageScale;
+			vec2 imageDim = ii.imageDim.dimensions() * ii.imageScale;
 			float imageAspect = imageDim.x / imageDim.y;
 			float boundsAspect = ii.dim.x / ii.dim.y;
 
