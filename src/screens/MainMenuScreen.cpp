@@ -8,7 +8,6 @@
 
 #include "GlobalConfig.hpp"
 #include "rendering/Assets.hpp"
-#include "screens/AboutScreen.hpp"
 #include "screens/HighScoreScreen.hpp"
 #include "screens/ModeSelectScreen.hpp"
 #include "screens/OptionsScreen.hpp"
@@ -31,7 +30,7 @@ MainMenuScreen::MainMenuScreen() noexcept
 	auto& a = Assets::INSTANCE();
 
 	const float buttonWidth = MENU_DIM.x * 0.45f;
-	const float restPadding = calcRestPadding(6.0f, 0.0f, 0.0f, 7.0f);
+	const float restPadding = calcRestPadding(5.0f, 0.0f, 0.0f, 6.0f);
 
 	addTitle(mGuiSystem, new ImageItem(a.SNAKIUM_LOGO));
 
@@ -61,21 +60,15 @@ MainMenuScreen::MainMenuScreen() noexcept
 	}}, buttonWidth);
 	addStandardPadding(mGuiSystem);
 
-	addHeading1(mGuiSystem, new Button{"About", [this](Button& ref) {
-		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
-		                           shared_ptr<BaseScreen>{new AboutScreen()}};
-	}}, buttonWidth);
-	addStandardPadding(mGuiSystem);
-
 	addHeading1(mGuiSystem, new Button{"Exit", [this](Button& ref) {
 		this->mUpdateOp = sfz::SCREEN_QUIT;
 	}}, buttonWidth);
 	addStandardPadding(mGuiSystem);
 
 	// Add navbar
-	mGuiSystem.addSpacing(restPadding - NAVBAR_HEIGHT * 1.0f);
+	mGuiSystem.addSpacing(restPadding - NAVBAR_HEIGHT * 3.0f);
 	mGuiSystem.addSpacing(NAVBAR_PADDING);
-	mGuiSystem.addItem(shared_ptr<BaseItem>(new ImageItem(a.CREDITS_LOGO)), vec2{MENU_DIM.x, NAVBAR_HEIGHT * 2.0f});
+	mGuiSystem.addItem(shared_ptr<BaseItem>(new ImageItem(a.CREDITS_LOGO)), vec2{MENU_DIM.x, NAVBAR_HEIGHT * 4.0f});
 	mGuiSystem.addSpacing(MENU_BOTTOM_PADDING);
 }
 

@@ -3,7 +3,6 @@
 #define S3_SCREENS_HPP
 
 #include "sfz/Screens.hpp"
-#include "screens/AboutScreen.hpp"
 #include "screens/GameScreen.hpp"
 #include "screens/MainMenuScreen.hpp"
 #include "screens/MenuConstants.hpp"
