@@ -66,9 +66,9 @@ MainMenuScreen::MainMenuScreen() noexcept
 	addStandardPadding(mGuiSystem);
 
 	// Add navbar
-	mGuiSystem.addSpacing(restPadding - NAVBAR_HEIGHT * 3.0f);
+	mGuiSystem.addSpacing(restPadding - NAVBAR_HEIGHT * 4.0f);
 	mGuiSystem.addSpacing(NAVBAR_PADDING);
-	mGuiSystem.addItem(shared_ptr<BaseItem>(new ImageItem(a.CREDITS_LOGO)), vec2{MENU_DIM.x, NAVBAR_HEIGHT * 4.0f});
+	mGuiSystem.addItem(shared_ptr<BaseItem>(new ImageItem(a.CREDITS_LOGO)), vec2{MENU_DIM.x, NAVBAR_HEIGHT * 5.0f});
 	mGuiSystem.addSpacing(MENU_BOTTOM_PADDING);
 }
 
