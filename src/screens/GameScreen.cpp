@@ -142,7 +142,19 @@ UpdateOp GameScreen::update(UpdateState& state)
 	mLongestTermPerfStats.addSample(state.delta);
 
 	// Small dive hack
-	if (mCam.delayModelUpdate()) mInputBufferIndex = 0;
+	if (mCam.delayModelUpdate()) {
+		mInputBufferIndex = 0;
+		mWasShift = true;
+	}
+
+	// Play shift ascend sound
+	if (mWasShift && !mCam.delayModelUpdate()) {
+		mWasShift = false;
+		if (cfg.sfxVolume > 0) {
+			Mix_Volume(-1, int32_t(std::round(cfg.sfxVolume * 12.8f)));
+			assets.MENU_BUTTON_SELECTED_SFX.play();
+		}
+	}
 
 	// Handle input
 	for (const SDL_Event& event : state.events) {

@@ -203,6 +203,7 @@ public:
 
 	SoundEffect GAME_OVER_SFX,
 	            SHIFT_INITIATED_SFX,
+	            SHIFT_ASCEND_SFX,
 
 	            OBJECT_EATEN_LATE_SFX,
 	            OBJECT_EATEN_LATE_SHIFT_SFX,

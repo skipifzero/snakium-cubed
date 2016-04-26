@@ -281,6 +281,7 @@ Assets::Assets() noexcept
 
 	GAME_OVER_SFX{(assetsPath() + "audio/sfx/game_over.wav").c_str()},
 	SHIFT_INITIATED_SFX{(assetsPath() + "audio/sfx/shift_initiated.wav").c_str()},
+	SHIFT_ASCEND_SFX{(assetsPath() + "audio/sfx/shift_ascend.wav").c_str()},
 
 	OBJECT_EATEN_LATE_SFX{(assetsPath() + "audio/sfx/object_eaten_late.wav").c_str()},
 	OBJECT_EATEN_LATE_SHIFT_SFX{(assetsPath() + "audio/sfx/object_eaten_late_shift.wav").c_str()},
