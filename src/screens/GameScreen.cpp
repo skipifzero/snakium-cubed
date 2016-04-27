@@ -148,7 +148,7 @@ UpdateOp GameScreen::update(UpdateState& state)
 	}
 
 	// Play shift ascend sound
-	if (mWasShift && !mCam.delayModelUpdate()) {
+	if (mWasShift && !mCam.delayModelUpdate() && !mModel.isGameOver()) {
 		mWasShift = false;
 		if (cfg.sfxVolume > 0) {
 			Mix_Volume(-1, int32_t(std::round(cfg.sfxVolume * 12.8f)));
