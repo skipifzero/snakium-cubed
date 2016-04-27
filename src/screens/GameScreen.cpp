@@ -152,7 +152,7 @@ UpdateOp GameScreen::update(UpdateState& state)
 		mWasShift = false;
 		if (cfg.sfxVolume > 0) {
 			Mix_Volume(-1, int32_t(std::round(cfg.sfxVolume * 12.8f)));
-			assets.MENU_BUTTON_SELECTED_SFX.play();
+			assets.SHIFT_ASCEND_SFX.play();
 		}
 	}
 
