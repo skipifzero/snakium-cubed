@@ -92,26 +92,6 @@ GameScreen::GameScreen(const ModelConfig& modelCfg) noexcept
 	}}, buttonWidth);
 	addStandardPadding(mPauseSystem);
 
-	// TODO: Remove later
-	addHeading1(mPauseSystem, new Button{"Reload audio", [this](Button&) {
-		Assets& assets = Assets::INSTANCE();
-
-		assets.GAME_OVER_SFX = SoundEffect{(assetsPath() + "audio/sfx/game_over.wav").c_str()};
-		assets.SHIFT_INITIATED_SFX = SoundEffect{(assetsPath() + "audio/sfx/shift_initiated.wav").c_str()};
-		
-		assets.OBJECT_EATEN_LATE_SFX = SoundEffect{(assetsPath() + "audio/sfx/object_eaten_late.wav").c_str()};
-		assets.OBJECT_EATEN_LATE_SHIFT_SFX = SoundEffect{(assetsPath() + "audio/sfx/object_eaten_late_shift.wav").c_str()};
-		assets.OBJECT_EATEN_SFX = SoundEffect{(assetsPath() + "audio/sfx/object_eaten.wav").c_str()};
-		assets.OBJECT_EATEN_SHIFT_SFX = SoundEffect{(assetsPath() + "audio/sfx/object_eaten_shift.wav").c_str()};
-		
-		assets.BONUS_OBJECT_ADDED_SFX = SoundEffect{(assetsPath() + "audio/sfx/bonus_object_added.wav").c_str()};
-		assets.BONUS_OBJECT_EATEN_SFX = SoundEffect{(assetsPath() + "audio/sfx/bonus_object_eaten.wav").c_str()};
-		assets.BONUS_OBJECT_EATEN_SHIFT_SFX = SoundEffect{(assetsPath() + "audio/sfx/bonus_object_eaten_shift.wav").c_str()};
-		assets.BONUS_OBJECT_MISSED_SFX = SoundEffect{(assetsPath() + "audio/sfx/bonus_object_missed.wav").c_str()};
-	
-	}}, buttonWidth);
-	addStandardPadding(mPauseSystem);
-
 	addHeading1(mPauseSystem, new Button{"Quit", [this](Button&) {
 		this->mUpdateOp = UpdateOp{sfz::UpdateOpType::SWITCH_SCREEN,
 		                  shared_ptr<BaseScreen>{new MainMenuScreen{}}};
