@@ -39,7 +39,7 @@ ItemRendererFactory<Button> snakiumButtonRendererFactory() noexcept
 			if (!lastFrame && currentFrame) {
 				if (cfg.sfxVolume > 0) {
 					Mix_Volume(-1, int32_t(std::round(cfg.sfxVolume * 12.8f)));
-					Assets::INSTANCE().MENU_BUTTON_SELECTED_SFX.play();
+					Assets::INSTANCE().MENU_SELECTED_SFX.play();
 				}
 			}
 		}

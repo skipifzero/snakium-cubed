@@ -215,7 +215,8 @@ public:
 	            BONUS_OBJECT_EATEN_SHIFT_SFX,
 	            BONUS_OBJECT_MISSED_SFX,
 	
-	            MENU_BUTTON_SELECTED_SFX;
+	            MENU_SELECTED_SFX,
+	            MENU_ACTIVATED_SFX;
 
 private:
 	// Private constructors & destructors

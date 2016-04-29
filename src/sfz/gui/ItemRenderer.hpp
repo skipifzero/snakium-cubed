@@ -23,7 +23,8 @@ using std::unique_ptr;
 
 class ItemRenderer {
 public:
-	virtual void update(float delta) = 0;
+	virtual void update(float delta) { } // Optional
+	virtual void updateOnActivate() { } // Optional
 	virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam) = 0;
 	virtual ~ItemRenderer() = default;
 };

@@ -37,7 +37,10 @@ bool Button::input(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointerState,
 	if (!mEnabled) return false;
 	mSelected = sfz::pointInside(bounds(basePos), pointerPos);
 	if (pointerState == sdl::ButtonState::UP) {
-		if (activateFunc) activateFunc(*this);
+		if (activateFunc) {
+			renderer->updateOnActivate();
+			activateFunc(*this);
+		}
 	}
 	return mSelected;
 }
@@ -60,7 +63,10 @@ KeyInput Button::input(KeyInput key)
 		}
 
 	case KeyInput::ACTIVATE:
-		if (mSelected && activateFunc) activateFunc(*this);
+		if (mSelected && activateFunc) {
+			renderer->updateOnActivate();
+			activateFunc(*this);
+		}
 		return KeyInput::NONE;
 
 	default:

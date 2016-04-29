@@ -99,6 +99,7 @@ bool MultiChoiceSelector::input(vec2 basePos, vec2 pointerPos, sdl::ButtonState 
 		int next = currentState + 1;
 		if (currentState < 0) next = 0;
 		if (next >= (int)choiceNames.size()) next = 0;
+		renderer->updateOnActivate();
 		changeStateFunc(next);
 	}
 	return mSelected;
@@ -114,6 +115,7 @@ KeyInput MultiChoiceSelector::input(KeyInput key)
 			if (0 <= currentState && currentState <= (int)choiceNames.size()-1) {
 				int next = currentState + 1;
 				if (next >= (int)choiceNames.size()) next = 0;
+				renderer->updateOnActivate();
 				changeStateFunc(next);
 			}
 		}
@@ -126,13 +128,19 @@ KeyInput MultiChoiceSelector::input(KeyInput key)
 			if (currentState < 0) next = 0;
 			if (next < 0) next = 0;
 			if (next >= (int)choiceNames.size()) next = choiceNames.size() - 1;
-			if (next != currentState) changeStateFunc(next);
+			if (next != currentState) {
+				renderer->updateOnActivate();
+				changeStateFunc(next);
+			}
 		} else if (key == KeyInput::RIGHT) {
 			int currentState = checkStateFunc();
 			int next = currentState + 1;
 			if (currentState < 0) next = 0;
 			if (next >= (int)choiceNames.size()) next = choiceNames.size() - 1;
-			if (next != currentState) changeStateFunc(next);
+			if (next != currentState) {
+				renderer->updateOnActivate();
+				changeStateFunc(next);
+			}
 		}
 		return KeyInput::NONE;
 	} else {

@@ -109,7 +109,11 @@ int main(int argc, char* argv[])
 		//settings.fontBgSelectedColor = sfz::vec4{0.0f, 0.0f, 0.0f, 1.0f};
 		//settings.fontBgDisabledColor = sfz::vec4{0.0f, 0.0f, 0.0f, 1.0f};
 
-		gui::Button::rendererFactory = s3::snakiumButtonRendererFactory();
+		settings.sfxEnabled = (cfg.sfxVolume > 0) ? true : false;
+		settings.selectSfxPtr = &s3::Assets::INSTANCE().MENU_SELECTED_SFX;
+		settings.activateSfxPtr = &s3::Assets::INSTANCE().MENU_ACTIVATED_SFX;
+
+		//gui::Button::rendererFactory = s3::snakiumButtonRendererFactory();
 	}
 
 	sfz::runGameLoop(window, std::shared_ptr<sfz::BaseScreen>{new s3::MainMenuScreen{}});

@@ -6,6 +6,7 @@
 #include <sfz/geometry/AABB2D.hpp>
 #include <sfz/GL.hpp>
 #include <sfz/gl/OpenGL.hpp>
+#include <sfz/gui/DefaultItemRenderers.hpp>
 #include <sfz/math/MathHelpers.hpp>
 
 #include "GlobalConfig.hpp"
@@ -200,6 +201,12 @@ void OptionsScreen::applyConfig() noexcept
 	mWindowPtr->setVSync(static_cast<sdl::VSync>(cfgData.gc.vsync));
 	mWindowPtr->setFullscreen(static_cast<sdl::Fullscreen>(cfgData.fullscreenMode), cfgData.displayIndex);
 	
+	// Menu sound effects
+	gui::DefaultRenderersSettings::INSTANCE().sfxEnabled = (cfgData.sfxVolume > 0) ? true : false;
+	if (cfgData.sfxVolume > 0) {
+		Mix_Volume(-1, int32_t(std::round(cfgData.sfxVolume * 12.8f)));
+	}
+
 	// Write to file
 	globalCfg.save();
 }

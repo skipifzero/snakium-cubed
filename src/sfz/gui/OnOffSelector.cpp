@@ -47,7 +47,10 @@ bool OnOffSelector::input(vec2 basePos, vec2 pointerPos, sdl::ButtonState pointe
 	if (!mEnabled) return false;
 	mSelected = sfz::pointInside(bounds(basePos), pointerPos);
 	if (pointerState == sdl::ButtonState::UP) {
-		if (changeStateFunc) changeStateFunc();
+		if (changeStateFunc) {
+			renderer->updateOnActivate();
+			changeStateFunc();
+		}
 	}
 	return mSelected;
 }
@@ -57,7 +60,10 @@ KeyInput OnOffSelector::input(KeyInput key)
 	if (!mEnabled) return key;
 	if (mSelected) {
 		if (key == KeyInput::ACTIVATE) {
-			if (changeStateFunc) changeStateFunc();
+			if (changeStateFunc) {
+				renderer->updateOnActivate();
+				changeStateFunc();
+			}
 			return KeyInput::NONE;
 		}
 		else if (key == KeyInput::DOWN || key == KeyInput::UP) {
@@ -66,11 +72,17 @@ KeyInput OnOffSelector::input(KeyInput key)
 		} else if (key == KeyInput::RIGHT) {
 			bool state = false;
 			if (checkStateFunc) state = checkStateFunc();
-			if (!state && changeStateFunc) changeStateFunc();
+			if (!state && changeStateFunc) {
+				renderer->updateOnActivate();
+				changeStateFunc();
+			}
 		} else if (key == KeyInput::LEFT) {
 			bool state = false;
 			if (checkStateFunc) state = checkStateFunc();
-			if (state && changeStateFunc) changeStateFunc();
+			if (state && changeStateFunc) {
+				renderer->updateOnActivate();
+				changeStateFunc();
+			}
 		}
 		return KeyInput::NONE;
 	} else {

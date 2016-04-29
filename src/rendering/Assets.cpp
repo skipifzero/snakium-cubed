@@ -293,7 +293,8 @@ Assets::Assets() noexcept
 	BONUS_OBJECT_EATEN_SHIFT_SFX{(assetsPath() + "audio/sfx/bonus_object_eaten_shift.wav").c_str()},
 	BONUS_OBJECT_MISSED_SFX{(assetsPath() + "audio/sfx/bonus_object_missed.wav").c_str()},
 
-	MENU_BUTTON_SELECTED_SFX{(assetsPath() + "audio/sfx/menu_button_selected.wav").c_str()}
+	MENU_SELECTED_SFX{(assetsPath() + "audio/sfx/menu_selected.wav").c_str()},
+	MENU_ACTIVATED_SFX{(assetsPath() + "audio/sfx/menu_activated.wav").c_str()}
 { }
 
 Assets::~Assets() noexcept

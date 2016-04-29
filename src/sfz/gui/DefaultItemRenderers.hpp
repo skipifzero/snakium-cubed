@@ -9,6 +9,7 @@
 #include "sfz/gl/SpriteBatch.hpp"
 #include "sfz/gl/TextureRegion.hpp"
 #include "sfz/math/Vector.hpp"
+#include "sfz/sdl/SoundEffect.hpp" // TODO: Temp?
 
 namespace gui {
 
@@ -81,6 +82,11 @@ public:
 	vec4 fontBgColor{0.0f, 0.0f, 0.0f, 1.0f};
 	vec4 fontBgSelectedColor{0.0f, 0.0f, 0.0f, 1.0f};
 	vec4 fontBgDisabledColor{0.0f, 0.0f, 0.0f, 1.0f};
+
+	// Optional sound effect parameters
+	bool sfxEnabled = true;
+	sdl::SoundEffect* selectSfxPtr = nullptr;
+	sdl::SoundEffect* activateSfxPtr = nullptr;
 
 private:
 	// Private constructors & destructors

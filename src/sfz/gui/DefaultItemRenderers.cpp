@@ -23,10 +23,28 @@ ItemRendererFactory<Button> defaultButtonRendererFactory() noexcept
 	public:
 		DefaultButtonRenderer(Button& b) : b{b} { }
 		Button& b;
+		bool selectedLastFrame = false;
 
 		virtual void update(float delta) override final
 		{
-			
+			bool lastFrame = selectedLastFrame;
+			bool currentFrame = b.isSelected();
+			selectedLastFrame = currentFrame;
+
+			if (!lastFrame && currentFrame) {
+				auto& settings = DefaultRenderersSettings::INSTANCE();
+				if (settings.sfxEnabled && settings.selectSfxPtr != nullptr) {
+					settings.selectSfxPtr->play();
+				}
+			}
+		}
+
+		virtual void updateOnActivate() override final
+		{
+			auto& settings = DefaultRenderersSettings::INSTANCE();
+			if (settings.sfxEnabled && settings.activateSfxPtr != nullptr) {
+				settings.activateSfxPtr->play();
+			}
 		}
 
 		virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
@@ -90,11 +108,6 @@ ItemRendererFactory<DualTextItem> defaultDualTextItemRendererFactory() noexcept
 	public:
 		DefaultDualTextItemRenderer(DualTextItem& dti) : dti{dti} {}
 		DualTextItem& dti;
-
-		virtual void update(float delta) override final
-		{
-
-		}
 
 		virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 		     override final
@@ -168,11 +181,6 @@ ItemRendererFactory<ImageItem> defaultImageItemRendererFactory() noexcept
 		DefaultImageItemRenderer(ImageItem& ii) : ii{ii} { }
 		ImageItem& ii;
 
-		virtual void update(float delta) override final
-		{
-			
-		}
-
 		virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 		      override final
 		{
@@ -223,10 +231,28 @@ ItemRendererFactory<MultiChoiceSelector> defaultMultiChoiceSelectorRendererFacto
 	public:
 		DefaultMultiChoiceSelectorRenderer(MultiChoiceSelector& mc) : mc{mc} { }
 		MultiChoiceSelector& mc;
+		bool selectedLastFrame = false;
 
 		virtual void update(float delta) override final
 		{
-			
+			bool lastFrame = selectedLastFrame;
+			bool currentFrame = mc.isSelected();
+			selectedLastFrame = currentFrame;
+
+			if (!lastFrame && currentFrame) {
+				auto& settings = DefaultRenderersSettings::INSTANCE();
+				if (settings.sfxEnabled && settings.selectSfxPtr != nullptr) {
+					settings.selectSfxPtr->play();
+				}
+			}
+		}
+
+		virtual void updateOnActivate() override final
+		{
+			auto& settings = DefaultRenderersSettings::INSTANCE();
+			if (settings.sfxEnabled && settings.activateSfxPtr != nullptr) {
+				settings.activateSfxPtr->play();
+			}
 		}
 
 		virtual void draw(vec2 basePos, uint32_t fbo,
@@ -311,10 +337,28 @@ ItemRendererFactory<OnOffSelector> defaultOnOffSelectorRendererFactory() noexcep
 	public:
 		DefaultOnOffSelectorRenderer(OnOffSelector& oo) : oo{oo} { }
 		OnOffSelector& oo;
+		bool selectedLastFrame = false;
 
 		virtual void update(float delta) override final
 		{
-			
+			bool lastFrame = selectedLastFrame;
+			bool currentFrame = oo.isSelected();
+			selectedLastFrame = currentFrame;
+
+			if (!lastFrame && currentFrame) {
+				auto& settings = DefaultRenderersSettings::INSTANCE();
+				if (settings.sfxEnabled && settings.selectSfxPtr != nullptr) {
+					settings.selectSfxPtr->play();
+				}
+			}
+		}
+
+		virtual void updateOnActivate() override final
+		{
+			auto& settings = DefaultRenderersSettings::INSTANCE();
+			if (settings.sfxEnabled && settings.activateSfxPtr != nullptr) {
+				settings.activateSfxPtr->play();
+			}
 		}
 
 		virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
@@ -410,11 +454,6 @@ ItemRendererFactory<ScrollListContainer> defaultScrollListContainerRendererFacto
 		DefaultScrollListContainerRenderer(ScrollListContainer& sl) : sl{sl} { }
 		ScrollListContainer& sl;
 
-		virtual void update(float delta) override final
-		{
-			
-		}
-
 		virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 		      override final
 		{
@@ -445,11 +484,6 @@ ItemRendererFactory<SideSplitContainer> defaultSideSplitContainerRendererFactory
 		DefaultSideSplitContainerRenderer(SideSplitContainer& ss) : ss{ss} { }
 		SideSplitContainer& ss;
 
-		virtual void update(float delta) override final
-		{
-
-		}
-
 		virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 		     override final
 		{
@@ -479,11 +513,6 @@ ItemRendererFactory<TextItem> defaultTextItemRendererFactory() noexcept
 	public:
 		DefaultTextItemRenderer(TextItem& ti) : ti{ti} { }
 		TextItem& ti;
-
-		virtual void update(float delta) override final
-		{
-
-		}
 
 		virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 		     override final
@@ -543,11 +572,6 @@ ItemRendererFactory<ThreeSplitContainer> defaultThreeSplitContainerRendererFacto
 	public:
 		DefaultThreeSplitContainerRenderer(ThreeSplitContainer& ts) : ts{ts} { }
 		ThreeSplitContainer& ts;
-
-		virtual void update(float delta) override final
-		{
-
-		}
 
 		virtual void draw(vec2 basePos, uint32_t fbo, const AABB2D& viewport, const AABB2D& cam)
 		     override final
