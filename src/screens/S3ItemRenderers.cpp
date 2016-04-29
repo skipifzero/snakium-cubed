@@ -34,13 +34,19 @@ ItemRendererFactory<Button> snakiumButtonRendererFactory() noexcept
 			bool currentFrame = b.isSelected();
 			selectedLastFrame = currentFrame;
 
-			GlobalConfig& cfg = GlobalConfig::INSTANCE();
-
 			if (!lastFrame && currentFrame) {
-				if (cfg.sfxVolume > 0) {
-					Mix_Volume(-1, int32_t(std::round(cfg.sfxVolume * 12.8f)));
-					Assets::INSTANCE().MENU_SELECTED_SFX.play();
+				auto& settings = gui::DefaultRenderersSettings::INSTANCE();
+				if (settings.sfxEnabled && settings.selectSfxPtr != nullptr) {
+					settings.selectSfxPtr->play();
 				}
+			}
+		}
+
+		virtual void updateOnActivate() override final
+		{
+			auto& settings = gui::DefaultRenderersSettings::INSTANCE();
+			if (settings.sfxEnabled && settings.activateSfxPtr != nullptr) {
+				settings.activateSfxPtr->play();
 			}
 		}
 

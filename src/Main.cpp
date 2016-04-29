@@ -113,7 +113,7 @@ int main(int argc, char* argv[])
 		settings.selectSfxPtr = &s3::Assets::INSTANCE().MENU_SELECTED_SFX;
 		settings.activateSfxPtr = &s3::Assets::INSTANCE().MENU_ACTIVATED_SFX;
 
-		//gui::Button::rendererFactory = s3::snakiumButtonRendererFactory();
+		gui::Button::rendererFactory = s3::snakiumButtonRendererFactory();
 	}
 
 	sfz::runGameLoop(window, std::shared_ptr<sfz::BaseScreen>{new s3::MainMenuScreen{}});
