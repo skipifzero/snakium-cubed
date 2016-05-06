@@ -277,7 +277,7 @@ Assets::Assets() noexcept
 
 	NOT_FOUND_MODEL{modelPath(), "notfound.obj"},
 
-	GAME_MUSIC{(assetsPath() + "audio/music/game_music.mp3").c_str()},
+	GAME_MUSIC{(assetsPath() + "audio/music/game_music.wav").c_str()},
 
 	GAME_OVER_SFX{(assetsPath() + "audio/sfx/game_over.wav").c_str()},
 	SHIFT_INITIATED_SFX{(assetsPath() + "audio/sfx/shift_initiated.wav").c_str()},
